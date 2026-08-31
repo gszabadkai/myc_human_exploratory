@@ -49,9 +49,17 @@ found nothing supported. It is not reopened and it does not go in the paper.
 - The mouse repo (`/Users/gs/G/data/MK_myc_2022/myc_mouse`) is **not** attached.
   Read it read-only via `git -C ... show <ref>:<path>` if ever needed.
 - **No ortholog function is called anywhere in this repo**, in either direction.
-  `grep -rn "mouse_to_human\|human_to_mouse\|ortholog" scripts/` must return
-  nothing. The cell-death and MYC sets are human-native — see their READMEs for
-  why that is established rather than assumed.
+  The check is for *calls*, not for the word — comments asserting the rule are
+  the reason it must be narrowed to a `(`, or the tripwire always fires:
+
+  ```
+  grep -rnE "(mouse_to_human|human_to_mouse|ortholog[s]?)[[:space:]]*\(" scripts/
+  ```
+
+  must return nothing. It catches `mouse_to_human(`, `ortholog (` and
+  `convert_orthologs(`; it ignores prose. The cell-death and MYC sets are
+  human-native — see their READMEs for why that is established rather than
+  assumed.
 
 ## Current phase
 
