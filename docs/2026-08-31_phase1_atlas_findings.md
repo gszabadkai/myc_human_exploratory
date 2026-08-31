@@ -171,6 +171,149 @@ between a finding and an arithmetic identity.
 
 ---
 
+## F3 VERDICT - `E03b` run, 2026-08-31
+
+The original claim above is left standing as written. This is what the
+falsifiers returned, recorded beside it rather than folded into it. **Two parts
+of F3 come out stronger than they went in, one comes out weaker, and one gene
+has to be dropped.**
+
+| Falsifier | Criterion | Result |
+|---|---|---|
+| 3a mitoPPS denominator, no OXPHOS gene in it | mtDNA arm rho still < 0 in both cohorts | SURVIVES |
+| 3b instrument-free ratio vs a non-OXPHOS mitochondrion | log2 ratio rho still < 0 in both cohorts | SURVIVES |
+| 1 mtDNA copy number as a covariate | MT-CO2 still > 0 and MT-ND5 still < 0 in both | SURVIVES |
+| 2 quantification | judgement, not pass/fail | **MT-ND6 fails it** |
+
+### 3a WEAKENED, and the mitoPPS framing should be demoted
+
+Taking OXPHOS out of the denominator does move the number, by about a fifth:
+
+```
+mtDNA arm, FELSHER_61      full     no_oxname   no_oxgene
+TCGA                      -0.088     -0.078      -0.071
+SCAN-B                    -0.081     -0.073      -0.065
+```
+
+and across all 20 estimators the median goes from -0.024 to **-0.004** in TCGA
+and -0.039 to -0.016 in SCAN-B, with the count of negative estimators falling
+14 -> 11 and 16 -> 14. So part of the mitoPPS negative genuinely *was* the
+composition identity, and what remains at the arm level is small enough that
+**the mitoPPS sign flip should no longer be quoted as the headline.** It is a
+weak effect on a composition instrument, and section 3b says the same thing far
+better.
+
+### 3b SURVIVES, and reframes the finding into something sharper
+
+Dropping mitoPPS for a log2 ratio anyone can recompute:
+
+```
+FELSHER_61 against          TCGA    SCAN-B    estimators negative (of 20)
+mtDNA / all genes          +0.004   +0.023      4 / 5     median +0.078 / +0.058
+mtDNA / rest of mitochondrion -0.122  -0.120   19 / 18    median -0.065 / -0.080
+mtDNA / mitochondrion, no OXPHOS -0.110 -0.111 16 / 18    median -0.047 / -0.060
+mtDNA / nuclear OXPHOS subunits  -0.189 -0.163 20 / 19    median -0.143 / -0.154
+mtDNA / mitochondrial ribosome   -0.205 -0.209 20 / 19    median -0.145 / -0.165
+```
+
+**Against the whole transcriptome the mtDNA programme is flat to slightly
+positive. Against the mitochondrion it is negative. Against the mitoribosome it
+is most negative of all, in 20 of 20 and 19 of 20 estimators.**
+
+That changes what should be said. The right statement is **not** that MYC
+suppresses the mtDNA-encoded programme - the `content` instrument (+0.056 /
++0.043) and the whole-transcriptome ratio both say it is flat. The right
+statement is:
+
+> **MYC-high tumours build more nuclear-encoded OXPHOS and more mitochondrial
+> ribosome, and do not raise the mtDNA-encoded transcripts to match.** The
+> mtDNA programme is not pushed down; everything around it goes up and it stays
+> where it is.
+
+That also resolves the F6 tension the other way round from how it was posed.
+The mitoribosome is not merely the top arm - it is the arm the mtDNA programme
+falls furthest behind. More machinery for translating mtDNA transcripts, no
+more transcripts.
+
+Note what this contrast is and is not: `mtDNA / mitoribosome` is negative
+largely *because* the mitoribosome is strongly MYC-positive. That is the claim
+stated as a contrast, not independent evidence for it. The independent part is
+`vs_all_genes` being ~0, which is what licenses "flat" rather than "suppressed".
+
+### 1 SURVIVES, and inverts: copy number was HIDING the split
+
+Conditioning on mtDNA content does not collapse the per-gene spread. It nearly
+doubles it:
+
+```
+                         TCGA raw -> content-adj   SCAN-B raw -> content-adj
+MT-CO2                    +0.243  ->  +0.440        +0.240  ->  +0.413
+MT-ND2                    +0.124  ->  +0.178        +0.080  ->  +0.099
+MT-ND1                    -0.057  ->  -0.198        -0.041  ->  -0.131
+MT-CO1                    -0.073  ->  -0.295        -0.007  ->  -0.113
+MT-ND5                    -0.143  ->  -0.266        -0.160  ->  -0.337
+
+median spread over the 13   0.408 ->   0.717         0.398  ->   0.744
+```
+
+The shared component - which is what a copy-number difference would be - was
+**masking** the within-mtDNA structure, not creating it. This is the opposite of
+what the copy-number explanation predicts, and it is the strongest single result
+in E03b. What is left after conditioning is within-mtDNA regulation: `MT-CO2`
+up, `MT-CO1`, `MT-ND1`, `MT-ND5` down, in both cohorts.
+
+### 2 FAILS FOR MT-ND6, WHICH IS THEREFORE DROPPED FROM THE CLAIM
+
+The 13 x 13 structure singles out exactly one gene, and it is not the one the
+original note leaned on hardest:
+
+```
+                    TCGA     SCAN-B
+median pairwise rho  0.742    0.751
+MT-ND5 with others   0.651    0.680     <- normal in both
+MT-CO2 with others   0.731    0.691     <- normal in both
+MT-ND6 with others   0.576    0.219     <- NOT normal in SCAN-B
+MT-ND5 - MT-ND6      0.862    0.354
+```
+
+In SCAN-B `MT-ND6` correlates 0.12 to 0.36 with every other mtDNA gene while
+every other pair sits at 0.6 to 0.94. It is effectively **decoupled from the rest
+of the mitochondrial genome in one cohort and not the other**. That is what a
+technical artefact looks like, and `MT-ND6` is the obvious candidate: the only
+light-strand, only non-polyadenylated protein gene, in two cohorts with
+different library chemistry. Its MYC correlation is correspondingly the worst
+replicator of the 13 (-0.154 vs -0.045 raw; -0.251 vs -0.056 adjusted).
+
+**`MT-ND6` is dropped from F3.** It is reported as a measured artefact, not as
+evidence. `MT-ND5` is unaffected - its correlation structure is normal in both
+cohorts and its MYC correlation replicates and strengthens under conditioning.
+
+### What F3 now says, and what would still falsify it
+
+1. The mtDNA-encoded programme is **flat** with MYC activity in absolute terms,
+   and **falls behind** the nuclear-encoded mitochondrial programme, most
+   sharply behind the mitochondrial ribosome. Replicated in two cohorts across
+   19-20 of 20 MYC estimators.
+2. Within the 13 genes there is real regulation that is **not** copy number and
+   is exposed rather than hidden by conditioning on it: `MT-CO2` up, `MT-CO1`,
+   `MT-ND1`, `MT-ND5` down. `MT-CO2` and `MT-CO1` are adjacent on the same
+   transcript and go opposite ways, which remains the most striking and the
+   least explained part of it. Their mutual correlation (0.77 / 0.78) is
+   unremarkable, so it is not obviously a mismapping artefact - but that is an
+   absence of evidence, not a clean test.
+3. The mitoPPS sign flip is demoted to a footnote.
+
+**Still open, and now the sharpest tests:**
+- Re-quantify the 13 from a stranded, total-RNA (non-polyA) dataset. That kills
+  the `MT-ND6` question outright and tests whether `MT-CO1` / `MT-CO2` survive.
+- A third cohort, ideally on a different platform.
+- Direct mtDNA copy number (WGS-derived) rather than the expression proxy used
+  here.
+- Protein-level or ribosome-profiling data would separate "not transcribed" from
+  "not translated", which is the mechanistic fork this cannot resolve.
+
+---
+
 ## F4. There are three instruments here, not four
 
 `gsva` and `zmean` agree at median Spearman **0.994** across the 18 arms
