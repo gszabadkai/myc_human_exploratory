@@ -1,0 +1,18 @@
+# Large snapshots and generated artefacts - not on origin.
+# data/from_validation/ holds ~560 MB of derived .rds copied from
+# myc_human_validation. It is REGENERABLE by re-copying from that repo at the
+# SHA recorded in data/from_validation/README.md - which is why it is ignored
+# and the README is not.
+data/from_validation/*
+!data/from_validation/README.md
+
+results/*
+!results/.gitkeep
+outputs/*
+!outputs/.gitkeep
+
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+.DS_Store
