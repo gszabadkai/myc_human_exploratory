@@ -257,6 +257,21 @@ message("\n3. machinery")
 # that is itself a current symbol for a different gene is refused, and so is any
 # symbol with more than one surviving candidate.
 #
+# ONE DEPRECATED ROW BELONGS TO EXACTLY ONE GENE. MitoCarta's Synonyms column
+# does not respect this: it lists QARS under BOTH `QARS1` (the true rename) and
+# `EPRS1` (which carries the whole multi-synthetase complex's abbreviations,
+# EARS|PARS|QARS|QPRS), and GARS under both `GARS1` and `GART`. So a candidate
+# is admitted only when it is claimed by exactly ONE symbol of the gene universe
+# being mapped. QARS and GARS are contested and go to NEITHER claimant - the
+# conservative direction, costing QARS1 and GARS1 their SCAN-B rows.
+#
+# This replaces an earlier `setdiff(cand, genes)`, which refused any candidate
+# appearing in the universe at all. That punished a gene for its own old name
+# being present: HALLMARK_MYC_TARGETS_V1 spells it EPRS1 and MENSSEN_MYC_TARGETS
+# spells it EPRS, and the old rule therefore denied EPRS1 the row EPRS and left
+# it the wrong row QARS. It also silently cost H2AZ1, POLR1G and VARS1 their
+# resolutions, which is why the agreement check below is load-bearing.
+#
 # This is NOT an ortholog mapping. It is a within-species vocabulary
 # reconciliation. No ortholog function is called (CLAUDE.md trap 11).
 MC_SYMBOLS <- unique(mitocarta_background$Symbol)
@@ -268,6 +283,8 @@ MC_SYMBOLS <- unique(mitocarta_background$Symbol)
     dplyr::filter(!is.na(alias), alias != "", alias != symbol) %>%
     dplyr::distinct()
 })
+# alias -> every current symbol that lists it. The contest test.
+.alias_owners <- split(.syn_map$symbol, .syn_map$alias)
 
 .build_symbol_map <- function(genes, matrix_symbols) {
   genes   <- sort(unique(genes[!is.na(genes) & genes != ""]))
@@ -279,12 +296,52 @@ MC_SYMBOLS <- unique(mitocarta_background$Symbol)
     cand <- .syn_map$alias[.syn_map$symbol == g]
     cand <- cand[cand %in% matrix_symbols]
     cand <- cand[!(cand %in% MC_SYMBOLS & cand != g)]
-    cand <- setdiff(cand, genes)
-    if (length(cand) == 1L) { out[[g]] <- cand; status[[i]] <- "resolved" }
-    else if (length(cand) > 1L) status[[i]] <- "ambiguous"
+    n_reachable <- length(cand)
+    cand <- cand[vapply(cand, function(cc)
+      length(intersect(.alias_owners[[cc]], genes)) == 1L, logical(1))]
+    if (length(cand) == 1L)     { out[[g]] <- cand; status[[i]] <- "resolved" }
+    else if (length(cand) > 1L)   status[[i]] <- "ambiguous"
+    else if (n_reachable > 0L)    status[[i]] <- "contested"
   }
   list(map = out, report = tibble::tibble(input_symbol = genes, status = status,
                                           resolved_to = unname(out[genes])))
+}
+
+# Reports the map, and stops if it ever puts two genes on one row.
+#
+# A row reached by BOTH a synonym and its own current name is one gene spelled
+# two ways (EPRS1 -> EPRS, where EPRS is also an input) - legitimate, named, and
+# harmless because every set is intersected against the matrix. A row reached by
+# two DIFFERENT synonym-resolvers is two genes collapsed into one, and the
+# candidate filter above is what makes it unreachable. The guard stays anyway.
+.check_symbol_map <- function(bm, matrix_symbols, label) {
+  print(table(bm$report$status))
+  contested <- bm$report$input_symbol[bm$report$status == "contested"]
+  if (length(contested)) {
+    message("   contested (an alias in the matrix, but claimed by another gene ",
+            "of this universe; deliberately unresolved): ",
+            paste(contested, collapse = ", "))
+  }
+  m     <- bm$map[unname(bm$map) %in% matrix_symbols]
+  claim <- split(names(m), unname(m))
+  claim <- claim[lengths(claim) > 1L]
+  if (!length(claim)) return(invisible(NULL))
+  n_res <- vapply(names(claim), function(t) length(setdiff(claim[[t]], t)),
+                  integer(1))
+  bad <- names(claim)[n_res > 1L]
+  if (length(bad)) {
+    stop("the ", label, " symbol map sends two DIFFERENT genes to one row: ",
+         paste(sprintf("%s <- %s", bad,
+                       vapply(bad, function(t) paste(claim[[t]], collapse = " + "),
+                              character(1))), collapse = "; "), call. = FALSE)
+  }
+  message("   ", length(claim), " row(s) reached by a current symbol and its own ",
+          "old name (one gene, two spellings): ",
+          paste(sprintf("%s <- %s", names(claim),
+                        vapply(names(claim),
+                               function(t) paste(setdiff(claim[[t]], t), collapse = ","),
+                               character(1))), collapse = ", "))
+  invisible(NULL)
 }
 
 # --- 3.2 GSVA, with the universe pinned --------------------------------------
@@ -347,14 +404,8 @@ bm_s <- .build_symbol_map(
   c(unlist(arm_sets, use.names = FALSE), unlist(cov_sets, use.names = FALSE),
     unlist(mito_paths, use.names = FALSE), unlist(NEW_SETS, use.names = FALSE)),
   SYM_S)
-print(table(bm_s$report$status))
+.check_symbol_map(bm_s, SYM_S, "SCAN-B")
 map_s <- bm_s$map
-
-mapped <- unname(map_s)[unname(map_s) %in% SYM_S]
-if (anyDuplicated(mapped)) {
-  stop("the SCAN-B symbol map sends two inputs to the same row: ",
-       paste(unique(mapped[duplicated(mapped)]), collapse = ", "), call. = FALSE)
-}
 # Agreement with the map script 16 built in the validation study, over the
 # genes both cover. A wider gene universe changing a resolution would mean the
 # map is context-dependent and must be understood, not absorbed.
@@ -499,7 +550,7 @@ Lt <- tcga_lin$mat
 SYM_T <- rownames(Et)
 
 bm_t <- .build_symbol_map(unlist(NEW_SETS, use.names = FALSE), SYM_T)
-print(table(bm_t$report$status))
+.check_symbol_map(bm_t, SYM_T, "TCGA")
 map_t <- bm_t$map
 .in_t <- function(g) intersect(unname(ifelse(is.na(map_t[unique(g)]),
                                              unique(g), map_t[unique(g)])), SYM_T)
