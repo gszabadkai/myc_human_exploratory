@@ -655,8 +655,10 @@ if (FALSE) {
                   partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits",
                                  "arm.mitopps::OXPHOS subunits")) %>%
     tidyr::pivot_wider(id_cols = c(death_set, set_n),
-                       names_from = c(cohort, label, adjusted),
+                       names_from = c(cohort, partner, adjusted),
                        values_from = rho) %>% as.data.frame()
+  # `partner`, not `label`: gsva and mitopps share the label "OXPHOS subunits"
+  # and pivoting on it silently produces list-columns.
 
   # pro-death minus pro-survival, the contrast the strata exist for
   d$death_grid %>%
