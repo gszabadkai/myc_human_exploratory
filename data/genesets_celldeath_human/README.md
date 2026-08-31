@@ -84,20 +84,31 @@ Human symbols with `ENSG` ids, a PMID and a curator comment per gene.
 > confirmation of the same finding, made upstream and for the opposite purpose
 > (they map human -> mouse; we keep human).
 
+**Sizes are DISTINCT GENES, not file rows.** Each CSV carries one row per
+gene-per-evidence, so a gene with three PMIDs appears three times. Counting rows
+overstates the large sets badly - Ferroptosis is 935 rows but **600 genes**,
+Autophagy-dependent 1,195 rows but **876**. E00's `EXPECT_TANG` holds the
+distinct counts and E02 asserts against them.
+
 ```
-Autophagy_dependent_cell_death  1195     Necroptosis      83     Entotic_cell_death   17
-Ferroptosis                      935     Pyroptosis       54     Disulfidptosis       16
-Apoptosis                        610     Lysosome_dep     40     Alkaliptosis         15
-                                         Immunogenic      34     Parthanatos          11
-                                         MPT_driven_necr  33     Oxeiptosis           10
-                                         Cuproptosis      27     NETotic_cell_death    9
+                                rows  genes                      rows  genes
+Autophagy_dependent_cell_death  1195    876   Immunogenic_cell_death  34   34
+Apoptosis                        610    608   Lysosome_dependent      36   32
+Ferroptosis                      935    600   MPT_driven_necrosis     33   30
+Necroptosis                       83     83   Cuproptosis             27   27
+Pyroptosis                        54     51   Entotic_cell_death      17   17
+                                               Disulfidptosis         16   16
+                                               Alkaliptosis           15   15
+                                               Oxeiptosis             10   10
+                                               Parthanatos            11   10
+                                               NETotic_cell_death      9    8
 ```
 
-**Two cautions, both structural.** `Autophagy_dependent_cell_death` (1,195) and
-`Ferroptosis` (935) are 6.5% and 5% of the expression matrix - a correlation
+**Two cautions, both structural.** `Autophagy_dependent_cell_death` (876) and
+`Ferroptosis` (600) are 4.8% and 3.3% of the expression matrix - a correlation
 with either is close to a correlation with general expression, and needs a
 size-matched comparator before it is believed. At the other end `Parthanatos`
-(11), `Oxeiptosis` (10) and `NETotic_cell_death` (9) fall below the n >= 15 GSVA
+(10), `Oxeiptosis` (10) and `NETotic_cell_death` (8) fall below the n >= 15 GSVA
 floor and are carried as gene lists, not scores.
 
 ## Rules

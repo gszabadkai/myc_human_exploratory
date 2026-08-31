@@ -100,15 +100,18 @@ EXPECT_CDC_ROWS      <- 1232L    # cell_death_genes_consolidated.csv
 EXPECT_MYC_SETS      <- 16L      # signatures in the GMX
 EXPECT_FELSHER_STRIP <- 61L      # g1$estimators_stripped$FELSHER
 
-# The 15 Tang modalities, and their gene counts as snapshotted. A changed count
-# means the upstream file moved and the snapshot must be re-taken, not patched.
+# The 15 Tang modalities, as DISTINCT GENES - not file rows. The CSVs carry one
+# row per gene-per-evidence, so a gene with three PMIDs appears three times:
+# Ferroptosis is 935 rows but 600 genes, Autophagy 1,195 rows but 876. Counting
+# rows overstates every large set by up to 36%. A changed count means the
+# upstream file moved and the snapshot must be re-taken, not patched.
 EXPECT_TANG <- c(
-  Alkaliptosis = 15L, Apoptosis = 610L,
-  Autophagy_dependent_cell_death = 1195L, Cuproptosis = 27L,
-  Disulfidptosis = 16L, Entotic_cell_death = 17L, Ferroptosis = 935L,
-  Immunogenic_cell_death = 34L, Lysosome_dependent_cell_death = 40L,
-  MPT_driven_necrosis = 33L, NETotic_cell_death = 9L, Necroptosis = 83L,
-  Oxeiptosis = 10L, Parthanatos = 11L, Pyroptosis = 54L)
+  Alkaliptosis = 15L, Apoptosis = 608L,
+  Autophagy_dependent_cell_death = 876L, Cuproptosis = 27L,
+  Disulfidptosis = 16L, Entotic_cell_death = 17L, Ferroptosis = 600L,
+  Immunogenic_cell_death = 34L, Lysosome_dependent_cell_death = 32L,
+  MPT_driven_necrosis = 30L, NETotic_cell_death = 8L, Necroptosis = 83L,
+  Oxeiptosis = 10L, Parthanatos = 10L, Pyroptosis = 51L)
 
 # The three TCGA correlations that anchor the whole import. If E01 cannot
 # reproduce these from the snapshot, nothing downstream is trustworthy.

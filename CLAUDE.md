@@ -103,10 +103,12 @@ Each is measured, not anticipated. Numbers are from the snapshot.
    human genes. It is the axis of most interest and the weakest measured. Score
    only what clears n >= 5; show the genes individually; never present a 4-gene
    GSVA score as a programme.
-10. **Two Tang sets are near-transcriptome-wide.** `Autophagy_dependent` (1,195)
-    and `Ferroptosis` (935) are 6.5% and 5% of the matrix. A correlation with
-    either is close to a correlation with general expression — read them against
-    a size-matched comparator before believing anything.
+10. **Two Tang sets are near-transcriptome-wide**, and their sizes are easy to
+    overstate. The CSVs carry one row per gene-per-evidence, so `Ferroptosis` is
+    935 rows but **600 genes** and `Autophagy_dependent` 1,195 rows but **876** —
+    4.8% and 3.3% of the matrix. Always count distinct genes. A correlation with
+    either is still close to one with general expression: read them against a
+    size-matched comparator before believing anything.
 11. **The cell-death and MYC sets are human-native and must never be remapped.**
     Both carry first-class human columns and the upstream README says "Do NOT
     remap". See `data/genesets_celldeath_human/README.md`.
