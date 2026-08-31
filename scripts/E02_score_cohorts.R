@@ -40,6 +40,7 @@
 # =============================================================================
 
 source(here::here("scripts", "E00_setup_packages.R"))
+source(here::here("functions", "mitopps.R"))
 suppressPackageStartupMessages(library(GSVA))
 
 message("\nE02: score both cohorts on one set of definitions\n", strrep("=", 78))
@@ -368,26 +369,9 @@ MC_SYMBOLS <- unique(mitocarta_background$Symbol)
 
 # --- 3.3 mitoPPS, script 07 section 5 ----------------------------------------
 # Reports the SHAPE of the mitochondrial programme, blind to total content.
-.mitopps_universe <- function(S) {
-  N <- ncol(S); P <- nrow(S)
-  Bi <- 1 / S
-  A  <- (S %*% t(Bi)) / N
-  out <- S * (((1 / A) %*% Bi) - Bi) / (P - 1)
-  dimnames(out) <- dimnames(S)
-  out
-}
-.mitopps_query <- function(Sq, Su) {
-  stopifnot(is.matrix(Sq), is.matrix(Su), ncol(Sq) == ncol(Su))
-  if (min(Sq) <= 0 || min(Su) <= 0) {
-    stop("non-positive pathway score reached .mitopps_query", call. = FALSE)
-  }
-  N <- ncol(Su); P <- nrow(Su)
-  Bi  <- 1 / Su
-  A   <- (Sq %*% t(Bi)) / N
-  out <- Sq * ((1 / A) %*% Bi) / P
-  dimnames(out) <- list(rownames(Sq), colnames(Sq))
-  out
-}
+# .mitopps_universe, .mitopps_query and .path_scores now live in
+# functions/mitopps.R, sourced at the top, because E03b tests one of the scores
+# they produce and the two must not drift apart.
 
 # =============================================================================
 # 4. SCAN-B: the full scoring
@@ -445,14 +429,7 @@ message("   scored ", nrow(gsva_s), " sets")
 
 # --- 4.3 mitoPPS -------------------------------------------------------------
 message("\n4.3 mitoPPS (linear DESeq2-normalised)")
-.path_scores <- function(sets, L) {
-  keep <- sets[vapply(sets, length, integer(1)) >= MIN_SET_GENES]
-  out  <- t(vapply(keep, function(g) colMeans(L[g, , drop = FALSE]),
-                   numeric(ncol(L))))
-  rownames(out) <- names(keep); colnames(out) <- colnames(L)
-  out
-}
-S_univ_s <- .path_scores(paths_s, Ls)
+S_univ_s <- .path_scores(paths_s, Ls, MIN_SET_GENES)
 if (min(S_univ_s) <= 0) {
   stop("a MitoPathway score is zero or negative in some SCAN-B sample; the ",
        "pairwise ratio is undefined.", call. = FALSE)
@@ -464,7 +441,7 @@ message(sprintf("   global mean %.4f (should be ~1)", mean(mpps_univ_s)))
 # Each arm is queried against the universe with its OWN pathway held out, so an
 # arm that IS a universe pathway reproduces its canonical value exactly. That
 # identity is asserted - it is the check that the query form is right.
-S_arms_s <- .path_scores(arm_s, Ls)
+S_arms_s <- .path_scores(arm_s, Ls, MIN_SET_GENES)
 mitopps_s <- t(vapply(rownames(S_arms_s), function(a) {
   hold <- arm_univ_map[[a]]
   U <- if (is.null(hold) || is.na(hold)) S_univ_s
