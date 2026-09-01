@@ -178,6 +178,17 @@ both are mitochondrial. Effectors and the activator `BID` rise; the guardian
 `BCL2L1`. Whatever MYC does to apoptotic sensitivity in these tumours, **it is
 not visible in the transcript levels of the sensitizers**.
 
+> **QUALIFIED 2026-09-01 by `E08`. The MYC column above is inflated by pooling.**
+> Split by stratum, every one is weaker than the pooled value in both cohorts:
+> `BCL2` runs -0.15 (ERpos), -0.18 (ERneg), -0.11 (Luminal) and **-0.009 (LumA)**
+> against the -0.369 quoted here. ER-negative and basal tumours are both MYC-high
+> and BCL2-low, so pooling manufactures most of it. `BID` and `BAK1` are inflated
+> the same way, more mildly.
+>
+> **The OXPHOS axis is stratum-stable and is where this claim belongs**: `BAX`
+> 0.45-0.58 across every stratum, `BCL2L11` -0.26 to -0.35, `MCL1` -0.21 to
+> -0.31. See S1 in `docs/2026-09-01_phase2_estimator_findings.md`.
+
 **What must not be said:** that this explains, supports or contradicts the
 validation study. That study tested a specific pre-registered hypothesis about
 the `MYC x OXPHOS` interaction on apoptotic priming and found it null. This is an

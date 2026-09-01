@@ -267,3 +267,142 @@ genes, coupled in one cohort and detached in the other.
 4. Ribosome profiling or protein, to separate "not transcribed" from "not
    translated" - the fork none of this can resolve.
 
+---
+
+# Phase 2 findings - strata, and the death axis at gene resolution
+
+From `E08` on `results/strata_and_death_genes.rds`. Answers handoff candidate 4
+and the author's questions 1 and 2.
+
+## S1. BCL2's correlation with MYC is mostly BETWEEN subtypes. D3 must be qualified.
+
+`D3` reported `BCL2` at **-0.369 / -0.288** against MYC activity. Split by
+stratum, **every single stratum in both cohorts is weaker than the pooled
+value**:
+
+```
+BCL2 vs MYC       TCGA     SCAN-B
+all              -0.369   -0.288
+ERpos            -0.150   -0.132
+ERneg            -0.180   -0.175
+Luminal          -0.110   -0.083
+LumA             -0.009   -0.003     <- essentially zero
+LumB             -0.142   -0.146
+Basal            -0.068   -0.165
+HER2             -0.173   -0.252
+Normal           -0.170   -0.106
+```
+
+ER-negative and basal tumours are both MYC-high and BCL2-low, so pooling
+manufactures most of the correlation. **Within LumA - the largest single
+subtype in both cohorts - it is zero.**
+
+**The same inflation, milder, affects the pro-death side.** `BID` 0.42 pooled
+against 0.20-0.26 in the luminal strata; `BAK1` 0.41 against 0.15-0.27.
+
+**But the OXPHOS axis is stratum-stable.** `BAX` runs 0.45-0.58 across every
+stratum against a pooled 0.48; `BCL2L11` -0.26 to -0.35 against -0.30; `MCL1`
+-0.21 to -0.31 against -0.25.
+
+> **D3's BCL2-family claim should be made against OXPHOS, not against MYC.**
+> Against OXPHOS the numbers hold within every subtype. Against MYC they are
+> substantially a between-subtype artefact of pooling, and `BCL2` in particular
+> must not be quoted at -0.37.
+
+This is the same shape as D1, which also turned out to be an OXPHOS finding
+rather than a MYC one.
+
+## S2. The D1 contrast is not self-overlap, and that is now measured
+
+Only **three** genes of the 1,086 are in the `OXPHOS subunits` arm they are
+correlated against: `NDUFA2` and `NDUFS3` on the pro-survival side, `CYCS` on
+the pro-death side. They are also the three largest contributors by |rho|
+(0.65-0.73), so they dominate the "top contributors" list and that list should
+not be read as biology.
+
+Deleting them barely moves the contrast, and deleting **every** MitoCarta gene
+makes it slightly stronger:
+
+```
+OXPHOS-axis contrast     all genes   minus the 3 OXPHOS   minus all 79 MitoCarta
+TCGA                      -0.0442      -0.0427              -0.0472
+SCAN-B                    -0.0572      -0.0557              -0.0620
+```
+
+**D1 is not a self-overlap artefact.** D0's confound does not reach it.
+
+## S3. But the contrast is carried by the tails more than the middle
+
+`frac_positive` shifts across the whole distribution (pro-death 0.38-0.42
+against pro-survival 0.45-0.50) and the top decile holds only 0.24-0.26 of the
+|rho| mass, both of which suggest a broad shift. **The trim says otherwise.**
+Deleting the top N genes by |rho| from each side:
+
+```
+dropped   SCAN-B contrast   TCGA contrast
+0          -0.0572           -0.0442
+10         -0.0473           -0.0353
+25         -0.0427           -0.0228
+50         -0.0278           -0.0194
+100        -0.0093           -0.0123
+```
+
+Removing 100 of ~500 genes per side - 20% - removes **84% (SCAN-B) and 72%
+(TCGA)** of the contrast. A uniform shift would survive that, because the shift
+would be present in the remaining 400 genes too.
+
+> **The honest statement: a broad shift in sign (`frac_positive`) sits on top of
+> a contrast whose MAGNITUDE lives in the strongly-correlated tails of both
+> strata.** It is neither "a few genes" nor "every gene equally". D1's direction
+> is robust; its size is a tail property and should not be quoted as a
+> per-gene effect.
+
+## S4. The ER-negative gap is real, is not range restriction, and is arm-specific
+
+**Not range restriction.** `Basal` has the *smallest* MYC spread of any stratum
+(IQR 0.317 TCGA / 0.294 SCAN-B) and among the *highest* median rho (0.483 /
+0.384). `ERneg`'s spread is mid-range (0.476 / 0.523) and its median rho is the
+lowest (0.406 / 0.297). Restricted range would predict the opposite ordering.
+
+**And ERneg is ~70% Basal** (144 of 217 in TCGA, 280 of 472 in SCAN-B), so the
+two rows are not independent readings - yet they point opposite ways, which is
+itself the finding: the gap is an ER-negative property, not a basal one.
+
+**The gap is not uniform across the mitochondrion.** ERpos minus ERneg, by arm:
+
+```
+largest gap                SCAN-B   TCGA        smallest gap             SCAN-B   TCGA
+ROS and glutathione         0.315   0.189       Mitochondrial ribosome    0.045   0.013
+Fatty acid oxidation        0.301   0.197       OXPHOS assembly factors   0.081   0.011
+mtDNA-encoded OXPHOS        0.268   0.114       Folate and 1-C            0.003  -0.135
+TCA cycle                   0.257   0.145       CII subunits              0.081  -0.069
+```
+
+**The mitochondrial ribosome has essentially no gap** (0.573 vs 0.618 in SCAN-B;
+0.582 vs 0.594 in TCGA) - MYC's coupling to it is identical in ER-positive and
+ER-negative disease. The metabolic arms carry the whole gap, and in ER-negative
+tumours fatty-acid oxidation goes strongly negative (-0.286 / -0.159) where in
+ER-positive it is flat.
+
+That maps onto F1's resolution: the mitoribosome is the arm MYC couples to most
+tightly and most universally.
+
+## S5. The Luminal stratum is larger than its parts, and that is arithmetic
+
+`Luminal` (LumA + LumB) gives 0.458 in SCAN-B against LumA 0.375 and LumB 0.398
+- **higher than either component**. In TCGA 0.491 against 0.493 and 0.384.
+
+Combining two subtypes that differ in mean MYC and mean OXPHOS adds
+between-group variance to both axes, which inflates the correlation. The
+Luminal number is therefore not a within-compartment statement and must be read
+beside LumA and LumB, never instead of them. Same caution as S1.
+
+## What phase 2 should do next
+
+1. **Amend D3 in the cell-death note**: the BCL2-family claim is an OXPHOS
+   claim. `BCL2` at -0.37 against MYC is pooling.
+2. **Report D1's contrast with its trim curve**, not as a single number.
+3. The **ER-negative fatty-acid-oxidation reversal** (-0.29 / -0.16 against ~0
+   in ER-positive) is the largest arm-level stratum effect in the study and
+   nothing has been done with it.
+
