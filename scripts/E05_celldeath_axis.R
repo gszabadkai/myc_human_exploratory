@@ -362,23 +362,8 @@ overlay %>%
 # That makes this a test of the set's GENES, which is the right question.
 message("\n6. expression-matched null for every death set (trap 10)")
 
-# Chunked so a 18,153 x 3,207 rank matrix never exists all at once. Spearman by
-# construction: rank both sides, then a centred-and-scaled inner product.
-.per_gene_rho <- function(L, myc, chunk = 2000L) {
-  ry <- rank(myc); n <- length(ry)
-  ry <- (ry - mean(ry)) / stats::sd(ry)
-  out <- numeric(nrow(L)); names(out) <- rownames(L)
-  for (s in seq(1, nrow(L), by = chunk)) {
-    e  <- min(s + chunk - 1L, nrow(L))
-    Rx <- .rank_rows(L[s:e, , drop = FALSE])
-    sdx <- apply(Rx, 1L, stats::sd)
-    Rx <- (Rx - rowMeans(Rx)) / sdx
-    v <- as.numeric(Rx %*% ry) / (n - 1)
-    v[sdx == 0] <- NA_real_          # a gene with no variance has no rho
-    out[s:e] <- v
-  }
-  out
-}
+# .per_gene_rho now lives in functions/correlation_engine.R, where E05b also
+# needs it. Called with cov = NULL it is arithmetically what E05 ran before.
 .null_test <- function(L, inf, myc, sets, coh) {
   message("   ", coh, ": per-gene rho over ", nrow(L), " genes")
   g_rho <- .per_gene_rho(L, myc)

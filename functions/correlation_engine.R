@@ -111,3 +111,67 @@
   if (!length(out)) return(NULL)
   dplyr::bind_rows(out)
 }
+
+# Spearman of EVERY row of L against one vector, optionally partialled on
+# covariates. Chunked so an 18,000 x 3,200 rank matrix never exists all at once.
+#
+# This is the background an expression-matched null is drawn against, so it must
+# cover the WHOLE matrix, not just a gene set. A gene with no variance has no
+# correlation and is returned NA rather than NaN - the caller must drop those
+# from the set and the background alike, or the draws are biased.
+#
+# cov = NULL reproduces a plain Spearman exactly; with cov it is the same
+# partial Spearman .atlas_block computes (Pearson on residuals of ranks).
+.per_gene_rho <- function(L, y, cov = NULL, chunk = 2000L) {
+  stopifnot(length(y) == ncol(L))
+  n <- length(y)
+  Z <- NULL
+  if (!is.null(cov)) {
+    stopifnot(nrow(cov) == n, !anyNA(cov))
+    Z <- cbind(`(Intercept)` = 1, apply(cov, 2L, rank))
+  }
+  ry <- rank(y)
+  if (!is.null(Z)) ry <- as.numeric(.resid_rows(matrix(ry, nrow = 1L), Z))
+  ry <- (ry - mean(ry)) / stats::sd(ry)
+  out <- numeric(nrow(L)); names(out) <- rownames(L)
+  for (s in seq(1, nrow(L), by = chunk)) {
+    e  <- min(s + chunk - 1L, nrow(L))
+    Rx <- .rank_rows(L[s:e, , drop = FALSE])
+    if (!is.null(Z)) Rx <- .resid_rows(Rx, Z)
+    sdx <- apply(Rx, 1L, stats::sd)
+    Rx <- (Rx - rowMeans(Rx)) / sdx
+    v <- as.numeric(Rx %*% ry) / (n - 1)
+    v[sdx == 0] <- NA_real_
+    out[s:e] <- v
+  }
+  out
+}
+
+# Split a background into equal-count expression ventiles, ready for matched
+# draws. Returns bin index per row (NA where excluded) and the pools.
+.expression_bins <- function(L, keep, n_bins = 20L) {
+  expr <- rowMeans(L)
+  bins <- rep(NA_integer_, nrow(L))
+  bins[keep] <- cut(rank(expr[keep], ties.method = "first"),
+                    breaks = n_bins, labels = FALSE)
+  list(bins = bins, pools = split(keep, bins[keep]), n_bins = n_bins)
+}
+
+# One expression-matched draw for a set of row indices. `exclude` lets a paired
+# draw keep its two halves disjoint, as the real strata are.
+.matched_draw <- function(idx, B, exclude = integer(0)) {
+  want <- table(factor(B$bins[idx], levels = seq_len(B$n_bins)))
+  unlist(lapply(seq_len(B$n_bins), function(b) {
+    k <- want[[b]]
+    if (k == 0L) return(integer(0))
+    pool <- setdiff(B$pools[[as.character(b)]], exclude)
+    if (length(pool) < k) {
+      stop("expression ventile ", b, " holds ", length(pool),
+           " usable background genes but the set needs ", k,
+           "; the matched draw cannot be made without replacement.",
+           call. = FALSE)
+    }
+    pool[sample.int(length(pool), k)]
+  }), use.names = FALSE)
+}
+
