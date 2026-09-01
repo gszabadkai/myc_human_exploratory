@@ -163,7 +163,7 @@ loadings <- tibble::tibble(gene = TRUSTED) %>%
 
 # The MYC deviation each gene shows, from E03b, is the thing being explained.
 dev <- f$copy_number_test %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "mtDNA_content") %>%
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "mtDNA_content") %>%
   dplyr::select(cohort, gene, dev = rho) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = dev) %>%
   dplyr::rename(dev_TCGA = TCGA, dev_SCANB = `SCAN-B`)
@@ -281,8 +281,8 @@ message("\n6. what the residual axis tracks across the rest of the atlas")
   colnames(AX) <- ids
   M <- rbind(arms_obj$gsva_arms[, ids, drop = FALSE],
              PROLIF = arms_obj$gsva_cov["PROLIF_DISJOINT", ids],
-             FELSHER_61 = gsva_new["FELSHER_61", ids],
-             MYC_UP.V1_UP = gsva_new["MYC_UP.V1_UP", ids])
+             FELSHER_61 = gsva_new[MYC_REF, ids],
+             MYC_UP.V1_UP = gsva_new[MYC_LOW_ENTANG, ids])
   .atlas_block(AX, M, ids, NULL, min_n = 30L) %>%
     dplyr::rename(axis = myc_estimator, target = measure) %>%
     dplyr::mutate(cohort = coh) %>%

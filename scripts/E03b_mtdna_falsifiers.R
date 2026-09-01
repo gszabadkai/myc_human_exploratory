@@ -112,10 +112,11 @@ message("   mtDNA genes: ", length(.in_t(MT_GENES)), " (TCGA) / ",
 # The MYC estimators, exactly as E03 used them.
 MYC_SIGS <- sd_$myc_panel$signature
 EST_T <- rbind(nw$tcga_gsva_new[MYC_SIGS, ID_T, drop = FALSE],
-               M_b = myc_t$M_b[match(ID_T, myc_t$patient)],
+               nw$tcga_M_b_variants[, ID_T, drop = FALSE],
                log2MYC = nw$tcga_log2MYC[ID_T])
 EST_S <- rbind(sc$gsva_new[MYC_SIGS, ID_S, drop = FALSE],
-               M_b = sc$M_b[ID_S], log2MYC = sc$log2MYC[ID_S])
+               sc$M_b_variants[, ID_S, drop = FALSE],
+               log2MYC = sc$log2MYC[ID_S])
 colnames(EST_T) <- ID_T; colnames(EST_S) <- ID_S
 
 # =============================================================================
@@ -194,7 +195,7 @@ denominator_test <- dplyr::bind_rows(
 
 message("\n   FELSHER_61, mitoPPS rho, by what is left in the denominator:")
 denominator_test %>%
-  dplyr::filter(myc_estimator == "FELSHER_61") %>%
+  dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = c(cohort, arm), names_from = universe,
                      values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -254,7 +255,7 @@ ratio_test <- dplyr::bind_rows(
   dplyr::select(cohort, ratio, myc_estimator, n, rho, ci_lo, ci_hi)
 
 message("\n   FELSHER_61 against each ratio:")
-ratio_test %>% dplyr::filter(myc_estimator == "FELSHER_61") %>%
+ratio_test %>% dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = ratio, names_from = cohort, values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
@@ -295,7 +296,7 @@ copy_number_test <- dplyr::bind_rows(
   .gene_block(LS, .in_s, EST_S, ID_S, "SCAN-B"))
 
 message("\n   FELSHER_61, raw vs content-adjusted, both cohorts:")
-copy_number_test %>% dplyr::filter(myc_estimator == "FELSHER_61") %>%
+copy_number_test %>% dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = gene, names_from = c(cohort, adjusted),
                      values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -350,12 +351,12 @@ message("\n6. verdict")
 
 .surv <- function(x) if (x) "SURVIVES" else "FALSIFIED"
 v_noox <- ratio_test %>%
-  dplyr::filter(ratio == "vs_mito_noox", myc_estimator == "FELSHER_61")
+  dplyr::filter(ratio == "vs_mito_noox", myc_estimator == MYC_REF)
 v_den <- denominator_test %>%
   dplyr::filter(arm == "mtDNA-encoded OXPHOS", universe == "no_oxgene",
-                myc_estimator == "FELSHER_61")
+                myc_estimator == MYC_REF)
 v_cn <- copy_number_test %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "mtDNA_content",
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "mtDNA_content",
                 gene %in% c("MT-CO2", "MT-ND5")) %>%
   dplyr::select(cohort, gene, rho) %>%
   tidyr::pivot_wider(names_from = gene, values_from = rho)
@@ -421,7 +422,7 @@ if (FALSE) {
 
   # per gene, what survives conditioning on mtDNA content
   f$copy_number_test %>%
-    dplyr::filter(myc_estimator %in% c("FELSHER_61", "MYC_UP.V1_UP")) %>%
+    dplyr::filter(myc_estimator %in% c(MYC_REF, MYC_LOW_ENTANG)) %>%
     tidyr::pivot_wider(id_cols = gene,
                        names_from = c(cohort, myc_estimator, adjusted),
                        values_from = rho) %>% as.data.frame()

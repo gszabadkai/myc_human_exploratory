@@ -90,7 +90,7 @@ MITO_GENES <- unique(unlist(mito$mito_paths, use.names = FALSE))
 # The targets. MYC is carried so the contrast that DID collapse under
 # proliferation adjustment stays visible beside the one that did not.
 .targets <- function(gsva_new, arms_obj, ids) rbind(
-  MYC            = as.numeric(gsva_new["FELSHER_61", ids]),
+  MYC            = as.numeric(gsva_new[MYC_REF, ids]),
   OXPHOS_gsva    = as.numeric(arms_obj$gsva_arms["OXPHOS subunits", ids]),
   OXPHOS_mitopps = as.numeric(arms_obj$mitopps_arms["OXPHOS subunits", ids]))
 TGT_T <- .targets(nw$tcga_gsva_new, mito, ID_T)

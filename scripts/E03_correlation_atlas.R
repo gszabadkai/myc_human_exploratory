@@ -87,21 +87,24 @@ stopifnot(identical(ID_T, colnames(nw$tcga_gsva_new)),
 message("   TCGA ", length(ID_T), " samples | SCAN-B ", length(ID_S))
 
 # --- 1.1 the pin, verified rather than assumed -------------------------------
-# E02 scored FELSHER_61 for TCGA in a SECOND GSVA call, months after the
+# E02 scored FELSHER__MITOSTRIP for TCGA in a SECOND GSVA call, months after
 # snapshot's 18 arms were scored in the first. The .PIN_A/.PIN_B half-matrix
 # sets are what is supposed to make those two calls walk the same gene universe.
-# If they do, the new FELSHER_61 must BE the snapshot's M_a - not close to it.
+# If they do, the new FELSHER__MITOSTRIP must BE the snapshot's M_a - not
+# close to it. It is the same 61 genes, reconstructed by E02 rather than
+# imported, so this also checks the variant labelling.
 ma_snap <- myc_t$M_a[match(ID_T, myc_t$patient)]
-f61_new <- nw$tcga_gsva_new["FELSHER_61", ]
+f61_new <- nw$tcga_gsva_new[MYC_REF, ]
 pin_diff <- max(abs(f61_new - ma_snap))
 if (!is.finite(pin_diff) || pin_diff > 1e-10) {
-  stop("the GSVA pin did not hold: FELSHER_61 rescored in E02 differs from the ",
-       "snapshot's M_a by ", signif(pin_diff, 3), ". The two calls did not walk ",
-       "the same gene universe, so TCGA's reused arms are NOT comparable to ",
-       "the new sets. Do not build the atlas.", call. = FALSE)
+  stop("the GSVA pin did not hold: ", MYC_REF, " rescored in E02 differs from ",
+       "the snapshot's M_a by ", signif(pin_diff, 3), ". The two calls did not ",
+       "walk the same gene universe, so TCGA's reused arms are NOT comparable ",
+       "to the new sets. Do not build the atlas.", call. = FALSE)
 }
-message("   GSVA pin verified: FELSHER_61 rescored == snapshot M_a exactly ",
-        "(max abs diff ", signif(pin_diff, 3), ")")
+message("   GSVA pin verified: ", MYC_REF,
+        " rescored == snapshot M_a exactly (max abs diff ",
+        signif(pin_diff, 3), ")")
 
 # =============================================================================
 # 2. The measures: 18 arms x 4 instruments, plus 13 mtDNA genes
@@ -173,40 +176,59 @@ message("   ", nrow(MEAS_T), " measures (", length(ARMS), " arms x ",
 # =============================================================================
 # 3. The estimators
 # =============================================================================
-# 18 GSVA signatures spanning 1.5% to 47.6% proliferation entanglement, plus
-# M_b (CollecTRI regulon activity, a wholly different construction) and
-# log2(MYC) (the mRNA, which CLAUDE.md trap 4 says is a different thing again).
-# M_c_call - the copy-number call, -1/0/1/2 - is TCGA-only and is the only
-# estimator carrying NA. The engine gives it its own complete-case set.
+# 18 MYC signatures x FOUR EXPLICITLY LABELLED VARIANTS (__FULL, __MITOSTRIP,
+# __PROLIFSTRIP, __BOTHSTRIP - see the naming contract in E00), plus the four
+# CollecTRI regulon variants scored by ULM, plus log2(MYC) (the mRNA, which
+# CLAUDE.md trap 4 says is a different thing again). M_c_call - the copy-number
+# call, -1/0/1/2 - is TCGA-only and is the only estimator carrying NA. The
+# engine gives it its own complete-case set.
+#
+# EVERY ESTIMATOR CARRIES ITS strip_status INTO THE ATLAS. Phase 1's F1 was
+# written on a panel that silently mixed one mito-stripped estimator with 17
+# unstripped ones; a `strip_status` column is what stops that recurring.
 message("\n3. estimators")
 
 MYC_SIGS <- sd_$myc_panel$signature
+MB_SIGS  <- rownames(nw$tcga_M_b_variants)
 stopifnot(all(MYC_SIGS %in% rownames(nw$tcga_gsva_new)),
-          all(MYC_SIGS %in% rownames(sc$gsva_new)))
+          all(MYC_SIGS %in% rownames(sc$gsva_new)),
+          identical(MB_SIGS, rownames(sc$M_b_variants)),
+          MYC_REF %in% MYC_SIGS, MB_REF %in% MB_SIGS)
 
-EST_T <- rbind(nw$tcga_gsva_new[MYC_SIGS, , drop = FALSE],
-               M_b        = myc_t$M_b[match(ID_T, myc_t$patient)],
-               log2MYC    = nw$tcga_log2MYC[ID_T],
-               M_c_call   = as.numeric(myc_t$M_c_call[match(ID_T, myc_t$patient)]))
-EST_S <- rbind(sc$gsva_new[MYC_SIGS, , drop = FALSE],
-               M_b        = sc$M_b[ID_S],
-               log2MYC    = sc$log2MYC[ID_S])
+EST_T <- rbind(nw$tcga_gsva_new[MYC_SIGS, ID_T, drop = FALSE],
+               nw$tcga_M_b_variants[MB_SIGS, ID_T, drop = FALSE],
+               log2MYC  = nw$tcga_log2MYC[ID_T],
+               M_c_call = as.numeric(myc_t$M_c_call[match(ID_T, myc_t$patient)]))
+EST_S <- rbind(sc$gsva_new[MYC_SIGS, ID_S, drop = FALSE],
+               sc$M_b_variants[MB_SIGS, ID_S, drop = FALSE],
+               log2MYC  = sc$log2MYC[ID_S])
 colnames(EST_T) <- ID_T; colnames(EST_S) <- ID_S
 
 est_meta <- dplyr::bind_rows(
-  sd_$myc_panel %>% dplyr::select(myc_estimator = signature, n_genes = n,
-                                  frac_prolif),
+  sd_$myc_panel %>%
+    dplyr::select(myc_estimator = signature, base, strip_status, n_genes = n,
+                  frac_prolif, frac_mito, thin),
   tibble::tibble(
-    myc_estimator = c("M_b", "log2MYC", "M_c_call"),
-    n_genes       = c(NA_integer_, NA_integer_, NA_integer_),
-    frac_prolif   = NA_real_)) %>%
+    myc_estimator = MB_SIGS,
+    base          = "M_b",
+    strip_status  = sub("^.*__", "", MB_SIGS),
+    n_genes       = vapply(sd_$collectri_sets[MB_SIGS], length, integer(1)),
+    frac_prolif   = NA_real_, frac_mito = NA_real_, thin = FALSE),
+  tibble::tibble(
+    myc_estimator = c("log2MYC", "M_c_call"),
+    base          = c("log2MYC", "M_c_call"),
+    strip_status  = "NA",
+    n_genes       = NA_integer_, frac_prolif = NA_real_, frac_mito = NA_real_,
+    thin          = FALSE)) %>%
   dplyr::mutate(kind = dplyr::case_when(
-    myc_estimator == "M_b"      ~ "CollecTRI regulon (ULM)",
-    myc_estimator == "log2MYC"  ~ "MYC mRNA",
-    myc_estimator == "M_c_call" ~ "copy number (TCGA only)",
-    TRUE                        ~ "signature (GSVA)"))
+    base == "M_b"      ~ "CollecTRI regulon (ULM)",
+    base == "log2MYC"  ~ "MYC mRNA",
+    base == "M_c_call" ~ "copy number (TCGA only)",
+    TRUE               ~ "signature (GSVA)"))
 message("   TCGA ", nrow(EST_T), " estimators | SCAN-B ", nrow(EST_S),
         " (M_c_call is TCGA-only)")
+est_meta %>% dplyr::count(kind, strip_status) %>% as.data.frame() %>%
+  print(row.names = FALSE)
 message("   M_c_call missing in ", sum(is.na(EST_T["M_c_call", ])),
         " TCGA samples - it gets its own complete-case set, the other ",
         nrow(EST_T) - 1L, " keep their full n")
@@ -281,9 +303,9 @@ atlas <- dplyr::bind_rows(
   .run_cohort("SCAN-B", EST_S, MEAS_S, STR_S, ADJ_S)) %>%
   dplyr::left_join(meas_meta, by = "measure") %>%
   dplyr::left_join(est_meta,  by = "myc_estimator") %>%
-  dplyr::select(cohort, instrument, myc_estimator, arm, measure_class, stratum,
-                adjusted, n, k_cov, rho, ci_lo, ci_hi, p, frac_prolif, kind,
-                n_genes) %>%
+  dplyr::select(cohort, instrument, myc_estimator, base, strip_status, arm,
+                measure_class, stratum, adjusted, n, k_cov, rho, ci_lo, ci_hi,
+                p, frac_prolif, frac_mito, thin, kind, n_genes) %>%
   dplyr::arrange(cohort, instrument, myc_estimator, arm, stratum, adjusted)
 
 message("   ", format(nrow(atlas), big.mark = ","), " cells")
@@ -295,13 +317,13 @@ atlas %>% dplyr::count(cohort, adjusted) %>% as.data.frame() %>%
 # =============================================================================
 # E01 asserted these three against the snapshot. Asserting them again here, by
 # reading them back out of the finished table, is what proves the atlas is
-# INDEXED correctly - that the cell labelled (TCGA, gsva, FELSHER_61,
+# INDEXED correctly - that the cell labelled (TCGA, gsva, FELSHER__MITOSTRIP,
 # "OXPHOS subunits", all, raw) really is that correlation and not a neighbour's.
 message("\n7. anchor, read back out of the atlas")
 
 anchor <- atlas %>%
   dplyr::filter(cohort == "TCGA", instrument == "gsva",
-                myc_estimator == "FELSHER_61", stratum == "all",
+                myc_estimator == MYC_REF, stratum == "all",
                 adjusted == "raw", arm %in% names(EXPECT_ANCHOR)) %>%
   dplyr::transmute(arm, observed = rho,
                    expected = unname(EXPECT_ANCHOR[arm]),
@@ -331,7 +353,7 @@ nuclear_vs_mtdna <- atlas %>%
   dplyr::select(cohort, instrument, adjusted, myc_estimator, arm, n, rho,
                 ci_lo, ci_hi)
 nuclear_vs_mtdna %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "raw") %>%
   tidyr::pivot_wider(id_cols = c(cohort, arm), names_from = instrument,
                      values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -341,9 +363,9 @@ mtdna_genes <- atlas %>%
   dplyr::filter(measure_class == "mtdna_gene", stratum == "all") %>%
   dplyr::select(cohort, adjusted, myc_estimator, gene = arm, n, rho, ci_lo,
                 ci_hi, p)
-message("\n   the 13 genes against FELSHER_61, raw, both cohorts:")
+message("\n   the 13 genes against ", MYC_REF, ", raw, both cohorts:")
 mtdna_genes %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "raw") %>%
   tidyr::pivot_wider(id_cols = gene, names_from = cohort, values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   dplyr::arrange(dplyr::desc(TCGA)) %>% as.data.frame() %>% print(row.names = FALSE)
@@ -366,11 +388,14 @@ message("\n9. the estimator panel by proliferation entanglement")
 panel <- atlas %>%
   dplyr::filter(kind == "signature (GSVA)", measure_class == "arm",
                 stratum == "all") %>%
-  dplyr::select(cohort, instrument, adjusted, arm, myc_estimator, frac_prolif,
-                n, rho, ci_lo, ci_hi)
+  dplyr::select(cohort, instrument, adjusted, arm, myc_estimator, base,
+                strip_status, frac_prolif, frac_mito, thin, n, rho, ci_lo, ci_hi)
 
+# GROUPED BY strip_status, because a slope computed across a mixture of FULL and
+# stripped variants would be comparing sets of different composition as if they
+# were the same estimator - which is exactly what F1 did by accident.
 entanglement_slope <- panel %>%
-  dplyr::group_by(cohort, instrument, adjusted, arm) %>%
+  dplyr::group_by(cohort, instrument, adjusted, arm, strip_status) %>%
   dplyr::summarise(
     n_sig       = dplyr::n(),
     rho_min     = min(rho), rho_max = max(rho),
@@ -379,22 +404,25 @@ entanglement_slope <- panel %>%
     slope_vs_entanglement = stats::cor(rho, frac_prolif, method = "spearman"),
     .groups = "drop")
 
-message("\n   OXPHOS subunits, raw - does rho track entanglement?")
+message("\n   OXPHOS subunits, raw - does rho track entanglement, per variant?")
 entanglement_slope %>%
-  dplyr::filter(arm == "OXPHOS subunits", adjusted == "raw") %>%
+  dplyr::filter(arm == "OXPHOS subunits", adjusted == "raw",
+                instrument == "gsva") %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
-message("\n   the full panel on OXPHOS subunits, GSVA, raw:")
+message("\n   OXPHOS subunits, GSVA, raw - every signature x every variant:")
 panel %>%
   dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
                 adjusted == "raw") %>%
-  tidyr::pivot_wider(id_cols = c(myc_estimator, frac_prolif),
-                     names_from = cohort, values_from = rho) %>%
+  tidyr::pivot_wider(id_cols = c(base, frac_prolif), names_from =
+                       c(cohort, strip_status), values_from = rho) %>%
   dplyr::arrange(frac_prolif) %>%
   dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
                 dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
+message("   frac_prolif is the FULL variant's; a PROLIFSTRIP column is by",
+        " construction 0%.")
 
 # =============================================================================
 # 10. Cross-cohort reproducibility
@@ -430,9 +458,9 @@ message("   ", format(nrow(reproducibility), big.mark = ","),
         round(100 * mean(reproducibility$same_sign), 1), "%, CIs overlap in ",
         round(100 * mean(reproducibility$ci_overlap), 1), "%")
 
-message("\n   agreement of the 18 arms between cohorts (FELSHER_61, all, raw):")
+message("\n   agreement of the 18 arms between cohorts (", MYC_REF, ", all, raw):")
 reproducibility %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", stratum == "all",
+  dplyr::filter(myc_estimator == MYC_REF, stratum == "all",
                 adjusted == "raw", measure_class == "arm") %>%
   dplyr::group_by(instrument) %>%
   dplyr::summarise(n_arms = dplyr::n(),
@@ -550,20 +578,20 @@ if (FALSE) {
   a$atlas %>%
     dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
                   stratum == "all", myc_estimator %in%
-                    c("MYC_UP.V1_UP", "FELSHER_61", "HALLMARK_MYC_TARGETS_V1",
-                      "YU_MYC_TARGETS_UP", "M_b", "log2MYC")) %>%
+                    c(MYC_LOW_ENTANG, MYC_REF, MYC_HALLMARK,
+                      "YU_MYC_TARGETS_UP__FULL", MB_REF, "log2MYC")) %>%
     tidyr::pivot_wider(id_cols = c(cohort, myc_estimator),
                        names_from = adjusted, values_from = rho) %>%
     as.data.frame()
 
   # --- (i) the two genomes -------------------------------------------------
   a$nuclear_vs_mtdna %>%
-    dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+    dplyr::filter(myc_estimator == MYC_REF, adjusted == "raw") %>%
     tidyr::pivot_wider(id_cols = c(arm, cohort), names_from = instrument,
                        values_from = rho) %>% as.data.frame()
 
   a$mtdna_genes %>% dplyr::filter(adjusted == "raw",
-                                  myc_estimator %in% c("FELSHER_61", "M_b")) %>%
+                                  myc_estimator %in% c(MYC_REF, MB_REF)) %>%
     tidyr::pivot_wider(id_cols = gene, names_from = c(cohort, myc_estimator),
                        values_from = rho) %>% as.data.frame()
 
@@ -581,11 +609,11 @@ if (FALSE) {
   # --- strata --------------------------------------------------------------
   a$atlas %>%
     dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
-                  myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+                  myc_estimator == MYC_REF, adjusted == "raw") %>%
     dplyr::select(cohort, stratum, n, rho, ci_lo, ci_hi) %>% as.data.frame()
 
   # --- trap 5 --------------------------------------------------------------
   a$instrument_agreement %>%
-    dplyr::filter(myc_estimator == "FELSHER_61") %>% as.data.frame()
+    dplyr::filter(myc_estimator == MYC_REF) %>% as.data.frame()
 
 }

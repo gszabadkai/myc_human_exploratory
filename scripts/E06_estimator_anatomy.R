@@ -1,62 +1,40 @@
 # E06_estimator_anatomy.R
 # =============================================================================
-# PHASE 2. Why do the MYC estimators disagree the way they do?
-#
-# Answers two questions from the 2026-09-01 handoff section 5:
-#   - MENSSEN_MYC_TARGETS is the TOP signature on OXPHOS (0.670 / 0.616) at only
-#     13.2% proliferation entanglement and 53 genes, above every Hallmark set.
-#     ELLWOOD (13 genes) and ALFANO are what make F1's entanglement slope
-#     positive. Are they informative or merely weak?
-#   - M_b, the CollecTRI regulon estimator, is the WEAKEST on the OXPHOS plane
-#     (+0.240 / +0.117, and it sign-flips under proliferation adjustment in
-#     SCAN-B) yet gives by far the SHARPEST BCL2-family signal (BCL2A1 +0.658,
-#     BID +0.556, BCL2 -0.550). Nothing in phase 1 explains that.
+# PHASE 2. Why do the MYC estimators disagree the way they do - and how much of
+# F1 survives once they are all labelled?
 #
 # =============================================================================
-# THE THING FOUND WHILE WRITING THIS SCRIPT, WHICH BEARS DIRECTLY ON F1
+# WHAT WENT WRONG IN PHASE 1, AND WHAT E02 NOW DOES ABOUT IT
 # =============================================================================
-# D0 found that the death sets' correlation with OXPHOS tracks how MITOCHONDRIAL
-# the gene set is, at Spearman 0.60-0.81. Nobody had asked whether the same is
-# true of the MYC signatures. It is - and worse, THE PANEL IS NOT HOMOGENEOUS.
+# F1 was written on a panel of 18 sets under bare names. One of them,
+# `FELSHER_61`, had been stripped of every MitoCarta gene by the validation
+# study; the other 17 had not. Nothing in any name said so. On top of that the
+# "proliferation-adjusted" column used `PROLIF_DISJOINT`, which is PROLIF_STD
+# minus the 9 proliferation genes of FELSHER_61 and nothing else - disjoint from
+# M_a ALONE, and sharing 96 genes with the 18-signature union. So for 17 of 18
+# signatures F1's proliferation adjustment was partly adjusting each signature
+# for itself.
 #
-#   `FELSHER_61` and `M_b` were STRIPPED of every MitoCarta gene by the
-#   validation study, against the full 1,136-gene inventory, precisely so the
-#   MYC estimator could not overlap its own exposure. FELSHER lost 6 of 67 and
-#   the CollecTRI regulon 75 of 886. Both now carry ZERO mitochondrial genes.
+# E02 now scores FOUR EXPLICITLY LABELLED VARIANTS of every signature -
+# __FULL, __MITOSTRIP, __PROLIFSTRIP, __BOTHSTRIP - so both questions can be
+# asked by construction instead of by adjustment. This script reads them.
 #
-#   THE OTHER SIXTEEN SIGNATURES WERE NEVER STRIPPED. HALLMARK_MYC_TARGETS_V1
-#   carries 23 MitoCarta genes, BILD 20, DANG_MYC_TARGETS_UP 19, MYC_UP.V1_UP
-#   18, MENSSEN 12 of only 53.
+# THE FOUR ROWS AND WHAT EACH ONE DECIDES
+# ---------------------------------------
+#   __FULL         what F1 actually reported for 17 of the 18
+#   __MITOSTRIP    if the correlation collapses here, it was the signature
+#                  reading its own mitochondrial genes (D0's confound)
+#   __PROLIFSTRIP  if it collapses here, it was proliferation - and this is the
+#                  CLEAN version of that question, unlike the PROLIF_DISJOINT
+#                  adjustment
+#   __BOTHSTRIP    what is left when neither explanation is available. THIS ROW
+#                  IS F1'S ANSWER.
 #
-# So phase 1's estimator panel mixes two confound-free estimators with sixteen
-# that share genes with the arm they are correlated against, and F1 read the
-# spread across all eighteen as if they were the same kind of object. That much
-# is simply a fact about the inputs.
+# Sections 4 and 5 then take the two remaining handoff questions: whether
+# ELLWOOD and ALFANO are informative or merely weak, and what M_b is.
 #
-# WHETHER IT MATTERS IS A SEPARATE QUESTION, AND THIS SCRIPT MUST NOT PREJUDGE
-# IT. D0's analogy predicts contamination: a signature correlates with OXPHOS
-# because it contains OXPHOS genes. But there is a second explanation that fits
-# the same association, and it is not a confound at all - a signature that
-# happens to contain many mitochondrial genes may simply BE a more
-# mitochondrially-inclined description of MYC, its other genes correlating with
-# OXPHOS just as much.
-#
-# Section 3.1 separates them by deleting each signature's mitochondrial genes
-# and recomputing:
-#
-#   if the panel's spread COLLAPSES        -> contamination; F1 must be re-read
-#   if the spread and the frac_mito
-#     association BOTH SURVIVE             -> the mitochondrial genes are a
-#                                             MARKER of an inclination, not the
-#                                             CAUSE of the correlation, and F1
-#                                             stands
-#
-# Both outcomes are informative and only one of them is bad news. Read the
-# section-3.1 output before believing either.
-#
-# SCALE: gene-set membership is scale-free; the score correlations are read from
-# E03's atlas; the two new mean-z scores are built on the LOG matrix and stated
-# where they are built. SPECIES: human, natively.
+# SCALE: correlations are read from E03's atlas. The two mean-z scores built in
+# section 5 are on the LOG (VST) matrix and say so. SPECIES: human, natively.
 # =============================================================================
 
 source(here::here("scripts", "E00_setup_packages.R"))
@@ -65,6 +43,7 @@ source(here::here("functions", "correlation_engine.R"))
 message("\nE06: the anatomy of the MYC estimator panel\n", strrep("=", 78))
 
 PATH_E06 <- file.path(DIR_RESULTS, "estimator_anatomy.rds")
+FOCUS_ARM <- "OXPHOS subunits"
 
 # =============================================================================
 # 1. Inputs
@@ -81,208 +60,145 @@ g1   <- readRDS(PATH_G1)
 ID_T <- colnames(mito$gsva_arms); ID_S <- colnames(sc$gsva_arms)
 MYC_SETS  <- sd_$myc_sets
 MYC_PANEL <- sd_$myc_panel
+MITO_ALL  <- sd_$strip_refs$MITOCARTA_ALL
+PROLIF_REF <- sd_$strip_refs$PROLIF_REF
+stopifnot(length(MITO_ALL) == EXPECT_MITOCARTA_ALL,
+          length(PROLIF_REF) == EXPECT_PROLIF_REF)
+message("   ", dplyr::n_distinct(MYC_PANEL$base), " signatures x 4 variants = ",
+        nrow(MYC_PANEL), " estimators")
 
-# The reference sets every membership question is asked against.
-MITO_ALL  <- unique(unlist(mito$mito_paths, use.names = FALSE))
-ARM_REF   <- sd_$arm_sets[c("OXPHOS subunits", "OXPHOS umbrella",
-                            "Mitochondrial ribosome", "TCA cycle",
-                            "mtDNA-encoded OXPHOS")]
-message("   ", length(MYC_SETS), " MYC signatures | MitoCarta pathway genes: ",
-        length(MITO_ALL))
-
-# =============================================================================
-# 2. What is actually in these signatures
-# =============================================================================
-message("\n2. composition of the panel")
-
-# Which estimators the validation study stripped, and against what. This is the
-# distinction phase 1 did not know it was making.
-STRIPPED <- c("FELSHER_61", "M_b")
-strip_summary <- g1$strip_summary
-message("   the validation study's overlap stripping, at d3ac60e:")
-strip_summary %>% as.data.frame() %>% print(row.names = FALSE)
+message("\n   the validation study's overlap stripping, at d3ac60e:")
+g1$strip_summary %>% as.data.frame() %>% print(row.names = FALSE)
 message("   stripped against: ", g1$meta$strip_set)
-message("   mitochondrial genes remaining after stripping: ",
-        paste(vapply(names(g1$estimators_stripped), function(n)
-          paste0(n, "=", sum(g1$estimators_stripped[[n]] %in% MITO_ALL)),
-          character(1)), collapse = ", "))
+message("   -> that is a MITOCHONDRIAL strip. No proliferation-stripped",
+        " estimator\n      existed upstream; __PROLIFSTRIP is built here for",
+        " the first time.")
 
-composition <- tibble::tibble(signature = names(MYC_SETS)) %>%
-  dplyr::mutate(
-    stripped     = signature %in% STRIPPED,
-    n            = vapply(MYC_SETS, length, integer(1))[signature],
-    frac_prolif  = MYC_PANEL$frac_prolif[match(signature, MYC_PANEL$signature)],
-    n_mito       = vapply(MYC_SETS[signature],
-                          function(g) sum(g %in% MITO_ALL), integer(1)),
-    frac_mito    = n_mito / n,
-    n_oxphos     = vapply(MYC_SETS[signature],
-                          function(g) sum(g %in% ARM_REF[["OXPHOS subunits"]]),
-                          integer(1)),
-    n_mitoribo   = vapply(MYC_SETS[signature],
-                          function(g) sum(g %in% ARM_REF[["Mitochondrial ribosome"]]),
-                          integer(1)),
-    n_tca        = vapply(MYC_SETS[signature],
-                          function(g) sum(g %in% ARM_REF[["TCA cycle"]]), integer(1)))
+# PROLIF_DISJOINT, named and measured, because F1 leaned on it.
+pd <- sd_$cov_sets$PROLIF_DISJOINT
+panel_union <- unique(unlist(MYC_SETS[MYC_PANEL$signature[
+  MYC_PANEL$strip_status == "FULL"]], use.names = FALSE))
+message("\n   PROLIF_DISJOINT: ", length(pd), " genes, ",
+        sum(pd %in% PROLIF_REF), " of them HALLMARK E2F/G2M, and it shares ",
+        sum(pd %in% panel_union), " genes\n   with the union of the FULL",
+        " signatures. It is disjoint from M_a alone.")
 
-# The atlas value each signature is being explained
+# =============================================================================
+# 2. The panel, with every label attached
+# =============================================================================
+message("\n2. the panel")
+
 rho_ox <- a$atlas %>%
-  dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
-                stratum == "all", adjusted == "raw",
-                kind == "signature (GSVA)") %>%
+  dplyr::filter(arm == FOCUS_ARM, instrument == "gsva", stratum == "all",
+                adjusted == "raw", kind == "signature (GSVA)") %>%
   dplyr::select(signature = myc_estimator, cohort, rho) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = rho) %>%
   dplyr::rename(rho_TCGA = TCGA, rho_SCANB = `SCAN-B`)
-composition <- composition %>% dplyr::left_join(rho_ox, by = "signature")
+panel <- MYC_PANEL %>% dplyr::left_join(rho_ox, by = "signature")
 
-composition %>% dplyr::arrange(dplyr::desc(rho_TCGA)) %>%
+panel %>% dplyr::filter(strip_status == "FULL") %>%
+  dplyr::arrange(dplyr::desc(rho_TCGA)) %>%
   dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
                 frac_mito = round(100 * frac_mito, 1),
                 dplyr::across(c(rho_TCGA, rho_SCANB), ~ round(.x, 3))) %>%
-  dplyr::select(signature, stripped, n, frac_prolif, n_mito, frac_mito,
-                n_mitoribo, n_oxphos, n_tca, rho_TCGA, rho_SCANB) %>%
+  dplyr::select(base, n, frac_prolif, frac_mito, rho_TCGA, rho_SCANB) %>%
   as.data.frame() %>% print(row.names = FALSE)
-message("\n   `stripped` = TRUE means the estimator has NO mitochondrial genes",
-        " by\n   construction. Only two of the eighteen do.")
 
-# =============================================================================
-# 3. THE D0 TEST, APPLIED TO THE MYC PANEL
-# =============================================================================
-# Does a signature's OXPHOS correlation track how mitochondrial the signature
-# is, the way the death sets' did? And does mitochondrial content explain more
-# of it than proliferation entanglement does?
-message("\n3. does the panel's OXPHOS correlation track MITOCHONDRIAL content?")
-
+# D0's test, applied to the FULL variants. Does a signature's OXPHOS
+# correlation track how mitochondrial it is, or how proliferative?
+full <- panel %>% dplyr::filter(strip_status == "FULL")
 d0_test <- tibble::tibble(
-  cohort   = c("TCGA", "SCAN-B"),
+  cohort = c("TCGA", "SCAN-B"),
   vs_mito_fraction = c(
-    stats::cor(composition$frac_mito, composition$rho_TCGA,  method = "spearman"),
-    stats::cor(composition$frac_mito, composition$rho_SCANB, method = "spearman")),
+    stats::cor(full$frac_mito, full$rho_TCGA, method = "spearman"),
+    stats::cor(full$frac_mito, full$rho_SCANB, method = "spearman")),
   vs_prolif_entanglement = c(
-    stats::cor(composition$frac_prolif, composition$rho_TCGA,  method = "spearman"),
-    stats::cor(composition$frac_prolif, composition$rho_SCANB, method = "spearman")),
+    stats::cor(full$frac_prolif, full$rho_TCGA, method = "spearman"),
+    stats::cor(full$frac_prolif, full$rho_SCANB, method = "spearman")),
   vs_set_size = c(
-    stats::cor(composition$n, composition$rho_TCGA,  method = "spearman"),
-    stats::cor(composition$n, composition$rho_SCANB, method = "spearman")))
+    stats::cor(full$n, full$rho_TCGA, method = "spearman"),
+    stats::cor(full$n, full$rho_SCANB, method = "spearman")))
+message("\n   what the FULL panel's spread tracks:")
 d0_test %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
-message("\n   the two signatures F1 turns on, and the one it is questioned by:")
-composition %>%
-  dplyr::filter(signature %in% c("MYC_UP.V1_UP", "MENSSEN_MYC_TARGETS",
-                                 "ELLWOOD_MYC_TARGETS_UP", "ALFANO_MYC_TARGETS",
-                                 "FELSHER_61", "HALLMARK_MYC_TARGETS_V1")) %>%
-  dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
-                frac_mito = round(100 * frac_mito, 1),
-                dplyr::across(c(rho_TCGA, rho_SCANB), ~ round(.x, 3))) %>%
-  dplyr::select(signature, n, frac_prolif, frac_mito, n_mitoribo, n_oxphos,
-                rho_TCGA, rho_SCANB) %>%
-  as.data.frame() %>% print(row.names = FALSE)
+# =============================================================================
+# 3. THE TEST. Four variants, one table, and F1's answer in the last row.
+# =============================================================================
+message("\n3. what survives each strip")
 
-# The direct question: drop every mitochondrial gene from each signature and
-# ask how many genes are left. A signature that loses its correlation when its
-# mitochondrial genes go was never measuring MYC-and-OXPHOS separately.
-# --- 3.1 the cheap version of the fix ----------------------------------------
-# Properly, every signature would be re-scored by GSVA with its mitochondrial
-# genes removed - one call, under the pins, 15-25 minutes. This is the gene-level
-# approximation, which needs no re-scoring: the mean per-gene Spearman of a
-# signature's genes against the OXPHOS arm, computed with and without its
-# mitochondrial members.
-#
-# IT IS AN APPROXIMATION AND NOT THE SAME STATISTIC. A GSVA score is a
-# relative-rank enrichment, not a mean of per-gene correlations, and E05 showed
-# the two can diverge by a lot. What it CAN do is rank the signatures by how
-# much they stand to lose, which is what decides whether the full re-score is
-# worth running.
-message("\n3.1 delete each signature's mitochondrial genes (gene-level proxy)")
-
-tcga_linm  <- readRDS(PATH_TCGA_LINEAR)
-LT <- tcga_linm$mat[, ID_T, drop = FALSE]; rm(tcga_linm); invisible(gc(verbose = FALSE))
-scanb_linm <- readRDS(PATH_SCANB_LINEAR)
-LS <- scanb_linm$mat[, ID_S, drop = FALSE]; rm(scanb_linm); invisible(gc(verbose = FALSE))
-
-.inL_t <- function(g) intersect(unique(g), rownames(LT))
-.inL_s <- function(g) {
-  h <- sc$symbol_map[unique(g)]
-  intersect(unname(ifelse(is.na(h), unique(g), h)), rownames(LS))
-}
-ox_t <- as.numeric(mito$gsva_arms["OXPHOS subunits", ID_T])
-ox_s <- as.numeric(sc$gsva_arms["OXPHOS subunits", ID_S])
-grho_t <- .per_gene_rho(LT, ox_t)
-grho_s <- .per_gene_rho(LS, ox_s)
-
-.mean_rho <- function(genes, grho, inf) {
-  i <- inf(genes); i <- i[is.finite(grho[i])]
-  if (length(i) < 5L) return(NA_real_)
-  mean(grho[i])
-}
-strip_test <- tibble::tibble(signature = names(MYC_SETS)) %>%
+variant_table <- panel %>%
+  dplyr::filter(kind == "signature (GSVA)") %>%
+  dplyr::select(base, strip_status, n, rho_TCGA, rho_SCANB) %>%
+  tidyr::pivot_wider(id_cols = base, names_from = strip_status,
+                     values_from = c(n, rho_TCGA, rho_SCANB)) %>%
   dplyr::mutate(
-    n_mito     = composition$n_mito[match(signature, composition$signature)],
-    with_TCGA  = vapply(MYC_SETS[signature], .mean_rho, numeric(1), grho_t, .inL_t),
-    without_TCGA = vapply(lapply(MYC_SETS[signature], setdiff, MITO_ALL),
-                          .mean_rho, numeric(1), grho_t, .inL_t),
-    with_SCANB = vapply(MYC_SETS[signature], .mean_rho, numeric(1), grho_s, .inL_s),
-    without_SCANB = vapply(lapply(MYC_SETS[signature], setdiff, MITO_ALL),
-                           .mean_rho, numeric(1), grho_s, .inL_s)) %>%
-  dplyr::mutate(loss_TCGA = with_TCGA - without_TCGA,
-                loss_SCANB = with_SCANB - without_SCANB)
-strip_test %>% dplyr::arrange(dplyr::desc(loss_TCGA)) %>%
-  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 4))) %>%
+    loss_mito_TCGA    = rho_TCGA_FULL - rho_TCGA_MITOSTRIP,
+    loss_prolif_TCGA  = rho_TCGA_FULL - rho_TCGA_PROLIFSTRIP,
+    loss_both_TCGA    = rho_TCGA_FULL - rho_TCGA_BOTHSTRIP,
+    loss_mito_SCANB   = rho_SCANB_FULL - rho_SCANB_MITOSTRIP,
+    loss_prolif_SCANB = rho_SCANB_FULL - rho_SCANB_PROLIFSTRIP,
+    loss_both_SCANB   = rho_SCANB_FULL - rho_SCANB_BOTHSTRIP)
+
+message("\n   rho with ", FOCUS_ARM, ", TCGA, by variant:")
+variant_table %>% dplyr::arrange(dplyr::desc(rho_TCGA_FULL)) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::select(base, rho_TCGA_FULL, rho_TCGA_MITOSTRIP, rho_TCGA_PROLIFSTRIP,
+                rho_TCGA_BOTHSTRIP, loss_both_TCGA) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
-message("\n   how much of the PANEL SPREAD survives the deletion:")
-tibble::tibble(
-  quantity = c("spread across signatures, with mitochondrial genes",
-               "spread across signatures, without them",
-               "rho(frac_mito, mean per-gene rho), with",
-               "rho(frac_mito, mean per-gene rho), without"),
-  TCGA = c(diff(range(strip_test$with_TCGA, na.rm = TRUE)),
-           diff(range(strip_test$without_TCGA, na.rm = TRUE)),
-           stats::cor(composition$frac_mito, strip_test$with_TCGA,
-                      method = "spearman", use = "pairwise.complete.obs"),
-           stats::cor(composition$frac_mito, strip_test$without_TCGA,
-                      method = "spearman", use = "pairwise.complete.obs")),
-  `SCAN-B` = c(diff(range(strip_test$with_SCANB, na.rm = TRUE)),
-               diff(range(strip_test$without_SCANB, na.rm = TRUE)),
-               stats::cor(composition$frac_mito, strip_test$with_SCANB,
-                          method = "spearman", use = "pairwise.complete.obs"),
-               stats::cor(composition$frac_mito, strip_test$without_SCANB,
-                          method = "spearman", use = "pairwise.complete.obs"))) %>%
-  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 4))) %>%
+message("\n   and SCAN-B:")
+variant_table %>% dplyr::arrange(dplyr::desc(rho_SCANB_FULL)) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::select(base, rho_SCANB_FULL, rho_SCANB_MITOSTRIP,
+                rho_SCANB_PROLIFSTRIP, rho_SCANB_BOTHSTRIP, loss_both_SCANB) %>%
   as.data.frame() %>% print(row.names = FALSE)
-message(sprintf(
-  "   the proxy tracks the GSVA correlation it stands in for at rho %.3f (TCGA) / %.3f (SCAN-B)",
-  stats::cor(strip_test$with_TCGA, composition$rho_TCGA, method = "spearman",
-             use = "pairwise.complete.obs"),
-  stats::cor(strip_test$with_SCANB, composition$rho_SCANB, method = "spearman",
-             use = "pairwise.complete.obs")))
-message("   If the second row is much smaller than the first, most of what F1",
-        " read as\n   disagreement between MYC signatures was disagreement",
-        " about how many\n   mitochondrial genes they happen to contain. If it",
-        " is barely smaller, the\n   mitochondrial genes MARK an inclination",
-        " rather than causing the correlation.")
-message("\n   NOTE: a mean of per-gene correlations is not a GSVA score, and the",
-        "\n   two can diverge. This ranks the signatures by what they stand to",
-        " lose;\n   only a mitochondria-stripped GSVA rescore - one call, under",
-        " the pins -\n   settles it. The proxy's agreement with the real",
-        " statistic is printed above.")
-rm(LT, LS, grho_t, grho_s); invisible(gc(verbose = FALSE))
 
-message("\n   MENSSEN's mitochondrial genes, named:")
-menssen_mito <- intersect(MYC_SETS[["MENSSEN_MYC_TARGETS"]], MITO_ALL)
-message("   ", length(menssen_mito), " of ",
-        length(MYC_SETS[["MENSSEN_MYC_TARGETS"]]), ": ",
-        paste(menssen_mito, collapse = ", "))
-message("   MYC_UP.V1_UP's: ", length(intersect(MYC_SETS[["MYC_UP.V1_UP"]], MITO_ALL)),
-        " of ", length(MYC_SETS[["MYC_UP.V1_UP"]]), ": ",
-        paste(intersect(MYC_SETS[["MYC_UP.V1_UP"]], MITO_ALL), collapse = ", "))
+message("\n   THE PANEL-LEVEL ANSWER:")
+survival <- panel %>%
+  dplyr::filter(kind == "signature (GSVA)") %>%
+  dplyr::group_by(strip_status) %>%
+  dplyr::summarise(
+    n_sig = dplyr::n(),
+    median_TCGA = stats::median(rho_TCGA), min_TCGA = min(rho_TCGA),
+    max_TCGA = max(rho_TCGA), n_ge_0.2_TCGA = sum(rho_TCGA >= 0.2),
+    median_SCANB = stats::median(rho_SCANB), min_SCANB = min(rho_SCANB),
+    max_SCANB = max(rho_SCANB), n_ge_0.2_SCANB = sum(rho_SCANB >= 0.2),
+    .groups = "drop") %>%
+  dplyr::arrange(match(strip_status, c("FULL", "MITOSTRIP", "PROLIFSTRIP",
+                                       "BOTHSTRIP")))
+survival %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("\n   The BOTHSTRIP row is F1's answer. A signature there contains no",
+        "\n   MitoCarta gene and no HALLMARK E2F/G2M gene, so its correlation",
+        " with\n   OXPHOS is neither self-overlap nor proliferation.")
+
+# The flawed adjustment against the clean strip, side by side.
+message("\n   the PROLIF_DISJOINT adjustment against the clean PROLIFSTRIP:")
+adj_vs_strip <- a$atlas %>%
+  dplyr::filter(arm == FOCUS_ARM, instrument == "gsva", stratum == "all",
+                kind == "signature (GSVA)",
+                (strip_status == "FULL" & adjusted %in% c("raw", "prolif")) |
+                (strip_status == "PROLIFSTRIP" & adjusted == "raw")) %>%
+  dplyr::mutate(what = dplyr::case_when(
+    strip_status == "FULL" & adjusted == "raw"    ~ "FULL_raw",
+    strip_status == "FULL" & adjusted == "prolif" ~ "FULL_prolifADJUSTED",
+    TRUE                                          ~ "PROLIFSTRIP_raw")) %>%
+  dplyr::select(cohort, base, what, rho) %>%
+  tidyr::pivot_wider(names_from = what, values_from = rho)
+adj_vs_strip %>% dplyr::filter(cohort == "TCGA") %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::arrange(dplyr::desc(FULL_raw)) %>% as.data.frame() %>%
+  print(row.names = FALSE)
+message("   Adjusting removes shared VARIANCE; stripping removes shared GENES.",
+        "\n   Where the two disagree, the adjustment was doing something else.")
 
 # =============================================================================
 # 4. Are ELLWOOD and ALFANO informative, or just weak?
 # =============================================================================
-# Three ways a signature can be "weak": too few genes, genes that do not move
-# together (low internal coherence), or genes that move together but disagree
-# with every other MYC signature.
+# Three ways a signature can be weak: too few genes, genes that do not move
+# together, or genes that move together but disagree with every other MYC
+# signature. Measured on the FULL variants.
 message("\n4. ELLWOOD and ALFANO: weak, or measuring something else?")
 
 tcga_vst <- readRDS(PATH_TCGA_VST); ET <- tcga_vst$mat[, ID_T, drop = FALSE]
@@ -295,51 +211,38 @@ rm(scanb_vst); invisible(gc(verbose = FALSE))
   h <- sc$symbol_map[unique(g)]
   intersect(unname(ifelse(is.na(h), unique(g), h)), rownames(ES))
 }
-
-# Internal coherence: the median pairwise gene-gene Spearman WITHIN the
-# signature. A signature whose genes do not co-vary is not measuring a
-# programme, whatever it is named.
 .coherence <- function(genes, E, inf) {
-  g <- inf(genes)
-  if (length(g) < 3L) return(NA_real_)
+  g <- inf(genes); if (length(g) < 3L) return(NA_real_)
   C <- stats::cor(t(.rank_rows(E[g, , drop = FALSE])))
   stats::median(C[lower.tri(C)])
 }
-coherence <- tibble::tibble(signature = names(MYC_SETS)) %>%
-  dplyr::mutate(
-    coh_TCGA  = vapply(MYC_SETS[signature], .coherence, numeric(1), ET, .in_t),
-    coh_SCANB = vapply(MYC_SETS[signature], .coherence, numeric(1), ES, .in_s))
-
-# Agreement with the rest of the panel: correlation of this signature's SCORE
-# with the other 17 signatures' scores, within cohort.
-.agreement <- function(gsva_new, sigs) {
-  S <- gsva_new[sigs, , drop = FALSE]
-  C <- stats::cor(t(.rank_rows(S)))
-  diag(C) <- NA
+FULL_SIGS <- full$signature
+.agreement <- function(gsva_new) {
+  S <- gsva_new[FULL_SIGS, , drop = FALSE]
+  C <- stats::cor(t(.rank_rows(S))); diag(C) <- NA
   apply(C, 1L, function(v) stats::median(v, na.rm = TRUE))
 }
-SIGS <- MYC_PANEL$signature
-agree_t <- .agreement(nw$tcga_gsva_new, SIGS)
-agree_s <- .agreement(sc$gsva_new, SIGS)
+agree_t <- .agreement(nw$tcga_gsva_new); agree_s <- .agreement(sc$gsva_new)
 
-panel_quality <- composition %>%
-  dplyr::left_join(coherence, by = "signature") %>%
-  dplyr::mutate(agree_TCGA  = agree_t[signature],
-                agree_SCANB = agree_s[signature],
-                coverage_TCGA = sd_$coverage$frac[match(paste("TCGA", signature),
-                    paste(sd_$coverage$cohort, sd_$coverage$set))])
-panel_quality %>% dplyr::arrange(frac_prolif) %>%
+panel_quality <- full %>%
+  dplyr::mutate(
+    coh_TCGA  = vapply(MYC_SETS[signature], .coherence, numeric(1), ET, .in_t),
+    coh_SCANB = vapply(MYC_SETS[signature], .coherence, numeric(1), ES, .in_s),
+    agree_TCGA  = agree_t[signature],
+    agree_SCANB = agree_s[signature],
+    coverage_TCGA = sd_$coverage$frac[match(paste("TCGA", signature),
+                        paste(sd_$coverage$cohort, sd_$coverage$set))])
+panel_quality %>% dplyr::arrange(coh_TCGA) %>%
   dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
                 dplyr::across(c(coh_TCGA, coh_SCANB, agree_TCGA, agree_SCANB,
                                 rho_TCGA, rho_SCANB, coverage_TCGA),
                               ~ round(.x, 3))) %>%
-  dplyr::select(signature, n, frac_prolif, coverage_TCGA, coh_TCGA, coh_SCANB,
+  dplyr::select(base, n, frac_prolif, coverage_TCGA, coh_TCGA, coh_SCANB,
                 agree_TCGA, agree_SCANB, rho_TCGA, rho_SCANB) %>%
   as.data.frame() %>% print(row.names = FALSE)
-
-message("\n   If ELLWOOD and ALFANO sit at the BOTTOM of coherence and",
+message("\n   If ELLWOOD and ALFANO sit at the BOTTOM of coherence AND",
         " agreement, they\n   are weak signatures rather than informative ones,",
-        " and F1's positive\n   entanglement slope is an artefact of including",
+        " and F1's positive\n   entanglement slope was an artefact of including",
         " them.")
 
 # =============================================================================
@@ -347,160 +250,116 @@ message("\n   If ELLWOOD and ALFANO sit at the BOTTOM of coherence and",
 # =============================================================================
 # TWO STRUCTURAL DIFFERENCES, AND THE FIRST REVERSES THE QUESTION.
 #
-# (i) M_b IS MITOCHONDRIA-FREE BY CONSTRUCTION. 75 of the regulon's 886 targets
-#     were stripped as MitoCarta genes, leaving zero. Section 3 shows the
-#     panel's OXPHOS correlation tracks mitochondrial content at Spearman
-#     0.6-0.7. So M_b being the WEAKEST estimator on the OXPHOS plane
-#     (+0.240 / +0.117) is not a defect to be explained away - it may be the
-#     least contaminated number in the study, and the sixteen unstripped
-#     signatures above it may simply be reading their own mitochondrial genes.
-#     The handoff asked "why does M_b behave differently"; the answer may be
-#     that M_b behaves correctly.
+# (i) The version phase 1 used was the MITO-STRIPPED regulon, and section 2
+#     shows the panel's OXPHOS correlation tracks mitochondrial content. So M_b
+#     being the weakest estimator may mean it is the least contaminated one.
+#     Now that all four variants are scored, the comparison is direct.
 #
-# (ii) IT IS SIGNED. CollecTRI carries a mode of regulation per edge and ULM
+# (ii) It is SIGNED. CollecTRI carries a mode of regulation per edge and ULM
 #     uses it, so a repressed target going DOWN pushes M_b UP. No GSVA signature
-#     has any such notion. Section 5.2 tests whether that is what makes M_b
-#     move differently, by splitting the regulon by sign and scoring each half
-#     UNSIGNED.
-#
-# AND THE CIRCULARITY WORRY IS THE OTHER WAY ROUND FROM THE OBVIOUS ONE. None of
-# the 15 BCL2-family genes is in the stripped regulon - BAX, BCL2, BCL2L1, BBC3
-# and PMAIP1 were in it and were removed as mitochondrial; BAK1, BID, BCL2A1 and
-# MCL1 were never in it at all. So M_b's sharp BCL2-family signal (BCL2A1 +0.658,
-# BID +0.556, BCL2 -0.550) is NOT self-referential. Section 5.3 verifies that
-# rather than assuming it.
-message("\n5. M_b: mitochondria-free, and signed")
+#     has any such notion. Section 5.2 splits the regulon by sign and scores
+#     each half UNSIGNED to see whether that is what makes M_b move differently.
+message("\n5. M_b: mito-stripped, and signed")
 
-# THE SIGN RULE IS NOT INVENTED HERE. It is copied from the script that built
-# M_b - myc_human_validation script 06 at d3ac60e, and E02 section 4.5 for
-# SCAN-B - so this split describes the estimator that exists rather than a
-# different one:
-#
-#     mor = if_else(as.logical(is_stimulation), 1, -1)
-#
-# The snapshot is raw OmniPath, so there is no `mor` column: the sign lives in
-# `is_stimulation` / `is_inhibition` and symbols in `*_genesymbol`. 88 of the
-# 811 edges are flagged BOTH stimulatory and inhibitory. The rule above sends
-# every one of them to +1, silently, because `is_stimulation` is TRUE. That is
-# recorded upstream as "both-flagged edges take mor = +1" and it is reproduced
-# here rather than improved on - but it is also reported, because a repressed-
-# target analysis in which 88 ambiguous edges are counted as activating is a
-# thing a reader should be told.
+mb_variants <- a$atlas %>%
+  dplyr::filter(arm == FOCUS_ARM, instrument == "gsva", stratum == "all",
+                adjusted == "raw", kind == "CollecTRI regulon (ULM)") %>%
+  dplyr::select(myc_estimator, strip_status, cohort, n_genes, rho) %>%
+  tidyr::pivot_wider(names_from = cohort, values_from = rho)
+message("\n   M_b against ", FOCUS_ARM, ", by variant:")
+mb_variants %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   If M_b__FULL is much higher than M_b__MITOSTRIP, then M_b's",
+        " weakness in\n   phase 1 was the strip and not the estimator.")
+
+# --- 5.1 the sign rule, reproduced exactly -----------------------------------
+# From myc_human_validation script 06 at d3ac60e and E02 section 3.1b:
+# mor = if_else(as.logical(is_stimulation), 1, -1). The snapshot is raw
+# OmniPath, so the sign lives in is_stimulation / is_inhibition and symbols in
+# *_genesymbol. Edges flagged BOTH take +1, silently, and that is reported here
+# rather than improved on.
 collectri <- readr::read_tsv(PATH_COLLECTRI, show_col_types = FALSE,
                              progress = FALSE)
-COLL_ALL <- g1$estimators_stripped$COLLECTRI_MYC_ALL
+COLL_ALL <- sd_$collectri_sets[[MB_REF]]
 myc_reg <- collectri %>%
   dplyr::filter(source_genesymbol == "MYC", !is.na(target_genesymbol),
                 target_genesymbol != "") %>%
   dplyr::transmute(target = target_genesymbol,
-                   stim = as.logical(is_stimulation),
+                   stim  = as.logical(is_stimulation),
                    inhib = as.logical(is_inhibition),
-                   mor = dplyr::if_else(as.logical(is_stimulation), 1, -1)) %>%
+                   mor   = dplyr::if_else(as.logical(is_stimulation), 1, -1)) %>%
   dplyr::distinct(target, .keep_all = TRUE) %>%
   dplyr::filter(target %in% COLL_ALL)
-stopifnot(nrow(myc_reg) > 0)
-message("   CollecTRI MYC regulon: ", nrow(myc_reg), " of ", length(COLL_ALL),
-        " estimator targets carry an edge")
-myc_reg %>% dplyr::count(stim, inhib, mor) %>% as.data.frame() %>%
-  print(row.names = FALSE)
-
 POS <- sort(unique(myc_reg$target[myc_reg$mor > 0]))
 NEG <- sort(unique(myc_reg$target[myc_reg$mor < 0]))
 N_AMBIG <- sum(myc_reg$stim & myc_reg$inhib)
-message("   activated ", length(POS), " (of which ", N_AMBIG,
-        " are BOTH-flagged and only counted as activating by the rule)",
+message("\n   ", MB_REF, ": ", nrow(myc_reg), " edges | activated ", length(POS),
+        " (", N_AMBIG, " of them BOTH-flagged and counted as activating)",
         " | repressed ", length(NEG))
-message("   mitochondrial fraction: activated ",
-        round(mean(POS %in% MITO_ALL), 3), " | repressed ",
-        round(mean(NEG %in% MITO_ALL), 3),
-        " | panel median ", round(stats::median(composition$frac_mito), 3))
-
-# --- 5.1 overlap with the GSVA panel ----------------------------------------
-overlap <- tibble::tibble(signature = names(MYC_SETS)) %>%
-  dplyr::mutate(
-    n = vapply(MYC_SETS[signature], length, integer(1)),
-    in_regulon = vapply(MYC_SETS[signature],
-                        function(g) sum(g %in% COLL_ALL), integer(1)),
-    frac_in_regulon = in_regulon / n)
-message("\n   how much of each signature is inside the CollecTRI regulon:")
-overlap %>% dplyr::arrange(dplyr::desc(frac_in_regulon)) %>%
-  dplyr::mutate(frac_in_regulon = round(frac_in_regulon, 3)) %>%
-  as.data.frame() %>% print(row.names = FALSE)
 
 # --- 5.2 the signed halves, scored unsigned ---------------------------------
-# LOG matrix (VST). A mean of per-gene z across samples - the `zmean`
-# construction from E02 section 4.4, reused so the halves are comparable to the
-# arms.
+# LOG matrix (VST), mean of per-gene z - the `zmean` construction from E02
+# section 4.4, reused so the halves are comparable to the arms.
 .zmean <- function(genes, E, inf) {
-  g <- inf(genes)
-  sub <- E[g, , drop = FALSE]
-  v <- apply(sub, 1L, stats::var)
-  sub <- sub[v > 0, , drop = FALSE]
+  g <- inf(genes); sub <- E[g, , drop = FALSE]
+  v <- apply(sub, 1L, stats::var); sub <- sub[v > 0, , drop = FALSE]
   colMeans((sub - rowMeans(sub)) / apply(sub, 1L, stats::sd))
 }
-halves_t <- rbind(regulon_activated = .zmean(POS, ET, .in_t),
-                  regulon_repressed = .zmean(NEG, ET, .in_t))
-halves_s <- rbind(regulon_activated = .zmean(POS, ES, .in_s),
-                  regulon_repressed = .zmean(NEG, ES, .in_s))
-halves_t <- rbind(halves_t, regulon_difference = halves_t[1, ] - halves_t[2, ])
-halves_s <- rbind(halves_s, regulon_difference = halves_s[1, ] - halves_s[2, ])
-colnames(halves_t) <- ID_T; colnames(halves_s) <- ID_S
+.halves <- function(E, inf, ids) {
+  h <- rbind(regulon_activated = .zmean(POS, E, inf),
+             regulon_repressed = .zmean(NEG, E, inf))
+  h <- rbind(h, regulon_difference = h[1, ] - h[2, ])
+  colnames(h) <- ids; h
+}
+halves_t <- .halves(ET, .in_t, ID_T); halves_s <- .halves(ES, .in_s, ID_S)
 
-# What each half tracks: M_b itself, the MYC signatures, and OXPHOS.
 .probe <- function(halves, gsva_new, arms_obj, mb, ids, coh) {
   TARGETS <- rbind(
-    M_b            = as.numeric(mb[ids]),
-    FELSHER_61     = as.numeric(gsva_new["FELSHER_61", ids]),
-    MYC_UP.V1_UP   = as.numeric(gsva_new["MYC_UP.V1_UP", ids]),
-    OXPHOS_gsva    = as.numeric(arms_obj$gsva_arms["OXPHOS subunits", ids]),
-    MITORIBO_gsva  = as.numeric(arms_obj$gsva_arms["Mitochondrial ribosome", ids]),
-    PROLIF         = as.numeric(arms_obj$gsva_cov["PROLIF_DISJOINT", ids]))
+    M_b           = as.numeric(mb[ids]),
+    MYC_REF_score = as.numeric(gsva_new[MYC_REF, ids]),
+    MYC_LOW_ENT   = as.numeric(gsva_new[MYC_LOW_ENTANG, ids]),
+    OXPHOS_gsva   = as.numeric(arms_obj$gsva_arms[FOCUS_ARM, ids]),
+    MITORIBO_gsva = as.numeric(arms_obj$gsva_arms["Mitochondrial ribosome", ids]),
+    PROLIF        = as.numeric(arms_obj$gsva_cov["PROLIF_DISJOINT", ids]))
   colnames(TARGETS) <- ids
   .atlas_block(TARGETS, halves[, ids, drop = FALSE], ids, NULL, min_n = 30L) %>%
     dplyr::rename(target = myc_estimator, half = measure) %>%
     dplyr::mutate(cohort = coh) %>%
     dplyr::select(cohort, half, target, rho, ci_lo, ci_hi)
 }
-est_t  <- readRDS(PATH_TCGA_MYC)$estimators
-mb_t   <- stats::setNames(est_t$M_b, est_t$patient)
 mb_probe <- dplyr::bind_rows(
-  .probe(halves_t, nw$tcga_gsva_new, mito, mb_t,    ID_T, "TCGA"),
-  .probe(halves_s, sc$gsva_new,      sc,   sc$M_b,  ID_S, "SCAN-B"))
+  .probe(halves_t, nw$tcga_gsva_new, mito, nw$tcga_M_b_variants[MB_REF, ], ID_T, "TCGA"),
+  .probe(halves_s, sc$gsva_new,      sc,   sc$M_b_variants[MB_REF, ],      ID_S, "SCAN-B"))
+message("\n   what each half of the regulon tracks:")
 mb_probe %>%
   tidyr::pivot_wider(id_cols = c(half, target), names_from = cohort,
                      values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
-# --- 5.3 the BCL2 family, which is where M_b was sharpest --------------------
-message("\n   the BCL2 family: in the RAW regulon, and in the STRIPPED one?")
-raw_reg <- collectri %>%
-  dplyr::filter(source_genesymbol == "MYC") %>% dplyr::pull(target_genesymbol)
+# --- 5.3 is M_b's BCL2-family signal independent? ---------------------------
+message("\n   the BCL2 family: in the RAW regulon, and in the one M_b uses?")
+raw_reg <- collectri %>% dplyr::filter(source_genesymbol == "MYC") %>%
+  dplyr::pull(target_genesymbol)
 bcl2_in <- tibble::tibble(gene = sd_$bcl2_family) %>%
-  dplyr::mutate(
-    in_raw_regulon      = gene %in% raw_reg,
-    in_stripped_regulon = gene %in% COLL_ALL,
-    is_mitocarta        = gene %in% MITO_ALL,
-    mor                 = myc_reg$mor[match(gene, myc_reg$target)],
-    both_flagged        = myc_reg$stim[match(gene, myc_reg$target)] &
-                          myc_reg$inhib[match(gene, myc_reg$target)])
+  dplyr::mutate(in_raw_regulon = gene %in% raw_reg,
+                in_M_b_ref     = gene %in% COLL_ALL,
+                is_mitocarta   = gene %in% MITO_ALL)
 bcl2_in %>% as.data.frame() %>% print(row.names = FALSE)
-if (any(bcl2_in$in_stripped_regulon)) {
-  stop("a BCL2-family gene survives into the estimator that scores it: ",
-       paste(bcl2_in$gene[bcl2_in$in_stripped_regulon], collapse = ", "),
-       ". M_b's correlation with that gene is partly self-referential and must ",
-       "not be reported as an observation about it.", call. = FALSE)
+if (any(bcl2_in$in_M_b_ref)) {
+  stop("a BCL2-family gene survives into ", MB_REF, ": ",
+       paste(bcl2_in$gene[bcl2_in$in_M_b_ref], collapse = ", "),
+       ". Its correlation with that gene is partly self-referential.",
+       call. = FALSE)
 }
-message("   NONE of the 15 survives into the estimator, so M_b's BCL2-family",
-        " numbers\n   are independent observations. The ones that WERE in the",
-        " raw regulon\n   (", paste(bcl2_in$gene[bcl2_in$in_raw_regulon], collapse = ", "),
-        ")\n   were removed as MitoCarta genes - the strip did the work here",
-        " even though\n   it was aimed at something else.")
+message("   None survives into ", MB_REF, " - all 15 are MitoCarta genes and",
+        " the\n   mitochondrial strip removed every one that was in the regulon.",
+        " So M_b's\n   BCL2-family numbers are independent observations. NOTE",
+        " that M_b__FULL is\n   NOT: it retains them, and must not be used for",
+        " a BCL2-family claim.")
 
-# The same question for every GSVA signature, which was NOT stripped.
-message("\n   and the unstripped signatures - do any of them contain the BCL2",
-        " genes\n   whose correlation with them E05 reports?")
-bcl2_in_sigs <- tibble::tibble(signature = names(MYC_SETS)) %>%
+message("\n   and the FULL GSVA signatures, which were never stripped:")
+bcl2_in_sigs <- tibble::tibble(signature = FULL_SIGS) %>%
   dplyr::mutate(n_bcl2 = vapply(MYC_SETS[signature],
                                 function(g) sum(g %in% sd_$bcl2_family),
                                 integer(1)),
@@ -510,37 +369,35 @@ bcl2_in_sigs <- tibble::tibble(signature = names(MYC_SETS)) %>%
   dplyr::filter(n_bcl2 > 0)
 if (nrow(bcl2_in_sigs)) {
   bcl2_in_sigs %>% as.data.frame() %>% print(row.names = FALSE)
-  message("   Those cells of E05's overlay are NOT independent observations.")
-} else {
-  message("   none.")
-}
+  message("   Those cells of E05's overlay are NOT independent observations.",
+          "\n   Their __MITOSTRIP variants are.")
+} else message("   none.")
 
 # =============================================================================
 # 6. Save
 # =============================================================================
 message("\n6. save")
-saveRDS(list(composition = composition, d0_test = d0_test,
-             strip_summary = strip_summary, strip_test = strip_test,
-             bcl2_in_signatures = bcl2_in_sigs,
-             panel_quality = panel_quality, overlap = overlap,
+saveRDS(list(panel = panel, d0_test = d0_test, variant_table = variant_table,
+             survival = survival, adj_vs_strip = adj_vs_strip,
+             panel_quality = panel_quality, mb_variants = mb_variants,
              regulon = list(activated = POS, repressed = NEG,
                             n_both_flagged = N_AMBIG, table = myc_reg),
              mb_probe = mb_probe, bcl2_in_regulon = bcl2_in,
+             bcl2_in_signatures = bcl2_in_sigs,
              halves = list(TCGA = halves_t, `SCAN-B` = halves_s),
              rules = list(
-               d0_applies_here = paste("if a MYC signature's OXPHOS correlation",
-                                       "tracks its mitochondrial fraction, that",
-                                       "is the same confound D0 found in the",
-                                       "death sets and F1 must be re-read"),
-               circularity = paste("no BCL2-family gene survives into the",
-                                   "stripped regulon, so M_b's BCL2 numbers are",
-                                   "independent; the unstripped GSVA signatures",
-                                   "are checked separately and some are not"),
-               panel_not_homogeneous = paste("FELSHER_61 and M_b were stripped",
-                                             "of every MitoCarta gene; the other",
-                                             "16 signatures were not. Phase 1",
-                                             "read the panel as if they were the",
-                                             "same kind of object")),
+               f1_answer = paste("the BOTHSTRIP row of `survival` is F1's",
+                                 "answer: those signatures contain no MitoCarta",
+                                 "gene and no HALLMARK E2F/G2M gene"),
+               adjust_vs_strip = paste("adjusting removes shared VARIANCE,",
+                                       "stripping removes shared GENES;",
+                                       "PROLIF_DISJOINT is disjoint from M_a",
+                                       "alone and shares 96 genes with the",
+                                       "FULL panel union"),
+               mb_bcl2 = paste("no BCL2-family gene survives into M_b__MITOSTRIP",
+                               "so its BCL2 numbers are independent; M_b__FULL",
+                               "retains them and must not be used for a",
+                               "BCL2-family claim")),
              built = Sys.time()), PATH_E06)
 message("\nE06: done.  results/estimator_anatomy.rds")
 
@@ -551,26 +408,28 @@ if (FALSE) {
 
   e <- readRDS(PATH_E06)
 
-  # THE question: mitochondrial content vs entanglement as explanations
-  e$d0_test %>% as.data.frame()
+  # F1's answer, in one table
+  e$survival %>% as.data.frame()
 
-  e$composition %>% dplyr::arrange(dplyr::desc(frac_mito)) %>%
-    dplyr::select(signature, n, frac_prolif, frac_mito, rho_TCGA, rho_SCANB) %>%
-    as.data.frame()
+  # per signature, what each strip costs
+  e$variant_table %>% dplyr::arrange(dplyr::desc(loss_both_TCGA)) %>%
+    dplyr::select(base, rho_TCGA_FULL, rho_TCGA_MITOSTRIP,
+                  rho_TCGA_PROLIFSTRIP, rho_TCGA_BOTHSTRIP) %>% as.data.frame()
 
-  # what each signature stands to lose to a proper mitochondria-stripped rescore
-  e$strip_test %>% dplyr::arrange(dplyr::desc(loss_TCGA)) %>% as.data.frame()
-  e$strip_summary %>% as.data.frame()
+  # adjustment vs stripping - do they agree?
+  e$adj_vs_strip %>% as.data.frame()
 
-  # are the low-entanglement outliers weak?
-  e$panel_quality %>% dplyr::arrange(coh_TCGA) %>%
-    dplyr::select(signature, n, coh_TCGA, agree_TCGA, rho_TCGA) %>% head(8) %>%
-    as.data.frame()
-
-  # M_b
+  # is M_b weak because it was stripped?
+  e$mb_variants %>% as.data.frame()
   e$mb_probe %>% tidyr::pivot_wider(id_cols = c(half, target),
                                     names_from = cohort, values_from = rho) %>%
     as.data.frame()
-  e$bcl2_in_regulon %>% as.data.frame()
+
+  # are the low-entanglement outliers weak?
+  e$panel_quality %>% dplyr::arrange(coh_TCGA) %>%
+    dplyr::select(base, n, coh_TCGA, agree_TCGA, rho_TCGA) %>% head(8) %>%
+    as.data.frame()
+
+  e$bcl2_in_signatures %>% as.data.frame()
 
 }

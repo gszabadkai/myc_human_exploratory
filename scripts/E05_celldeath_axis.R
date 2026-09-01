@@ -75,7 +75,7 @@ HUGE_SET      <- 500L     # the trap-10 threshold, from E02
 
 # The three MYC estimators the product terms are built from: the least
 # entangled, the validation study's, and the most widely used.
-PRODUCT_MYC <- c("MYC_UP.V1_UP", "FELSHER_61", "HALLMARK_MYC_TARGETS_V1")
+PRODUCT_MYC <- c(MYC_LOW_ENTANG, MYC_REF, MYC_HALLMARK)
 PRODUCT_ARM <- "OXPHOS subunits"
 
 INSTRUMENTS <- c(gsva = "gsva_arms", mitopps = "mitopps_arms",
@@ -155,10 +155,10 @@ MYC_SIGS <- sd_$myc_panel$signature
   gsva_new[MYC_SIGS, , drop = FALSE], do.call(rbind, extra))
 
 MYC_T <- .myc_rows(nw$tcga_gsva_new,
-                   list(M_b = myc_t$M_b[match(ID_T, myc_t$patient)],
+                   list(M_b = nw$tcga_M_b_variants[MB_REF, ID_T],
                         log2MYC = nw$tcga_log2MYC[ID_T],
                         M_c_call = as.numeric(myc_t$M_c_call[match(ID_T, myc_t$patient)])))
-MYC_S <- .myc_rows(sc$gsva_new, list(M_b = sc$M_b[ID_S], log2MYC = sc$log2MYC[ID_S]))
+MYC_S <- .myc_rows(sc$gsva_new, list(M_b = sc$M_b_variants[MB_REF, ID_S], log2MYC = sc$log2MYC[ID_S]))
 colnames(MYC_T) <- ID_T; colnames(MYC_S) <- ID_S
 
 # The product term. z-scored WITHIN COHORT and over ALL samples, so the same
@@ -260,8 +260,8 @@ message("   ", format(nrow(death_grid), big.mark = ","), " cells")
 message("\n   death sets against MYC (FELSHER_61) and OXPHOS subunits (GSVA), raw:")
 death_grid %>%
   dplyr::filter(stratum == "all", adjusted == "raw",
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(partner = ifelse(partner == "FELSHER_61", "MYC", "OXPHOS")) %>%
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(partner = ifelse(partner == MYC_REF, "MYC", "OXPHOS")) %>%
   tidyr::pivot_wider(id_cols = c(death_set, set_n, huge),
                      names_from = c(cohort, partner), values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -274,8 +274,8 @@ death_grid %>%
 message("\n   pro-death MINUS pro-survival, the contrast the strata exist for:")
 cdc_contrast <- death_grid %>%
   dplyr::filter(stratum == "all", grepl("^CDC_", death_set),
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(axis = ifelse(partner == "FELSHER_61", "MYC", "OXPHOS"),
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(axis = ifelse(partner == MYC_REF, "MYC", "OXPHOS"),
                 effect = ifelse(grepl("PRODEATH", death_set), "prodeath",
                                 "prosurvival"),
                 stratum_kind = sub("^CDC_(PRODEATH|PROSURVIVAL)_", "", death_set)) %>%
@@ -322,7 +322,7 @@ OVERLAY_GENES <- sort(unique(c(CICD_GENES, sd_$bcl2_family,
   if (length(gr$missing))
     message("   ", coh, ": ", length(gr$missing), " gene(s) absent - ",
             paste(utils::head(gr$missing, 8), collapse = ", "))
-  keep <- c("FELSHER_61", "MYC_UP.V1_UP", "M_b", "log2MYC",
+  keep <- c(MYC_REF, MYC_LOW_ENTANG, "M_b", "log2MYC",
             "arm.gsva::OXPHOS subunits", "arm.mitopps::OXPHOS subunits",
             "arm.gsva::mtDNA-encoded OXPHOS")
   .atlas_block(PART[intersect(keep, rownames(PART)), , drop = FALSE],
@@ -339,8 +339,8 @@ overlay <- dplyr::bind_rows(
 
 message("\n   the CICD genes against MYC and OXPHOS (GSVA), both cohorts:")
 overlay %>%
-  dplyr::filter(is_cicd, partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(partner = ifelse(partner == "FELSHER_61", "MYC", "OXPHOS")) %>%
+  dplyr::filter(is_cicd, partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(partner = ifelse(partner == MYC_REF, "MYC", "OXPHOS")) %>%
   tidyr::pivot_wider(id_cols = c(gene, effect, pathway), names_from = c(cohort, partner),
                      values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -409,8 +409,8 @@ message("\n6. expression-matched null for every death set (trap 10)")
 }
 ALL_DEATH_SETS <- c(sd_$cdc_sets, sd_$tang_sets)[DEATH_SETS]
 null_test <- dplyr::bind_rows(
-  .null_test(LT, .in_t, MYC_T["FELSHER_61", ], ALL_DEATH_SETS, "TCGA"),
-  .null_test(LS, .in_s, MYC_S["FELSHER_61", ], ALL_DEATH_SETS, "SCAN-B")) %>%
+  .null_test(LT, .in_t, MYC_T[MYC_REF, ], ALL_DEATH_SETS, "TCGA"),
+  .null_test(LS, .in_s, MYC_S[MYC_REF, ], ALL_DEATH_SETS, "SCAN-B")) %>%
   dplyr::mutate(huge = n_genes >= HUGE_SET)
 
 message("\n   observed mean per-gene rho(MYC, gene) vs an expression-matched null:")
@@ -426,8 +426,8 @@ message("\n7. figures")
 
 plane_pts <- death_grid %>%
   dplyr::filter(stratum == "all", adjusted == "raw",
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(axis = ifelse(partner == "FELSHER_61", "MYC", "OXPHOS")) %>%
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(axis = ifelse(partner == MYC_REF, "MYC", "OXPHOS")) %>%
   tidyr::pivot_wider(id_cols = c(cohort, death_set, set_n, huge),
                      names_from = axis, values_from = rho) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
@@ -463,8 +463,8 @@ g1 <- ggplot2::ggplot(plane_pts, ggplot2::aes(MYC, OXPHOS)) +
 
 forest <- death_grid %>%
   dplyr::filter(stratum == "all", adjusted %in% c("raw", "prolif"),
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(axis = ifelse(partner == "FELSHER_61", "vs MYC activity",
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(axis = ifelse(partner == MYC_REF, "vs MYC activity",
                               "vs OXPHOS subunits"),
                 cohort = factor(cohort, levels = names(COHORT_COLS)),
                 adjusted = factor(adjusted, levels = c("raw", "prolif"),
@@ -522,8 +522,8 @@ g3 <- ggplot2::ggplot(nullp, ggplot2::aes(z, death_set, colour = cohort,
 
 cicd <- overlay %>%
   dplyr::filter(is_cicd,
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(axis = ifelse(partner == "FELSHER_61", "vs MYC activity",
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(axis = ifelse(partner == MYC_REF, "vs MYC activity",
                               "vs OXPHOS subunits"),
                 cohort = factor(cohort, levels = names(COHORT_COLS)),
                 scored = ifelse(gene %in% sd_$cdc_sets$CDC_PRODEATH_CICD,
@@ -551,8 +551,8 @@ g4 <- ggplot2::ggplot(cicd, ggplot2::aes(rho, gene, colour = cohort,
 
 bcl2 <- overlay %>%
   dplyr::filter(is_bcl2 | !is.na(family_pathway),
-                partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits")) %>%
-  dplyr::mutate(axis = ifelse(partner == "FELSHER_61", "MYC", "OXPHOS")) %>%
+                partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
+  dplyr::mutate(axis = ifelse(partner == MYC_REF, "MYC", "OXPHOS")) %>%
   tidyr::pivot_wider(id_cols = c(cohort, gene, family_pathway, effect, is_bcl2),
                      names_from = axis, values_from = rho) %>%
   dplyr::filter(!is.na(MYC), !is.na(OXPHOS)) %>%
@@ -634,7 +634,7 @@ if (FALSE) {
   # the CDC strata, which are the part of the death axis with a real hypothesis
   d$death_grid %>%
     dplyr::filter(grepl("^CDC_", death_set), stratum == "all",
-                  partner %in% c("FELSHER_61", "arm.gsva::OXPHOS subunits",
+                  partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits",
                                  "arm.mitopps::OXPHOS subunits")) %>%
     tidyr::pivot_wider(id_cols = c(death_set, set_n),
                        names_from = c(cohort, partner, adjusted),
@@ -644,7 +644,7 @@ if (FALSE) {
 
   # pro-death minus pro-survival, the contrast the strata exist for
   d$death_grid %>%
-    dplyr::filter(stratum == "all", adjusted == "raw", partner == "FELSHER_61",
+    dplyr::filter(stratum == "all", adjusted == "raw", partner == MYC_REF,
                   death_set %in% c("CDC_PRODEATH_APOPTOSIS",
                                    "CDC_PROSURVIVAL_APOPTOSIS",
                                    "CDC_PRODEATH_APOPTOSIS_MITO",

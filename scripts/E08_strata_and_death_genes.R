@@ -97,16 +97,16 @@ rm(tcga_lin, scanb_lin); invisible(gc(verbose = FALSE))
 
 # The two axes everything is read against, per cohort.
 .axes <- function(gsva_new, arms_obj, mb, ids) {
-  m <- rbind(MYC            = as.numeric(gsva_new["FELSHER_61", ids]),
-             MYC_low_entang = as.numeric(gsva_new["MYC_UP.V1_UP", ids]),
+  m <- rbind(MYC            = as.numeric(gsva_new[MYC_REF, ids]),
+             MYC_low_entang = as.numeric(gsva_new[MYC_LOW_ENTANG, ids]),
              M_b            = as.numeric(mb[ids]),
              OXPHOS         = as.numeric(arms_obj$gsva_arms["OXPHOS subunits", ids]),
              OXPHOS_mitopps = as.numeric(arms_obj$mitopps_arms["OXPHOS subunits", ids]),
              MITORIBO       = as.numeric(arms_obj$gsva_arms["Mitochondrial ribosome", ids]))
   colnames(m) <- ids; m
 }
-AX_T <- .axes(nw$tcga_gsva_new, mito, stats::setNames(myc_t$M_b, myc_t$patient), ID_T)
-AX_S <- .axes(sc$gsva_new,      sc,   sc$M_b,                                    ID_S)
+AX_T <- .axes(nw$tcga_gsva_new, mito, nw$tcga_M_b_variants[MB_REF, ID_T], ID_T)
+AX_S <- .axes(sc$gsva_new,      sc,   sc$M_b_variants[MB_REF, ],                                    ID_S)
 
 COH <- list(
   TCGA     = list(L = LT, inf = .in_t, ax = AX_T, str = STR_T, ids = ID_T),
@@ -165,7 +165,7 @@ range_test %>%
 message("\n   every arm, ERpos minus ERneg (FELSHER_61, GSVA, raw):")
 arm_gap <- a$atlas %>%
   dplyr::filter(instrument == "gsva", adjusted == "raw",
-                myc_estimator == "FELSHER_61", measure_class == "arm",
+                myc_estimator == MYC_REF, measure_class == "arm",
                 stratum %in% c("ERpos", "ERneg")) %>%
   dplyr::select(cohort, arm, stratum, rho) %>%
   tidyr::pivot_wider(names_from = stratum, values_from = rho) %>%

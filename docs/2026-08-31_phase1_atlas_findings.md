@@ -69,6 +69,94 @@ survives.
 
 ---
 
+## F1 CORRECTION - the panel was not what it said it was
+
+2026-09-01, found while writing `E06`. The claim above is left standing as
+written; this is what is wrong with the evidence it rests on.
+
+**F1 read an 18-member panel as if the eighteen were one kind of object. They
+were not, in two separate ways, and neither was visible in any name.**
+
+### Defect 1: one estimator was mitochondria-stripped and seventeen were not
+
+`FELSHER_61` is not a signature as distributed. The validation study stripped it
+against the full 1,136-gene `MITOCARTA_ALL` inventory - 6 of its 67 genes - so
+that the MYC estimator could not overlap its own exposure. The same was done to
+the CollecTRI regulon behind `M_b` (75 of 886). **The other seventeen were never
+stripped:**
+
+```
+mitochondrial genes retained, of the set size
+HALLMARK_MYC_TARGETS_V1   23 / 200      MENSSEN_MYC_TARGETS   12 / 53
+BILD_MYC_ONCOGENIC_SIG    21 / 204      MUHAR_MYC_SIGNATURE   11 / 100
+MYC_UP.V1_UP              20 / 198      HALLMARK_..._V2        9 / 57
+ALFANO_MYC_TARGETS        19 / 238      ...
+DANG_MYC_TARGETS_UP       19 / 143      FELSHER_61             0 / 61  <- stripped
+```
+
+And a signature's OXPHOS correlation **tracks its mitochondrial fraction** at
+Spearman **0.649 (TCGA) / 0.726 (SCAN-B)** - higher than the 0.298 / 0.352 it
+tracks proliferation entanglement at. That is D0's confound pointed at the MYC
+panel, and F1 never tested for it.
+
+### Defect 2: `PROLIF_DISJOINT` is disjoint from `M_a` alone
+
+F1's "proliferation-adjusted" column projected out `PROLIF_DISJOINT`. That set
+is `PROLIF_STD` (327 genes = HALLMARK E2F_TARGETS + G2M_CHECKPOINT) **minus the
+9 proliferation genes of `FELSHER_61`, and nothing else**. It shares **96
+genes** with the union of the eighteen signatures. So for seventeen of them the
+"adjusted" rho was partly adjusting each signature for genes it contains.
+
+The name promised something it delivered for one member of the panel.
+
+### What has been done about it
+
+`E00` now carries a naming contract and `E02` scores **four explicitly labelled
+variants of every signature**, with no bare names anywhere:
+
+| suffix | definition |
+|---|---|
+| `__FULL` | the set exactly as distributed |
+| `__MITOSTRIP` | minus `MITOCARTA_ALL` (1,136) - what the validation study did |
+| `__PROLIFSTRIP` | minus HALLMARK E2F + G2M (327) - **new; no such estimator existed** |
+| `__BOTHSTRIP` | minus both |
+
+`FELSHER__MITOSTRIP` is reconstructed rather than imported and E02 stops unless
+it reproduces the validation study's 61-gene set exactly; `M_b__MITOSTRIP` is
+checked the same way against the snapshot's M_b. The same four variants exist
+for the CollecTRI regulon, so "is M_b weak because it was stripped?" is now a
+question the atlas answers.
+
+### What F1 will say once the re-run is in
+
+**Not yet known, and this note will not guess.** The quantitative re-read is
+`E06` section 3, which reads the four variants straight out of the atlas. The
+row that decides it is `__BOTHSTRIP`: those signatures contain no MitoCarta gene
+and no HALLMARK E2F/G2M gene, so a correlation there is neither self-overlap nor
+proliferation.
+
+Two things can already be said:
+
+- **F1's direction is unlikely to reverse.** A first pass at gene level - the
+  mean per-gene rho of each signature's genes against the OXPHOS arm, with and
+  without its mitochondrial members - moved the panel spread only from 0.265 to
+  0.253 and the frac_mito association only from 0.52 to 0.49. That suggests the
+  mitochondrial genes MARK a mitochondrially-inclined signature rather than
+  CAUSE its correlation. But a mean of per-gene correlations is not a GSVA score
+  and tracked the real statistic at only 0.744, which is exactly why the
+  properly scored variants were built.
+- **F1's headline sentence must change regardless.** "15 of 18 and 17 of 18
+  signatures keep rho >= 0.2 after proliferation adjustment" was computed with
+  an adjustment that is not disjoint from seventeen of those eighteen. The
+  replacement is the `__PROLIFSTRIP` column, and `E06` prints the two side by
+  side so the difference between adjusting away shared VARIANCE and removing
+  shared GENES is visible rather than assumed.
+
+Everything downstream of `E02` must be re-run before any number in F1 is quoted
+again.
+
+---
+
 ## F2. MYC mRNA carries no OXPHOS signal at all. The gap is the result.
 
 `log2(MYC)` against `OXPHOS subunits`: **-0.011** (SCAN-B), **-0.032** (TCGA).

@@ -128,7 +128,7 @@ rm(tcga_lin, scanb_lin); invisible(gc(verbose = FALSE))
 
 X_ARMS <- c("OXPHOS subunits", "Mitochondrial ribosome", "mtDNA-encoded OXPHOS",
             "TCA cycle", "Fatty acid oxidation")
-X_MYC  <- c("FELSHER_61", "MYC_UP.V1_UP", "HALLMARK_MYC_TARGETS_V1")
+X_MYC  <- c(MYC_REF, MYC_LOW_ENTANG, MYC_HALLMARK)
 
 .side <- function(gsva_new, arms_obj, mb, L, ids) {
   myc <- rbind(gsva_new[X_MYC, ids, drop = FALSE],
@@ -144,9 +144,9 @@ X_MYC  <- c("FELSHER_61", "MYC_UP.V1_UP", "HALLMARK_MYC_TARGETS_V1")
   rownames(oth)[rownames(oth) == "death2"] <- "CDC_PRODEATH_APOPTOSIS"
   list(myc = myc, oth = oth)
 }
-S_T <- .side(nw$tcga_gsva_new, mito, stats::setNames(myc_t$M_b, myc_t$patient),
+S_T <- .side(nw$tcga_gsva_new, mito, nw$tcga_M_b_variants[MB_REF, ID_T],
              LT, ID_T)
-S_S <- .side(sc$gsva_new, sc, sc$M_b, LS, ID_S)
+S_S <- .side(sc$gsva_new, sc, sc$M_b_variants[MB_REF, ], LS, ID_S)
 message("   ", nrow(S_T$myc), " MYC estimators x ", nrow(S_T$oth),
         " partners x 2 cohorts = ", 2 * nrow(S_T$myc) * nrow(S_T$oth), " pairs")
 
@@ -169,7 +169,7 @@ measures <- dplyr::bind_rows(.sweep(S_T, "TCGA"), .sweep(S_S, "SCAN-B")) %>%
 
 message("\n   the headline pair, all four measures:")
 measures %>%
-  dplyr::filter(myc_estimator == "FELSHER_61",
+  dplyr::filter(myc_estimator == MYC_REF,
                 partner %in% paste0(c("gsva", "mitopps", "content", "zmean"),
                                     "::OXPHOS subunits")) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -228,11 +228,11 @@ message("   A gain near zero means Spearman lost nothing. A large gain with a",
                    stats::sd(v) / sqrt(length(v)))))
 }
 PROFILE_PAIRS <- list(
-  c("FELSHER_61", "gsva::OXPHOS subunits"),
-  c("MYC_UP.V1_UP", "gsva::OXPHOS subunits"),
-  c("FELSHER_61", "gsva::Mitochondrial ribosome"),
-  c("FELSHER_61", "gsva::mtDNA-encoded OXPHOS"),
-  c("FELSHER_61", "CDC_PROSURVIVAL_APOPTOSIS"),
+  c(MYC_REF, "gsva::OXPHOS subunits"),
+  c(MYC_LOW_ENTANG, "gsva::OXPHOS subunits"),
+  c(MYC_REF, "gsva::Mitochondrial ribosome"),
+  c(MYC_REF, "gsva::mtDNA-encoded OXPHOS"),
+  c(MYC_REF, "CDC_PROSURVIVAL_APOPTOSIS"),
   c("log2MYC", "gsva::OXPHOS subunits"))
 profiles <- dplyr::bind_rows(lapply(list(TCGA = S_T, `SCAN-B` = S_S),
   function(S) dplyr::bind_rows(lapply(PROFILE_PAIRS, function(p)
@@ -241,7 +241,7 @@ profiles <- dplyr::bind_rows(lapply(list(TCGA = S_T, `SCAN-B` = S_S),
 
 message("\n   decile profile of the headline pair (mean OXPHOS per MYC decile):")
 profiles %>%
-  dplyr::filter(myc_estimator == "FELSHER_61",
+  dplyr::filter(myc_estimator == MYC_REF,
                 partner == "gsva::OXPHOS subunits") %>%
   tidyr::pivot_wider(id_cols = decile, names_from = cohort, values_from = mean_y) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%

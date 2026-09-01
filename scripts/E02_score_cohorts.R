@@ -62,6 +62,7 @@ message("\n1. inputs")
 tcga_vst  <- readRDS(PATH_TCGA_VST)
 tcga_lin  <- readRDS(PATH_TCGA_LINEAR)
 tcga_mito <- readRDS(PATH_TCGA_MITO)
+tcga_myc  <- readRDS(PATH_TCGA_MYC)$estimators
 scanb_vst <- readRDS(PATH_SCANB_VST)
 scanb_lin <- readRDS(PATH_SCANB_LINEAR)
 scanb_ph  <- readRDS(PATH_SCANB_PHENO)
@@ -72,11 +73,16 @@ stopifnot(identical(tcga_vst$scale, "log_vst"),
           identical(scanb_vst$scale, "log_vst"),
           identical(scanb_lin$scale, "linear_deseq2_normalised"))
 
-felsher_61 <- g1$estimators_stripped$FELSHER
-collectri  <- g1$estimators_stripped$COLLECTRI_MYC_ALL
-stopifnot(length(felsher_61) == EXPECT_FELSHER_STRIP)
-message("   Felsher-61: ", length(felsher_61), " genes | CollecTRI: ",
-        length(collectri))
+felsher_61      <- g1$estimators_stripped$FELSHER
+collectri_full  <- g1$estimators_raw$COLLECTRI_MYC_ALL
+collectri_strip <- g1$estimators_stripped$COLLECTRI_MYC_ALL
+stopifnot(length(felsher_61) == EXPECT_FELSHER_STRIP,
+          length(collectri_full) == EXPECT_COLLECTRI_FULL,
+          length(collectri_strip) == EXPECT_COLLECTRI_STRIP)
+message("   Felsher: ", length(g1$estimators_raw$FELSHER), " raw / ",
+        length(felsher_61), " mito-stripped | CollecTRI: ",
+        length(collectri_full), " raw / ", length(collectri_strip),
+        " mito-stripped")
 
 mitocarta_inventory  <- suppressWarnings(readxl::read_xls(PATH_MITOCARTA, sheet = 2))
 mitocarta_background <- suppressWarnings(readxl::read_xls(PATH_MITOCARTA, sheet = 3))
@@ -101,45 +107,139 @@ arm_univ_map <- tcga_mito$arm_universe_path
 message("   mitochondrial arms: ", length(arm_sets),
         " | MitoPathway universe: ", length(mito_paths))
 
-# --- 2.2 the MYC estimator panel --------------------------------------------
-# The 16-signature compendium (native human GMX) plus HALLMARK_MYC_TARGETS_V1,
-# which is NOT in the GMX. Felsher-61 is scored alongside so this study's panel
-# contains the validation study's M_a as one member rather than as the default.
+# --- 2.2 the MYC estimator panel, in FOUR EXPLICITLY LABELLED VARIANTS -------
+# See the naming contract in E00. Phase 1 scored 18 sets under bare names, one
+# of which (FELSHER_61) had already been stripped of every MitoCarta gene while
+# the other 17 had not, and F1 was written on that mixture. From here every
+# scored estimator carries a suffix and there are no bare names.
+#
+# THE TWO REFERENCE SETS, TAKEN FROM THE VALIDATION STUDY'S OWN AUDIT so the
+# strip is reproducible rather than re-derived:
+#   MITOCARTA_ALL          1,136 genes - the set it actually stripped against
+#   HALLMARK E2F + G2M       327 genes - what `frac_prolif` is measured against
 #
 # GMX layout: row 1 set names, row 2 a description line (all NA here), rows 3+
 # genes, one column per set, NA-padded.
-message("\n2.2 MYC estimator panel")
+message("\n2.2 MYC estimator panel, four variants each")
 
 gmx <- utils::read.delim(PATH_MYC_GMX, header = TRUE, check.names = FALSE,
                          stringsAsFactors = FALSE, na.strings = c("NA", ""))
 gmx <- gmx[-1, , drop = FALSE]
-myc_sets <- lapply(gmx, function(v) sort(unique(v[!is.na(v) & v != ""])))
-if (length(myc_sets) != EXPECT_MYC_SETS) {
-  stop("the MYC GMX carries ", length(myc_sets), " signatures, expected ",
+myc_base <- lapply(gmx, function(v) sort(unique(v[!is.na(v) & v != ""])))
+if (length(myc_base) != EXPECT_MYC_SETS) {
+  stop("the MYC GMX carries ", length(myc_base), " signatures, expected ",
        EXPECT_MYC_SETS, ". Re-snapshot and update E00.", call. = FALSE)
 }
 
 hallmark <- msigdbr::msigdbr(species = "Homo sapiens", collection = "H")
 .hm <- function(nm) unique(hallmark$gene_symbol[hallmark$gs_name == nm])
-myc_sets[["HALLMARK_MYC_TARGETS_V1"]] <- .hm("HALLMARK_MYC_TARGETS_V1")
-myc_sets[["FELSHER_61"]]              <- felsher_61
+myc_base[["HALLMARK_MYC_TARGETS_V1"]] <- .hm("HALLMARK_MYC_TARGETS_V1")
 
-# Proliferation entanglement, the ordering variable for the whole panel
-# (CLAUDE.md trap 3). Computed here so it travels with the scores.
-prolif_hallmark <- unique(c(.hm("HALLMARK_E2F_TARGETS"),
-                            .hm("HALLMARK_G2M_CHECKPOINT")))
-myc_panel <- tibble::tibble(
-  signature   = names(myc_sets),
-  n           = vapply(myc_sets, length, integer(1)),
-  n_prolif    = vapply(myc_sets, function(g) sum(g %in% prolif_hallmark), integer(1))) %>%
-  dplyr::mutate(frac_prolif = n_prolif / n) %>%
-  dplyr::arrange(frac_prolif)
+# FELSHER enters as its RAW 67 genes. The 61-gene version everyone has been
+# calling FELSHER_61 is the MITOSTRIP variant and is reconstructed below, not
+# imported, so the reconstruction can be checked against the original.
+felsher_full <- g1$estimators_raw$FELSHER
+stopifnot(length(felsher_full) == EXPECT_FELSHER_FULL)
+myc_base[["FELSHER"]] <- sort(unique(felsher_full))
+
+MITOCARTA_ALL <- g1$reference_sets$MITOCARTA_ALL
+PROLIF_REF    <- unique(c(.hm("HALLMARK_E2F_TARGETS"),
+                          .hm("HALLMARK_G2M_CHECKPOINT")))
+if (length(MITOCARTA_ALL) != EXPECT_MITOCARTA_ALL ||
+    length(PROLIF_REF) != EXPECT_PROLIF_REF) {
+  stop("a strip reference set changed size: MITOCARTA_ALL ",
+       length(MITOCARTA_ALL), " (expected ", EXPECT_MITOCARTA_ALL,
+       "), PROLIF_REF ", length(PROLIF_REF), " (expected ", EXPECT_PROLIF_REF,
+       "). Re-snapshot and update E00 rather than adjusting the expectation.",
+       call. = FALSE)
+}
+message("   strip references: MITOCARTA_ALL ", length(MITOCARTA_ALL),
+        " | HALLMARK E2F+G2M ", length(PROLIF_REF))
+
+.variants <- function(g) list(
+  `__FULL`        = g,
+  `__MITOSTRIP`   = setdiff(g, MITOCARTA_ALL),
+  `__PROLIFSTRIP` = setdiff(g, PROLIF_REF),
+  `__BOTHSTRIP`   = setdiff(g, union(MITOCARTA_ALL, PROLIF_REF)))
+myc_sets <- list()
+for (b in names(myc_base)) {
+  v <- .variants(myc_base[[b]])
+  for (sfx in names(v)) myc_sets[[paste0(b, sfx)]] <- sort(v[[sfx]])
+}
+
+# THE RECONSTRUCTION CHECK. If setdiff(FELSHER-67, MITOCARTA_ALL) is not the
+# validation study's 61-gene M_a set, then this script's understanding of what
+# was stripped is wrong and every label below is wrong with it.
+if (!identical(myc_sets[["FELSHER__MITOSTRIP"]], sort(felsher_61))) {
+  stop("FELSHER__MITOSTRIP (", length(myc_sets[["FELSHER__MITOSTRIP"]]),
+       " genes) does not reproduce the validation study's stripped FELSHER (",
+       length(felsher_61), "). The strip reference or the raw set has moved; ",
+       "do not trust any variant label until this is resolved.", call. = FALSE)
+}
+message("   FELSHER__MITOSTRIP reproduces the validation study's M_a set ",
+        "exactly (", length(felsher_61), " genes)")
+
+# Proliferation entanglement and mitochondrial content, both carried with the
+# scores so no downstream script has to re-derive either (CLAUDE.md trap 3, and
+# D0's confound applied to the MYC panel).
+myc_panel <- tibble::tibble(signature = names(myc_sets)) %>%
+  dplyr::mutate(
+    base         = sub("__[A-Z]+$", "", signature),
+    strip_status = sub("^.*__", "", signature),
+    n            = vapply(myc_sets[signature], length, integer(1)),
+    n_full       = vapply(myc_base[base], length, integer(1)),
+    n_removed    = n_full - n,
+    n_prolif     = vapply(myc_sets[signature],
+                          function(g) sum(g %in% PROLIF_REF), integer(1)),
+    n_mito       = vapply(myc_sets[signature],
+                          function(g) sum(g %in% MITOCARTA_ALL), integer(1)),
+    frac_prolif  = n_prolif / n,
+    frac_mito    = n_mito / n,
+    thin         = n < MIN_GSVA_N) %>%
+  dplyr::arrange(base, match(strip_status,
+                             c("FULL", "MITOSTRIP", "PROLIFSTRIP", "BOTHSTRIP")))
+
+# The strips must actually have worked.
+stopifnot(all(myc_panel$n_mito[myc_panel$strip_status %in%
+                                 c("MITOSTRIP", "BOTHSTRIP")] == 0L),
+          all(myc_panel$n_prolif[myc_panel$strip_status %in%
+                                   c("PROLIFSTRIP", "BOTHSTRIP")] == 0L))
+
 myc_panel %>%
-  dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1)) %>%
+  dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
+                frac_mito = round(100 * frac_mito, 1)) %>%
+  dplyr::select(signature, strip_status, n, n_removed, frac_prolif, frac_mito,
+                thin) %>%
   as.data.frame() %>% print(row.names = FALSE)
-message("   entanglement spans ", round(100 * min(myc_panel$frac_prolif), 1),
-        "% to ", round(100 * max(myc_panel$frac_prolif), 1),
-        "%. NEVER report a MYC-OXPHOS correlation from one signature.")
+message("   ", nrow(myc_panel), " estimators = ", length(myc_base),
+        " signatures x 4 variants")
+if (any(myc_panel$thin)) {
+  message("   THIN (n < ", MIN_GSVA_N, "), scored but not to be read alone: ",
+          paste(myc_panel$signature[myc_panel$thin], collapse = ", "))
+}
+fp <- myc_panel$frac_prolif[myc_panel$strip_status == "FULL"]
+message("   entanglement across the FULL variants spans ",
+        round(100 * min(fp), 1), "% to ", round(100 * max(fp), 1),
+        "%. NEVER report a MYC-OXPHOS correlation from one signature, and",
+        " never\n   compare a FULL to a stripped one without saying so.")
+
+# --- 2.2b the CollecTRI regulon, same four variants --------------------------
+# M_b is the odd member of the panel twice over: it is a signed regulon scored
+# by ULM rather than a gene set scored by GSVA, AND the version phase 1 used was
+# the mito-stripped one. Both facts were invisible in the name. It now gets the
+# same four labels as everything else so "is M_b weak because it is stripped?"
+# is a question the atlas can answer instead of a question about the atlas.
+collectri_sets <- list()
+for (sfx in names(.variants(collectri_full)))
+  collectri_sets[[paste0("M_b", sfx)]] <- sort(.variants(collectri_full)[[sfx]])
+if (!identical(collectri_sets[["M_b__MITOSTRIP"]], sort(collectri_strip))) {
+  stop("M_b__MITOSTRIP does not reproduce the validation study's stripped ",
+       "CollecTRI regulon. Do not trust the variant labels.", call. = FALSE)
+}
+message("   CollecTRI variants: ",
+        paste(sprintf("%s=%d", names(collectri_sets),
+                      vapply(collectri_sets, length, integer(1))),
+              collapse = " | "))
 
 # --- 2.3 the death axis ------------------------------------------------------
 # Two sources, both human-native. See data/genesets_celldeath_human/README.md
@@ -345,6 +445,36 @@ MC_SYMBOLS <- unique(mitocarta_background$Symbol)
   invisible(NULL)
 }
 
+# --- 3.1b CollecTRI ULM, the M_b machinery -----------------------------------
+# SIGN RULE, identical to myc_human_validation script 06 at d3ac60e:
+# mor = +1 for a stimulatory edge, -1 for an inhibitory one, and an edge flagged
+# BOTH takes +1. Reproduced rather than improved on, because M_b in the snapshot
+# was built with it and the variants must be comparable to it.
+ct <- readr::read_tsv(PATH_COLLECTRI, show_col_types = FALSE, progress = FALSE)
+myc_net <- ct %>%
+  dplyr::filter(source_genesymbol == "MYC", !is.na(target_genesymbol),
+                target_genesymbol != "") %>%
+  dplyr::transmute(source = "MYC", target = target_genesymbol,
+                   mor = dplyr::if_else(as.logical(is_stimulation), 1, -1),
+                   likelihood = 1) %>%
+  dplyr::distinct(source, target, .keep_all = TRUE)
+
+.ulm <- function(targets, E, label) {
+  net <- myc_net %>% dplyr::filter(target %in% targets, target %in% rownames(E))
+  message(sprintf("   %-24s %3d targets in the matrix", label, nrow(net)))
+  res <- decoupleR::run_ulm(mat = E, network = net, .source = source,
+                            .target = target, .mor = mor, minsize = 5L)
+  v <- res %>% dplyr::filter(statistic == "ulm", source == "MYC") %>%
+    dplyr::select(condition, score)
+  stats::setNames(v$score, v$condition)[colnames(E)]
+}
+# All four variants at once, as a matrix with the variant names as rownames.
+.ulm_variants <- function(E, remap, label) {
+  m <- t(vapply(names(collectri_sets), function(nm)
+    .ulm(remap(collectri_sets[[nm]]), E, paste(label, nm)), numeric(ncol(E))))
+  colnames(m) <- colnames(E); m
+}
+
 # --- 3.2 GSVA, with the universe pinned --------------------------------------
 .gsva_batch <- function(sets, E, label) {
   n_ok <- vapply(sets, length, integer(1))
@@ -482,25 +612,7 @@ zmean_s <- t(vapply(arm_s, .zmean, numeric(ncol(Es)), E = Es))
 colnames(zmean_s) <- colnames(Es)
 
 # --- 4.5 MYC, the estimators that are not gene-set scores --------------------
-message("\n4.5 MYC: CollecTRI ULM and raw expression")
-ct <- readr::read_tsv(PATH_COLLECTRI, show_col_types = FALSE, progress = FALSE)
-myc_net <- ct %>%
-  dplyr::filter(source_genesymbol == "MYC", !is.na(target_genesymbol),
-                target_genesymbol != "") %>%
-  dplyr::transmute(source = "MYC", target = target_genesymbol,
-                   mor = dplyr::if_else(as.logical(is_stimulation), 1, -1),
-                   likelihood = 1) %>%
-  dplyr::distinct(source, target, .keep_all = TRUE)
-
-.ulm <- function(targets, E, label) {
-  net <- myc_net %>% dplyr::filter(target %in% targets, target %in% rownames(E))
-  message(sprintf("   %-14s %3d targets in the matrix", label, nrow(net)))
-  res <- decoupleR::run_ulm(mat = E, network = net, .source = source,
-                            .target = target, .mor = mor, minsize = 5L)
-  v <- res %>% dplyr::filter(statistic == "ulm", source == "MYC") %>%
-    dplyr::select(condition, score)
-  stats::setNames(v$score, v$condition)[colnames(E)]
-}
+message("\n4.5 MYC: CollecTRI ULM (four variants) and raw expression")
 # NOTE: the CollecTRI targets are NOT in the symbol map's input union, so
 # .remap_s leaves any unmatched one alone rather than resolving it. That is
 # deliberate, and the reason survives the 2026-08-31 rewrite of the candidate
@@ -510,15 +622,15 @@ myc_net <- ct %>%
 # resolution the map already makes - which would break the agreement assertion
 # in 4.1 for a secondary estimator's sake. M_b is reported alongside the panel,
 # never alone. See docs/2026-08-31_symbol_map_note.md.
-M_b_s <- .ulm(.remap_s(collectri), Es, "SCAN-B M_b")
+M_b_s <- .ulm_variants(Es, .remap_s, "SCAN-B")
 if (!"MYC" %in% rownames(Ls)) stop("MYC absent from SCAN-B.", call. = FALSE)
 log2MYC_s <- as.numeric(log2(Ls["MYC", ]))
 names(log2MYC_s) <- colnames(Ls)
 
-message(sprintf("   rho(M_a GSVA, M_b ULM) in SCAN-B = %+.3f",
-                .rho(gsva_s["FELSHER_61", ], M_b_s)))
-message(sprintf("   rho(M_a GSVA, log2(MYC))         = %+.3f",
-                .rho(gsva_s["FELSHER_61", ], log2MYC_s)))
+message(sprintf("   rho(%s, %s) in SCAN-B = %+.3f", MYC_REF, MB_REF,
+                .rho(gsva_s[MYC_REF, ], M_b_s[MB_REF, ])))
+message(sprintf("   rho(%s, log2(MYC))          = %+.3f", MYC_REF,
+                .rho(gsva_s[MYC_REF, ], log2MYC_s)))
 
 # =============================================================================
 # 5. TCGA: only the new sets
@@ -543,6 +655,25 @@ gsva_t_new <- .gsva_batch(new_t, Et, "TCGA new sets")
 
 log2MYC_t <- as.numeric(log2(Lt["MYC", ]))
 names(log2MYC_t) <- colnames(Lt)
+
+# --- 5.1 the M_b variants for TCGA, and the check that they are the same
+#         estimator the snapshot carries ---------------------------------------
+# The snapshot holds ONE M_b, built by myc_human_validation script 06 from the
+# mito-stripped regulon. Recomputing it here alongside the other three variants
+# is what makes the four comparable; reproducing the snapshot's value is what
+# proves the reconstruction is the same estimator and not merely a similar one.
+message("\n5.1 M_b, four variants, TCGA")
+M_b_t <- .ulm_variants(Et, function(g) g, "TCGA")
+mb_snap <- tcga_myc$M_b[match(colnames(Et), tcga_myc$patient)]
+mb_rho  <- .rho(M_b_t[MB_REF, ], mb_snap)
+mb_diff <- max(abs(M_b_t[MB_REF, ] - mb_snap))
+message(sprintf("   %s vs the snapshot's M_b: rho %.6f, max abs diff %.3g",
+                MB_REF, mb_rho, mb_diff))
+if (!is.finite(mb_rho) || mb_rho < 0.999) {
+  stop("the recomputed ", MB_REF, " does not reproduce the snapshot's M_b ",
+       "(rho ", signif(mb_rho, 4), "). The regulon, the sign rule or the ",
+       "matrix has moved; the variant labels cannot be trusted.", call. = FALSE)
+}
 
 # =============================================================================
 # 6. Coverage, both cohorts
@@ -582,7 +713,7 @@ saveRDS(list(
   content_arms = content_s,
   zmean_arms   = zmean_s,
   mitopps_universe = mpps_univ_s,
-  M_b = M_b_s, log2MYC = log2MYC_s,
+  M_b_variants = M_b_s, log2MYC = log2MYC_s,
   symbol_map = map_s, symbol_report = bm_s$report,
   scale = list(gsva = "log_vst", mitopps = "linear_deseq2_normalised",
                content = "log2 of summed linear", zmean = "log_vst"),
@@ -590,6 +721,7 @@ saveRDS(list(
 
 saveRDS(list(
   tcga_gsva_new = gsva_t_new,
+  tcga_M_b_variants = M_b_t,
   tcga_log2MYC  = log2MYC_t,
   tcga_symbol_map = map_t,
   note = paste("TCGA's 18 mitochondrial arms on 4 instruments live in the",
@@ -597,7 +729,9 @@ saveRDS(list(
   built = Sys.time()), PATH_NEW_SETS)
 
 saveRDS(list(
-  myc_sets = myc_sets, myc_panel = myc_panel,
+  myc_sets = myc_sets, myc_panel = myc_panel, myc_base = myc_base,
+  collectri_sets = collectri_sets,
+  strip_refs = list(MITOCARTA_ALL = MITOCARTA_ALL, PROLIF_REF = PROLIF_REF),
   cdc_sets = cdc_sets, cdc_table = cdc_tab,
   tang_sets = tang_sets, tang_table = tang_tab,
   family_labels = family_labels, bcl2_family = BCL2_FAMILY,
@@ -613,7 +747,19 @@ saveRDS(list(
     huge = paste("TANG_AUTOPHAGY_DEPENDENT_CELL_DEATH and TANG_FERROPTOSIS are",
                  "5-6.5% of the matrix; read against a size-matched comparator"),
     myc  = paste("report the panel ordered by proliferation entanglement,",
-                 "never a single signature")),
+                 "never a single signature"),
+    naming = paste("every MYC estimator carries an explicit suffix:",
+                   "__FULL as distributed, __MITOSTRIP minus MITOCARTA_ALL,",
+                   "__PROLIFSTRIP minus HALLMARK E2F+G2M, __BOTHSTRIP minus",
+                   "both. There are no bare names. FELSHER__MITOSTRIP IS the",
+                   "validation study's M_a and reproduces it exactly."),
+    prolif_disjoint = paste("PROLIF_DISJOINT is PROLIF_STD minus the 9",
+                            "proliferation genes of FELSHER_61 and nothing",
+                            "else. It is disjoint from M_a ALONE and shares 96",
+                            "genes with the 18-signature union, so a",
+                            "proliferation-ADJUSTED rho for any other signature",
+                            "is partly adjusting it for itself. Use the",
+                            "__PROLIFSTRIP variants to ask it cleanly.")),
   built = Sys.time()), PATH_SETDEFS)
 
 message("\nE02: done.")
@@ -637,7 +783,7 @@ if (FALSE) {
   # question is whether the ORDERING of arms by MYC correlation agrees.
   ma_t <- readRDS(PATH_TCGA_MYC)$estimators
   ma_t <- ma_t$M_a[match(colnames(m$gsva_arms), ma_t$patient)]
-  ma_s <- s$gsva_new["FELSHER_61", ]
+  ma_s <- s$gsva_new[MYC_REF, ]
   cmp <- data.frame(
     arm   = rownames(m$gsva_arms),
     TCGA  = round(sapply(rownames(m$gsva_arms),

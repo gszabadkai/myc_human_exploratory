@@ -81,7 +81,7 @@ A <- a$atlas %>%
                 cohort = factor(cohort, levels = names(COHORT_COLS)))
 ARM_ORDER <- A %>%
   dplyr::filter(cohort == "TCGA", instrument == "gsva",
-                myc_estimator == "FELSHER_61", stratum == "all",
+                myc_estimator == MYC_REF, stratum == "all",
                 adjusted == "raw", measure_class == "arm") %>%
   dplyr::arrange(dplyr::desc(rho)) %>% dplyr::pull(arm)
 message("   atlas ", format(nrow(A), big.mark = ","), " cells | ",
@@ -105,8 +105,8 @@ message("\n2. per-sample scores for the scatters")
 }
 ID_T <- colnames(mito$gsva_arms); ID_S <- colnames(sc$gsva_arms)
 plane <- dplyr::bind_rows(
-  .plane("TCGA",   nw$tcga_gsva_new["FELSHER_61", ], mito, ID_T),
-  .plane("SCAN-B", sc$gsva_new["FELSHER_61", ],      sc,   ID_S)) %>%
+  .plane("TCGA",   nw$tcga_gsva_new[MYC_REF, ], mito, ID_T),
+  .plane("SCAN-B", sc$gsva_new[MYC_REF, ],      sc,   ID_S)) %>%
   dplyr::left_join(frames %>%
                      dplyr::select(cohort, sample_id, PAM50, ER) %>%
                      dplyr::mutate(cohort = as.character(cohort)),
@@ -132,8 +132,8 @@ f1 <- ggplot2::ggplot(plane_long,
   ggplot2::scale_colour_manual(values = COHORT_COLS, guide = "none") +
   ggplot2::labs(
     title = "MYC activity against OXPHOS subunits, four instruments",
-    subtitle = .lab_exploratory("MYC = FELSHER_61 (GSVA); all samples, unadjusted"),
-    x = "MYC activity (FELSHER_61, GSVA)", y = "OXPHOS subunits",
+    subtitle = .lab_exploratory(paste0("MYC = ", MYC_REF, " (GSVA); all samples, unadjusted")),
+    x = paste0("MYC activity (", MYC_REF, ", GSVA)"), y = "OXPHOS subunits",
     caption = paste("Scores are COHORT-RELATIVE: panels have free scales and",
                     "the two cohorts are never pooled. mitoPPS is composition,",
                     "not level -\nits values are not comparable between cohorts,",
@@ -153,7 +153,7 @@ f1b <- ggplot2::ggplot(dplyr::filter(plane, !is.na(PAM50)),
   ggplot2::labs(
     title = "The same plane, split by PAM50 subtype and ER call",
     subtitle = .lab_exploratory("GSVA only; the correlation is present in every subtype"),
-    x = "MYC activity (FELSHER_61, GSVA)", y = "OXPHOS subunits (GSVA)",
+    x = paste0("MYC activity (", MYC_REF, ", GSVA)"), y = "OXPHOS subunits (GSVA)",
     caption = paste("TCGA HER2 (n = 78) and Normal (n = 36) are small; see the",
                     "intervals in figure 6 before reading them.")) +
   theme_atlas()
@@ -166,7 +166,7 @@ f1b <- ggplot2::ggplot(dplyr::filter(plane, !is.na(PAM50)),
 # separates from every other arm on mitoPPS alone.
 heat <- A %>%
   dplyr::filter(measure_class == "arm", stratum == "all", adjusted == "raw",
-                myc_estimator == "FELSHER_61") %>%
+                myc_estimator == MYC_REF) %>%
   dplyr::mutate(arm = factor(arm, levels = rev(ARM_ORDER)))
 
 f2 <- ggplot2::ggplot(heat, ggplot2::aes(instrument, arm, fill = rho)) +
@@ -178,7 +178,7 @@ f2 <- ggplot2::ggplot(heat, ggplot2::aes(instrument, arm, fill = rho)) +
                                 name = "Spearman rho") +
   ggplot2::labs(
     title = "MYC activity against 18 mitochondrial arms, four instruments",
-    subtitle = .lab_exploratory("FELSHER_61, all samples, unadjusted; arms ordered by TCGA GSVA"),
+    subtitle = .lab_exploratory(paste0(MYC_REF, ", all samples, unadjusted; arms ordered by TCGA GSVA")),
     x = NULL, y = NULL,
     caption = paste("The mitochondrial ribosome outranks OXPHOS subunits in",
                     "BOTH cohorts. mtDNA-encoded OXPHOS is the only arm whose",
@@ -193,16 +193,23 @@ f2 <- ggplot2::ggplot(heat, ggplot2::aes(instrument, arm, fill = rho)) +
 # CLAUDE.md trap 3, and the sharpest test in phase 1. Read left to right:
 # proliferation content rises. If rho rose with it, the correlation would be
 # proliferation wearing MYC's name.
+# ONE VARIANT PER PANEL. Putting __FULL beside __PROLIFSTRIP on one axis would
+# compare sets of different sizes and compositions as if they were the same
+# estimator - the exact confusion the suffixes exist to prevent. The x axis is
+# the BASE signature, ordered by the FULL variant's entanglement, and the
+# variant is the facet.
+base_order <- a$est_meta %>%
+  dplyr::filter(strip_status == "FULL", kind == "signature (GSVA)") %>%
+  dplyr::arrange(frac_prolif) %>% dplyr::pull(base)
 panel <- a$panel %>%
   dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
-                adjusted %in% c("raw", "prolif")) %>%
+                adjusted == "raw", base %in% base_order) %>%
   dplyr::mutate(
     cohort = factor(cohort, levels = names(COHORT_COLS)),
-    adjusted = factor(adjusted, levels = c("raw", "prolif"),
-                      labels = c("unadjusted", "proliferation-adjusted")),
-    myc_estimator = factor(myc_estimator,
-      levels = a$est_meta %>% dplyr::filter(!is.na(frac_prolif)) %>%
-        dplyr::arrange(frac_prolif) %>% dplyr::pull(myc_estimator)))
+    strip_status = factor(strip_status,
+                          levels = c("FULL", "MITOSTRIP", "PROLIFSTRIP",
+                                     "BOTHSTRIP")),
+    myc_estimator = factor(base, levels = base_order))
 
 f3 <- ggplot2::ggplot(panel, ggplot2::aes(myc_estimator, rho, colour = cohort)) +
   ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
@@ -211,24 +218,24 @@ f3 <- ggplot2::ggplot(panel, ggplot2::aes(myc_estimator, rho, colour = cohort)) 
   ggplot2::geom_pointrange(ggplot2::aes(ymin = ci_lo, ymax = ci_hi),
                            position = ggplot2::position_dodge(width = 0.55),
                            size = 0.28, linewidth = 0.45) +
-  ggplot2::facet_wrap(~ adjusted, ncol = 1) +
+  ggplot2::facet_wrap(~ strip_status, ncol = 1) +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
   ggplot2::labs(
     title = "Does the MYC-OXPHOS correlation track proliferation entanglement?",
     subtitle = .lab_exploratory(
-      "18 signatures, ordered LEFT to RIGHT by % of genes in HALLMARK E2F + G2M (1.5% to 47.6%)"),
+      "18 signatures, ordered LEFT to RIGHT by the FULL variant's % of genes in HALLMARK E2F + G2M"),
     x = NULL, y = "Spearman rho with OXPHOS subunits (GSVA)",
     caption = paste(
-      "The least entangled signature (MYC_UP.V1_UP, 1.5%) gives one of the",
-      "HIGHEST correlations and keeps 0.40 / 0.52 after adjustment.",
-      "\n15 of 18 (SCAN-B) and 17 of 18 (TCGA) stay above 0.2 adjusted.",
-      "Between-signature spread is far larger than any entanglement trend, so",
-      "\nno single signature may be quoted - CLAUDE.md trap 3. Bars are 95%",
-      "Fisher-z intervals; no p-value is shown or implied.")) +
+      "Each row is ONE variant of every signature, never a mixture: __FULL as",
+      "distributed, __MITOSTRIP minus MitoCarta, __PROLIFSTRIP minus",
+      "\nHALLMARK E2F + G2M, __BOTHSTRIP minus both. If the correlation is",
+      "proliferation, the PROLIFSTRIP row collapses; if it is mitochondrial",
+      "\ncontent, MITOSTRIP does. Bars are 95% Fisher-z intervals; no p-value",
+      "is shown or implied. CLAUDE.md trap 3.")) +
   theme_atlas() +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1,
                                                      size = 7))
-.save_fig(f3, "E04_fig3_estimator_panel_entanglement", 10, 7.5)
+.save_fig(f3, "E04_fig3_estimator_panel_entanglement", 11, 10)
 
 # =============================================================================
 # 6. Figure 4 - the two genomes
@@ -236,7 +243,7 @@ f3 <- ggplot2::ggplot(panel, ggplot2::aes(myc_estimator, rho, colour = cohort)) 
 # Sub-analysis (i). Top: the arms. Bottom: the 13 mtDNA genes individually,
 # because they do not move together and an arm score averages that away.
 nm <- a$nuclear_vs_mtdna %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "raw") %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 instrument = factor(instrument, levels = INSTRUMENT_ORDER),
                 arm = factor(arm, levels = rev(c(
@@ -253,7 +260,7 @@ f4a <- ggplot2::ggplot(nm, ggplot2::aes(rho, arm, colour = cohort)) +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
   ggplot2::labs(
     title = "Nuclear-encoded and mtDNA-encoded OXPHOS are not regulated alike",
-    subtitle = .lab_exploratory("FELSHER_61, all samples, unadjusted"),
+    subtitle = .lab_exploratory(paste0(MYC_REF, ", all samples, unadjusted")),
     x = "Spearman rho", y = NULL,
     caption = paste("On mitoPPS - which reports the SHAPE of the mitochondrial",
                     "programme rather than its level - the mtDNA arm is the",
@@ -265,7 +272,7 @@ f4a <- ggplot2::ggplot(nm, ggplot2::aes(rho, arm, colour = cohort)) +
 .save_fig(f4a, "E04_fig4a_nuclear_vs_mtdna_arms", 11, 4.5)
 
 mtg <- a$mtdna_genes %>%
-  dplyr::filter(myc_estimator == "FELSHER_61", adjusted == "raw") %>%
+  dplyr::filter(myc_estimator == MYC_REF, adjusted == "raw") %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)))
 gene_order <- mtg %>% dplyr::filter(cohort == "TCGA") %>%
   dplyr::arrange(rho) %>% dplyr::pull(gene)
@@ -279,7 +286,7 @@ f4b <- ggplot2::ggplot(mtg, ggplot2::aes(rho, gene, colour = cohort)) +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
   ggplot2::labs(
     title = "The 13 mtDNA-encoded genes do not move together",
-    subtitle = .lab_exploratory("FELSHER_61 against linear expression, all samples, unadjusted"),
+    subtitle = .lab_exploratory(paste0(MYC_REF, " against linear expression, all samples, unadjusted")),
     x = "Spearman rho", y = NULL,
     caption = paste("MT-CO2 (+0.240 / +0.243) and MT-ND5 (-0.160 / -0.143)",
                     "agree between cohorts to 0.003 and 0.017 and sit on the",
@@ -345,7 +352,7 @@ f6a <- ggplot2::ggplot(rep_arm, ggplot2::aes(rho_tcga, rho_scanb,
   ggplot2::labs(
     title = "Does TCGA's pattern reappear in SCAN-B?",
     subtitle = .lab_exploratory(
-      "18 arms x 20 shared MYC estimators, all samples, unadjusted"),
+      "18 arms x every shared MYC estimator, all samples, unadjusted"),
     x = "Spearman rho, TCGA", y = "Spearman rho, SCAN-B",
     caption = paste("This - not any single cell - is what the atlas is for.",
                     "Across the whole comparable grid the two cohorts agree in",
@@ -359,7 +366,7 @@ STRATUM_ORDER <- c("all", "ERpos", "ERneg", "LumA", "LumB", "HER2", "Basal",
                    "Normal")
 str_df <- A %>%
   dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
-                adjusted == "raw", myc_estimator == "FELSHER_61") %>%
+                adjusted == "raw", myc_estimator == MYC_REF) %>%
   dplyr::mutate(stratum = factor(stratum, levels = rev(STRATUM_ORDER)))
 
 f6b <- ggplot2::ggplot(str_df, ggplot2::aes(rho, stratum, colour = cohort)) +
@@ -373,7 +380,7 @@ f6b <- ggplot2::ggplot(str_df, ggplot2::aes(rho, stratum, colour = cohort)) +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
   ggplot2::labs(
     title = "The correlation is present in every subtype",
-    subtitle = .lab_exploratory("FELSHER_61 vs OXPHOS subunits, GSVA, unadjusted"),
+    subtitle = .lab_exploratory(paste0(MYC_REF, " vs OXPHOS subunits, GSVA, unadjusted")),
     x = "Spearman rho", y = NULL,
     caption = paste("ER-negative is the weakest stratum in both cohorts.",
                     "TCGA HER2 (n = 78) and Normal (n = 36) carry intervals",
@@ -451,7 +458,7 @@ if (FALSE) {
 
   # and behind figure 4b
   a$mtdna_genes %>%
-    dplyr::filter(myc_estimator == "FELSHER_61") %>%
+    dplyr::filter(myc_estimator == MYC_REF) %>%
     tidyr::pivot_wider(id_cols = gene, names_from = c(cohort, adjusted),
                        values_from = rho) %>% as.data.frame()
 

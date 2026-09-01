@@ -98,7 +98,47 @@ EXPECT_SCANB_SAMPLES <- 3207L
 
 EXPECT_CDC_ROWS      <- 1232L    # cell_death_genes_consolidated.csv
 EXPECT_MYC_SETS      <- 16L      # signatures in the GMX
+EXPECT_FELSHER_FULL  <- 67L      # g1$estimators_raw$FELSHER
 EXPECT_FELSHER_STRIP <- 61L      # g1$estimators_stripped$FELSHER
+EXPECT_MITOCARTA_ALL <- 1136L    # g1$reference_sets$MITOCARTA_ALL - the strip set
+EXPECT_PROLIF_REF    <- 327L     # HALLMARK E2F_TARGETS + G2M_CHECKPOINT, union
+EXPECT_COLLECTRI_FULL  <- 886L   # g1$estimators_raw$COLLECTRI_MYC_ALL
+EXPECT_COLLECTRI_STRIP <- 811L   # g1$estimators_stripped$COLLECTRI_MYC_ALL
+
+# =============================================================================
+# THE MYC ESTIMATOR NAMING CONTRACT
+# =============================================================================
+# Phase 1 read a panel of 18 "MYC signatures" as if they were one kind of
+# object. They were not. `FELSHER_61` had been stripped of every MitoCarta gene
+# by the validation study; the other 17 had not. Nothing in the name said so,
+# and F1 was written on the mixture.
+#
+# From 2026-09-01 EVERY scored MYC estimator carries an explicit suffix and
+# there are NO BARE NAMES. The suffix is the whole label:
+#
+#   __FULL         the set exactly as distributed
+#   __MITOSTRIP    minus MITOCARTA_ALL (1,136 genes) - what the validation
+#                  study did to FELSHER and to the CollecTRI regulon, and the
+#                  only strip that existed before today
+#   __PROLIFSTRIP  minus HALLMARK E2F_TARGETS + G2M_CHECKPOINT (327 genes) -
+#                  NEW; no proliferation-stripped estimator existed upstream
+#   __BOTHSTRIP    minus both
+#
+# `FELSHER__MITOSTRIP` IS the validation study's M_a and is the study's
+# reference estimator. E02 asserts it reproduces the snapshot exactly.
+#
+# SEPARATELY, AND IT IS THE SECOND HALF OF THE SAME DEFECT: `PROLIF_DISJOINT`
+# is PROLIF_STD minus the 9 proliferation genes of FELSHER_61 and nothing else.
+# It is disjoint from M_a ALONE. It shares 96 genes with the 18-signature union,
+# so a "proliferation-adjusted" rho for any other signature is partly adjusting
+# that signature for itself. Use __PROLIFSTRIP to ask the question cleanly.
+MYC_SUFFIXES <- c("__FULL", "__MITOSTRIP", "__PROLIFSTRIP", "__BOTHSTRIP")
+
+MYC_REF          <- "FELSHER__MITOSTRIP"              # the validation study's M_a
+MYC_REF_FULL     <- "FELSHER__FULL"
+MYC_LOW_ENTANG   <- "MYC_UP.V1_UP__FULL"              # 1.5% proliferation
+MYC_HALLMARK     <- "HALLMARK_MYC_TARGETS_V1__FULL"
+MB_REF           <- "M_b__MITOSTRIP"                  # the CollecTRI estimator
 
 # The 15 Tang modalities, as DISTINCT GENES - not file rows. The CSVs carry one
 # row per gene-per-evidence, so a gene with three PMIDs appears three times:
