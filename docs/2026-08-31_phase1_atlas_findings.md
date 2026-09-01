@@ -378,11 +378,10 @@ falsifiers returned, recorded beside it rather than folded into it. **Two parts
 of F3 come out stronger than they went in, one comes out weaker, and one gene
 has to be dropped.**
 
-> **Counts below are over the 20-estimator panel E03b saw before the
-> 2026-09-01 relabelling.** Re-running E03b evaluates the same falsifiers over
-> 77 estimators (18 signatures x 4 variants, 4 CollecTRI variants, log2MYC).
-> The verdict rows are keyed on `FELSHER__MITOSTRIP` and both cohorts and do not
-> depend on the panel size; the "how many stay negative" columns do.
+> **E03b re-run 2026-09-01 over the relabelled panel: all three verdicts hold,
+> over 77 estimators instead of 20.** The counts below are the original
+> 20-estimator ones; the 77-estimator versions are stronger and are given at the
+> end of this section.
 
 | Falsifier | Criterion | Result |
 |---|---|---|
@@ -508,6 +507,28 @@ cohorts and its MYC correlation replicates and strengthens under conditioning.
    unremarkable, so it is not obviously a mismapping artefact - but that is an
    absence of evidence, not a clean test.
 3. The mitoPPS sign flip is demoted to a footnote.
+
+### The re-run, over 77 estimators
+
+```
+log2 ratio of mtDNA against...     estimators negative      median rho
+                                   TCGA      SCAN-B         TCGA    SCAN-B
+the whole transcriptome            19 / 77   20 / 77        +0.074  +0.042
+the rest of the mitochondrion      67 / 77   69 / 77        -0.061  -0.075
+the mitochondrion minus OXPHOS     57 / 77   67 / 77        -0.042  -0.060
+nuclear OXPHOS subunits            77 / 77   70 / 77        -0.139  -0.135
+the mitochondrial ribosome         74 / 77   71 / 77        -0.141  -0.162
+```
+
+**Against nuclear OXPHOS the mtDNA programme is negative in all 77 TCGA
+estimators**, and against the mitoribosome in 74 of 77. Against the whole
+transcriptome it is positive in 58 of 77 and 57 of 77. The four-variant panel
+makes the pattern sharper than the 20-estimator version did, and it does not
+depend on which MYC estimator or which strip is used.
+
+The arm-level mitoPPS test stays the weak one: with no OXPHOS gene in the
+denominator the panel median is **+0.001 in TCGA** (38 of 77 negative) and
+-0.016 in SCAN-B (55 of 77). The demotion of the mitoPPS framing stands.
 
 **Still open, and now the sharpest tests:**
 - Re-quantify the 13 from a stranded, total-RNA (non-polyA) dataset. That kills

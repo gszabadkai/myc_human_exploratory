@@ -304,11 +304,20 @@ message("\n6. what the residual axis tracks across the rest of the atlas")
 axis_probe <- dplyr::bind_rows(
   .axis_probe(P_T, mito, nw$tcga_gsva_new, ID_T, "TCGA"),
   .axis_probe(P_S, sc,   sc$gsva_new,      ID_S, "SCAN-B"))
-axis_probe %>% dplyr::filter(axis == "residPC1") %>%
-  tidyr::pivot_wider(id_cols = target, names_from = cohort, values_from = rho) %>%
-  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
-  dplyr::arrange(dplyr::desc(abs(TCGA))) %>% as.data.frame() %>%
-  print(row.names = FALSE)
+# BOTH axes, because which one matters is decided in section 4 and not here.
+# In the 2026-09-01 run PC1 was the larger axis and did NOT replicate (loadings
+# agree at -0.168); PC2 was smaller and did (0.629), and PC2 is the one that
+# orders the genes the way MYC does. Printing only PC1 would show the axis that
+# turned out to be cohort-specific.
+for (ax in c("residPC1", "residPC2")) {
+  message("\n   ", ax, ":")
+  axis_probe %>% dplyr::filter(axis == ax) %>%
+    tidyr::pivot_wider(id_cols = target, names_from = cohort,
+                       values_from = rho) %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    dplyr::arrange(dplyr::desc(abs(TCGA))) %>% as.data.frame() %>%
+    print(row.names = FALSE)
+}
 
 # =============================================================================
 # 7. Figure and save

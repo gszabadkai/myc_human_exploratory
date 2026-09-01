@@ -173,3 +173,97 @@ be used for a BCL2-family claim. `E06` stops if that ever changes.
    proliferation loading stated.
 4. **Never report a proliferation-adjusted rho without the `__PROLIFSTRIP`
    value beside it.** E1 shows they disagree in sign.
+
+---
+
+# Phase 2 findings - the anatomy of the mtDNA divergence
+
+From `E07` on `results/mtdna_anatomy.rds`. Answers handoff candidate 1:
+`MT-CO1` and `MT-CO2` are adjacent and go opposite ways, and the earlier note
+could only say their mutual correlation was unremarkable - an absence of
+evidence, not a test.
+
+## M1. The bicistronic control settles it
+
+`MT-ATP8`/`MT-ATP6` and `MT-ND4L`/`MT-ND4` are each **one mature mRNA**. Two
+genes on one transcript cannot be transcribed apart, so the gap between them in
+MYC deviation is the scale of purely non-transcriptional variation - the tightest
+available control, measured in the same samples on the same axis.
+
+```
+pair            gap in MYC deviation      one mRNA?
+                TCGA      SCAN-B
+ATP8 vs ATP6    0.047     0.148           yes
+ND4L vs ND4     0.158     0.135           yes
+CO1 vs CO2      0.735     0.526           no
+```
+
+**The CO1-CO2 gap is 4.7x (TCGA) and 3.6x (SCAN-B) the largest bicistronic
+gap.** Genes that physically cannot be separated differ by at most 0.16. `CO1`
+and `CO2` differ by 0.5 to 0.7.
+
+`CO1` and `CO2` are on the same heavy-strand polycistron but are excised into
+separate mature mRNAs at the flanking tRNAs. So their divergence involves
+something that happens **after the polycistron is cut** - differential stability,
+processing or degradation of separate mature transcripts - and it is far outside
+what shared-transcript arithmetic can produce.
+
+## M2. It replicates, and it is not positional
+
+- **Per-gene MYC deviation replicates across cohorts at Spearman 0.888**
+  (Pearson 0.917) over the 12 trusted genes.
+- Deviation against position along the heavy strand: **-0.105 / -0.140**. No
+  3' gradient, no decay ramp.
+- Deviation against expression level: **-0.021 / +0.140**. Not abundance.
+
+## M3. The reproducible axis is PC2, and PC1 is a cohort artefact
+
+Conditioning on mtDNA content leaves 20.0% / 19.0% of the rank variance. Within
+that residual:
+
+```
+        variance explained    loadings replicate    aligns with MYC deviation
+        TCGA   SCAN-B         across cohorts        TCGA      SCAN-B
+PC1     23.4%  20.3%          -0.168                -0.350    +0.168
+PC2     18.0%  16.6%          +0.629                +0.762    +0.615
+```
+
+**The larger axis does not replicate and its alignment with the MYC deviation
+flips sign between cohorts. The second one does both.** PC1 correlates with
+every nuclear arm at about -0.41 in TCGA and -0.09 in SCAN-B - a 4-fold
+asymmetry that marks it as cohort-specific, most likely purity or composition.
+
+`PC2` tracks proliferation (0.298 / 0.425), MYC activity (0.270 / 0.254), the
+mitoribosome (0.130 / 0.283) and fatty-acid oxidation negatively (-0.120 /
+-0.113) - consistent in sign on almost everything, modest in size.
+
+**The size caveat matters.** PC2 is 17-18% of a residual that is itself 20% of
+the gene-level variance, so it accounts for roughly **3.5%** of the variation in
+the 13 genes. It is a reproducible axis, not a large one.
+
+## M4. What this does and does not license
+
+**Licensed:** there is a reproducible, non-positional, post-transcriptional
+divergence within the mitochondrial genome that tracks MYC activity, with
+`MT-CO2` at one pole and `MT-CO1`, `MT-ND1` and `MT-ND5` at the other, and it is
+larger than anything shared-transcript variation can explain.
+
+**Not licensed:** any statement about mechanism. Nothing here distinguishes
+differential mRNA stability from differential processing from differential
+degradation, and the axis carrying it is small.
+
+**`MT-ND6` remains excluded.** The raw correlation matrices re-confirm it:
+0.46-0.86 with the other genes in TCGA against 0.12-0.36 in SCAN-B, and it is
+the highest residual pair with `MT-ND5` (0.75) in TCGA - the two overlapping
+genes, coupled in one cohort and detached in the other.
+
+## What would falsify M1-M3
+
+1. A stranded, total-RNA dataset. It resolves `MT-ND6` outright and tests
+   whether `CO1`/`CO2` survives without polyA selection. **This is the one test
+   that matters most and phase 1 cannot do it.**
+2. A third cohort: the deviation vector should reproduce at ~0.9.
+3. Direct mtDNA copy number from WGS rather than the expression proxy.
+4. Ribosome profiling or protein, to separate "not transcribed" from "not
+   translated" - the fork none of this can resolve.
+
