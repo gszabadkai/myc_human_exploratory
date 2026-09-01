@@ -378,6 +378,12 @@ falsifiers returned, recorded beside it rather than folded into it. **Two parts
 of F3 come out stronger than they went in, one comes out weaker, and one gene
 has to be dropped.**
 
+> **Counts below are over the 20-estimator panel E03b saw before the
+> 2026-09-01 relabelling.** Re-running E03b evaluates the same falsifiers over
+> 77 estimators (18 signatures x 4 variants, 4 CollecTRI variants, log2MYC).
+> The verdict rows are keyed on `FELSHER__MITOSTRIP` and both cohorts and do not
+> depend on the panel size; the "how many stay negative" columns do.
+
 | Falsifier | Criterion | Result |
 |---|---|---|
 | 3a mitoPPS denominator, no OXPHOS gene in it | mtDNA arm rho still < 0 in both cohorts | SURVIVES |

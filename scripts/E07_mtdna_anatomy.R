@@ -87,6 +87,19 @@ nw   <- readRDS(file.path(DIR_RESULTS, "new_set_scores.rds"))
 mito <- readRDS(PATH_TCGA_MITO)
 f    <- readRDS(file.path(DIR_RESULTS, "mtdna_falsifiers.rds"))
 
+# E03b's output is an INPUT here, and it is keyed by estimator name. If it was
+# written before the 2026-09-01 relabelling it still says "FELSHER_61" where
+# this script now looks for FELSHER__MITOSTRIP, and the failure downstream is a
+# rename error three sections later that says nothing about the cause.
+if (!MYC_REF %in% f$copy_number_test$myc_estimator) {
+  stop("results/mtdna_falsifiers.rds does not contain the estimator '", MYC_REF,
+       "'. It carries: ",
+       paste(utils::head(sort(unique(f$copy_number_test$myc_estimator)), 4),
+             collapse = ", "),
+       ". That file predates the MYC estimator relabelling.\n",
+       "  RE-RUN E03b, then this script.", call. = FALSE)
+}
+
 ID_T <- colnames(mito$gsva_arms); ID_S <- colnames(sc$gsva_arms)
 tcga_lin <- readRDS(PATH_TCGA_LINEAR); scanb_lin <- readRDS(PATH_SCANB_LINEAR)
 LT <- tcga_lin$mat[, ID_T, drop = FALSE]; LS <- scanb_lin$mat[, ID_S, drop = FALSE]
