@@ -225,6 +225,18 @@ est_meta <- dplyr::bind_rows(
     base == "log2MYC"  ~ "MYC mRNA",
     base == "M_c_call" ~ "copy number (TCGA only)",
     TRUE               ~ "signature (GSVA)"))
+
+# THE ORDERING VARIABLE HAS TO BE THE BASE SIGNATURE'S, NOT THE VARIANT'S.
+# A __PROLIFSTRIP variant has frac_prolif = 0 by construction, so ordering or
+# correlating against its OWN value is a correlation with a constant. What the
+# question actually asks is: does a signature that was ORIGINALLY entangled
+# still correlate more once the entangled genes are taken out? That needs the
+# FULL variant's fraction carried onto all four.
+base_frac <- est_meta %>%
+  dplyr::filter(strip_status == "FULL") %>%
+  dplyr::select(base, frac_prolif_full = frac_prolif,
+                frac_mito_full = frac_mito)
+est_meta <- est_meta %>% dplyr::left_join(base_frac, by = "base")
 message("   TCGA ", nrow(EST_T), " estimators | SCAN-B ", nrow(EST_S),
         " (M_c_call is TCGA-only)")
 est_meta %>% dplyr::count(kind, strip_status) %>% as.data.frame() %>%
@@ -315,8 +327,8 @@ atlas <- dplyr::bind_rows(
   dplyr::mutate(thin_in_cohort = !is.na(n_present) & n_present < MIN_GSVA_N) %>%
   dplyr::select(cohort, instrument, myc_estimator, base, strip_status, arm,
                 measure_class, stratum, adjusted, n, k_cov, rho, ci_lo, ci_hi,
-                p, frac_prolif, frac_mito, thin, thin_in_cohort, n_genes,
-                n_present, set_frac, kind) %>%
+                p, frac_prolif, frac_mito, frac_prolif_full, frac_mito_full,
+                thin, thin_in_cohort, n_genes, n_present, set_frac, kind) %>%
   dplyr::arrange(cohort, instrument, myc_estimator, arm, stratum, adjusted)
 
 message("   ", format(nrow(atlas), big.mark = ","), " cells")
@@ -407,7 +419,8 @@ panel <- atlas %>%
   dplyr::filter(kind == "signature (GSVA)", measure_class == "arm",
                 stratum == "all") %>%
   dplyr::select(cohort, instrument, adjusted, arm, myc_estimator, base,
-                strip_status, frac_prolif, frac_mito, thin, n, rho, ci_lo, ci_hi)
+                strip_status, frac_prolif, frac_mito, frac_prolif_full,
+                frac_mito_full, thin, thin_in_cohort, n, rho, ci_lo, ci_hi)
 
 # GROUPED BY strip_status, because a slope computed across a mixture of FULL and
 # stripped variants would be comparing sets of different composition as if they
@@ -417,9 +430,12 @@ entanglement_slope <- panel %>%
   dplyr::summarise(
     n_sig       = dplyr::n(),
     rho_min     = min(rho), rho_max = max(rho),
-    rho_least   = rho[which.min(frac_prolif)],   # MYC_UP.V1_UP, 1.5%
-    rho_most    = rho[which.max(frac_prolif)],   # YU_MYC_TARGETS_UP, 47.6%
-    slope_vs_entanglement = stats::cor(rho, frac_prolif, method = "spearman"),
+    rho_least   = rho[which.min(frac_prolif_full)],  # MYC_UP.V1_UP, 1.5%
+    rho_most    = rho[which.max(frac_prolif_full)],  # YU_MYC_TARGETS_UP, 47.6%
+    slope_vs_entanglement =
+      stats::cor(rho, frac_prolif_full, method = "spearman"),
+    slope_vs_mito_content =
+      stats::cor(rho, frac_mito_full, method = "spearman"),
     .groups = "drop")
 
 message("\n   OXPHOS subunits, raw - does rho track entanglement, per variant?")
@@ -433,14 +449,19 @@ message("\n   OXPHOS subunits, GSVA, raw - every signature x every variant:")
 panel %>%
   dplyr::filter(arm == "OXPHOS subunits", instrument == "gsva",
                 adjusted == "raw") %>%
-  tidyr::pivot_wider(id_cols = c(base, frac_prolif), names_from =
-                       c(cohort, strip_status), values_from = rho) %>%
-  dplyr::arrange(frac_prolif) %>%
-  dplyr::mutate(frac_prolif = round(100 * frac_prolif, 1),
+  tidyr::pivot_wider(id_cols = c(base, frac_prolif_full, frac_mito_full),
+                     names_from = c(cohort, strip_status), values_from = rho) %>%
+  dplyr::arrange(frac_prolif_full) %>%
+  dplyr::mutate(frac_prolif_full = round(100 * frac_prolif_full, 1),
+                frac_mito_full = round(100 * frac_mito_full, 1),
                 dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::select(base, frac_prolif_full, frac_mito_full,
+                dplyr::starts_with("TCGA"), dplyr::starts_with("SCAN-B")) %>%
   as.data.frame() %>% print(row.names = FALSE)
-message("   frac_prolif is the FULL variant's; a PROLIFSTRIP column is by",
-        " construction 0%.")
+message("   frac_prolif_full and frac_mito_full are the BASE signature's, from",
+        " its FULL\n   variant, so all four columns are ordered by the same",
+        " thing. Compare DOWN a\n   column for the entanglement question and",
+        " ACROSS a row for what each strip costs.")
 
 # =============================================================================
 # 10. Cross-cohort reproducibility
