@@ -18,7 +18,7 @@
 # THE GAP THIS SCRIPT CLOSES, WHICH E05 LEFT OPEN
 # =============================================================================
 # E05's expression-matched null was computed against MYC ONLY - `.null_test`
-# was called with FELSHER_61 as the target. **The OXPHOS axis, which is the one
+# was called with FELSHER__MITOSTRIP as the target. **The OXPHOS axis, the one
 # D1's surviving claim rests on, was never nulled at all.** That is the hole.
 #
 # And a null per stratum is not even the right test. D1 reports a CONTRAST, so

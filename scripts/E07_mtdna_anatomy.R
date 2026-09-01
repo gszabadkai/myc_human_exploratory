@@ -281,7 +281,7 @@ message("\n6. what the residual axis tracks across the rest of the atlas")
   colnames(AX) <- ids
   M <- rbind(arms_obj$gsva_arms[, ids, drop = FALSE],
              PROLIF = arms_obj$gsva_cov["PROLIF_DISJOINT", ids],
-             FELSHER_61 = gsva_new[MYC_REF, ids],
+             MYC_ref = gsva_new[MYC_REF, ids],
              MYC_UP.V1_UP = gsva_new[MYC_LOW_ENTANG, ids])
   .atlas_block(AX, M, ids, NULL, min_n = 30L) %>%
     dplyr::rename(axis = myc_estimator, target = measure) %>%

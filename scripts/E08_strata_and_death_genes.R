@@ -99,7 +99,7 @@ rm(tcga_lin, scanb_lin); invisible(gc(verbose = FALSE))
 .axes <- function(gsva_new, arms_obj, mb, ids) {
   m <- rbind(MYC            = as.numeric(gsva_new[MYC_REF, ids]),
              MYC_low_entang = as.numeric(gsva_new[MYC_LOW_ENTANG, ids]),
-             M_b            = as.numeric(mb[ids]),
+             M_b_ref        = as.numeric(mb[ids]),   # MB_REF, named so
              OXPHOS         = as.numeric(arms_obj$gsva_arms["OXPHOS subunits", ids]),
              OXPHOS_mitopps = as.numeric(arms_obj$mitopps_arms["OXPHOS subunits", ids]),
              MITORIBO       = as.numeric(arms_obj$gsva_arms["Mitochondrial ribosome", ids]))
@@ -162,7 +162,7 @@ range_test %>%
 
 # And is the gap OXPHOS-specific, or is the whole mitochondrial programme less
 # MYC-coupled in ER-negative disease?
-message("\n   every arm, ERpos minus ERneg (FELSHER_61, GSVA, raw):")
+message("\n   every arm, ERpos minus ERneg (", MYC_REF, ", GSVA, raw):")
 arm_gap <- a$atlas %>%
   dplyr::filter(instrument == "gsva", adjusted == "raw",
                 myc_estimator == MYC_REF, measure_class == "arm",

@@ -151,14 +151,17 @@ message("\n2. the partners")
 }
 MYC_SIGS <- sd_$myc_panel$signature
 
-.myc_rows <- function(gsva_new, extra) rbind(
-  gsva_new[MYC_SIGS, , drop = FALSE], do.call(rbind, extra))
-
-MYC_T <- .myc_rows(nw$tcga_gsva_new,
-                   list(M_b = nw$tcga_M_b_variants[MB_REF, ID_T],
-                        log2MYC = nw$tcga_log2MYC[ID_T],
-                        M_c_call = as.numeric(myc_t$M_c_call[match(ID_T, myc_t$patient)])))
-MYC_S <- .myc_rows(sc$gsva_new, list(M_b = sc$M_b_variants[MB_REF, ID_S], log2MYC = sc$log2MYC[ID_S]))
+# All four CollecTRI variants, never one of them under the bare name `M_b`.
+# E03 showed the regulon's OXPHOS correlation is carried by its mitochondrial
+# members - 0.320 FULL to 0.165 BOTHSTRIP in TCGA, and to -0.030 in SCAN-B - so
+# which variant is in use is not a detail.
+MYC_T <- rbind(nw$tcga_gsva_new[MYC_SIGS, ID_T, drop = FALSE],
+               nw$tcga_M_b_variants[, ID_T, drop = FALSE],
+               log2MYC = nw$tcga_log2MYC[ID_T],
+               M_c_call = as.numeric(myc_t$M_c_call[match(ID_T, myc_t$patient)]))
+MYC_S <- rbind(sc$gsva_new[MYC_SIGS, ID_S, drop = FALSE],
+               sc$M_b_variants[, ID_S, drop = FALSE],
+               log2MYC = sc$log2MYC[ID_S])
 colnames(MYC_T) <- ID_T; colnames(MYC_S) <- ID_S
 
 # The product term. z-scored WITHIN COHORT and over ALL samples, so the same
@@ -257,7 +260,7 @@ death_grid <- dplyr::bind_rows(
                 rho, ci_lo, ci_hi, p)
 message("   ", format(nrow(death_grid), big.mark = ","), " cells")
 
-message("\n   death sets against MYC (FELSHER_61) and OXPHOS subunits (GSVA), raw:")
+message("\n   death sets against ", MYC_REF, " and OXPHOS subunits (GSVA), raw:")
 death_grid %>%
   dplyr::filter(stratum == "all", adjusted == "raw",
                 partner %in% c(MYC_REF, "arm.gsva::OXPHOS subunits")) %>%
@@ -322,7 +325,7 @@ OVERLAY_GENES <- sort(unique(c(CICD_GENES, sd_$bcl2_family,
   if (length(gr$missing))
     message("   ", coh, ": ", length(gr$missing), " gene(s) absent - ",
             paste(utils::head(gr$missing, 8), collapse = ", "))
-  keep <- c(MYC_REF, MYC_LOW_ENTANG, "M_b", "log2MYC",
+  keep <- c(MYC_REF, MYC_LOW_ENTANG, MB_REF, "log2MYC",
             "arm.gsva::OXPHOS subunits", "arm.mitopps::OXPHOS subunits",
             "arm.gsva::mtDNA-encoded OXPHOS")
   .atlas_block(PART[intersect(keep, rownames(PART)), , drop = FALSE],
@@ -451,7 +454,7 @@ g1 <- ggplot2::ggplot(plane_pts, ggplot2::aes(MYC, OXPHOS)) +
   ggplot2::expand_limits(x = c(-0.2, 0.9)) +
   ggplot2::labs(
     title = "Where each death programme sits on the MYC-OXPHOS plane",
-    subtitle = .lab_exploratory("rho with FELSHER_61 and with OXPHOS subunits, both GSVA, unadjusted"),
+    subtitle = .lab_exploratory(paste0("rho with ", MYC_REF, " and with OXPHOS subunits, both GSVA, unadjusted")),
     x = "Spearman rho with MYC activity", y = "Spearman rho with OXPHOS subunits",
     caption = paste("Triangles are the three near-transcriptome-wide Tang sets",
                     "(600, 608 and 876 genes). Their position says little until",

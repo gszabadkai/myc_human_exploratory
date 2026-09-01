@@ -193,7 +193,7 @@ denominator_test <- dplyr::bind_rows(
   dplyr::left_join(dplyr::select(a$est_meta, myc_estimator, frac_prolif),
                    by = "myc_estimator")
 
-message("\n   FELSHER_61, mitoPPS rho, by what is left in the denominator:")
+message("\n   ", MYC_REF, ", mitoPPS rho, by what is left in the denominator:")
 denominator_test %>%
   dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = c(cohort, arm), names_from = universe,
@@ -254,7 +254,7 @@ ratio_test <- dplyr::bind_rows(
   dplyr::rename(ratio = measure) %>%
   dplyr::select(cohort, ratio, myc_estimator, n, rho, ci_lo, ci_hi)
 
-message("\n   FELSHER_61 against each ratio:")
+message("\n   ", MYC_REF, " against each ratio:")
 ratio_test %>% dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = ratio, names_from = cohort, values_from = rho) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -295,7 +295,7 @@ copy_number_test <- dplyr::bind_rows(
   .gene_block(LT, .in_t, EST_T, ID_T, "TCGA"),
   .gene_block(LS, .in_s, EST_S, ID_S, "SCAN-B"))
 
-message("\n   FELSHER_61, raw vs content-adjusted, both cohorts:")
+message("\n   ", MYC_REF, ", raw vs content-adjusted, both cohorts:")
 copy_number_test %>% dplyr::filter(myc_estimator == MYC_REF) %>%
   tidyr::pivot_wider(id_cols = gene, names_from = c(cohort, adjusted),
                      values_from = rho) %>%

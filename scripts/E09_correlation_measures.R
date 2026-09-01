@@ -132,7 +132,7 @@ X_MYC  <- c(MYC_REF, MYC_LOW_ENTANG, MYC_HALLMARK)
 
 .side <- function(gsva_new, arms_obj, mb, L, ids) {
   myc <- rbind(gsva_new[X_MYC, ids, drop = FALSE],
-               M_b = as.numeric(mb[ids]),
+               M_b_ref = as.numeric(mb[ids]),   # MB_REF, named so
                log2MYC = as.numeric(log2(L["MYC", ids])))
   oth <- rbind(
     do.call(rbind, lapply(c("gsva", "mitopps", "content", "zmean"), function(i) {
