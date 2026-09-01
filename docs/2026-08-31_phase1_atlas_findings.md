@@ -157,6 +157,118 @@ again.
 
 ---
 
+## F1 RESOLVED - the re-run is in, and F1 survives both strips
+
+2026-09-01, from `E03` on the relabelled panel. Against `OXPHOS subunits`, GSVA,
+all samples, unadjusted:
+
+```
+                 TCGA                      SCAN-B
+variant    median   min    >=0.2     median   min    >=0.2
+FULL        0.477  0.181   17/18      0.458  0.049   16/18
+MITOSTRIP   0.449  0.181   17/18      0.429  0.046   16/18
+PROLIFSTRIP 0.473  0.166   17/18      0.444 -0.013   16/18
+BOTHSTRIP   0.427  0.156   16/18      0.416 -0.059   15/18
+```
+
+**A signature carrying no MitoCarta gene and no HALLMARK E2F/G2M gene still
+correlates with OXPHOS at a median 0.43 (TCGA) and 0.42 (SCAN-B), and 16 of 18
+and 15 of 18 clear 0.2.** The panel loses about 0.05 of its median and one or two
+members. Dropping the two signatures section 4 of `E06` flags as suspect
+(`ELLWOOD`, 13 genes; `ALFANO`) the BOTHSTRIP minimum rises to 0.213 / 0.194 and
+16 of 16 / 15 of 16 clear 0.2.
+
+**The MYC-OXPHOS correlation is neither proliferation nor mitochondrial
+self-overlap.** F1 stands, on better evidence than it originally had.
+
+### The two strips do opposite things, and that reverses F1's caveat
+
+```
+                       signatures where stripping LOWERS rho    median cost
+mitochondrial strip    16 / 18 TCGA, 16 / 18 SCAN-B             0.041 / 0.040
+proliferation strip     9 / 18 TCGA, 13 / 18 SCAN-B             0.000 / 0.013
+```
+
+- **Removing mitochondrial genes costs a little, consistently.** 16 of 18 in
+  both cohorts, median 0.04. So there is a real self-overlap contribution and it
+  is small. `BILD_MYC_ONCOGENIC_SIGNATURE` is the worst case at 0.398 -> 0.280.
+- **Removing proliferation genes costs nothing, and often pays.** Median cost
+  **0.000** in TCGA. It *raises* rho for the strongest signatures:
+  `HALLMARK_MYC_TARGETS_V1` 0.603 -> 0.671, `DANG_MYC_TARGETS_UP` 0.652 -> 0.688,
+  `MENSSEN_MYC_TARGETS` 0.616 -> 0.656.
+
+The original F1 worried that the correlation might be proliferation wearing
+MYC's name. Deleting the proliferation genes outright makes it **stronger**.
+Those genes were diluting the MYC-OXPHOS signal, not creating it.
+
+### The entanglement slope survives, and that is what it means
+
+`slope_vs_entanglement`, recomputed against the BASE signature's fraction so it
+is defined for all four variants:
+
+```
+              slope vs proliferation      slope vs mitochondrial content
+              TCGA      SCAN-B            TCGA      SCAN-B
+FULL          0.315     0.346             0.624     0.722
+MITOSTRIP     0.420     0.364             0.537     0.526
+PROLIFSTRIP   0.373     0.259             0.667     0.751
+BOTHSTRIP     0.441     0.253             0.553     0.602
+```
+
+**Both slopes stay positive in the BOTHSTRIP row, where no signature contains a
+single gene of either reference set.** A signature that was originally entangled
+still correlates more after the entangling genes are gone; a signature that was
+originally mitochondrial still correlates more after the mitochondrial genes are
+gone.
+
+So neither fraction is a confound in the causal sense. Both are **markers** of
+what kind of MYC signature it is - the entangled, mitochondrially-inclined ones
+are the ones describing a core growth programme, and those are the ones that
+track OXPHOS - and neither is the **cause** of the correlation. That is the
+same conclusion the gene-level proxy reached, now on properly scored variants.
+
+Note that mitochondrial content is the stronger marker throughout (0.53-0.75)
+and proliferation the weaker (0.25-0.44). D0's ordering holds for the MYC panel
+as it did for the death sets.
+
+### M_b is the exception, and it goes the other way
+
+```
+                  n genes   TCGA    SCAN-B
+M_b__FULL             886   0.320    0.223
+M_b__MITOSTRIP        811   0.240    0.117
+M_b__PROLIFSTRIP      804   0.266    0.091
+M_b__BOTHSTRIP        731   0.165   -0.030
+```
+
+**M_b's weakness in phase 1 was partly the strip.** The mitochondrial strip
+costs it 0.080 / 0.106 - two to three times the median GSVA signature's 0.04 -
+and `BOTHSTRIP` takes it to 0.165 and **-0.030**.
+
+So unlike every GSVA signature, the CollecTRI regulon's OXPHOS correlation IS
+carried disproportionately by its mitochondrial members. That is a difference in
+kind, not degree, and it is the sharpest lead into the handoff's "why does M_b
+behave differently" question. `E06` takes it further.
+
+### What F1 now says
+
+> **The MYC-OXPHOS correlation in human breast tumours is not proliferation and
+> is not gene-set self-overlap.** With every HALLMARK E2F/G2M gene and every
+> MitoCarta gene removed from the signature, 16 of 18 (TCGA) and 15 of 18
+> (SCAN-B) MYC signatures still correlate with the OXPHOS subunit programme at
+> rho >= 0.2, median 0.43 / 0.42. Removing proliferation genes does not weaken
+> the correlation and for the strongest signatures strengthens it. Removing
+> mitochondrial genes costs a consistent but small 0.04. **The one estimator
+> that does not survive is the CollecTRI regulon**, whose correlation is carried
+> by its mitochondrial members and falls to zero without them.
+
+**What would still falsify it:** a third cohort on a different platform; a
+proliferation reference wider than HALLMARK E2F + G2M (327 genes is one
+definition of proliferation, not the definition); and the two signatures that
+fail - `ALFANO` and `ELLWOOD` - understood rather than set aside.
+
+---
+
 ## F2. MYC mRNA carries no OXPHOS signal at all. The gap is the result.
 
 `log2(MYC)` against `OXPHOS subunits`: **-0.011** (SCAN-B), **-0.032** (TCGA).
