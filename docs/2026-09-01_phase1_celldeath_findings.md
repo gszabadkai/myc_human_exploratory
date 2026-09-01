@@ -111,6 +111,18 @@ than the GSVA contrast. `CDC_PROSURVIVAL_APOPTOSIS` sits at z = +1.58 / +2.59 an
 cohorts, but small. A GSVA score is a relative-rank enrichment and amplifies;
 **-0.37 is not an effect size.** The sign and its replication are the result.
 
+> **REINTERPRETED 2026-09-01 by `E08`.** The contrast is carried by transcript
+> class, not by death annotation: the pro-survival positive drivers are
+> proteasome subunits, antioxidants and abundant housekeeping genes (26%
+> proteasome against a 3.2% background), and the pro-death negative drivers are
+> large signalling scaffolds and tumour suppressors (0% mitochondrial, 0%
+> proteasome). **Among the 44 genes that carry an actual apoptotic-machinery
+> label the direction REVERSES** - pro-death median +0.048, pro-survival -0.225 -
+> and the split that predicts the sign is whether the gene acts at the
+> mitochondrion (rho 0.453) rather than its annotated direction of effect
+> (0.225, opposite to D1). See S6 in
+> `docs/2026-09-01_phase2_estimator_findings.md`.
+
 **What would falsify D1**
 1. A better proliferation control removing the OXPHOS contrast too - it already
    removes the MYC one.

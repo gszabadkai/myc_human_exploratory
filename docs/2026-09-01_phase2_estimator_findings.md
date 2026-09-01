@@ -406,3 +406,111 @@ beside LumA and LumB, never instead of them. Same caution as S1.
    in ER-positive) is the largest arm-level stratum effect in the study and
    nothing has been done with it.
 
+---
+
+## S6. Which genes drive the D1 contrast - and the canonical machinery reverses its sign
+
+Asked directly, 2026-09-01. Ranked by mean rho across cohorts, **requiring both
+cohorts to agree in sign**, on the OXPHOS axis.
+
+### The pro-death arm's negative side: large signalling scaffolds, not death machinery
+
+```
+RAPGEF2 -0.628   AKAP13 -0.627   SLIT2 -0.582   ATM   -0.581   TRIO  -0.512
+ANO6    -0.510   PLA2R1 -0.506   LATS2 -0.501   DLC1  -0.496   FOXO1 -0.492
+CSRNP3  -0.480   JMY    -0.474   LATS1 -0.468   CREBBP-0.460   SOS1  -0.455
+APAF1   -0.452   UACA   -0.444   ITSN1 -0.437
+```
+
+GEFs and scaffolds (`RAPGEF2`, `AKAP13`, `TRIO`, `SOS1`, `ITSN1`, `DLC1`), Hippo
+kinases (`LATS1/2`), tumour suppressors and chromatin (`ATM`, `FOXO1`,
+`CREBBP`), secreted/ECM (`SLIT2`, `PLA2R1`). **`APAF1` is the only canonical
+apoptotic component in the top 18.** Of the top 50: **0% mitochondrial, 0%
+proteasome, 4% proliferation.**
+
+### The pro-survival arm's positive side: proteasome, antioxidant, housekeeping
+
+```
+NDUFA2 0.696*  NDUFS3 0.688*  SOD1  0.658   PSMB7 0.622   PA2G4 0.613
+PPIA   0.612   PSMB6  0.607   PRDX2 0.605   PSMB3 0.597   HIGD2A 0.596
+PSMB5  0.584   LAMTOR5 0.582  PARK7 0.582   PRDX5 0.570   SEM1  0.567
+DYNLL1 0.566   PRELID1 0.565  PSMB1 0.565      (* in the OXPHOS arm itself)
+```
+
+Six proteasome components (`PSMB1/3/5/6/7`, `SEM1`), four antioxidants (`SOD1`,
+`PRDX2`, `PRDX5`, `PARK7`), and small abundant housekeeping proteins. Of the top
+50: **26% mitochondrial** (3.5x the 7.4% background) and **26% proteasome**
+(8x the 3.2% background).
+
+> **So the whole-set D1 contrast is an abundant-housekeeping versus
+> large-signalling-transcript axis, not an apoptotic one.**
+
+### On the MYC axis it is mitotic genes, which explains D1's collapse
+
+The pro-survival positive drivers against MYC include `AURKB`, `PLK1`, `CDK1`,
+`MAD2L1` and `BIRC5` - **18% of the top 50 are HALLMARK E2F/G2M genes** against
+4.1% background, where the pro-death negative drivers are **0%**.
+
+That is the gene-level explanation of why D1's MYC contrast collapsed under
+proliferation adjustment (-0.368 to -0.050) while the OXPHOS contrast survived:
+the MYC-side contrast was mitotic genes sitting inside the pro-survival
+curation.
+
+### THE CANONICAL MACHINERY GOES THE OTHER WAY
+
+Restricted to the 44 genes carrying a `family_pathway` label - the actual
+annotated apoptotic machinery - **the D1 direction reverses**:
+
+```
+                 n    n negative   median rho with OXPHOS
+pro-death       32      14           +0.048
+pro-survival    12       7           -0.225
+```
+
+By module:
+
+```
+IAP / NF-kB                  7 genes   median -0.266   XIAP, BIRC2, BIRC3, CFLAR, NFKB1
+death receptor / extrinsic  11         median -0.129   FAS, FASLG, TNF, TNFRSF10A/B, CASP8, CASP10
+effector caspase             3         median +0.061
+mitochondrial / intrinsic   21         median +0.115   BAX +0.412, BAK1 +0.316, BID +0.277,
+                                                       BAD +0.402, CYCS +0.425, AIFM1 +0.542,
+                                                       ENDOG +0.373, HTRA2 +0.343
+```
+
+**The split that predicts the sign is whether the gene acts AT the
+mitochondrion, not whether it is pro-death or pro-survival:**
+
+```
+                              n    median rho
+acts at the mitochondrion    19     +0.178
+does not                     25     -0.081
+
+rho(mean rho, is_mitochondrial)          = 0.453
+rho(mean rho, is pro-death)              = 0.225   (and OPPOSITE to D1's direction)
+```
+
+### What this does to D1
+
+**D1's number stands; D1's interpretation does not.** The contrast of -0.05 is
+real, replicated and not self-overlap (S2), but it is carried by genes that are
+in the cell-death curation without being cell-death machinery. Among the genes
+that ARE the machinery, OXPHOS-high tumours carry **more** mitochondrial
+apoptotic effectors (`BAX`, `BAK1`, `BID`, `BAD`, `CYCS`, `AIFM1`) and **less**
+death-receptor and IAP/NF-kB apparatus - which is a different, more specific and
+more interesting claim than "pro-survival-skewed".
+
+**D1 should be restated as two findings**, and the second is the one worth
+following:
+
+1. A weak whole-set contrast driven by transcript class, not by death annotation.
+2. **Within the annotated apoptotic machinery, the OXPHOS axis separates the
+   mitochondrial arm (positive) from the death-receptor and IAP arms
+   (negative).** 44 genes, both cohorts, consistent by module.
+
+**What would falsify (2):** it rests on 44 genes and on one curation's
+`family_pathway` labels. Re-annotate from an independent source - Reactome
+apoptosis sub-pathways would do - and the module medians should hold. And
+`APAF1` at -0.452 is a genuine anomaly for it: the apoptosome scaffold is
+mitochondrial in function and sits with the extrinsic module.
+
