@@ -83,6 +83,10 @@ tcga_lin <- readRDS(PATH_TCGA_LINEAR); scanb_lin <- readRDS(PATH_SCANB_LINEAR)
 LT <- tcga_lin$mat[, ID_T, drop = FALSE]; LS <- scanb_lin$mat[, ID_S, drop = FALSE]
 rm(tcga_lin, scanb_lin); invisible(gc(verbose = FALSE))
 
+# NOTE (2026-09-02): the three helpers below were generalised into
+# functions/gene_matrix.R when E10 needed them. The two copies are identical in
+# behaviour; E08 keeps its own only because its results are on disk and were not
+# re-run. THE NEXT EDIT TO THIS SCRIPT SHOULD DELETE THEM and source that file.
 .in_t <- function(g) intersect(unique(g), rownames(LT))
 .in_s <- function(g) {
   h <- sc$symbol_map[unique(g)]
