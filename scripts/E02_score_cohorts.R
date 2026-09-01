@@ -503,10 +503,13 @@ myc_net <- ct %>%
 }
 # NOTE: the CollecTRI targets are NOT in the symbol map's input union, so
 # .remap_s leaves any unmatched one alone rather than resolving it. That is
-# deliberate: widening the map's input universe can change a resolution for a
-# symbol it already covers (the setdiff guard sees a different "already in the
-# set" universe), which would break the agreement assertion in 4.1 for a
-# secondary estimator's sake. M_b is reported alongside the panel, never alone.
+# deliberate, and the reason survives the 2026-08-31 rewrite of the candidate
+# filter even though the mechanism changed. A candidate is now admitted only
+# when exactly ONE symbol of the universe being mapped claims it, so adding 811
+# CollecTRI targets could make an alias newly CONTESTED and withdraw a
+# resolution the map already makes - which would break the agreement assertion
+# in 4.1 for a secondary estimator's sake. M_b is reported alongside the panel,
+# never alone. See docs/2026-08-31_symbol_map_note.md.
 M_b_s <- .ulm(.remap_s(collectri), Es, "SCAN-B M_b")
 if (!"MYC" %in% rownames(Ls)) stop("MYC absent from SCAN-B.", call. = FALSE)
 log2MYC_s <- as.numeric(log2(Ls["MYC", ]))

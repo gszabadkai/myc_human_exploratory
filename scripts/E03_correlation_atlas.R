@@ -41,6 +41,7 @@
 
 source(here::here("scripts", "E00_setup_packages.R"))
 source(here::here("functions", "correlation_engine.R"))
+source(here::here("functions", "strata.R"))
 
 message("\nE03: the correlation atlas\n", strrep("=", 78))
 
@@ -241,17 +242,11 @@ message("   SCAN-B: ", paste(names(ADJ_S), collapse = ", "),
 # =============================================================================
 message("\n5. strata")
 
-.strata <- function(coh, ids) {
-  f <- frames[frames$cohort == coh, ]
-  f <- f[match(ids, f$sample_id), ]
-  s <- list(all = ids,
-            ERpos = ids[!is.na(f$ER) & f$ER == "ERpos"],
-            ERneg = ids[!is.na(f$ER) & f$ER == "ERneg"])
-  for (p in levels(f$PAM50)) s[[p]] <- ids[!is.na(f$PAM50) & f$PAM50 == p]
-  s
-}
-STR_T <- .strata("TCGA", ID_T)
-STR_S <- .strata("SCAN-B", ID_S)
+# Strata come from functions/strata.R so every script cuts the cohorts
+# identically. Luminal (LumA + LumB) was added 2026-09-01; it is additive and
+# changes no stratum that existed before.
+STR_T <- .build_strata(frames, "TCGA", ID_T)
+STR_S <- .build_strata(frames, "SCAN-B", ID_S)
 tibble::tibble(stratum = names(STR_T),
                TCGA    = vapply(STR_T, length, integer(1)),
                `SCAN-B` = vapply(STR_S, length, integer(1))) %>%
