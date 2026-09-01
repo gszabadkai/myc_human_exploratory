@@ -237,10 +237,14 @@ message("   0.10 would mean perfectly even; 1.00 would mean one decile carries",
 
 # Does the contrast survive deleting the strongest contributors?
 message("\n   the contrast after deleting the top N contributors from each side:")
+# NOTE: `slice(-seq_len(k))` is wrong at k = 0. seq_len(0) is integer(0), so the
+# negation is integer(0) too and slice() then returns NO rows rather than all of
+# them - the k = 0 baseline came back empty and the pivot below had nothing to
+# subtract. row_number() > k has no such edge.
 .trimmed_contrast <- function(df, k) {
   df %>% dplyr::group_by(cohort, axis, effect) %>%
     dplyr::arrange(dplyr::desc(abs(rho)), .by_group = TRUE) %>%
-    dplyr::slice(-seq_len(k)) %>%
+    dplyr::filter(dplyr::row_number() > k) %>%
     dplyr::summarise(m = mean(rho), .groups = "drop") %>%
     tidyr::pivot_wider(names_from = effect, values_from = m) %>%
     dplyr::mutate(contrast = `pro-death` - `pro-survival`, dropped = k)
