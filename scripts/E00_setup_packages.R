@@ -18,8 +18,8 @@
                "stringr", "purrr", "ggplot2")
 
 # Checked for presence, attached by the scripts that need them. GSVA is slow to
-# attach and only E02 uses it.
-.pkg_analysis <- c("GSVA", "decoupleR", "msigdbr")
+# attach and only E02 uses it; ggrepel is called as ggrepel:: by E08 alone.
+.pkg_analysis <- c("GSVA", "decoupleR", "msigdbr", "ggrepel")
 
 .check_packages <- function(pkgs, tier) {
   have <- vapply(pkgs, function(p) requireNamespace(p, quietly = TRUE), logical(1))

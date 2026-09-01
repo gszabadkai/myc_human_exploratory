@@ -272,15 +272,132 @@ annot_test <- contrast_genes %>%
 annot_test %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
-message("\n   the 12 strongest contributors on each side (SELECTED ON THE",
-        " STATISTIC -\n   these are descriptions, not findings):")
-contrast_genes %>% dplyr::filter(axis == "OXPHOS", cohort == "TCGA") %>%
-  dplyr::group_by(effect) %>%
-  dplyr::arrange(dplyr::desc(abs(rho)), .by_group = TRUE) %>%
-  dplyr::slice_head(n = 12) %>%
-  dplyr::mutate(rho = round(rho, 3)) %>%
-  dplyr::select(effect, gene, rho, family_pathway, is_mitochondrial) %>%
+# --- 3.1 WHICH GENES DRIVE IT ------------------------------------------------
+# Ranked by the mean rho across cohorts and REQUIRING BOTH COHORTS TO AGREE IN
+# SIGN. Without that requirement, taking the extremes of a 1,086-gene list is
+# just taking the extremes of a 1,086-gene list.
+#
+# These lists are SELECTED ON THE STATISTIC THEY REPORT. They describe what
+# carries the contrast; they are not findings about those genes.
+message("\n3.1 which genes drive the contrast")
+
+PROLIF_REF <- sd_$strip_refs$PROLIF_REF
+MITO_ALL   <- sd_$strip_refs$MITOCARTA_ALL
+OX_ARM     <- sd_$arm_sets[["OXPHOS subunits"]]
+# A small named list, stated rather than inferred, so "antioxidant" means
+# something a reader can check.
+ANTIOX <- c("SOD1", "SOD2", "CAT", "PARK7", "TXN", "TXN2", "TXNRD1", "TXNRD2",
+            "GPX1", "GPX4", "PRDX1", "PRDX2", "PRDX3", "PRDX4", "PRDX5",
+            "PRDX6", "GSR", "NQO1")
+
+drivers <- contrast_genes %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::select(cohort, axis, gene, rho, effect, family_pathway,
+                is_mitochondrial) %>%
+  tidyr::pivot_wider(names_from = cohort, values_from = rho) %>%
+  dplyr::filter(!is.na(TCGA), !is.na(`SCAN-B`)) %>%
+  dplyr::mutate(
+    mean_rho  = (TCGA + `SCAN-B`) / 2,
+    agree     = sign(TCGA) == sign(`SCAN-B`),
+    in_ox_arm  = gene %in% OX_ARM,
+    proteasome = grepl("^PSM", gene) | gene == "SEM1",
+    antioxidant = gene %in% ANTIOX,
+    mitocarta  = gene %in% MITO_ALL,
+    proliferation = gene %in% PROLIF_REF,
+    # One class per point, by priority, for colouring only. The flags above stay
+    # separate because a gene can be several of these at once.
+    gene_class = dplyr::case_when(
+      in_ox_arm     ~ "in the OXPHOS arm itself",
+      proteasome    ~ "proteasome",
+      antioxidant   ~ "antioxidant",
+      mitocarta     ~ "other mitochondrial",
+      proliferation ~ "proliferation (E2F/G2M)",
+      TRUE          ~ "other"))
+
+.drivers <- function(ax, eff, dir, n = 20) {
+  d <- drivers %>% dplyr::filter(axis == ax, effect == eff, agree)
+  d <- if (dir == "neg") dplyr::arrange(d, mean_rho) else
+       dplyr::arrange(d, dplyr::desc(mean_rho))
+  utils::head(d, n)
+}
+message("\n   PRO-DEATH genes pulling that arm NEGATIVE on OXPHOS:")
+.drivers("OXPHOS", "pro-death", "neg") %>%
+  dplyr::mutate(dplyr::across(c(TCGA, `SCAN-B`, mean_rho), ~ round(.x, 3))) %>%
+  dplyr::select(gene, TCGA, `SCAN-B`, mean_rho, gene_class, family_pathway) %>%
   as.data.frame() %>% print(row.names = FALSE)
+message("\n   PRO-SURVIVAL genes pulling that arm POSITIVE on OXPHOS:")
+.drivers("OXPHOS", "pro-survival", "pos") %>%
+  dplyr::mutate(dplyr::across(c(TCGA, `SCAN-B`, mean_rho), ~ round(.x, 3))) %>%
+  dplyr::select(gene, TCGA, `SCAN-B`, mean_rho, gene_class, family_pathway) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# What the drivers are MADE of, against the background they were drawn from.
+driver_class <- dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+  dplyr::bind_rows(
+    .drivers(ax, "pro-death", "neg", 50) %>%
+      dplyr::mutate(side = "pro-death, most negative"),
+    .drivers(ax, "pro-survival", "pos", 50) %>%
+      dplyr::mutate(side = "pro-survival, most positive"),
+    drivers %>% dplyr::filter(axis == ax) %>%
+      dplyr::mutate(side = "all 1,051 CDC genes")) %>%
+    dplyr::group_by(axis, side) %>%
+    dplyr::summarise(n = dplyr::n(),
+                     proteasome = mean(proteasome),
+                     mitochondrial = mean(mitocarta),
+                     proliferation = mean(proliferation), .groups = "drop")))
+message("\n   what the top-50 drivers are made of, against their background:")
+driver_class %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# --- 3.2 THE CANONICAL MACHINERY ---------------------------------------------
+# The 44 genes carrying a family_pathway label are the ones that ARE apoptotic
+# machinery rather than merely curated alongside it. Grouped into modules from
+# the curation's own label strings.
+message("\n3.2 the genes that ARE the machinery")
+
+canonical <- drivers %>%
+  dplyr::filter(axis == "OXPHOS", !is.na(family_pathway)) %>%
+  dplyr::mutate(
+    acts_at_mito = is_mitochondrial %in% c(TRUE, "TRUE"),
+    module = dplyr::case_when(
+      grepl("Death receptor|Death ligand|TRAIL|extrinsic|cFLIP", family_pathway)
+        ~ "death receptor / extrinsic",
+      grepl("IAP family|Transcription factor", family_pathway)
+        ~ "IAP / NF-kB",
+      grepl("BCL2 family|BH3-only|Apoptosome|intrinsic|SMAC|HtrA2|Caspase-independent|Intrinsic",
+            family_pathway) ~ "mitochondrial / intrinsic",
+      grepl("Effector caspase", family_pathway) ~ "effector caspase",
+      TRUE ~ "other"))
+
+message("\n   by ANNOTATED DIRECTION OF EFFECT - which is D1's split:")
+canonical %>% dplyr::group_by(effect) %>%
+  dplyr::summarise(n = dplyr::n(), n_negative = sum(mean_rho < 0),
+                   median = round(stats::median(mean_rho), 3), .groups = "drop") %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("\n   by MODULE:")
+canonical %>% dplyr::group_by(module) %>%
+  dplyr::summarise(n = dplyr::n(), n_negative = sum(mean_rho < 0),
+                   median = round(stats::median(mean_rho), 3), .groups = "drop") %>%
+  dplyr::arrange(median) %>% as.data.frame() %>% print(row.names = FALSE)
+message("\n   by WHETHER THE GENE ACTS AT THE MITOCHONDRION:")
+canonical %>% dplyr::group_by(acts_at_mito) %>%
+  dplyr::summarise(n = dplyr::n(), n_negative = sum(mean_rho < 0),
+                   median = round(stats::median(mean_rho), 3), .groups = "drop") %>%
+  as.data.frame() %>% print(row.names = FALSE)
+canonical_split <- tibble::tibble(
+  predictor = c("acts at the mitochondrion", "is annotated pro-death"),
+  spearman_with_rho = c(
+    stats::cor(canonical$mean_rho, as.numeric(canonical$acts_at_mito),
+               method = "spearman"),
+    stats::cor(canonical$mean_rho, as.numeric(canonical$effect == "pro-death"),
+               method = "spearman")))
+message("\n   which split predicts the sign?")
+canonical_split %>%
+  dplyr::mutate(spearman_with_rho = round(spearman_with_rho, 3)) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   A POSITIVE value on the second row means pro-death genes correlate",
+        " MORE\n   with OXPHOS - the opposite of D1's whole-set direction.")
 
 # =============================================================================
 # 4. Q-c: the overlay genes, by stratum, with expression
@@ -427,6 +544,163 @@ g2 <- overlay_by_stratum %>%
   theme_e08
 .save(g2, "E08_fig2_bcl2_by_stratum", 11, 6)
 
+# --- figures 4 to 8: what drives the D1 contrast -----------------------------
+CLASS_COLS <- c(`in the OXPHOS arm itself` = "#000000",
+                proteasome                = "#d95f02",
+                antioxidant               = "#7570b3",
+                `other mitochondrial`     = "#1b9e77",
+                `proliferation (E2F/G2M)` = "#e7298a",
+                other                     = "grey60")
+
+g4dat <- dplyr::bind_rows(
+  .drivers("OXPHOS", "pro-death", "neg", 20) %>%
+    dplyr::mutate(panel = "pro-death, most NEGATIVE with OXPHOS"),
+  .drivers("OXPHOS", "pro-survival", "pos", 20) %>%
+    dplyr::mutate(panel = "pro-survival, most POSITIVE with OXPHOS")) %>%
+  tidyr::pivot_longer(c(TCGA, `SCAN-B`), names_to = "cohort",
+                      values_to = "rho") %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                gene = stats::reorder(gene, mean_rho))
+g4 <- ggplot2::ggplot(g4dat, ggplot2::aes(rho, gene)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_line(ggplot2::aes(group = gene, colour = gene_class),
+                     linewidth = 1.4, alpha = 0.55) +
+  ggplot2::geom_point(ggplot2::aes(shape = cohort), size = 1.7) +
+  ggplot2::facet_wrap(~ panel, scales = "free_y") +
+  ggplot2::scale_colour_manual(values = CLASS_COLS, name = NULL) +
+  ggplot2::scale_shape_manual(values = c(16, 1), name = NULL) +
+  ggplot2::labs(
+    title = "Which genes carry the D1 contrast",
+    subtitle = paste("EXPLORATORY - not pre-registered | top 20 per side,",
+                     "both cohorts required to agree in sign"),
+    x = "Spearman rho with OXPHOS subunits (GSVA)", y = NULL,
+    caption = paste("The bar spans the two cohorts; a short bar is a gene that",
+                    "replicates. THESE GENES WERE SELECTED ON THE STATISTIC",
+                    "SHOWN -\nthe list describes what carries the contrast and is",
+                    "not a finding about any gene in it. NDUFA2 and NDUFS3 are",
+                    "in the\nOXPHOS arm itself and are the only self-overlap in",
+                    "the whole comparison.")) +
+  theme_e08
+.save(g4, "E08_fig4_d1_drivers", 11, 6)
+
+g5 <- driver_class %>%
+  tidyr::pivot_longer(c(proteasome, mitochondrial, proliferation),
+                      names_to = "class", values_to = "frac") %>%
+  dplyr::mutate(side = factor(side,
+                  levels = c("pro-death, most negative", "all 1,051 CDC genes",
+                             "pro-survival, most positive"))) %>%
+  ggplot2::ggplot(ggplot2::aes(frac, side, fill = class)) +
+  ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75),
+                    width = 0.7) +
+  ggplot2::facet_wrap(~ axis) +
+  ggplot2::scale_fill_manual(values = c(proteasome = "#d95f02",
+                                        mitochondrial = "#1b9e77",
+                                        proliferation = "#e7298a"), name = NULL) +
+  ggplot2::labs(
+    title = "What the drivers are made of, against the background they came from",
+    subtitle = paste("EXPLORATORY - not pre-registered | top 50 per side, both",
+                     "cohorts agreeing"),
+    x = "fraction of the gene set", y = NULL,
+    caption = paste("On the OXPHOS axis the pro-survival drivers are 26%",
+                    "proteasome against a 3% background. On the MYC axis they",
+                    "are 18%\nHALLMARK E2F/G2M against 4%, which is why D1's MYC",
+                    "contrast collapsed under proliferation adjustment and its",
+                    "OXPHOS\ncontrast did not. The contrast is carried by",
+                    "transcript CLASS, not by death annotation.")) +
+  theme_e08
+.save(g5, "E08_fig5_driver_composition", 9, 4.5)
+
+g6dat <- canonical %>%
+  dplyr::mutate(module = factor(module, levels = canonical %>%
+                  dplyr::group_by(module) %>%
+                  dplyr::summarise(m = stats::median(mean_rho), .groups = "drop") %>%
+                  dplyr::arrange(m) %>% dplyr::pull(module)),
+                gene = stats::reorder(gene, mean_rho))
+mod_med <- g6dat %>% dplyr::group_by(module) %>%
+  dplyr::summarise(m = stats::median(mean_rho), .groups = "drop")
+g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(mean_rho, gene, colour = effect)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_vline(data = mod_med, ggplot2::aes(xintercept = m),
+                      linetype = 2, linewidth = 0.4, colour = "grey40") +
+  ggplot2::geom_segment(ggplot2::aes(x = TCGA, xend = `SCAN-B`,
+                                     y = gene, yend = gene),
+                        linewidth = 1.1, alpha = 0.5) +
+  ggplot2::geom_point(size = 1.8) +
+  ggplot2::geom_point(data = dplyr::filter(g6dat, acts_at_mito),
+                      ggplot2::aes(x = mean_rho), shape = 1, size = 3.4,
+                      colour = "black", stroke = 0.5) +
+  ggplot2::facet_grid(module ~ ., scales = "free_y", space = "free_y",
+                      switch = "y") +
+  ggplot2::scale_colour_manual(values = c(`pro-death` = "#d7191c",
+                                          `pro-survival` = "#2c7bb6"),
+                               name = NULL) +
+  ggplot2::labs(
+    title = "The genes that ARE apoptotic machinery reverse D1's direction",
+    subtitle = paste("EXPLORATORY - not pre-registered | the 44 genes carrying a",
+                     "family_pathway label; circled = acts at the mitochondrion"),
+    x = "mean Spearman rho with OXPHOS subunits, across cohorts", y = NULL,
+    caption = paste("D1 says pro-death correlates NEGATIVELY and pro-survival",
+                    "POSITIVELY. Here the annotated machinery does the opposite:",
+                    "pro-death\nmedian +0.048, pro-survival -0.225. The split",
+                    "that predicts the sign is the dashed module median -",
+                    "whether the gene acts at\nthe mitochondrion (rho 0.453) -",
+                    "not its direction of effect (0.225). APAF1 in the",
+                    "extrinsic-leaning tail is the anomaly.")) +
+  theme_e08 +
+  ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0, size = 7),
+                 strip.placement = "outside")
+.save(g6, "E08_fig6_canonical_machinery", 9, 9)
+
+g7dat <- drivers %>% dplyr::filter(axis == "OXPHOS") %>%
+  dplyr::mutate(labelled = !is.na(family_pathway))
+g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(TCGA, `SCAN-B`)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 3, linewidth = 0.3) +
+  ggplot2::geom_point(ggplot2::aes(colour = effect), size = 0.7, alpha = 0.3) +
+  ggplot2::geom_point(data = dplyr::filter(g7dat, labelled),
+                      ggplot2::aes(colour = effect), size = 1.9) +
+  ggrepel::geom_text_repel(
+    data = dplyr::filter(g7dat, labelled, abs(mean_rho) > 0.25),
+    ggplot2::aes(label = gene, colour = effect), size = 2.4, max.overlaps = 30,
+    show.legend = FALSE, seed = PROJECT_SEED) +
+  ggplot2::scale_colour_manual(values = c(`pro-death` = "#d7191c",
+                                          `pro-survival` = "#2c7bb6"),
+                               name = NULL) +
+  ggplot2::labs(
+    title = "Every cell-death gene against OXPHOS, in both cohorts at once",
+    subtitle = paste("EXPLORATORY - not pre-registered | 1,051 genes; solid",
+                     "points are the 44 with a family_pathway label"),
+    x = "Spearman rho with OXPHOS subunits, TCGA",
+    y = "Spearman rho, SCAN-B",
+    caption = paste("The cloud sits on the diagonal, which is the replication.",
+                    "The two colours overlap almost completely - that overlap is",
+                    "why D1's\ncontrast is only -0.05. The labelled genes are",
+                    "the machinery, and they separate by module rather than by",
+                    "colour.")) +
+  theme_e08
+.save(g7, "E08_fig7_gene_replication_plane", 8, 7)
+
+g8 <- trimmed %>% dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS))) %>%
+  ggplot2::ggplot(ggplot2::aes(dropped, contrast, colour = cohort)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_line(linewidth = 0.6) + ggplot2::geom_point(size = 2) +
+  ggplot2::facet_wrap(~ axis) +
+  ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
+  ggplot2::labs(
+    title = "How much of the contrast survives deleting its strongest genes",
+    subtitle = paste("EXPLORATORY - not pre-registered | top N by |rho| removed",
+                     "from EACH side, of about 500 genes per side"),
+    x = "genes deleted from each side", y = "pro-death minus pro-survival",
+    caption = paste("A uniform shift would be a flat line: the shift would still",
+                    "be present in the 400 genes that remain. Deleting 100 of",
+                    "500\nremoves 84% (SCAN-B) and 72% (TCGA) of the OXPHOS",
+                    "contrast, so its MAGNITUDE lives in the tails even though",
+                    "its SIGN\nshifts across the whole distribution.")) +
+  theme_e08
+.save(g8, "E08_fig8_trim_curve", 8, 4)
+
 g3 <- gap_panel %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 stratum = stats::reorder(stratum, median_rho)) %>%
@@ -457,6 +731,8 @@ g3 <- gap_panel %>%
 message("\n6. save")
 saveRDS(list(gap_panel = gap_panel, range_test = range_test, arm_gap = arm_gap,
              contrast_genes = contrast_genes, concentration = concentration,
+             drivers = drivers, driver_class = driver_class,
+             canonical = canonical, canonical_split = canonical_split,
              trimmed = trimmed, annot_test = annot_test,
              overlay_by_stratum = overlay_by_stratum, expr_rank = expr_rank,
              lum_basal = lum_basal,
@@ -474,12 +750,26 @@ saveRDS(list(gap_panel = gap_panel, range_test = range_test, arm_gap = arm_gap,
                                   "FLAGGED, never filtered"),
                selection = paste("the top-contributor lists are selected on the",
                                  "statistic they report and are descriptions,",
-                                 "not findings")),
+                                 "not findings"),
+               canonical = paste("among the 44 genes carrying a family_pathway",
+                                 "label the D1 direction REVERSES, and the split",
+                                 "that predicts the sign is whether the gene",
+                                 "acts at the mitochondrion rather than its",
+                                 "annotated direction of effect")),
              built = Sys.time()), PATH_E08)
 readr::write_csv(overlay_by_stratum, PATH_E08_CSV)
 message("\nE08: done.")
 message("    results/strata_and_death_genes.rds")
 message("    outputs/tables/death_genes_by_stratum.csv")
+message("    8 figures in outputs/figures/:")
+message("      fig1 D1 at gene resolution, as two cumulative distributions")
+message("      fig2 the BCL2 family by subtype, low-expression genes crossed")
+message("      fig3 the ER-negative gap across the whole estimator panel")
+message("      fig4 WHICH GENES carry the contrast, both cohorts per gene")
+message("      fig5 what those drivers are MADE of, against their background")
+message("      fig6 the 44 genes that ARE machinery - and reverse D1's sign")
+message("      fig7 every death gene on the TCGA-vs-SCAN-B plane")
+message("      fig8 how much of the contrast survives deleting its strongest genes")
 
 # =============================================================================
 # Sandbox
