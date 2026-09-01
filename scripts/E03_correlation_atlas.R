@@ -303,12 +303,30 @@ atlas <- dplyr::bind_rows(
   .run_cohort("SCAN-B", EST_S, MEAS_S, STR_S, ADJ_S)) %>%
   dplyr::left_join(meas_meta, by = "measure") %>%
   dplyr::left_join(est_meta,  by = "myc_estimator") %>%
+  # `thin` from est_meta counts the genes a set is DEFINED with. What matters
+  # for reading a cell is how many are PRESENT in that cohort's matrix, and the
+  # two differ: YU_MYC_TARGETS_UP__BOTHSTRIP is defined with 19 genes and lands
+  # 17 in TCGA. A stripped variant can therefore fall below the floor in one
+  # cohort and not the other, so the flag has to be per-cohort.
+  dplyr::left_join(sd_$coverage %>%
+                     dplyr::select(cohort, myc_estimator = set,
+                                   n_present, set_frac = frac),
+                   by = c("cohort", "myc_estimator")) %>%
+  dplyr::mutate(thin_in_cohort = !is.na(n_present) & n_present < MIN_GSVA_N) %>%
   dplyr::select(cohort, instrument, myc_estimator, base, strip_status, arm,
                 measure_class, stratum, adjusted, n, k_cov, rho, ci_lo, ci_hi,
-                p, frac_prolif, frac_mito, thin, kind, n_genes) %>%
+                p, frac_prolif, frac_mito, thin, thin_in_cohort, n_genes,
+                n_present, set_frac, kind) %>%
   dplyr::arrange(cohort, instrument, myc_estimator, arm, stratum, adjusted)
 
 message("   ", format(nrow(atlas), big.mark = ","), " cells")
+thin_now <- atlas %>% dplyr::filter(thin_in_cohort) %>%
+  dplyr::distinct(cohort, myc_estimator, n_genes, n_present)
+if (nrow(thin_now)) {
+  message("   estimators landing fewer than ", MIN_GSVA_N,
+          " genes in a cohort's matrix - scored, flagged, not to be read alone:")
+  thin_now %>% as.data.frame() %>% print(row.names = FALSE)
+}
 atlas %>% dplyr::count(cohort, adjusted) %>% as.data.frame() %>%
   print(row.names = FALSE)
 
