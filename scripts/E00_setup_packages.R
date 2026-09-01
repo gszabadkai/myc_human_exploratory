@@ -129,7 +129,7 @@ EXPECT_COLLECTRI_STRIP <- 811L   # g1$estimators_stripped$COLLECTRI_MYC_ALL
 #
 # SEPARATELY, AND IT IS THE SECOND HALF OF THE SAME DEFECT: `PROLIF_DISJOINT`
 # is PROLIF_STD minus the 9 proliferation genes of FELSHER_61 and nothing else.
-# It is disjoint from M_a ALONE. It shares 96 genes with the 18-signature union,
+# It is disjoint from M_a ALONE. It shares 97 genes with the 18-signature union,
 # so a "proliferation-adjusted" rho for any other signature is partly adjusting
 # that signature for itself. Use __PROLIFSTRIP to ask the question cleanly.
 MYC_SUFFIXES <- c("__FULL", "__MITOSTRIP", "__PROLIFSTRIP", "__BOTHSTRIP")

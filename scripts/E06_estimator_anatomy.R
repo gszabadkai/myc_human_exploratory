@@ -11,7 +11,7 @@
 # study; the other 17 had not. Nothing in any name said so. On top of that the
 # "proliferation-adjusted" column used `PROLIF_DISJOINT`, which is PROLIF_STD
 # minus the 9 proliferation genes of FELSHER_61 and nothing else - disjoint from
-# M_a ALONE, and sharing 96 genes with the 18-signature union. So for 17 of 18
+# M_a ALONE, and sharing 97 genes with the 18-signature union. So for 17 of 18
 # signatures F1's proliferation adjustment was partly adjusting each signature
 # for itself.
 #
@@ -127,8 +127,10 @@ d0_test %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
 # =============================================================================
 message("\n3. what survives each strip")
 
+# `panel` is E02's myc_panel joined to the atlas: 18 signatures x 4 variants and
+# nothing else, so there is no `kind` to filter on. M_b lives in the atlas, not
+# here, and section 5 reads it from there.
 variant_table <- panel %>%
-  dplyr::filter(kind == "signature (GSVA)") %>%
   dplyr::select(base, strip_status, n, rho_TCGA, rho_SCANB) %>%
   tidyr::pivot_wider(id_cols = base, names_from = strip_status,
                      values_from = c(n, rho_TCGA, rho_SCANB)) %>%
@@ -156,7 +158,6 @@ variant_table %>% dplyr::arrange(dplyr::desc(rho_SCANB_FULL)) %>%
 
 message("\n   THE PANEL-LEVEL ANSWER:")
 survival <- panel %>%
-  dplyr::filter(kind == "signature (GSVA)") %>%
   dplyr::group_by(strip_status) %>%
   dplyr::summarise(
     n_sig = dplyr::n(),
@@ -392,7 +393,7 @@ saveRDS(list(panel = panel, d0_test = d0_test, variant_table = variant_table,
                adjust_vs_strip = paste("adjusting removes shared VARIANCE,",
                                        "stripping removes shared GENES;",
                                        "PROLIF_DISJOINT is disjoint from M_a",
-                                       "alone and shares 96 genes with the",
+                                       "alone and shares 97 genes with the",
                                        "FULL panel union"),
                mb_bcl2 = paste("no BCL2-family gene survives into M_b__MITOSTRIP",
                                "so its BCL2 numbers are independent; M_b__FULL",

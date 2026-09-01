@@ -755,7 +755,7 @@ saveRDS(list(
                    "validation study's M_a and reproduces it exactly."),
     prolif_disjoint = paste("PROLIF_DISJOINT is PROLIF_STD minus the 9",
                             "proliferation genes of FELSHER_61 and nothing",
-                            "else. It is disjoint from M_a ALONE and shares 96",
+                            "else. It is disjoint from M_a ALONE and shares 97",
                             "genes with the 18-signature union, so a",
                             "proliferation-ADJUSTED rho for any other signature",
                             "is partly adjusting it for itself. Use the",

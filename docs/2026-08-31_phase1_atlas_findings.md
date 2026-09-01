@@ -103,8 +103,8 @@ panel, and F1 never tested for it.
 
 F1's "proliferation-adjusted" column projected out `PROLIF_DISJOINT`. That set
 is `PROLIF_STD` (327 genes = HALLMARK E2F_TARGETS + G2M_CHECKPOINT) **minus the
-9 proliferation genes of `FELSHER_61`, and nothing else**. It shares **96
-genes** with the union of the eighteen signatures. So for seventeen of them the
+9 proliferation genes of `FELSHER_61`, and nothing else** (327 - 9 = 318). It
+shares **97 genes** with the union of the eighteen signatures. So for seventeen of them the
 "adjusted" rho was partly adjusting each signature for genes it contains.
 
 The name promised something it delivered for one member of the panel.
