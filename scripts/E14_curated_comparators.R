@@ -71,6 +71,14 @@
 # and none is in Reactome's PINK1/PRKN arm, which is scored separately for that
 # reason. If the two mitophagy variants disagree, neither is reportable alone.
 #
+# THE PINK1/PRKN VARIANT IS COMPUTED AND CHECKED BUT NOT DRAWN. It is
+# mitophagy minus the receptor arm, so on every figure it lands on top of
+# mitophagy and costs a row of ink for no information. Section 4.1 asserts the
+# two variants agree in sign and stops if they do not, so the control is live
+# rather than decorative; the figures then plot `PLOT_SETS`, which is
+# `SPLIT_SETS` without it. Deleting the variant outright would delete a
+# declared control, which is not the same thing as simplifying a figure.
+#
 # =============================================================================
 # THE FALSIFIER, WRITTEN BEFORE THE ANSWER IS SEEN
 # =============================================================================
@@ -480,7 +488,13 @@ elig %>% as.data.frame() %>% print(row.names = FALSE)
 SET_ORDER <- names(COMPARATORS)
 SPLIT_SETS <- SET_ORDER[SET_ORDER %in% elig$set[elig$eligible]]
 LEVEL_ONLY <- setdiff(names(COMPARATORS), SPLIT_SETS)
+# Measured in full, plotted in part. See the header: the PINK1/PRKN variant is
+# a mutual control on full mitophagy and lands on top of it in every panel.
+NOT_PLOTTED <- "mitophagy, PINK1/PRKN only"
+PLOT_SETS   <- setdiff(SPLIT_SETS, NOT_PLOTTED)
 message("   head-to-head sets: ", paste(SPLIT_SETS, collapse = ", "))
+message("   measured but not plotted (a control, see 4.1): ",
+        paste(intersect(NOT_PLOTTED, SPLIT_SETS), collapse = ", "))
 message("   level-only (no cytosolic half to split against): ",
         paste(LEVEL_ONLY, collapse = ", "))
 if (!"mitophagy" %in% SPLIT_SETS) {
@@ -657,6 +671,71 @@ message("\n   VERDICT AGAINST THE FALSIFIER WRITTEN IN THE HEADER:\n   ",
 verdict_tbl %>% dplyr::mutate(dplyr::across(where(is.numeric),
                                             ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
+
+# =============================================================================
+# 4.1 THE MUTUAL CONTROL ON MITOPHAGY, so that not drawing it is not hiding it
+# =============================================================================
+# The header made full mitophagy reportable only if its PINK1/PRKN subset
+# agrees with it - the subset drops BNIP3, BNIP3L and the other BH3-domain
+# receptors, which are the reason mitophagy is death-adjacent at all.
+#
+# THE CRITERION IS SIGN AGREEMENT ON `split`, AND THE HONEST VERSION OF WHY:
+# `split` is this study's anchor statistic, fixed in E11 before E14 existed
+# and for reasons that had nothing to do with mitophagy. It is NOT chosen here
+# because it is the one that passes - and it needs saying, because the OTHER
+# statistic does not pass. `med_diff` is +0.184 for full mitophagy and -0.030
+# for the subset in TCGA: opposite signs. The subset has 14 mitochondrial
+# genes against 16, so a median moves easily, but that is an explanation and
+# not a defence. The check below prints both, asserts on the anchor, and says
+# out loud when the second one disagrees, so that "the variants agree" is
+# never read as more than it is.
+message("\n4.1 do the two mitophagy variants agree? (the control for not ",
+        "plotting one)")
+mito_pair <- comparator_splits %>%
+  dplyr::filter(axis == "OXPHOS", adjustment == "adj. PROLIF_DISJOINT",
+                set %in% c("mitophagy", NOT_PLOTTED)) %>%
+  dplyr::select(cohort, set, split, med_diff, z)
+mito_pair %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+# Defined before the block, or the save below fails when the variant is not
+# eligible at all - which is the case this script must survive, not assume.
+MITO_PAIR_MD_AGREE <- NA
+if (NOT_PLOTTED %in% SPLIT_SETS) {
+  agree <- mito_pair %>%
+    dplyr::select(cohort, set, split) %>%
+    tidyr::pivot_wider(names_from = set, values_from = split)
+  same_sign <- sign(agree[["mitophagy"]]) == sign(agree[[NOT_PLOTTED]])
+  if (!all(same_sign)) {
+    stop("the two mitophagy variants disagree in sign on the split. The ",
+         "header made each reportable only with the other, so neither can be ",
+         "read and the PINK1/PRKN row must go back into the figures.",
+         call. = FALSE)
+  }
+  message("   they agree in sign on `split` in both cohorts, so full ",
+          "mitophagy is reportable and the\n   subset is left off every ",
+          "figure as duplicated ink rather than as a hidden result.")
+
+  # The second statistic, reported whether or not it agrees. Silence here
+  # would make the removal look better supported than it is.
+  agree_md <- mito_pair %>%
+    dplyr::select(cohort, set, med_diff) %>%
+    tidyr::pivot_wider(names_from = set, values_from = med_diff)
+  md_same <- sign(agree_md[["mitophagy"]]) == sign(agree_md[[NOT_PLOTTED]])
+  MITO_PAIR_MD_AGREE <- all(md_same)
+  if (!MITO_PAIR_MD_AGREE) {
+    message("   BUT `med_diff` DISAGREES IN SIGN in ",
+            paste(agree_md$cohort[!md_same], collapse = ", "), ": ",
+            paste(round(agree_md[["mitophagy"]][!md_same], 3), "vs",
+                  round(agree_md[[NOT_PLOTTED]][!md_same], 3),
+                  collapse = "; "), ".")
+    message("   The subset has 14 mitochondrial genes against 16, so a ",
+            "median moves easily - but\n   that is an explanation, not a ",
+            "defence. It means the mitophagy comparator is\n   SOFTER than ",
+            "the figures alone suggest, and any sentence resting on it must ",
+            "say so.")
+  }
+}
 
 # =============================================================================
 # 5. WHICH HALF CARRIES THE RESIDUE
@@ -1012,13 +1091,14 @@ theme_e14 <- ggplot2::theme_bw(base_size = 9) +
 # machinery's point sits where the other programmes' points sit, the ordering
 # is what any outer-membrane-spanning programme shows.
 fig1_d <- comparator_splits %>%
+  dplyr::filter(set %in% PLOT_SETS) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 is_target = set == "apoptotic machinery (44)",
-                set = factor(set, levels = rev(SPLIT_SETS)))
+                set = factor(set, levels = rev(PLOT_SETS)))
 p1 <- ggplot2::ggplot(fig1_d, ggplot2::aes(y = set)) +
   ggplot2::geom_vline(xintercept = 0, colour = "grey70", linewidth = 0.3) +
   ggplot2::geom_hline(
-    yintercept = which(rev(SPLIT_SETS) == "apoptotic machinery (44)"),
+    yintercept = which(rev(PLOT_SETS) == "apoptotic machinery (44)"),
     colour = "grey85", linewidth = 6) +
   ggplot2::geom_linerange(
     ggplot2::aes(xmin = null_mean - null_sd, xmax = null_mean + null_sd),
@@ -1039,17 +1119,18 @@ p1 <- ggplot2::ggplot(fig1_d, ggplot2::aes(y = set)) +
       "Grey bar: that programme's OWN sub-compartment- and expression-matched null, mean +/- 1 SD,\n",
       NULL_DRAWS, " draws from MitoCarta minus the OXPHOS arm and the mitoribosome. Coloured point:\n",
       "observed, diamond and grey band for the target. The reading is ACROSS ROWS, not against the\n",
-      "grey. `isozyme pairs` is a declared CEILING - same\n",
-      "reaction either side of the membrane - and is author-curated, not from a pinned catalogue.\n",
-      "EXPLORATORY: nothing pre-registered; four comparators cannot make a p-value.")) +
+      "grey. `isozyme pairs` is a declared CEILING - the same reaction either side of the membrane -\n",
+      "and is author-curated, not from a pinned catalogue. The PINK1/PRKN subset of mitophagy is\n",
+      "measured and sign-checked in section 4.1 but not drawn: it lands on top of mitophagy.\n",
+      "EXPLORATORY: nothing pre-registered; three comparators cannot make a p-value.")) +
   theme_e14
 .save(p1, "E14_fig1_head_to_head_split", 12, 6)
 
 # --- FIG 2: which half carries it ------------------------------------------
 fig2_d <- half_tests %>%
-  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT", set %in% PLOT_SETS) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
-                set = factor(set, levels = rev(SPLIT_SETS)))
+                set = factor(set, levels = rev(PLOT_SETS)))
 p2 <- ggplot2::ggplot(fig2_d, ggplot2::aes(y = set)) +
   ggplot2::geom_vline(xintercept = 0, colour = "grey70", linewidth = 0.3) +
   ggplot2::geom_linerange(
@@ -1162,8 +1243,8 @@ p4 <- ggplot2::ggplot(fig4_d, ggplot2::aes(x = dominant_compartment,
 # and leukocyte fraction, beside the 24 genes broken down by which apoptotic
 # module they belong to. Figure 1 must not be shown without it.
 fig5a <- purity_halves %>%
-  dplyr::filter(axis == "OXPHOS", half == "cytosolic") %>%
-  dplyr::mutate(set = factor(set, levels = rev(SPLIT_SETS)),
+  dplyr::filter(axis == "OXPHOS", half == "cytosolic", set %in% PLOT_SETS) %>%
+  dplyr::mutate(set = factor(set, levels = rev(PLOT_SETS)),
                 adjustment = factor(adjustment,
                                     levels = c("adj. PROLIF_DISJOINT",
                                                "adj. PROLIF + purity + leuko")))
@@ -1213,10 +1294,10 @@ p5 <- patchwork::wrap_plots(p5a, p5b, nrow = 2, heights = c(1, 1.1)) +
 # horizontally and disagree vertically" is a fact about the picture rather
 # than about how it was drawn. Both zeros are in view for the same reason.
 #
-# FOUR PROGRAMMES, NOT FIVE. The PINK1/PRKN subset of mitophagy sits almost on
-# top of mitophagy - it IS mitophagy, minus the receptor arm - so plotting it
-# doubles the ink for no information. It is named in the caption with its
-# values and it is in the table.
+# FOUR PROGRAMMES, NOT FIVE - and by section 4.1 that is a decision about ink,
+# not about evidence. The PINK1/PRKN subset is mitophagy minus the receptor
+# arm, agrees with it in sign in both cohorts, and lands on top of it in every
+# panel. EVERY figure in this script now omits it, so PANEL_SETS is PLOT_SETS.
 #
 # THE LEADER LINES ANCHOR TO THE NEAREST COHORT POINT, not to the midpoint of
 # the pair, because midpoint anchors made three leaders cross the Fe-S
@@ -1224,8 +1305,7 @@ p5 <- patchwork::wrap_plots(p5a, p5b, nrow = 2, heights = c(1, 1.1)) +
 # layout moves between runs and a figure that goes in a paper must not.
 message("   composing the one-panel supplementary figure")
 
-PANEL_SETS <- c("apoptotic machinery (44)", "mitophagy",
-                "Fe-S cluster assembly", "isozyme pairs (CEILING)")
+PANEL_SETS <- PLOT_SETS
 PANEL_SHORT <- c(`apoptotic machinery (44)` = "apoptotic machinery",
                  mitophagy = "mitophagy",
                  `Fe-S cluster assembly` = "Fe-S cluster assembly",
@@ -1305,34 +1385,21 @@ p6 <- ggplot2::ggplot(panel_data, ggplot2::aes(x = mean_rho_mitochondrial,
     y = "cytosolic members: mean rho with OXPHOS",
     title = "Apoptosis is the only programme whose cytosolic members run against OXPHOS",
     caption = paste0(
-"Four curated programmes that span the outer mitochondrial membrane, each split into its
-",
-"MitoCarta and non-MitoCarta members (n mito / n cytosolic in the label). Proliferation-adjusted
-",
-"partial Spearman; the grey line joins the two cohorts of one programme.
-",
-"HORIZONTALLY the programmes agree: every mitochondrial half lies between +0.14 and +0.31, at
-",
-"z -0.9 to +2.1 against its own expression- and sub-compartment-matched null.
-",
-"VERTICALLY they do not: every cytosolic half is positive and above its null (z +1.7 to +3.4)
-",
-"except the apoptotic machinery's, which is negative in both cohorts (-0.106 TCGA, -0.094
-",
-"SCAN-B). That negative survives purity and leukocyte fraction (-0.091, TCGA n = 1007) and
-",
-"survives deleting the death-receptor module entirely (9 of the 14 remaining genes still
-",
-"negative in both cohorts), so it is not immune infiltrate.
-",
-"Fe-S cluster assembly is the one cohort-inconsistent comparator - its long grey line. The
-",
-"PINK1/PRKN-only subset of mitophagy behaves as mitophagy does (+0.155, +0.104) and is left out
-",
-"here only to keep the panel readable; it is in the E14 table.
-",
-"THE CLAIM IS THE CONTRAST BETWEEN PROGRAMMES, not the distance from the null band.
-",
+"Four curated programmes that span the outer mitochondrial membrane, each split into its\n",
+"MitoCarta and non-MitoCarta members (n mito / n cytosolic in the label). Proliferation-adjusted\n",
+"partial Spearman; the grey line joins the two cohorts of one programme.\n",
+"HORIZONTALLY the programmes agree: every mitochondrial half lies between +0.14 and +0.31, at\n",
+"z -0.9 to +2.1 against its own expression- and sub-compartment-matched null.\n",
+"VERTICALLY they do not: every cytosolic half is positive and above its null (z +1.7 to +3.4)\n",
+"except the apoptotic machinery's, which is negative in both cohorts (-0.106 TCGA, -0.094\n",
+"SCAN-B). That negative survives purity and leukocyte fraction (-0.091, TCGA n = 1007) and\n",
+"survives deleting the death-receptor module entirely (9 of the 14 remaining genes still\n",
+"negative in both cohorts), so it is not immune infiltrate.\n",
+"Fe-S cluster assembly is the one cohort-inconsistent comparator - its long grey line. The\n",
+"PINK1/PRKN-only subset of mitophagy is mitophagy minus its BH3-domain receptors; it agrees with\n",
+"mitophagy in sign in both cohorts (+0.155, +0.104 cytosolic) and is on no figure here. Its\n",
+"values are in the E14 table.\n",
+"THE CLAIM IS THE CONTRAST BETWEEN PROGRAMMES, not the distance from the null band.\n",
 "EXPLORATORY: nothing pre-registered; four programmes cannot make a p-value.")) +
   theme_e14 +
   ggplot2::theme(plot.caption = ggplot2::element_text(size = 7.2,
@@ -1358,7 +1425,9 @@ saveRDS(list(
   cytosolic_verdict = CYT_VERDICT,
   comparators = COMPARATORS, comparator_source = COMPARATOR_SOURCE,
   paralogue_pairs = PARALOGUE_PAIRS,
-  split_sets = SPLIT_SETS, level_only = LEVEL_ONLY,
+  split_sets = SPLIT_SETS, plot_sets = PLOT_SETS, not_plotted = NOT_PLOTTED,
+  mito_pair = mito_pair, mito_pair_md_agree = MITO_PAIR_MD_AGREE,
+  level_only = LEVEL_ONLY,
   settings = list(null_draws = NULL_DRAWS, n_bins = N_BINS,
                   min_half = MIN_HALF, ladder_min = LADDER_MIN,
                   prolif_covariate = PROLIF_REF_COV, myc_axis = MYC_REF,
@@ -1401,6 +1470,16 @@ saveRDS(list(
                       "med_diff is carried beside it and is what the figures",
                       "plot. Choosing between them after seeing their z values",
                       "would be statistic-shopping."),
+    not_plotted = paste("the PINK1/PRKN mitophagy variant is measured, saved",
+                        "and sign-checked in section 4.1 but is on no figure.",
+                        "It is mitophagy minus the BH3-domain receptors, so it",
+                        "lands on top of mitophagy in every panel. Section 4.1",
+                        "stops the script if the two disagree in sign on the",
+                        "anchor statistic, which is what keeps 'not drawn'",
+                        "different from 'dropped'. THEY DO AGREE ON `split`",
+                        "AND DISAGREE IN SIGN ON `med_diff` IN TCGA (+0.184",
+                        "against -0.030), so the mitophagy comparator is",
+                        "softer than the figures alone suggest."),
     supplementary_panel = paste("E14_fig6 is the one-panel version of the",
                                 "whole argument, for a supplementary slot. Its",
                                 "axes are on the same scale and the panel is",
@@ -1510,6 +1589,11 @@ if (FALSE) {
     dplyr::group_by(cohort, module) %>%
     dplyr::summarise(n = dplyr::n(), mean_rho = round(mean(rho), 3),
                      n_negative = sum(rho < 0), .groups = "drop") %>%
+    as.data.frame() %>% print(row.names = FALSE)
+
+  # The control that licenses leaving PINK1/PRKN off every figure.
+  x$mito_pair %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
     as.data.frame() %>% print(row.names = FALSE)
 
   # The supplementary panel's own numbers, four programmes, two cohorts.

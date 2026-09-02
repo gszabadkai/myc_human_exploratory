@@ -172,11 +172,26 @@ quantity on the same scale, so "they agree horizontally and disagree
 vertically" is a property of the picture and not of how it was drawn, and both
 zeros are in view.
 
-Four programmes, not five - the PINK1/PRKN subset sits almost on top of
-mitophagy, because it *is* mitophagy minus the receptor arm, so it is named in
-the caption with its values instead of plotted. Label positions are fixed
-coordinates rather than repelled: a seed-driven layout moves between runs and a
-figure that goes in a paper must not.
+Four programmes, not five, **on every figure in `E14` now** - the PINK1/PRKN
+subset sits almost on top of mitophagy, because it *is* mitophagy minus the
+BH3-domain receptors. Label positions are fixed coordinates rather than
+repelled: a seed-driven layout moves between runs and a figure that goes in a
+paper must not.
+
+**Not drawn is not dropped, and section 4.1 is what makes the difference.** The
+subset is still measured, still saved, and still checked against full
+mitophagy, because the script header made each variant reportable only with the
+other. It agrees on `split` in both cohorts (0.112 / 0.065 TCGA, 0.219 / 0.196
+SCAN-B) and the script stops if that ever fails.
+
+**It does not agree on `med_diff` in TCGA: +0.184 against -0.030, opposite
+signs.** The subset has 14 mitochondrial genes against 16 and a median moves
+easily at that size, but that is an explanation and not a defence. `split` is
+the criterion because it is this study's anchor statistic, fixed in E11 before
+E14 existed - not because it is the one that passes. **The practical
+consequence: the mitophagy comparator is softer than the figures alone
+suggest, and any sentence resting on it should say so.** The script prints the
+disagreement every run.
 
 `fig1` (the head-to-head), `fig2` (the two halves) and `fig5` (the infiltrate
 falsifier) make the same argument in three steps and stay the main-text route.
