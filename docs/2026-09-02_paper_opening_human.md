@@ -1,0 +1,114 @@
+---
+date: 2026-09-02
+purpose: how the human data can open, and what each candidate sentence is
+         actually licensed by
+status: framing note, not a result. Results are in the E09/E10/E11 notes.
+---
+
+# The human opening statement: what is and is not licensed
+
+The candidate claim: *"the apoptotic machinery is driven, or at least more
+strongly correlated, by OXPHOS than directly by MYC."*
+
+**Two of its three parts survive. The third does not, and one part is stronger
+than the claim as written.**
+
+---
+
+## The claim ladder
+
+| # | statement | status |
+|---|---|---|
+| 1 | The 44 canonical apoptosis genes correlate more strongly with OXPHOS than with MYC activity | **SUPPORTED.** SD of the 44 per-gene rho 0.313 vs 0.191 (TCGA) and 0.245 vs 0.157 (SCAN-B); 66% vs 34% and 50% vs 25% exceed \|rho\| 0.2 |
+| 2 | ...and this is not proliferation | **SUPPORTED.** Unchanged by partialling `PROLIF_DISJOINT`, by the `__PROLIFSTRIP`/`__BOTHSTRIP` estimators, and in TCGA by purity + leukocyte fraction on top |
+| 3 | ...and it is OXPHOS **rather than** MYC | **SUPPORTED, and this is the strong result.** The two axes correlate (0.26-0.32 adjusted) and rank the 44 genes at 0.61-0.73, so the separate comparison could not have settled this. Conditioning OXPHOS on MYC leaves the localisation split intact (0.453 -> 0.485 TCGA, 0.489 -> 0.525 SCAN-B). Conditioning MYC on OXPHOS takes it to **zero** (0.187 -> -0.043, 0.137 -> -0.058). MYC's ordering was inherited; OXPHOS's was not |
+| 4 | ...and OXPHOS therefore engages the death programme | **NOT SUPPORTED.** The machinery's mean \|rho\| with OXPHOS is not above an expression-matched null (z 1.3-1.5), its spread is not either (z_sd ~ 0), and the localisation split is ~1.3 SD above a null matched for expression AND sub-mitochondrial compartment - the 90th percentile, consistent across four cells, not separable |
+| 5 | "driven" | **NOT TESTED.** Cross-sectional bulk transcriptomes. And CLAUDE.md trap 1: the sibling pre-registered study found the MYC x OXPHOS *interaction* on apoptotic priming null. Never write a causal verb here |
+
+## What the ordering actually is
+
+Not pro-death versus pro-survival. **Where the protein sits.** A gene's position
+on the OXPHOS axis is predicted by MitoCarta membership at 0.45-0.49
+(independent of the death curation, agreeing with it on 43 of 44 genes) and by
+its annotated direction of effect at only 0.22-0.28. Mitochondrial members are
+positive (median +0.20 to +0.25), non-mitochondrial ones negative (-0.16 to
+-0.19), and the pro-death/pro-survival distinction cuts across both.
+
+`APAF1` is the clean illustration: intrinsic-pathway by Reactome, absent from
+MitoCarta because the apoptosome is cytosolic, and the most negative of the 44.
+Pathway membership gets it wrong; localisation gets it right.
+
+## The sentence I would write
+
+> In two independent human breast cancer cohorts (TCGA-BRCA n=1,095, SCAN-B
+> n=3,207), transcript levels of the canonical apoptotic machinery are ordered
+> along tumour OXPHOS status and not along MYC activity. The two axes are
+> themselves correlated, but conditioning OXPHOS on MYC leaves the ordering
+> intact while conditioning MYC on OXPHOS abolishes it, and neither is explained
+> by proliferation, tumour purity or immune infiltrate. What predicts a gene's
+> position is where its protein acts - mitochondrial members rise with OXPHOS,
+> cytosolic ones fall - and not whether it promotes or prevents death. The
+> ordering is, however, no steeper than that of any gene set matched for
+> expression and sub-mitochondrial compartment, indicating that the bulk
+> transcriptome reports mitochondrial content rather than a selectively engaged
+> death programme.
+
+Four sentences. The fourth is what makes the first three publishable rather than
+over-read, and it sets up whatever the mouse arm can show functionally: **the
+human bulk transcriptome cannot see a death programme; it sees organelle
+content.** That is a real limit on what transcriptomic evidence can be asked to
+do, and it is worth stating as a finding rather than conceding as a weakness.
+
+## The figure
+
+**Two panels, and the second is not optional.**
+
+- **(A)** `E11_fig1` - the 44 genes on the MYC x OXPHOS plane, square axes,
+  identically scaled, coloured by MitoCarta membership. One image carries the
+  whole descriptive claim: the cloud is taller than it is wide, and the colour
+  separates vertically, not horizontally. For the paper, keep the
+  proliferation-adjusted column only and show both cohorts; the raw column goes
+  to supplementary.
+- **(B)** `E11_fig8` - the conditioning ladder. Four rows, two cohorts: OXPHOS
+  survives conditioning on MYC, MYC collapses to zero conditioned on OXPHOS, and
+  the grey band is the composition-matched null. This is the panel that turns
+  (A) from a description into a test, and the grey band is what stops a reviewer
+  reading more into it than is there.
+
+`E11_fig2` (the mitoribosome control) belongs in supplementary and must be
+cited in the legend of (B): it is what rules out "the adjustment emptied the MYC
+score".
+
+## Does it need a statistical test?
+
+**The permutation nulls already ARE the test, and they are the right one.** 2,000
+expression-matched draws, and for the localisation split a draw matched on
+sub-mitochondrial compartment as well. Foreground the z and the percentile;
+do not add p-values on top of them.
+
+**One thing is genuinely missing and is worth adding:** a confidence interval on
+the two headline contrasts - the SD ratio SD(OXPHOS)/SD(MYC), and the difference
+between the two localisation splits. Bootstrap over TUMOURS, not over genes: the
+44 genes are co-expressed and a gene-level bootstrap would understate the
+interval badly. Per cohort, ~1,000 resamples. Two independent cohorts already
+give the same answer, which is the stronger evidence, but a reviewer will ask.
+
+**Two things NOT to do.**
+
+- Do not put per-gene p-values or an FDR across the 44 anywhere. That is the
+  grid-of-cells trap and it invites exactly the gene-picking the study has
+  avoided. The per-gene values carry Fisher-z intervals already; that is enough
+  to describe a gene and not enough to select one.
+- Do not report the composition null as "not significant" and move on. Report it
+  as the bound it is - the ordering is real and is OXPHOS's, and it is not
+  specific to apoptosis. Both halves are the finding.
+
+## Open, if the claim is to be pushed further
+
+1. The ~1.3 SD residue above the compartment-matched null is the only thing
+   standing between "OXPHOS orders these genes" and "OXPHOS orders these genes
+   *because they are apoptotic*". It would be settled by a curated non-apoptotic
+   mitochondrial comparator set rather than a random draw.
+2. `LumA` alone has not been run; `Basal` rests on 171 TCGA samples.
+3. Nothing here is functional. The ordering is a correlation in bulk tumour
+   RNA and every causal word must come from elsewhere.

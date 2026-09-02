@@ -835,6 +835,92 @@ message("   Basal is 171 TCGA samples. Nothing under about 0.2 here is",
         " the row.")
 
 # =============================================================================
+# 4.3 THE TEST THE CLAIM ACTUALLY NEEDS: condition each axis on the other
+# =============================================================================
+# Everything up to here compares two axes SEPARATELY. That is not the claim.
+# "The machinery tracks OXPHOS rather than MYC" is a claim about which axis
+# carries the association once the other is allowed for - and the two axes are
+# themselves correlated (Spearman 0.39 TCGA / 0.43 SCAN-B raw, 0.32 / 0.26 after
+# proliferation), so each one's apparent ordering could be entirely inherited
+# from the other.
+#
+# The two columns are in fact near-copies: across the 44 genes the MYC and
+# OXPHOS per-gene correlations rank together at 0.61 to 0.73. So the separate
+# comparison CANNOT distinguish "OXPHOS orders them and MYC does not" from
+# "both order them and OXPHOS is simply the better-measured of two versions of
+# the same thing".
+#
+# FOUR MODELS, AND THE COMPARISON IS BETWEEN ROWS 2 AND 4:
+#   OXPHOS | prolif           the section 4 value
+#   OXPHOS | prolif + MYC     does OXPHOS survive conditioning on MYC?
+#   MYC    | prolif           the section 4 value
+#   MYC    | prolif + OXPHOS  does MYC survive conditioning on OXPHOS?
+#
+# IF BOTH SURVIVE, the two axes carry separable information and neither claim is
+# available. IF ONLY OXPHOS SURVIVES, MYC's ordering was inherited and the
+# author's statement holds. IF ONLY MYC SURVIVES, the statement is backwards.
+# Written before the numbers were looked at.
+#
+# The localisation split carries its sub-compartment-matched null in every row,
+# because a split that survives conditioning is still only a statement about
+# apoptosis to the extent that it exceeds what composition gives (3.2).
+message("\n4.3 conditioning each axis on the other")
+
+COND_MODELS <- list(
+  `OXPHOS | prolif`       = list(y = "OXPHOS", extra = character(0)),
+  `OXPHOS | prolif + MYC` = list(y = "OXPHOS", extra = "MYC"),
+  `MYC | prolif`          = list(y = "MYC",    extra = character(0)),
+  `MYC | prolif + OXPHOS` = list(y = "MYC",    extra = "OXPHOS"))
+
+conditioned <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  keep <- which(!is.na(per_gene[[paste(coh, "MYC", "raw", sep = "|")]]))
+  gr <- .gene_rows(CANON, C$L, C$res)
+  own <- match(rownames(gr$mat), rownames(C$L)); own <- own[!is.na(own)]
+  is_mc <- rownames(C$L)[own] %in% MC_ALL
+  sub_of <- canon_sub[rownames(gr$mat)]
+  want <- lapply(split(own, sub_of), function(v) intersect(v, keep))
+  want <- want[lengths(want) > 0L]
+  parts <- .compartment_draws(C, keep, own, want, MC_STRICT)
+  dr <- replicate(NULL_DRAWS,
+                  unlist(lapply(parts, function(pp)
+                    .matched_draw(pp$want, pp$B, exclude = own)),
+                    use.names = FALSE), simplify = FALSE)
+  obs_idx <- unlist(lapply(parts, function(pp) pp$want), use.names = FALSE)
+  lab <- as.numeric(rep(names(parts) != "(not in MitoCarta)",
+                        vapply(parts, function(pp) length(pp$want), integer(1))))
+
+  dplyr::bind_rows(lapply(names(COND_MODELS), function(mn) {
+    m <- COND_MODELS[[mn]]
+    Z <- cbind(C$cov[, PROLIF_REF_COV, drop = FALSE])
+    for (e in m$extra) Z <- cbind(Z, stats::setNames(C$ax[e, ], NULL))
+    colnames(Z) <- c(PROLIF_REF_COV, m$extra)
+    v <- .per_gene_rho(C$L, C$ax[m$y, ], cov = Z)
+    obs <- stats::cor(v[obs_idx], lab, method = "spearman")
+    nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
+                  numeric(1))
+    tibble::tibble(
+      cohort = coh, model = mn, axis = m$y,
+      conditioned_on = if (length(m$extra)) m$extra else "-",
+      sd_rho = stats::sd(v[own]), frac_gt_0.2 = mean(abs(v[own]) > 0.2),
+      median_mito = stats::median(v[own][is_mc]),
+      median_nonmito = stats::median(v[own][!is_mc]),
+      split = obs, null_mean = mean(nd), null_sd = stats::sd(nd),
+      z_split = .z(obs, nd))
+  }))
+}))
+
+message("\n   the 44 under each model - read rows 2 and 4:")
+conditioned %>%
+  dplyr::select(cohort, model, sd_rho, frac_gt_0.2, split, null_mean, z_split) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("\n   A LOCALISATION SPLIT THAT GOES TO ZERO UNDER CONDITIONING MEANS",
+        " THAT AXIS\n   NEVER ORDERED THE GENES - it was reading the other one.",
+        " A split that is\n   UNCHANGED means the axis carries the ordering",
+        " itself.")
+
+# =============================================================================
 # 5. Figures
 # =============================================================================
 message("\n5. figures")
@@ -1140,6 +1226,45 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(value, stratum, colour = axis)) +
   theme_e11
 .save(g7, "E11_fig7_contrast_by_compartment", 9, 5)
 
+# --- FIG 8: the conditioning ladder, which is the paper's test ---------------
+g8dat <- conditioned %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                model = factor(model, levels = rev(names(COND_MODELS))),
+                lo = null_mean - 1.96 * null_sd,
+                hi = null_mean + 1.96 * null_sd,
+                axis = factor(axis, levels = c("OXPHOS", "MYC")))
+g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(y = model)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 3.5,
+                          colour = "grey85") +
+  ggplot2::geom_point(ggplot2::aes(x = null_mean), shape = 124, size = 4,
+                      colour = "grey45") +
+  ggplot2::geom_point(ggplot2::aes(x = split, colour = axis), size = 3.4) +
+  ggplot2::facet_wrap(~ cohort) +
+  ggplot2::scale_colour_manual(values = c(OXPHOS = "#1b9e77", MYC = "#7570b3"),
+                               name = NULL) +
+  ggplot2::labs(
+    title = "Which axis actually orders the apoptotic machinery?",
+    subtitle = paste("EXPLORATORY - not pre-registered | 44 genes | coloured",
+                     "point = observed localisation split | grey = null mean",
+                     "+/- 2 SD"),
+    x = "Spearman of the per-gene correlation with MitoCarta membership",
+    y = NULL,
+    caption = paste0(
+      "Every model also conditions on proliferation. The two axes are\n",
+      "themselves correlated and rank these 44 genes almost identically, so\n",
+      "comparing them SEPARATELY cannot say which one carries the ordering.\n",
+      "Conditioning OXPHOS on MYC leaves the split intact - it rises. \n",
+      "Conditioning MYC on OXPHOS takes it to zero. MYC's apparent ordering\n",
+      "was inherited from OXPHOS; the reverse is not true.\n",
+      "The grey band is the sub-compartment-matched null: even the surviving\n",
+      "OXPHOS split is only about one SD above what any 13 outer-membrane, 5\n",
+      "intermembrane, 2 inner-membrane and 24 non-mitochondrial genes give.\n",
+      "The ordering is real and it is OXPHOS's, but it is not specific to\n",
+      "apoptosis.")) +
+  theme_e11
+.save(g8, "E11_fig8_conditioning_ladder", 9, 4.5)
+
 # =============================================================================
 # 6. Save
 # =============================================================================
@@ -1148,6 +1273,7 @@ saveRDS(list(
   null_tests = null_tests, split_null = split_null,
   split_null_submito = split_null_submito, compartment = compartment,
   gene_compartment = gene_compartment, pooled_outside = outside,
+  conditioned = conditioned,
   gene_tab = gene_tab, wide = wide,
   spread = spread, s6_adj = s6_adj, replication = replication,
   purity_tab = purity_tab, overlap_audit = overlap_audit,
@@ -1188,6 +1314,14 @@ saveRDS(list(
                     "small - IMS has 39 usable genes - so its expression",
                     "matching is coarser than section 3's, which is a limit of",
                     "the annotation and not a choice."),
+    conditioning = paste("section 4.3 is the test the claim needs. The two",
+                         "axes correlate at 0.26-0.32 after proliferation and",
+                         "rank these 44 genes at 0.61-0.73, so comparing them",
+                         "separately cannot say which carries the ordering.",
+                         "Conditioning OXPHOS on MYC leaves the localisation",
+                         "split intact; conditioning MYC on OXPHOS takes it to",
+                         "zero. That, not the separate comparison, is what",
+                         "licenses 'OXPHOS rather than MYC'."),
     compartments = paste("section 4.2 asks whether P1 holds inside a subtype.",
                          "Basal is 171 TCGA and 317 SCAN-B samples and a",
                          "171-sample stratum gives a 95% interval about +/-",
@@ -1216,7 +1350,7 @@ readr::write_csv(gene_tab, PATH_E11_CSV)
 message("\nE11: done.")
 message("    results/prolif_adjusted_machinery.rds")
 message("    outputs/tables/E11_gene_rho_by_adjustment.csv")
-message("    7 figures in outputs/figures/:")
+message("    8 figures in outputs/figures/:")
 message("      fig1 THE PICTURE - the 44 genes on the MYC-OXPHOS plane,")
 message("           before and after proliferation is partialled out")
 message("      fig2 THE CONTROL - the same adjustment against the mitoribosome,")
@@ -1226,6 +1360,8 @@ message("      fig4 whether the localisation split survives the adjustment")
 message("      fig5 whether that split is more than mitochondrial composition")
 message("      fig6 the same number against three nulls, each stricter")
 message("      fig7 whether the contrast survives inside a single subtype")
+message("      fig8 WHICH AXIS ORDERS THE MACHINERY - each conditioned on the")
+message("           other, which is the test the comparison actually needs")
 
 # =============================================================================
 # Sandbox
