@@ -768,6 +768,42 @@ if (nrow(winners)) {
   message("   NONE. Every ratio is a single gene wearing a ratio's name.")
 }
 
+# --- 5.0b HOW MUCH OF A RATIO IS JUST ITS TWO GENES -------------------------
+# THE NUMBER THE PAPER LEANS ON, AND UNTIL 2026-09-03 IT LIVED IN NO SCRIPT.
+# It was computed once in an interactive session and typed into a note, which
+# is exactly the way a figure and its text drift apart. It regenerates here.
+#
+# The model is deliberately crude: ratio rho ~ numerator identity + denominator
+# identity, as two factors, with NO interaction term. Its R-squared is the
+# fraction of the 35 values that is explained by WHICH TWO GENES were used,
+# ignoring the pairing entirely. What the interaction term would have captured
+# - pair-specific information, the thing a ratio is supposed to add - is
+# whatever is left over.
+#
+# A high R-squared here is therefore a NEGATIVE result about ratios, and it is
+# the reason the priming subsection is descriptive.
+message("\n5.0b how much of each ratio is its two component genes?")
+additive_fit <- dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+  dplyr::bind_rows(lapply(unique(priming$cohort), function(co) {
+    d <- priming %>% dplyr::filter(axis == ax, cohort == co)
+    # 35 rows, 7 numerator levels and 5 denominator levels: 11 parameters, so
+    # this is not a saturated model dressed up as a finding.
+    stopifnot(nrow(d) == 35L, dplyr::n_distinct(d$pro) == 7L,
+              dplyr::n_distinct(d$anti) == 5L)
+    .r2 <- function(f) summary(stats::lm(f, data = d))$r.squared
+    tibble::tibble(axis = ax, cohort = co, n_ratios = nrow(d),
+                   r2_additive = .r2(rho ~ pro + anti),
+                   r2_numerator_only = .r2(rho ~ pro),
+                   r2_denominator_only = .r2(rho ~ anti))
+  }))))
+additive_fit %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   READ r2_additive AS A NEGATIVE. It is the share of each ratio",
+        " that is fixed by\n   WHICH genes were used, with the pairing",
+        " ignored - so 1 minus it is the ceiling on\n   how much any",
+        " pair-specific 'priming' signal could possibly be.")
+
 message("\n   the components on their own (Spearman, mean over cohorts):")
 component_cor %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
@@ -1174,6 +1210,7 @@ g10 <- ggplot2::ggplot(g10dat, ggplot2::aes(rho, gene, colour = stratum)) +
 # =============================================================================
 message("\n7. save")
 saveRDS(list(
+  additive_fit = additive_fit,
   reannot = reannot, predictors = predictors,
   reactome_modules = REACTOME_MODULES, hit_counts = hit_counts,
   gene_cor = gene_cor, gene_cor_raw = gene_cor_raw,

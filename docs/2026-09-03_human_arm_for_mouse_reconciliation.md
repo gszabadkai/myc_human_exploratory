@@ -26,9 +26,10 @@ re-derive what the first one meant.
 
 | | |
 |---|---|
-| **E09, E11, E12, E13, E14** | run by the author; numbers are from the saved objects |
-| **E10** | **NOT RE-SOURCED.** `results/machinery_and_priming.rds` is the 2026-09-02 12:45 object and carries no `covariate` field, i.e. it is the UNADJUSTED run. Every E10 number quoted here and in the drafted paper text is the PROLIFERATION-ADJUSTED version, verified by dry run but not yet on disk. **Source E10 before any of section 5.3 is used.** |
-| **E14** | being sourced as this is written. The dry run and the author's first run agreed to three decimals on every verdict |
+| **E09 - E14** | all run by the author. Every number below is read from a saved object, not from a dry run |
+| **E10** | re-sourced 2026-09-03 00:43 and now carries `covariate: PROLIF_DISJOINT`. Its verification check passed exactly as predicted: ratios beating both components **0 of 35 on OXPHOS, 5 of 35 on MYC** |
+| **E14** | on disk is the current build - `plot_sets` of four, `mito_pair_md_agree = FALSE`. Both verdicts reproduce: `APOPTOSIS-SPECIFIC in both cohorts`, `SURVIVES` on the infiltrate falsifier |
+| **one small re-run outstanding** | `E10` gained an `additive_fit` block on 2026-09-03 so that section 5.3's headline number regenerates from code instead of from a note. **~15 s.** The values do not change - the block reproduces 0.921-0.946 exactly against the object already on disk |
 
 Two cohorts throughout: TCGA-BRCA n=1,095, SCAN-B/GSE202203 n=3,207. Two arms of
 evidence only ever count when they agree; a single cohort is a description.
@@ -172,7 +173,7 @@ the human arm never claimed.
 | N1 | **The MYC x OXPHOS interaction on the priming ratios is not supported.** Tested four ways and failed three: splines (linear vs spline coefficients correlate **0.125**), a low-entanglement estimator (cross-cohort replication **reverses**, r = -0.33), OXPHOS tertiles (non-monotone, TCGA +0.021 vs SCAN-B -0.008). The apparent interaction is curvature in the main effects | tested, three falsifiers |
 | N2 | **The sibling PRE-REGISTERED study found the functional MYC x OXPHOS interaction on apoptotic priming null.** Different endpoint from N1 - BH3 priming there, transcript ratios here - so neither confirms the other. **Nothing in the human exploratory arm overturns that null and nothing may be written as if it did** | pre-registered, frozen at `d3ac60e` |
 | N3 | **Priming is not measurable in transcript abundance.** It is post-translational and protein-interaction-level. Write "carries a higher `BAD`/`MCL1` transcript ratio", never "is more primed" | definitional |
-| N4 | **The priming ratios carry no pair-specific information.** An additive model of numerator and denominator explains **92-95%** of all 35 ratios, both cohorts, both axes. Adjusted, **0 of 35** beat both components on OXPHOS and 5 of 35 on MYC | measured |
+| N4 | **The priming ratios carry no pair-specific information.** An additive model of numerator and denominator identity - no interaction term - explains **92.1 to 94.6%** of all 35 ratios in both cohorts on both axes, the numerator carrying about twice the denominator (R2 0.58-0.74 against 0.20-0.35). So at most 5-8% of a ratio can be pair-specific, which is the ceiling on anything "priming" could mean here. Adjusted, **0 of 35** beat both components on OXPHOS and 5 of 35 on MYC | measured |
 | N5 | **"MYC represses BCL2" is estimator-dependent.** -0.22 on the reference estimator, -0.06 and -0.01 on the other two after conditioning. Do not write it | measured |
 | N6 | **Mediation versus confounding is not identifiable.** MYC -> OXPHOS -> genes and a common cause give identical partial correlations. What IS ruled out is OXPHOS acting through MYC | structural |
 | N7 | **MYC mRNA is not MYC activity.** rho(log2 MYC, OXPHOS subunits) = -0.032 against +0.388 for the activity signature. Anyone plotting MYC expression sees nothing | measured |
@@ -229,15 +230,27 @@ Delete on-figure titles for submission. Tables:
 **Requires E10 to be re-sourced first (section 0).** In order:
 
 1. *The family does not move as a block and functional class does not predict
-   position.* The twelve transcripts span OXPHOS from `BAD` (+0.50) to `MCL1`
-   (-0.27); the two most positive are `BAD` (pro) and `BCL2L1` (anti), the two
-   most negative `MCL1` (anti) and `BMF` (pro). Narrower on MYC (+0.30 to
-   -0.21).
-2. *The ratio matrix is additive.* 92-95% of all 35 values, numerator
-   contributing about twice the denominator. **Present ratios as a compact
-   display of component correlations, not as a measurement of priming.**
+   position.* Confirmed against the adjusted object: the twelve transcripts
+   span OXPHOS from `BAD` **+0.503** to `MCL1` **-0.266**; the two most
+   positive are `BAD` (pro) and `BCL2L1` (anti, +0.388), the two most negative
+   `MCL1` (anti) and `BMF` (pro, -0.212). Narrower on MYC, `BID` **+0.300** to
+   `PMAIP1` **-0.209**.
+2. *The ratio matrix is additive.* **92.1-94.6%** of all 35 values from
+   numerator and denominator identity alone, numerator carrying about twice
+   the denominator. **Present ratios as a compact display of component
+   correlations, not as a measurement of priming.** This is the sentence to
+   keep if only one survives editing, and as of 2026-09-03 it regenerates from
+   `E10` section 5.0b rather than from a note.
 3. *The two axes differ in the same direction as the wider machinery*, with
    `BID` and `PMAIP1` as the two named exceptions moving oppositely.
+
+**If the five MYC gainers are ever named, use the ADJUSTED five.** Adjustment
+changed their identity completely, not just their count: they are now
+`BBC3/BCL2` (+0.052 / +0.062), `BAD/BCL2` (+0.040 / +0.050), `BAD/BCL2L1`,
+`BBC3/BCL2L2` and `BBC3/BCL2L1` - all under +0.07, and none of them is one of
+the three the unadjusted run named. A list that reshuffles entirely under a
+covariate is a description of noise, and the safest thing is not to name them
+at all.
 
 ### 5.4 Statistics
 
