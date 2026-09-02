@@ -53,7 +53,15 @@ anything downstream of it.
 
 ---
 
-## 2. THE PAPER. Three notes, read in this order
+## 2. THE PAPER. Start with the synthesis, then the three notes
+
+**`docs/2026-09-03_human_arm_for_mouse_reconciliation.md` is the entry point.**
+It summarises all of the below into one claim ladder, states what goes in the
+paper, lists the standing negatives, and sets out what the mouse arm is being
+asked to reconcile against. Section 8 of it is a superseded-statements table -
+where it and any note below disagree, it is current.
+
+### The notes it summarises, read in this order
 
 | note | what it is |
 |---|---|
