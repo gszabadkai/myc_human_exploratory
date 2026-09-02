@@ -34,14 +34,22 @@ write and edit them, you do not run them.
 | script | why | time |
 |---|---|---|
 | **`E10_machinery_measures_and_priming.R`** | **REQUIRED.** Your run is unadjusted; it is now partial Spearman on `PROLIF_DISJOINT` so its panels match E11 and E13. Numbers change | ~15 s |
+| **`E14_curated_comparators.R`** | **NEW, 2026-09-02 evening.** Closes open item 1 and revises the paper's last clause - see `docs/2026-09-02_e14_curated_comparators.md`. Dry-run verified end to end | ~4 min |
 | `E13_priming_and_content.R` | optional. Only two panel subtitles changed (the localisation wording); no number moves | ~1 min |
 
 `E09`, `E11`, `E12` are current - do not re-run.
 
-**Check as it scrolls past:** `max |difference| = 0e+00` (E10 still reproduces
+**Check as E10 scrolls past:** `max |difference| = 0e+00` (E10 still reproduces
 E08 through a separately computed unadjusted pass), `31 anchor pathways ... all
 present`, and `n_gain_in_both` = **0 on OXPHOS, 5 on MYC**. If the last one
 still says 6 and 3, the adjustment did not take.
+
+**Check as E14 scrolls past:** the eligibility table drops `protein import`,
+`cristae formation` and `mitochondrial Ca transport` for having no cytosolic
+half; `VERDICT AGAINST THE FALSIFIER` reads `APOPTOSIS-SPECIFIC in both
+cohorts`; and `VERDICT ON THE CONFOUND` reads `SURVIVES`. If the second says
+`INFILTRATE`, stop and read section C3 of the E14 note before believing
+anything downstream of it.
 
 ---
 
@@ -54,6 +62,9 @@ still says 6 and 3, the adjustment did not take.
 | `2026-09-02_e11_prolif_adjusted.md` | P1-P5 with the numbers |
 
 ### The finding, in one paragraph
+
+**Read `docs/2026-09-02_e14_curated_comparators.md` C5 first - it replaces the
+last clause of this paragraph.**
 
 In two cohorts the canonical apoptotic machinery is ordered along OXPHOS and not
 along MYC. The two axes are correlated (0.26-0.32 adjusted) and rank the 44
@@ -111,15 +122,22 @@ D3 qualified, S6 superseded by P4/P4a.
 
 ## 4. Open
 
-1. **The ~1.3-1.6 SD residue** above the compartment-matched null is the only
-   thing between "OXPHOS orders these genes" and "OXPHOS orders them *because*
-   they are apoptotic". A curated non-apoptotic mitochondrial comparator set
-   would settle it; a random draw will not.
+1. ~~**The ~1.3-1.6 SD residue** above the compartment-matched null.~~
+   **ANSWERED by `E14`, 2026-09-02.** The comparator is mitophagy, not protein
+   import - 62 of the 62 import genes are in MitoCarta, so it has no cytosolic
+   half and the split statistic does not exist for it. The machinery
+   out-splits every programme tested, and the reason is its CYTOSOLIC half,
+   the only one in the comparison that runs against OXPHOS. Not infiltrate.
+   See `docs/2026-09-02_e14_curated_comparators.md`, and note that its **C5
+   revises the last clause of the finding paragraph above**. The successor
+   open item is C6.1: a cytosolic stress programme that is not apoptotic, as
+   the next comparator.
 2. **Mediation versus confounding is not identifiable here.** MYC -> OXPHOS ->
    genes and a common cause give identical partial correlations. What IS ruled
    out is OXPHOS acting through MYC (conditioning on MYC leaves OXPHOS intact).
    The perturbation that separates them is the mouse arm's.
 3. `LumA` alone has not been run; `Basal` rests on 171 TCGA samples.
+   **Promoted** - E14 C6.3 makes it the falsifier for the new claim.
 4. **Score `COLLECTRI_MYC_STIM`** (739 genes, in the snapshot, never scored) as
    a fifth base in `E02` - needs a pipeline re-run.
 5. **Drop `ELLWOOD`** from the panel, recompute F1's entanglement slope - same.
