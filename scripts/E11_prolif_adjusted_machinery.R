@@ -1234,37 +1234,63 @@ if (FALSE) {
 
   x <- readRDS(PATH_E11)
 
-  # the claim, as one table
+  # THE CLAIM, as one table. `z_mean_abs` is the set's mean |rho| against an
+  # expression-matched null; `z_sd` is its SPREAD against the same null, and the
+  # two say different things for a set that is half positive and half negative.
   x$null_tests %>%
     dplyr::filter(axis %in% c("MYC", "OXPHOS"),
                   adjustment %in% c("raw", "adj. PROLIF_DISJOINT")) %>%
-    dplyr::select(cohort, axis, adjustment, set, mean_abs_rho, z) %>%
+    dplyr::select(cohort, axis, adjustment, set, mean_abs_rho, null_mean_abs,
+                  z_mean_abs, sd_rho, z_sd) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
     as.data.frame()
 
-  # the control on its own - does adjusted MYC still track anything?
+  # THE CONTROL on its own - does adjusted MYC still track anything?
   x$null_tests %>%
     dplyr::filter(set == "mitoribosome arm (83)") %>%
-    dplyr::select(cohort, axis, adjustment, mean_abs_rho, z) %>%
+    dplyr::select(cohort, axis, adjustment, mean_abs_rho, z_mean_abs) %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
     as.data.frame()
 
-  # do the two corrections agree?
+  # do the two corrections agree? (partialling vs removing the genes)
   x$null_tests %>%
-    dplyr::filter(set == "apoptotic machinery (44)",
-                  grepl("^MYC", axis)) %>%
-    dplyr::select(cohort, axis, adjustment, mean_abs_rho, z) %>%
+    dplyr::filter(set == "apoptotic machinery (44)", grepl("^MYC", axis)) %>%
+    dplyr::select(cohort, axis, adjustment, mean_abs_rho, z_mean_abs) %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
     as.data.frame()
 
-  # spread and replication
-  x$spread %>% as.data.frame()
-  x$replication %>% as.data.frame()
-  x$s6_adj %>% as.data.frame()
+  # the three nulls for the localisation split, stacked
+  dplyr::bind_rows(
+    dplyr::select(x$split_null, cohort, axis, adjustment, pool,
+                  observed_split, null_mean, null_sd, z),
+    dplyr::select(x$split_null_submito, cohort, axis, adjustment, pool,
+                  observed_split, null_mean, null_sd, z)) %>%
+    dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    dplyr::arrange(axis, cohort, pool) %>% as.data.frame()
 
-  # which genes moved
+  # spread, replication, and whether S6 survives adjustment
+  x$spread %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+  x$replication %>% as.data.frame()
+  x$s6_adj %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+
+  # inside a subtype - and is the pooled value outside both compartments?
+  x$compartment %>% dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+    dplyr::select(cohort, stratum, n_samples, axis, sd_rho, observed_split,
+                  null_mean, z) %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+  x$pooled_outside %>% as.data.frame()
+
+  # which genes moved when proliferation came out
   x$gene_tab %>%
-    dplyr::filter(axis == "MYC", adjustment %in% c("raw",
-                                                   "adj. PROLIF_DISJOINT")) %>%
+    dplyr::filter(axis == "MYC",
+                  adjustment %in% c("raw", "adj. PROLIF_DISJOINT")) %>%
     tidyr::pivot_wider(id_cols = c(cohort, gene), names_from = adjustment,
-                       values_from = rho) %>% as.data.frame()
+                       values_from = rho) %>%
+    dplyr::mutate(shift = `adj. PROLIF_DISJOINT` - raw) %>%
+    dplyr::arrange(shift) %>% as.data.frame()
 
 }
