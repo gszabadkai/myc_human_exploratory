@@ -19,9 +19,9 @@
 #       disagree completely, and D3/S1 say the BCL2 column against MYC is
 #       between-subtype pooling while the OXPHOS column is stratum-stable.
 #
-#   Q-c (author) THE BCL2-FAMILY PRIMING RATIOS - every pro-apoptotic gene over
-#       every anti-apoptotic gene - against MYC and OXPHOS, as a heatmap, and
-#       inside the luminal and basal compartments.
+#   Q-c (author) THE BCL2-FAMILY PRIMING RATIOS - each of 7 pro-apoptotic genes
+#       over each of 5 anti-apoptotic ones - against MYC and OXPHOS, as a
+#       heatmap, and inside the luminal and basal compartments.
 #
 # =============================================================================
 # EVERYTHING HERE IS SPEARMAN, AND E09 IS WHY
@@ -53,17 +53,14 @@
 # =============================================================================
 # THE PRIMING RATIOS, AND THE ONE THING TO KNOW BEFORE READING THEM
 # =============================================================================
-# The author's lists, verbatim:
-#   pro   BCL2L11 (BIM), BMF, PMAIP1 (NOXA), BBC3 (PUMA), BCL2L2, BID, BAD, BIK
+# The author's lists:
+#   pro   BCL2L11 (BIM), BMF, PMAIP1 (NOXA), BBC3 (PUMA), BID, BAD, BIK
 #   anti  BCL2, BCL2L1 (Bcl-XL), MCL1, BCL2L2 (Bcl-w), BCL2A1 (A1)
 #
-# BCL2L2 APPEARS ON BOTH SIDES. It is canonically ANTI-apoptotic - Bcl-w, a
-# multidomain guardian, not a BH3-only sensitiser - so its presence on the pro
-# side is almost certainly a slip for another BH3-only gene. It is kept on both
-# sides exactly as specified, because silently deleting an input is worse than
-# reporting it; the degenerate BCL2L2/BCL2L2 cell is the only one dropped.
-# 8 x 5 - 1 = 39 ratios. If the pro-side entry was meant to be HRK or BOK, both
-# are already scored in section 4 and the ratio grid can be rebuilt in minutes.
+# 7 x 5 = 35 ratios. BCL2L2 was originally supplied on both sides; the first run
+# flagged it as canonically anti-apoptotic and the author confirmed on
+# 2026-09-02 that the pro-side entry was an error. It is now anti only, so there
+# is no degenerate self-pair and no empty cell in the heatmap.
 #
 # A RATIO IS ONLY INTERESTING IF IT BEATS ITS PARTS, and that is this section's
 # built-in falsifier. log2(pro) - log2(anti) is a difference of two correlated
@@ -106,16 +103,18 @@ source(here::here("scripts", "E00_setup_packages.R"))
 source(here::here("functions", "gene_matrix.R"))
 source(here::here("functions", "strata.R"))
 
-message("\nE10: the canonical machinery, both axes, both measures, and the ",
-        "priming ratios\n", strrep("=", 78))
+message("\nE10: the canonical machinery on both axes, and the priming ratios\n",
+        strrep("=", 78))
 
 PATH_E10       <- file.path(DIR_RESULTS, "machinery_and_priming.rds")
 PATH_E10_CANON <- file.path(DIR_TABLES,  "E10_canonical_machinery.csv")
 PATH_E10_PRIME <- file.path(DIR_TABLES,  "E10_priming_ratios.csv")
 
-# The author's lists, verbatim. See the header for BCL2L2.
-PRIMING_PRO  <- c("BCL2L11", "BMF", "PMAIP1", "BBC3", "BCL2L2", "BID", "BAD",
-                  "BIK")
+# The author's lists. BCL2L2 was originally given on BOTH sides and was
+# confirmed on 2026-09-02 to be an error on the pro side - it is Bcl-w, a
+# multidomain guardian, not a BH3-only sensitiser. It is anti-apoptotic here and
+# nowhere else.
+PRIMING_PRO  <- c("BCL2L11", "BMF", "PMAIP1", "BBC3", "BID", "BAD", "BIK")
 PRIMING_ANTI <- c("BCL2", "BCL2L1", "MCL1", "BCL2L2", "BCL2A1")
 
 # The priming ratios are read in the luminal and basal compartments as well as
@@ -482,9 +481,9 @@ reannot %>% dplyr::filter(gene %in% c("APAF1", "AIFM1", "CYCS", "BCL2A1")) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
 # =============================================================================
-# 4. Q-b and Q-c: the 44 genes on both axes, under both measures
+# 4. Q-b: the 44 genes on both axes
 # =============================================================================
-message("\n4. the canonical machinery, both axes, both measures")
+message("\n4. the canonical machinery on both axes")
 
 gene_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
@@ -606,8 +605,7 @@ s6_by_axis %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %
 # =============================================================================
 # On log2 expression a ratio is a DIFFERENCE, so log2(pro + 1) - log2(anti + 1)
 # is the log priming ratio and needs no separate arithmetic. Every pro x anti
-# combination is formed; BCL2L2/BCL2L2 is the only cell dropped, because a gene
-# over itself is the constant zero.
+# combination is formed and none is dropped.
 #
 # THE RATIO IS NOT AUTOMATICALLY A BETTER MEASUREMENT THAN ITS PARTS. Two genes
 # that co-express strongly give a difference that is mostly the residual noise
@@ -619,19 +617,19 @@ message("   pro  (", length(PRIMING_PRO), "): ",
         paste(PRIMING_PRO, collapse = ", "))
 message("   anti (", length(PRIMING_ANTI), "): ",
         paste(PRIMING_ANTI, collapse = ", "))
+# The lists are disjoint by construction now, but an overlap would silently
+# produce a gene-over-itself column of zeros, so it is checked rather than
+# assumed.
 if (length(intersect(PRIMING_PRO, PRIMING_ANTI))) {
-  message("   NOTE: ", paste(intersect(PRIMING_PRO, PRIMING_ANTI),
-                             collapse = ", "),
-          " appears on BOTH sides of the author's lists.\n",
-          "   BCL2L2 is Bcl-w, canonically ANTI-apoptotic. It is kept exactly",
-          " as given;\n   only the degenerate gene-over-itself cell is dropped.")
+  stop("these genes are on BOTH priming lists: ",
+       paste(intersect(PRIMING_PRO, PRIMING_ANTI), collapse = ", "),
+       ". A gene over itself is the constant zero.", call. = FALSE)
 }
 
 RATIO_GRID <- tidyr::expand_grid(pro = PRIMING_PRO, anti = PRIMING_ANTI) %>%
-  dplyr::filter(pro != anti) %>%
   dplyr::mutate(ratio = paste0(pro, "/", anti))
 message("   ", nrow(RATIO_GRID), " ratios (", length(PRIMING_PRO), " x ",
-        length(PRIMING_ANTI), " minus the self-pair)")
+        length(PRIMING_ANTI), ")")
 
 .ratio_matrix <- function(M) {
   R <- M[RATIO_GRID$pro, , drop = FALSE] - M[RATIO_GRID$anti, , drop = FALSE]
@@ -653,10 +651,8 @@ component_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
 })) %>% dplyr::rename(gene = item) %>%
   dplyr::left_join(dplyr::select(expr_rank, cohort, gene, expr_decile,
                                  low_expression), by = c("cohort", "gene")) %>%
-  dplyr::mutate(side = dplyr::case_when(
-    gene %in% PRIMING_PRO & gene %in% PRIMING_ANTI ~ "listed on both sides",
-    gene %in% PRIMING_PRO ~ "pro-apoptotic (author's list)",
-    TRUE ~ "anti-apoptotic (author's list)"))
+  dplyr::mutate(side = dplyr::if_else(gene %in% PRIMING_PRO,
+                                      "pro-apoptotic", "anti-apoptotic"))
 
 coexpr <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   M <- GR[[coh]]$mat
@@ -985,13 +981,12 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
     # paste0 does not insert spaces, so a rendered caption line may be split
     # across two source strings to keep the file inside 80 columns.
     caption = paste0(
-      "BCL2L2 is on both of the author's lists; it is Bcl-w and canonically\n",
-      "anti-apoptotic. The empty cell is BCL2L2/BCL2L2. RED means the ratio\n",
-      "rises with the axis - a MORE PRIMED transcriptome in high-MYC or\n",
-      "high-OXPHOS tumours. A COLUMN that is uniformly coloured is the\n",
-      "denominator gene talking rather than priming: check `gain` before\n",
-      "reading any cell as a ratio. Only 6 of the 39 on OXPHOS and 4 on MYC\n",
-      "beat both of their component genes in both cohorts.")) +
+      "RED means the ratio rises with the axis - a MORE PRIMED transcriptome\n",
+      "in high-MYC or high-OXPHOS tumours. A COLUMN that is uniformly coloured\n",
+      "is the denominator gene talking rather than priming, which is what the\n",
+      "BCL2 column is: check `gain` before reading any cell as a ratio, because\n",
+      "most of these ratios are beaten by one of the two genes they are made\n",
+      "of.")) +
   theme_e10 +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
                  legend.key.width = ggplot2::unit(1.4, "cm"))
@@ -1025,7 +1020,7 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
       "ABOVE the diagonal the ratio adds information; ON or BELOW it, the single\n",
       "gene is the better measurement and the ratio is that gene with noise added\n",
       "to it. Only ratios above the line IN BOTH COHORTS are worth reporting as\n",
-      "ratios, and the median ratio sits below it on every axis and both measures.")) +
+      "ratios, and the median ratio sits below it on both axes.")) +
   theme_e10
 .save(g7, "E10_fig4_ratio_vs_components", 8, 7)
 
@@ -1053,13 +1048,15 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort)) +
   ggplot2::labs(
     title = "The 12 priming genes on their own, before any ratio is taken",
     subtitle = paste("EXPLORATORY - not pre-registered | the author's pro and",
-                     "anti lists; BCL2L2 appears on both"),
+                     "anti lists"),
     x = "correlation with the axis", y = NULL,
     caption = paste0(
       "This is the panel the ratio heatmap is built out of. Where a pro and an\n",
-      "anti gene move the SAME way their ratio cancels; where they move oppositely\n",
-      "the ratio adds them. Every gene here clears the 25th expression percentile\n",
-      "in both cohorts, so none of these cells carries the low-expression caveat.")) +
+      "anti gene move the SAME way their ratio cancels; where they move\n",
+      "oppositely the ratio adds them. Neither list moves as a block - BCL2L1\n",
+      "and BCL2 are both anti and sit at opposite ends of the OXPHOS axis - and\n",
+      "that is why most of the ratios lose to their own genes. Every gene here\n",
+      "clears the 25th expression percentile in both cohorts.")) +
   theme_e10
 .save(g8, "E10_fig5_priming_components", 8, 6)
 
@@ -1164,9 +1161,12 @@ saveRDS(list(
                          "FELSHER__MITOSTRIP contains none of the 44 or the 12,",
                          "so the MYC panels have no self-overlap;",
                          "M_b__MITOSTRIP contains seven and is tabled only."),
-    bcl2l2 = paste("BCL2L2 is on both of the author's priming lists. It is",
-                   "Bcl-w and canonically anti-apoptotic. Kept as given; only",
-                   "BCL2L2/BCL2L2 is dropped."),
+    bcl2l2 = paste("BCL2L2 was originally supplied on BOTH priming lists. The",
+                   "first run flagged it as canonically anti-apoptotic - Bcl-w,",
+                   "a multidomain guardian rather than a BH3-only sensitiser -",
+                   "and the author confirmed on 2026-09-02 that the pro-side",
+                   "entry was an error. It is anti-apoptotic only, so the grid",
+                   "is 7 x 5 = 35 with no self-pair."),
     ratios = paste("A ratio is only worth reporting as a ratio where `gain` -",
                    "|rho of the ratio| minus the stronger component's |rho| -",
                    "is positive in BOTH cohorts. Otherwise it is a single gene",

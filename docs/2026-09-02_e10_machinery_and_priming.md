@@ -151,21 +151,18 @@ qualifies it: the measure DOES matter on mitoPPS, where the mean departure is
 
 ## R5. The priming ratios mostly do NOT beat their own component genes
 
-39 ratios (8 pro x 5 anti, minus `BCL2L2/BCL2L2`). The falsifier was written
-before the numbers: `gain` = |rho of the ratio| - |rho of its stronger
-component|, and a ratio is only worth reporting as a ratio where gain is
-positive **in both cohorts**.
+**35 ratios** (7 pro x 5 anti). The falsifier was written before the numbers:
+`gain` = |rho of the ratio| - |rho of its stronger component|, and a ratio is
+only worth reporting as a ratio where gain is positive **in both cohorts**.
 
-| axis | measure | n ratios | gain > 0 in both | median gain TCGA | median gain SCAN-B |
-|---|---|---|---|---|---|
-| OXPHOS | spearman | 39 | 6 | -0.099 | -0.088 |
-| OXPHOS | pearson | 39 | 4 | -0.094 | -0.071 |
-| MYC | spearman | 39 | 4 | -0.064 | -0.020 |
-| MYC | pearson | 39 | 4 | -0.085 | -0.021 |
+| axis | n ratios | gain > 0 in both | median gain TCGA | median gain SCAN-B |
+|---|---|---|---|---|
+| OXPHOS | 35 | 6 | -0.125 | -0.062 |
+| MYC | 35 | 3 | -0.062 | -0.020 |
 
-**The median ratio is worse than one of its two genes on every axis and under
-both measures.** The strongest-looking cells are the components talking: the
-best OXPHOS ratio is `BAD/MCL1` at +0.411, and `BAD` alone is +0.402.
+**The median ratio is worse than one of its two genes on both axes.** The
+strongest-looking cells are the components talking: the best OXPHOS ratio is
+`BAD/MCL1` at +0.411, and `BAD` alone is +0.402.
 
 The few that do gain in both cohorts, and by how little:
 
@@ -173,7 +170,7 @@ The few that do gain in both cohorts, and by how little:
   `BID/MCL1` (+0.069 / +0.047), `BAD/MCL1` (+0.011 / +0.008),
   `BMF/BCL2L1` (+0.008 / +0.067), `PMAIP1/BCL2A1` (+0.002 / +0.005)
 - **MYC**: `PMAIP1/BCL2A1` (+0.049 / +0.029), `BMF/BCL2A1` (+0.033 / +0.044),
-  `BCL2L2/BCL2A1` (+0.028 / +0.008), `PMAIP1/MCL1` (+0.011 / +0.001)
+  `PMAIP1/MCL1` (+0.011 / +0.001)
 
 Every one of those pairs a pro-apoptotic gene with an anti-apoptotic gene that
 moves the *opposite* way on that axis, which is exactly when a ratio can add
@@ -186,9 +183,9 @@ worth carrying forward, and they are hypothesis-generating.**
 |---|---|---|---|
 | BCL2L1 | anti | -0.058 | **+0.342** |
 | BCL2A1 | anti | +0.198 | +0.033 |
+| BCL2L2 | anti | -0.177 | -0.125 |
 | BCL2 | anti | **-0.328** | -0.196 |
 | MCL1 | anti | 0.000 | -0.253 |
-| BCL2L2 | on both lists | -0.177 | -0.125 |
 | BAD | pro | -0.037 | **+0.402** |
 | BID | pro | **+0.385** | +0.277 |
 | BIK | pro | -0.016 | +0.244 |
@@ -207,13 +204,17 @@ reason most of the ratios cancel.
 All 12 genes clear the 25th expression percentile in both cohorts, so none of
 this is a low-expression artefact.
 
-### R5b. `BCL2L2` is on both of the author's lists
+### R5b. `BCL2L2` - RESOLVED 2026-09-02
 
-Kept exactly as given; only the degenerate self-pair is dropped. It is Bcl-w and
-canonically **anti**-apoptotic, so the pro-side entry is very likely a slip. If
-it was meant to be `HRK` or `BOK`, both are already scored in section 4 and the
-grid rebuilds in minutes. `HRK` would need its low-expression flag carried
-through - it is below the 25th percentile in both cohorts.
+It was originally supplied on both lists. The first run flagged it as
+canonically **anti**-apoptotic - Bcl-w is a multidomain guardian, not a BH3-only
+sensitiser - and the author confirmed the pro-side entry was an error. **It is
+anti-apoptotic only.** The grid is 7 x 5 = 35 with no self-pair and no empty
+cell, and `BCL2L2/BCL2A1` leaves the MYC gainer list, taking it from 4 to 3.
+
+If a seventh pro-apoptotic gene is wanted, `HRK` and `BOK` are both already
+scored in section 4. `HRK` would need its low-expression flag carried through -
+it is below the 25th percentile in both cohorts.
 
 ---
 
