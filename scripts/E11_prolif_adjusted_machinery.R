@@ -921,6 +921,82 @@ message("\n   A LOCALISATION SPLIT THAT GOES TO ZERO UNDER CONDITIONING MEANS",
         " itself.")
 
 # =============================================================================
+# 4.4 CONFIDENCE INTERVALS ON THE TWO HEADLINE CONTRASTS
+# =============================================================================
+# The permutation nulls in section 3 answer "is this set special". They do NOT
+# put an interval on the two numbers the claim is actually made of:
+#
+#   SD RATIO      SD(rho | OXPHOS) / SD(rho | MYC) - how much more the 44 genes
+#                 spread along one axis than the other. 1.0 is no difference.
+#   SPLIT GAP     the localisation split on OXPHOS minus the one on MYC, under
+#                 MUTUAL CONDITIONING, which is the version section 4.3 licenses.
+#                 0 is no difference.
+#
+# THE RESAMPLING UNIT IS THE TUMOUR, NOT THE GENE, and that choice is the whole
+# validity of the interval. The 44 genes are heavily co-expressed - a
+# gene-level bootstrap treats 44 correlated observations as 44 independent ones
+# and returns an interval far too narrow. Resampling tumours asks the question
+# that matters: would another cohort of this size give the same answer?
+#
+# The two cohorts agreeing is still the stronger evidence. This is here because
+# a reader is entitled to an interval and because a contrast whose interval
+# crosses 1.0 (or 0) should not be written as a finding.
+message("\n4.4 bootstrap intervals on the two headline contrasts")
+
+BOOT_N <- 1000L
+
+# Partial Spearman for a small gene matrix: rank, project out the ranked
+# covariates, correlate. Identical maths to functions/correlation_engine.R, done
+# inline because a bootstrap calls it thousands of times on 44 rows.
+.pg_small <- function(RG, ry, Z) {
+  X <- cbind(1, Z)
+  H <- qr(X)
+  ry <- ry - qr.fitted(H, ry)
+  RG <- RG - t(qr.fitted(H, t(RG)))
+  as.numeric(stats::cor(t(RG), ry))
+}
+
+set.seed(PROJECT_SEED)
+boot_ci <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  G <- .gene_rows(CANON, C$L, C$res)$mat
+  is_mc <- as.numeric(rownames(G) %in% MC_ALL)
+  myc <- C$ax["MYC", ]; ox <- C$ax["OXPHOS", ]
+  pf  <- C$cov[, PROLIF_REF_COV]
+  n   <- ncol(G)
+
+  .one <- function(i) {
+    RG <- t(apply(G[, i, drop = FALSE], 1L, rank))
+    rp <- rank(pf[i]); rm_ <- rank(myc[i]); ro <- rank(ox[i])
+    r_ox  <- .pg_small(RG, ro,  cbind(rp))
+    r_myc <- .pg_small(RG, rm_, cbind(rp))
+    r_ox_c  <- .pg_small(RG, ro,  cbind(rp, rm_))
+    r_myc_c <- .pg_small(RG, rm_, cbind(rp, ro))
+    c(sd_ratio  = stats::sd(r_ox) / stats::sd(r_myc),
+      split_gap = stats::cor(r_ox, is_mc, method = "spearman") -
+                  stats::cor(r_myc, is_mc, method = "spearman"),
+      split_gap_conditioned =
+        stats::cor(r_ox_c,  is_mc, method = "spearman") -
+        stats::cor(r_myc_c, is_mc, method = "spearman"))
+  }
+  obs <- .one(seq_len(n))
+  bs  <- vapply(seq_len(BOOT_N), function(b) .one(sample.int(n, n, TRUE)),
+                numeric(3))
+  tibble::tibble(cohort = coh, contrast = names(obs), observed = obs,
+                 lo = apply(bs, 1L, stats::quantile, 0.025),
+                 hi = apply(bs, 1L, stats::quantile, 0.975),
+                 null_value = c(1, 0, 0),
+                 excludes_null = (obs > c(1, 0, 0)) ==
+                   (apply(bs, 1L, stats::quantile, 0.025) > c(1, 0, 0)))
+}))
+message("   ", BOOT_N, " tumour-level resamples per cohort")
+boot_ci %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("\n   `sd_ratio` is tested against 1, the two `split_gap`s against 0.",
+        " An interval\n   that crosses its null value is not a finding however",
+        " large the point estimate.")
+
+# =============================================================================
 # 5. Figures
 # =============================================================================
 message("\n5. figures")
@@ -1265,6 +1341,107 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(y = model)) +
   theme_e11
 .save(g8, "E11_fig8_conditioning_ladder", 9, 4.5)
 
+# --- FIG 9: THE PAPER PANEL. A is the plane, B is the test -------------------
+# The exploratory figures above keep everything a reader of the analysis needs.
+# This one keeps only what a reader of the PAPER needs, and it prints the
+# numbers rather than only encoding them, because a panel that has to be read
+# against a table is a panel that will be read wrongly.
+#
+# A is figure 1's adjusted column - the raw column is a methods point and
+# belongs in supplementary. B is the conditioning ladder. B IS NOT OPTIONAL:
+# without it A is two clouds and a reader has no way to know that the MYC cloud
+# is narrow because its ordering was borrowed.
+message("\n   composing the paper panel")
+
+.ci_lab <- function(coh, what) {
+  r <- boot_ci[boot_ci$cohort == coh & boot_ci$contrast == what, ]
+  sprintf("%.2f [%.2f, %.2f]", r$observed, r$lo, r$hi)
+}
+
+pA_dat <- g1dat %>% dplyr::filter(adjustment == "adj. PROLIF_DISJOINT")
+pA_lab <- pA_dat %>% dplyr::group_by(cohort) %>%
+  dplyr::summarise(lab = sprintf(
+    "SD along OXPHOS  %.3f\nSD along MYC        %.3f\nratio %s",
+    stats::sd(OXPHOS), stats::sd(MYC),
+    .ci_lab(as.character(dplyr::first(cohort)), "sd_ratio")),
+    .groups = "drop")
+pA <- ggplot2::ggplot(pA_dat, ggplot2::aes(MYC, OXPHOS)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_point(ggplot2::aes(colour = mitocarta), size = 2) +
+  ggrepel::geom_text_repel(
+    data = dplyr::filter(pA_dat, abs(OXPHOS) > 0.33 | abs(MYC) > 0.3),
+    ggplot2::aes(label = gene), size = 2.4, max.overlaps = 14,
+    show.legend = FALSE, seed = PROJECT_SEED) +
+  ggplot2::geom_text(data = pA_lab, ggplot2::aes(label = lab),
+                     x = -LIM1 * 0.96, y = LIM1 * 0.96, hjust = 0, vjust = 1,
+                     size = 2.5, colour = "grey25", lineheight = 1.05,
+                     inherit.aes = FALSE) +
+  ggplot2::facet_wrap(~ cohort) +
+  ggplot2::coord_fixed(xlim = c(-LIM1, LIM1), ylim = c(-LIM1, LIM1)) +
+  ggplot2::scale_colour_manual(values = c(`FALSE` = "grey55",
+                                          `TRUE` = "#d7191c"),
+                               labels = c(`FALSE` = "cytosolic",
+                                          `TRUE` = "mitochondrial (MitoCarta 3.0)"),
+                               name = NULL) +
+  ggplot2::labs(
+    x = "per-gene correlation with MYC activity",
+    y = "per-gene correlation with OXPHOS",
+    subtitle = paste("44 canonical apoptosis genes, partial Spearman adjusted",
+                     "for proliferation")) +
+  theme_e11 + ggplot2::theme(legend.position = "bottom")
+
+pB_dat <- conditioned %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                model = factor(model, levels = rev(names(COND_MODELS))),
+                lo = null_mean - 1.96 * null_sd,
+                hi = null_mean + 1.96 * null_sd,
+                axis = factor(axis, levels = c("OXPHOS", "MYC")))
+pB_lab <- boot_ci %>% dplyr::filter(contrast == "split_gap_conditioned") %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                lab = sprintf("conditioned split gap %.2f [%.2f, %.2f]",
+                              observed, lo, hi))
+pB <- ggplot2::ggplot(pB_dat, ggplot2::aes(y = model)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 4,
+                          colour = "grey85") +
+  ggplot2::geom_point(ggplot2::aes(x = null_mean), shape = 124, size = 4,
+                      colour = "grey45") +
+  ggplot2::geom_point(ggplot2::aes(x = split, colour = axis), size = 3.2) +
+  ggplot2::geom_text(data = pB_lab, ggplot2::aes(label = lab), x = -0.26,
+                     y = 0.55, hjust = 0, size = 2.5, colour = "grey25",
+                     inherit.aes = FALSE) +
+  ggplot2::facet_wrap(~ cohort) +
+  ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.75, 0.5))) +
+  ggplot2::scale_colour_manual(values = c(OXPHOS = "#1b9e77", MYC = "#7570b3"),
+                               name = NULL) +
+  ggplot2::labs(
+    x = "localisation split (Spearman of per-gene rho with MitoCarta membership)",
+    y = NULL,
+    subtitle = paste("grey = null matched for expression and",
+                     "sub-mitochondrial compartment, mean +/- 2 SD")) +
+  theme_e11 + ggplot2::theme(legend.position = "bottom")
+
+pFig <- patchwork::wrap_plots(pA, pB, ncol = 1, heights = c(1.35, 1)) +
+  patchwork::plot_annotation(
+    tag_levels = "A",
+    title = "The apoptotic machinery is ordered by OXPHOS, not by MYC",
+    caption = paste0(
+      "A  Each point is one of 44 canonical apoptosis genes. Axes are square and identically scaled, so the cloud being taller than\n",
+      "   it is wide is the result. Colour is MitoCarta 3.0 membership, an independent localisation call: it separates the genes\n",
+      "   vertically and not horizontally, so what predicts a gene's position is where its protein acts, not whether it promotes\n",
+      "   or prevents death. Bracketed values are 95% intervals from 1,000 tumour-level bootstrap resamples.\n",
+      "B  The two axes are correlated and rank these genes at 0.61-0.73, so comparing them separately cannot say which carries the\n",
+      "   ordering. Conditioning OXPHOS on MYC leaves it intact; conditioning MYC on OXPHOS abolishes it. Every model also\n",
+      "   conditions on proliferation. The grey band is the bound: even the surviving OXPHOS split is about 1.6 SD above what any\n",
+      "   expression- and compartment-matched gene set gives, so the ordering is real and it is OXPHOS's, but it is not specific\n",
+      "   to apoptosis. EXPLORATORY - not pre-registered."),
+    theme = ggplot2::theme(
+      plot.title = ggplot2::element_text(size = 12, face = "bold"),
+      plot.caption = ggplot2::element_text(size = 7, colour = "grey35",
+                                           hjust = 0, lineheight = 1.15)))
+.save(pFig, "E11_fig9_paper_figure1", 9, 10)
+
 # =============================================================================
 # 6. Save
 # =============================================================================
@@ -1273,7 +1450,7 @@ saveRDS(list(
   null_tests = null_tests, split_null = split_null,
   split_null_submito = split_null_submito, compartment = compartment,
   gene_compartment = gene_compartment, pooled_outside = outside,
-  conditioned = conditioned,
+  conditioned = conditioned, boot_ci = boot_ci,
   gene_tab = gene_tab, wide = wide,
   spread = spread, s6_adj = s6_adj, replication = replication,
   purity_tab = purity_tab, overlap_audit = overlap_audit,
@@ -1281,7 +1458,7 @@ saveRDS(list(
   settings = list(null_draws = NULL_DRAWS, n_bins = N_BINS,
                   prolif_covariate = PROLIF_REF_COV, myc_axis = MYC_REF,
                   adjustments = names(ADJUSTMENTS), seed = PROJECT_SEED,
-                  strata = c("all", STRATA_E11),
+                  strata = c("all", STRATA_E11), boot_n = BOOT_N,
                   gene_scale = "linear DESeq2-normalised, rank-transformed"),
   rules = list(
     claim = paste("the question was: after correcting for proliferation, does",
@@ -1350,7 +1527,7 @@ readr::write_csv(gene_tab, PATH_E11_CSV)
 message("\nE11: done.")
 message("    results/prolif_adjusted_machinery.rds")
 message("    outputs/tables/E11_gene_rho_by_adjustment.csv")
-message("    8 figures in outputs/figures/:")
+message("    9 figures in outputs/figures/:")
 message("      fig1 THE PICTURE - the 44 genes on the MYC-OXPHOS plane,")
 message("           before and after proliferation is partialled out")
 message("      fig2 THE CONTROL - the same adjustment against the mitoribosome,")
@@ -1362,6 +1539,8 @@ message("      fig6 the same number against three nulls, each stricter")
 message("      fig7 whether the contrast survives inside a single subtype")
 message("      fig8 WHICH AXIS ORDERS THE MACHINERY - each conditioned on the")
 message("           other, which is the test the comparison actually needs")
+message("      fig9 THE PAPER PANEL - A the plane, B the conditioning ladder,")
+message("           with the bootstrap intervals printed on them")
 
 # =============================================================================
 # Sandbox

@@ -61,23 +61,27 @@ do, and it is worth stating as a finding rather than conceding as a weakness.
 
 ## The figure
 
-**Two panels, and the second is not optional.**
+**`E11_fig9_paper_figure1` is it, composed and ready.** Two panels, and the
+second is not optional.
 
-- **(A)** `E11_fig1` - the 44 genes on the MYC x OXPHOS plane, square axes,
-  identically scaled, coloured by MitoCarta membership. One image carries the
-  whole descriptive claim: the cloud is taller than it is wide, and the colour
-  separates vertically, not horizontally. For the paper, keep the
-  proliferation-adjusted column only and show both cohorts; the raw column goes
-  to supplementary.
-- **(B)** `E11_fig8` - the conditioning ladder. Four rows, two cohorts: OXPHOS
-  survives conditioning on MYC, MYC collapses to zero conditioned on OXPHOS, and
-  the grey band is the composition-matched null. This is the panel that turns
-  (A) from a description into a test, and the grey band is what stops a reviewer
-  reading more into it than is there.
+- **(A)** the 44 genes on the MYC x OXPHOS plane, square axes, identically
+  scaled, coloured by MitoCarta membership, **proliferation-adjusted column
+  only, both cohorts**. One image carries the descriptive claim: the cloud is
+  taller than it is wide and the colour separates vertically, not horizontally.
+  The SDs and their bootstrap interval are printed in the panel.
+- **(B)** the conditioning ladder. Four rows, two cohorts: OXPHOS survives
+  conditioning on MYC, MYC collapses to zero conditioned on OXPHOS, grey band is
+  the compartment-matched null. This is what turns (A) from a description into a
+  test, and the band is what stops a reviewer reading more into it than is
+  there. The conditioned split gap and its interval are printed in the panel.
 
-`E11_fig2` (the mitoribosome control) belongs in supplementary and must be
-cited in the legend of (B): it is what rules out "the adjustment emptied the MYC
-score".
+Provenance of the two panels, for anyone wanting the exploratory versions:
+(A) is the adjusted column of `E11_fig1` - the raw column is a methods point and
+belongs in supplementary; (B) is `E11_fig8` with the intervals added.
+**`E11_fig2` (the mitoribosome control) belongs in supplementary and must be
+cited in (B)'s legend** - it is what rules out "the adjustment emptied the MYC
+score". The on-figure title should be deleted for submission; most journals set
+it from the legend.
 
 ## Does it need a statistical test?
 
@@ -86,12 +90,22 @@ expression-matched draws, and for the localisation split a draw matched on
 sub-mitochondrial compartment as well. Foreground the z and the percentile;
 do not add p-values on top of them.
 
-**One thing is genuinely missing and is worth adding:** a confidence interval on
-the two headline contrasts - the SD ratio SD(OXPHOS)/SD(MYC), and the difference
-between the two localisation splits. Bootstrap over TUMOURS, not over genes: the
-44 genes are co-expressed and a gene-level bootstrap would understate the
-interval badly. Per cohort, ~1,000 resamples. Two independent cohorts already
-give the same answer, which is the stronger evidence, but a reviewer will ask.
+**The interval that was missing is now in `E11` section 4.4.** 1,000
+tumour-level bootstrap resamples per cohort - resampling TUMOURS and not genes,
+because the 44 are co-expressed and a gene-level bootstrap would treat 44
+correlated observations as 44 independent ones and return an interval far too
+narrow.
+
+| contrast | tested against | TCGA | SCAN-B |
+|---|---|---|---|
+| SD ratio, OXPHOS / MYC | 1 | **1.64 [1.47, 1.78]** | **1.56 [1.46, 1.65]** |
+| localisation split gap | 0 | 0.27 [0.21, 0.33] | 0.35 [0.30, 0.40] |
+| split gap, mutually conditioned | 0 | **0.53 [0.44, 0.58]** | **0.58 [0.52, 0.64]** |
+
+All six exclude their null value, and the conditioned gap is the largest of the
+three - conditioning does not weaken the contrast, it sharpens it. Two
+independent cohorts agreeing remains the stronger evidence; these are what a
+reviewer will ask for.
 
 **Two things NOT to do.**
 
