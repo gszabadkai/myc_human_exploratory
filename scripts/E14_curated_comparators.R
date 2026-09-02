@@ -1203,6 +1203,143 @@ p5 <- patchwork::wrap_plots(p5a, p5b, nrow = 2, heights = c(1, 1.1)) +
     theme = theme_e14)
 .save(p5, "E14_fig5_infiltrate_falsifier", 9, 8)
 
+# --- FIG 6: THE SUPPLEMENTARY PANEL. One picture, the specificity claim ------
+# Figures 1, 2 and 5 make the argument in three steps. This makes it in one,
+# for a supplementary slot: each programme is a point whose x is what its
+# MITOCHONDRIAL members do with OXPHOS and whose y is what its CYTOSOLIC
+# members do.
+#
+# THE AXES ARE ON THE SAME SCALE AND THE PANEL IS SQUARE, so "they agree
+# horizontally and disagree vertically" is a fact about the picture rather
+# than about how it was drawn. Both zeros are in view for the same reason.
+#
+# FOUR PROGRAMMES, NOT FIVE. The PINK1/PRKN subset of mitophagy sits almost on
+# top of mitophagy - it IS mitophagy, minus the receptor arm - so plotting it
+# doubles the ink for no information. It is named in the caption with its
+# values and it is in the table.
+#
+# THE LEADER LINES ANCHOR TO THE NEAREST COHORT POINT, not to the midpoint of
+# the pair, because midpoint anchors made three leaders cross the Fe-S
+# segment. Label positions are FIXED COORDINATES, not repelled: a seed-driven
+# layout moves between runs and a figure that goes in a paper must not.
+message("   composing the one-panel supplementary figure")
+
+PANEL_SETS <- c("apoptotic machinery (44)", "mitophagy",
+                "Fe-S cluster assembly", "isozyme pairs (CEILING)")
+PANEL_SHORT <- c(`apoptotic machinery (44)` = "apoptotic machinery",
+                 mitophagy = "mitophagy",
+                 `Fe-S cluster assembly` = "Fe-S cluster assembly",
+                 `isozyme pairs (CEILING)` = "isozyme pairs")
+LABPOS <- tibble::tribble(
+  ~set,                       ~lx,    ~ly,   ~hj,
+  "isozyme pairs (CEILING)",  0.055,  0.222, 0.0,
+  "Fe-S cluster assembly",    0.385,  0.170, 1.0,
+  "mitophagy",                0.245,  0.052, 0.0,
+  "apoptotic machinery (44)", 0.235, -0.120, 0.0)
+stopifnot(all(PANEL_SETS %in% SPLIT_SETS), all(LABPOS$set %in% PANEL_SETS))
+
+panel_data <- half_tests %>%
+  dplyr::filter(axis == "OXPHOS", adjustment == "adj. PROLIF_DISJOINT",
+                set %in% PANEL_SETS) %>%
+  dplyr::select(cohort, set, half, n, mean_rho, null_mean, null_sd, z) %>%
+  tidyr::pivot_wider(names_from = half,
+                     values_from = c(mean_rho, null_mean, null_sd, n, z)) %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                is_target = set == "apoptotic machinery (44)")
+
+# The cytosolic matched null is nearly the same for all four, so it is drawn
+# once as a band. The MITOCHONDRIAL null is not (0.105 to 0.184, because the
+# sets differ in sub-compartment) and is reported in the caption instead of
+# drawn as a band that would be wrong for three of the four rows.
+CYT_NULL <- panel_data %>%
+  dplyr::summarise(m = mean(null_mean_cytosolic),
+                   s = mean(null_sd_cytosolic))
+
+panel_labs <- LABPOS %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate({
+    d <- panel_data[panel_data$set == set, ]
+    near <- which.min((d$mean_rho_mitochondrial - lx)^2 +
+                        (d$mean_rho_cytosolic - ly)^2)
+    tibble::tibble(px = d$mean_rho_mitochondrial[near],
+                   py = d$mean_rho_cytosolic[near],
+                   nm = d$n_mitochondrial[near], nc = d$n_cytosolic[near],
+                   is_target = d$is_target[near])
+  }) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(lab = paste0(unname(PANEL_SHORT[set]), " (", nm, "/", nc, ")"))
+
+p6 <- ggplot2::ggplot(panel_data, ggplot2::aes(x = mean_rho_mitochondrial,
+                                               y = mean_rho_cytosolic)) +
+  ggplot2::annotate("rect", xmin = -Inf, xmax = Inf,
+                    ymin = CYT_NULL$m - CYT_NULL$s,
+                    ymax = CYT_NULL$m + CYT_NULL$s,
+                    fill = "grey55", alpha = 0.16) +
+  ggplot2::annotate("text", x = 0.393, y = CYT_NULL$m + CYT_NULL$s - 0.006,
+                    label = "matched null for a cytosolic gene set, mean +/- 1 SD",
+                    hjust = 1, vjust = 1, size = 2.5, colour = "grey35") +
+  ggplot2::geom_hline(yintercept = 0, colour = "grey35", linewidth = 0.4) +
+  ggplot2::geom_vline(xintercept = 0, colour = "grey35", linewidth = 0.4) +
+  ggplot2::geom_segment(data = panel_labs,
+                        ggplot2::aes(x = lx, y = ly, xend = px, yend = py),
+                        colour = "grey72", linewidth = 0.3,
+                        inherit.aes = FALSE) +
+  ggplot2::geom_line(ggplot2::aes(group = set), colour = "grey62",
+                     linewidth = 0.45) +
+  ggplot2::geom_point(ggplot2::aes(colour = cohort, shape = is_target),
+                      size = 3.3) +
+  ggplot2::geom_text(data = panel_labs,
+                     ggplot2::aes(x = lx, y = ly, label = lab, hjust = hj),
+                     size = 3.0, inherit.aes = FALSE,
+                     colour = ifelse(panel_labs$is_target, "#8a3d12",
+                                     "grey15"),
+                     fontface = ifelse(panel_labs$is_target, "bold",
+                                       "plain")) +
+  ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
+  ggplot2::scale_shape_manual(values = c(`TRUE` = 18, `FALSE` = 16),
+                              guide = "none") +
+  ggplot2::coord_fixed(xlim = c(-0.02, 0.40), ylim = c(-0.17, 0.25),
+                       expand = FALSE) +
+  ggplot2::labs(
+    x = "mitochondrial (MitoCarta) members: mean rho with OXPHOS",
+    y = "cytosolic members: mean rho with OXPHOS",
+    title = "Apoptosis is the only programme whose cytosolic members run against OXPHOS",
+    caption = paste0(
+"Four curated programmes that span the outer mitochondrial membrane, each split into its
+",
+"MitoCarta and non-MitoCarta members (n mito / n cytosolic in the label). Proliferation-adjusted
+",
+"partial Spearman; the grey line joins the two cohorts of one programme.
+",
+"HORIZONTALLY the programmes agree: every mitochondrial half lies between +0.14 and +0.31, at
+",
+"z -0.9 to +2.1 against its own expression- and sub-compartment-matched null.
+",
+"VERTICALLY they do not: every cytosolic half is positive and above its null (z +1.7 to +3.4)
+",
+"except the apoptotic machinery's, which is negative in both cohorts (-0.106 TCGA, -0.094
+",
+"SCAN-B). That negative survives purity and leukocyte fraction (-0.091, TCGA n = 1007) and
+",
+"survives deleting the death-receptor module entirely (9 of the 14 remaining genes still
+",
+"negative in both cohorts), so it is not immune infiltrate.
+",
+"Fe-S cluster assembly is the one cohort-inconsistent comparator - its long grey line. The
+",
+"PINK1/PRKN-only subset of mitophagy behaves as mitophagy does (+0.155, +0.104) and is left out
+",
+"here only to keep the panel readable; it is in the E14 table.
+",
+"THE CLAIM IS THE CONTRAST BETWEEN PROGRAMMES, not the distance from the null band.
+",
+"EXPLORATORY: nothing pre-registered; four programmes cannot make a p-value.")) +
+  theme_e14 +
+  ggplot2::theme(plot.caption = ggplot2::element_text(size = 7.2,
+                                                      colour = "grey40",
+                                                      hjust = 0))
+.save(p6, "E14_fig6_specificity_one_panel", 8.2, 8.6)
+
 # =============================================================================
 # 8. Save
 # =============================================================================
@@ -1217,6 +1354,7 @@ saveRDS(list(
   verdict = VERDICT, half_tests = half_tests,
   ladder = ladder, ladder_pct = ladder_pct, drops = drops,
   purity_halves = purity_halves, module_break = module_break,
+  panel_data = panel_data, panel_labs = panel_labs,
   cytosolic_verdict = CYT_VERDICT,
   comparators = COMPARATORS, comparator_source = COMPARATOR_SOURCE,
   paralogue_pairs = PARALOGUE_PAIRS,
@@ -1263,6 +1401,14 @@ saveRDS(list(
                       "med_diff is carried beside it and is what the figures",
                       "plot. Choosing between them after seeing their z values",
                       "would be statistic-shopping."),
+    supplementary_panel = paste("E14_fig6 is the one-panel version of the",
+                                "whole argument, for a supplementary slot. Its",
+                                "axes are on the same scale and the panel is",
+                                "square, so 'they agree horizontally and",
+                                "disagree vertically' is a fact about the",
+                                "picture. Label positions are fixed",
+                                "coordinates, not repelled - a seed-driven",
+                                "layout moves between runs."),
     no_p_value = paste("four structural comparators cannot produce a p-value.",
                        "The deliverable is a ranking that reproduces across",
                        "two cohorts, which is what this repo counts as",
@@ -1365,6 +1511,14 @@ if (FALSE) {
     dplyr::summarise(n = dplyr::n(), mean_rho = round(mean(rho), 3),
                      n_negative = sum(rho < 0), .groups = "drop") %>%
     as.data.frame() %>% print(row.names = FALSE)
+
+  # The supplementary panel's own numbers, four programmes, two cohorts.
+  x$panel_data %>%
+    dplyr::select(cohort, set, mean_rho_mitochondrial, z_mitochondrial,
+                  mean_rho_cytosolic, z_cytosolic) %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    dplyr::arrange(set, cohort) %>% as.data.frame() %>%
+    print(row.names = FALSE)
 
   # The author-curated set, named in full so it can be argued with.
   x$paralogue_pairs %>% as.data.frame() %>% print(row.names = FALSE)

@@ -163,6 +163,26 @@ Unchanged: E11 P4/P4a's arithmetic (the 1.3 SD against a random null is still
 1.35), the conditioning result (OXPHOS rather than MYC), P3's restatement, the
 mitoribosome control, and every caveat about mediation not being identifiable.
 
+## C5a. The supplementary panel
+
+`E14_fig6_specificity_one_panel` is the whole argument in one square panel:
+each programme is a point whose **x** is what its mitochondrial members do with
+OXPHOS and whose **y** is what its cytosolic members do. Both axes are the same
+quantity on the same scale, so "they agree horizontally and disagree
+vertically" is a property of the picture and not of how it was drawn, and both
+zeros are in view.
+
+Four programmes, not five - the PINK1/PRKN subset sits almost on top of
+mitophagy, because it *is* mitophagy minus the receptor arm, so it is named in
+the caption with its values instead of plotted. Label positions are fixed
+coordinates rather than repelled: a seed-driven layout moves between runs and a
+figure that goes in a paper must not.
+
+`fig1` (the head-to-head), `fig2` (the two halves) and `fig5` (the infiltrate
+falsifier) make the same argument in three steps and stay the main-text route.
+**`fig6` must not be shown without `fig5` cited in its legend** - the panel's
+whole weight rests on the negative not being infiltrate.
+
 ## C6. What would falsify the new claim
 
 Written before the next analysis, as the rule requires.
