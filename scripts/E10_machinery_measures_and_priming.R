@@ -185,9 +185,17 @@ RES_S <- .symbol_resolver(rownames(GS), sc$symbol_map)
 AX_T <- .axes(nw$tcga_gsva_new, mito, nw$tcga_M_b_variants[MB_REF, ID_T], ID_T)
 AX_S <- .axes(sc$gsva_new,      sc,   sc$M_b_variants[MB_REF, ],          ID_S)
 
+# PROLIF_DISJOINT, the same covariate E11 and E13 use. It is disjoint from
+# FELSHER__MITOSTRIP and from the OXPHOS-subunits arm, which is what lets the
+# same adjustment be applied to both axes - see E11's header.
+PROLIF_COV <- "PROLIF_DISJOINT"
+CV_T <- t(mito$gsva_cov[PROLIF_COV, ID_T, drop = FALSE])
+CV_S <- t(sc$gsva_cov[PROLIF_COV, ID_S, drop = FALSE])
+stopifnot(identical(rownames(CV_T), ID_T), identical(rownames(CV_S), ID_S))
+
 COH <- list(
-  TCGA     = list(G = GT, res = RES_T, ax = AX_T, ids = ID_T),
-  `SCAN-B` = list(G = GS, res = RES_S, ax = AX_S, ids = ID_S))
+  TCGA     = list(G = GT, res = RES_T, ax = AX_T, ids = ID_T, cov = CV_T),
+  `SCAN-B` = list(G = GS, res = RES_S, ax = AX_S, ids = ID_S, cov = CV_S))
 message("   TCGA ", length(ID_T), " samples | SCAN-B ", length(ID_S),
         " samples | ", nrow(AX_T), " axes")
 
@@ -230,24 +238,49 @@ if (length(miss_all)) {
 # =============================================================================
 message("\n2. measures")
 
-# Spearman of every AXIS against every ITEM in one call.
+# Spearman of every AXIS against every ITEM in one call, optionally partialled
+# on a covariate. A partial Spearman is Pearson on the residuals of the ranks,
+# which is what functions/correlation_engine.R does and what E11 and E13 do.
+#
+# EVERYTHING PLOTTED BY THIS SCRIPT IS ADJUSTED FOR PROLIFERATION, added
+# 2026-09-02 so that its panels sit on the same footing as E11's and E13's. Two
+# figures in one paper cannot be on different footings. The UNADJUSTED values
+# are still computed for section 4's reproduction check against E08, which was
+# built without a covariate, and are carried in the saved table.
+#
 # Fisher-z intervals with the Bonett-Wright variance, se =
-# sqrt((1 + rho^2/2)/(n-3)), which is the same variance the atlas engine uses;
-# the plain 1/(n-3) is the Pearson case and understates a rank correlation.
+# sqrt((1 + rho^2/2)/(n - 3 - k)), k covariates projected out; the plain
+# 1/(n-3) is the Pearson case and understates a rank correlation.
 #
 # THE INTERVAL IS FOR DESCRIBING ONE CELL, NEVER FOR SELECTING ONE. This script
 # emits 44 x 6 x 2 x 2 gene cells plus 39 x 6 x 2 x 2 ratio cells; a cell whose
 # interval excludes zero is not a finding.
-.cor_block <- function(A, B) {
+.rank_rows <- function(M) {
+  out <- t(apply(M, 1L, rank))
+  if (nrow(M) == 1L) out <- matrix(out, nrow = 1L)
+  dimnames(out) <- dimnames(M)
+  out
+}
+.cor_block <- function(A, B, cov = NULL) {
   n <- ncol(A)
   stopifnot(identical(colnames(A), colnames(B)))
-  R  <- suppressWarnings(stats::cor(t(A), t(B), method = "spearman"))
+  RA <- .rank_rows(A); RB <- .rank_rows(B)
+  k  <- 0L
+  if (!is.null(cov)) {
+    stopifnot(nrow(cov) == n)
+    H  <- qr(cbind(`(Intercept)` = 1, apply(cov, 2L, rank)))
+    k  <- ncol(cov)
+    RA <- RA - t(qr.fitted(H, t(RA)))
+    RB <- RB - t(qr.fitted(H, t(RB)))
+  }
+  R  <- suppressWarnings(stats::cor(t(RA), t(RB)))
   z  <- atanh(pmin(pmax(R, -0.999999999), 0.999999999))
-  se <- sqrt((1 + R^2 / 2) / (n - 3))
+  se <- sqrt((1 + R^2 / 2) / (n - 3 - k))
   tibble::tibble(
     axis   = rep(rownames(R), times = ncol(R)),
     item   = rep(colnames(R), each  = nrow(R)),
     n      = n,
+    k_cov  = k,
     rho    = as.vector(R),
     ci_lo  = as.vector(tanh(z - 1.959964 * se)),
     ci_hi  = as.vector(tanh(z + 1.959964 * se)))
@@ -485,19 +518,27 @@ reannot %>% dplyr::filter(gene %in% c("APAF1", "AIFM1", "CYCS", "BCL2A1")) %>%
 # =============================================================================
 message("\n4. the canonical machinery on both axes")
 
-gene_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+gene_cor_raw <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
   .cor_block(C$ax, GR[[coh]]$mat[CANON_GENES, , drop = FALSE]) %>%
     dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(gene = item)
 
+gene_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  .cor_block(C$ax, GR[[coh]]$mat[CANON_GENES, , drop = FALSE], cov = C$cov) %>%
+    dplyr::mutate(cohort = coh)
+})) %>% dplyr::rename(gene = item)
+
 # --- THE REPRODUCTION CHECK --------------------------------------------------
 # E08 computed these Spearman values on the RAW LINEAR matrix through the atlas
-# engine. This script computes them on log2(linear + 1) through stats::cor.
-# log2(x + 1) is monotone, so the two must agree to floating point. If they do
-# not, one of the two scripts is not reading the plane it says it is, and every
-# number below is suspect.
-check <- gene_cor %>%
+# engine, with no covariate. This script computes them on log2(linear + 1)
+# through stats::cor. log2(x + 1) is monotone, so the two must agree to floating
+# point. THE CHECK USES `gene_cor_raw` - the unadjusted pass - because E08 has
+# no proliferation adjustment to reproduce. Everything plotted below uses the
+# adjusted pass. If this check fails, one of the two scripts is not reading the
+# plane it says it is and every number below is suspect.
+check <- gene_cor_raw %>%
   dplyr::filter(axis == "OXPHOS") %>%
   dplyr::select(cohort, gene, rho) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = rho) %>%
@@ -639,14 +680,14 @@ message("   ", nrow(RATIO_GRID), " ratios (", length(PRIMING_PRO), " x ",
 ratio_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
   M <- GR[[coh]]$mat
-  .cor_block(C$ax, .ratio_matrix(M)) %>% dplyr::mutate(cohort = coh)
+  .cor_block(C$ax, .ratio_matrix(M), cov = C$cov) %>% dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(ratio = item)
 
 # The components, and the co-expression that decides whether a ratio can add
 # anything at all.
 component_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
-  .cor_block(C$ax, GR[[coh]]$mat[PRIMING_ALL, , drop = FALSE]) %>%
+  .cor_block(C$ax, GR[[coh]]$mat[PRIMING_ALL, , drop = FALSE], cov = C$cov) %>%
     dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(gene = item) %>%
   dplyr::left_join(dplyr::select(expr_rank, cohort, gene, expr_decile,
@@ -654,11 +695,14 @@ component_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   dplyr::mutate(side = dplyr::if_else(gene %in% PRIMING_PRO,
                                       "pro-apoptotic", "anti-apoptotic"))
 
+# Adjusted too, so `coexpr` describes the same residual space as the rho it is
+# read beside.
 coexpr <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   M <- GR[[coh]]$mat
   v <- vapply(seq_len(nrow(RATIO_GRID)), function(i)
-    stats::cor(M[RATIO_GRID$pro[i], ], M[RATIO_GRID$anti[i], ],
-               method = "spearman"), numeric(1))
+    .cor_block(M[RATIO_GRID$pro[i], , drop = FALSE],
+               M[RATIO_GRID$anti[i], , drop = FALSE],
+               cov = COH[[coh]]$cov)$rho, numeric(1))
   RATIO_GRID %>% dplyr::mutate(cohort = coh, coexpr = v)
 }))
 
@@ -746,7 +790,8 @@ message("\n5.1 the priming ratios by compartment (Spearman)")
 .stratum_cors <- function(coh, st, B) {
   ids <- STR[[coh]][[st]]
   if (is.null(ids) || length(ids) < MIN_STRATUM_N) return(NULL)
-  .cor_block(COH[[coh]]$ax[, ids, drop = FALSE], B[, ids, drop = FALSE]) %>%
+  .cor_block(COH[[coh]]$ax[, ids, drop = FALSE], B[, ids, drop = FALSE],
+             cov = COH[[coh]]$cov[ids, , drop = FALSE]) %>%
     dplyr::mutate(cohort = coh, stratum = st)
 }
 
@@ -870,7 +915,7 @@ GENE_ORDER <- ORDER_KEY %>% dplyr::arrange(order_rho) %>% dplyr::pull(gene)
   med <- d %>% dplyr::group_by(cdc_module) %>%
     dplyr::summarise(m = stats::median(mean_rho), .groups = "drop")
   flagged <- dplyr::filter(d, gene %in% flag_genes)
-  sub <- paste0("EXPLORATORY - not pre-registered | circle = in MitoCarta 3.0",
+  sub <- paste0("EXPLORATORY - not pre-registered | adjusted for proliferation | circle = in MitoCarta 3.0",
                 if (nrow(flagged)) paste0(" | cross = ", flag_label) else "")
   p <- ggplot2::ggplot(d, ggplot2::aes(mean_rho, gene, colour = effect)) +
     ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
@@ -934,7 +979,7 @@ CAP_MITO <- paste0(
 
 .save(.machinery_plot(
   "OXPHOS",
-  "mean Spearman rho with OXPHOS subunits (GSVA), across cohorts",
+  "mean partial Spearman rho with OXPHOS subunits, across cohorts",
   "The canonical machinery against OXPHOS",
   paste0(CAP_MITO,
     "The cross is CYCS, 1 of the 89 genes in the OXPHOS subunits arm itself, so its value\n",
@@ -945,8 +990,8 @@ CAP_MITO <- paste0(
 
 .save(.machinery_plot(
   "MYC",
-  paste0("mean Spearman rho with MYC activity (", MYC_REF,
-         ", GSVA), across cohorts"),
+  paste0("mean partial Spearman rho with MYC activity (", MYC_REF,
+         "), across cohorts"),
   "The canonical machinery against MYC",
   paste0(CAP_MITO,
     "FELSHER__MITOSTRIP contains none of these 44 genes, so there is no self-overlap on\n",
@@ -971,12 +1016,13 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
                                 limits = c(-LIM, LIM), na.value = "grey85",
-                                name = "Spearman rho of log2(pro/anti)") +
+                                name = "partial Spearman rho of log2(pro/anti)") +
   ggplot2::labs(
     title = "Every BCL2-family priming ratio against MYC and against OXPHOS",
-    subtitle = paste("EXPLORATORY - not pre-registered |", nrow(RATIO_GRID),
-                     "ratios; rows are the pro-apoptotic numerator, columns the",
-                     "anti-apoptotic denominator"),
+    subtitle = paste("EXPLORATORY - not pre-registered | adjusted for",
+                     "proliferation |", nrow(RATIO_GRID), "ratios; rows are the",
+                     "pro-apoptotic numerator, columns the anti-apoptotic",
+                     "denominator"),
     x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
     # paste0 does not insert spaces, so a rendered caption line may be split
     # across two source strings to keep the file inside 80 columns.
@@ -1012,10 +1058,11 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
                                name = "the ratio beats both its genes") +
   ggplot2::labs(
     title = "Does a priming ratio measure more than its stronger half?",
-    subtitle = paste("EXPLORATORY - not pre-registered | each point is one of",
-                     nrow(RATIO_GRID), "ratios"),
-    x = "|rho| of the stronger of the two component genes",
-    y = "|rho| of the log2 ratio",
+    subtitle = paste("EXPLORATORY - not pre-registered | adjusted for",
+                     "proliferation | each point is one of", nrow(RATIO_GRID),
+                     "ratios"),
+    x = "|partial rho| of the stronger of the two component genes",
+    y = "|partial rho| of the log2 ratio",
     caption = paste0(
       "ABOVE the diagonal the ratio adds information; ON or BELOW it, the single\n",
       "gene is the better measurement and the ratio is that gene with noise added\n",
@@ -1047,9 +1094,9 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort)) +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
   ggplot2::labs(
     title = "The 12 priming genes on their own, before any ratio is taken",
-    subtitle = paste("EXPLORATORY - not pre-registered | the author's pro and",
-                     "anti lists"),
-    x = "correlation with the axis", y = NULL,
+    subtitle = paste("EXPLORATORY - not pre-registered | adjusted for",
+                     "proliferation | the author's pro and anti lists"),
+    x = "partial Spearman rho with the axis", y = NULL,
     caption = paste0(
       "This is the panel the ratio heatmap is built out of. Where a pro and an\n",
       "anti gene move the SAME way their ratio cancels; where they move\n",
@@ -1080,8 +1127,9 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
                                 name = "Spearman rho of log2(pro/anti)") +
   ggplot2::labs(
     title = "The priming ratios inside the luminal and basal compartments",
-    subtitle = paste0("EXPLORATORY - not pre-registered | Luminal = LumA + ",
-                      "LumB (696 TCGA / 2,436 SCAN-B), Basal (171 / 317)"),
+    subtitle = paste0("EXPLORATORY - not pre-registered | adjusted for ",
+                      "proliferation | Luminal = LumA + LumB (696 TCGA / 2,436 ",
+                      "SCAN-B), Basal (171 / 317)"),
     x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
     caption = paste0(
       "The `all` row is the pooled value and is NOT an average of the two below it. A pooled cell that sits OUTSIDE the range of\n",
@@ -1110,9 +1158,9 @@ g10 <- ggplot2::ggplot(g10dat, ggplot2::aes(rho, gene, colour = stratum)) +
   ggplot2::scale_colour_manual(values = STRAT_COLS, name = NULL) +
   ggplot2::labs(
     title = "The 12 priming genes by compartment",
-    subtitle = paste("EXPLORATORY - not pre-registered | 95% Fisher-z",
-                     "intervals; Basal is the widest by far"),
-    x = "Spearman rho with the axis", y = NULL,
+    subtitle = paste("EXPLORATORY - not pre-registered | adjusted for",
+                     "proliferation | 95% Fisher-z intervals; Basal is widest"),
+    x = "partial Spearman rho with the axis", y = NULL,
     caption = paste0(
       "The intervals are here because the compartments have very different\n",
       "sizes and a Basal point is not the same kind of estimate as a Luminal\n",
@@ -1128,7 +1176,8 @@ message("\n7. save")
 saveRDS(list(
   reannot = reannot, predictors = predictors,
   reactome_modules = REACTOME_MODULES, hit_counts = hit_counts,
-  gene_cor = gene_cor, canon_wide = canon_wide, axis_agree = axis_agree,
+  gene_cor = gene_cor, gene_cor_raw = gene_cor_raw,
+  canon_wide = canon_wide, axis_agree = axis_agree,
   s6_by_axis = s6_by_axis,
   priming = priming, component_cor = component_cor, coexpr = coexpr,
   gain_summary = gain_summary, ratio_grid = RATIO_GRID,
@@ -1140,9 +1189,16 @@ saveRDS(list(
                   strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
-                  measure = "spearman",
+                  measure = "spearman", covariate = PROLIF_COV,
                   myc_axis = MYC_REF, seed = PROJECT_SEED),
   rules = list(
+    adjustment = paste("every value plotted by this script is a PARTIAL",
+                       "Spearman on", PROLIF_COV, "- added 2026-09-02 so that",
+                       "its panels sit on the same footing as E11's and E13's.",
+                       "Two figures in one paper cannot be on different",
+                       "footings. `gene_cor_raw` keeps the unadjusted pass,",
+                       "which is what section 4 asserts against E08 - E08 has",
+                       "no covariate to reproduce."),
     measure = paste("Spearman throughout. The Pearson panels this script",
                     "once carried were removed on 2026-09-02: E09 showed the",
                     "two measures correlate at 0.996 over 220 pairs, bicor",

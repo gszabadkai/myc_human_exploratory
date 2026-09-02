@@ -164,15 +164,17 @@ interaction hypothesis was tested and did not survive
 post-translational property that transcript abundance cannot measure. What the
 data support is a description of how these transcripts sit on the two axes.
 
-### FIRST, A COHERENCE PROBLEM TO FIX BEFORE WRITING
+### RESOLVED 2026-09-02: E10 IS NOW PROLIFERATION-ADJUSTED
 
-**`E10` is raw Spearman; `E11` and `E13` are proliferation-adjusted.** If the
-priming panel and the machinery panel appear in the same paper, they must be on
-the same footing or a reader will compare numbers that are not comparable. The
-ordering is the same either way - `BAD` top, `MCL1`/`BCL2L11` bottom on OXPHOS -
-so this is a presentation fix, not a result change. Either re-run E10's ratio
-section with the proliferation covariate, or state in the legend that the
-priming panel is unadjusted and say why.
+Every value E10 plots is a partial Spearman on `PROLIF_DISJOINT`, the same
+covariate E11 and E13 use, so all three sit on the same footing. The unadjusted
+pass is still computed and saved as `gene_cor_raw`, because section 4's
+reproduction check is against E08, which has no covariate to reproduce - it
+still returns `max |difference| = 0e+00`.
+
+**The adjustment changed two numbers that matter and both got cleaner**, so the
+text below already uses the adjusted values: the count of ratios beating their
+components went from 6 to **0** on the OXPHOS axis and from 3 to 5 on MYC.
 
 ### The three things worth saying, in order
 
@@ -181,28 +183,33 @@ position.** This is the observation everything else rests on, and it is the one
 that most needs stating before any ratio is shown.
 
 > Across both cohorts the twelve BCL2-family transcripts span the OXPHOS axis
-> almost end to end (in TCGA, `BAD` +0.53 to `BCL2L11` -0.31 after adjustment
-> for proliferation). Their position is not predicted by whether they promote or
-> prevent apoptosis: the two most positive are `BAD` (pro-apoptotic) and
-> `BCL2L1` (anti-apoptotic), and the two most negative are `BCL2L11`
-> (pro-apoptotic) and `MCL1` (anti-apoptotic). The same transcripts occupy a
-> markedly narrower range on the MYC axis (+0.36 to -0.22).
+> from `BAD` (+0.50) to `MCL1` (-0.27) after adjustment for proliferation, and
+> their position is not predicted by whether they promote or prevent apoptosis:
+> the two most positive are `BAD` (pro-apoptotic) and `BCL2L1`
+> (anti-apoptotic), and the two most negative are `MCL1` (anti-apoptotic) and
+> `BMF` (pro-apoptotic). The same transcripts occupy a markedly narrower range
+> on the MYC axis (+0.30 to -0.21).
 
-**2. The ratio matrix is organised by its denominators, and that is a property
-of ratios rather than a finding about priming.** Say this explicitly, because a
-reader looking at a red column will otherwise read it as biology.
+**2. The ratio matrix is almost perfectly additive in its two components.**
+This replaces an earlier draft that called it "organised by its denominators" -
+that was checked after adjustment and is not right. The quantitative version is
+better anyway, because it puts a number on how little the pairing adds.
 
-> A pairwise ratio inherits the correlations of both its members, so the matrix
-> is organised by column - by the anti-apoptotic denominator - rather than by
-> any pro- versus anti-apoptotic logic. The `BCL2` column is positive throughout
-> on both axes because `BCL2` itself is negative on both; the `BCL2L1` column is
-> predominantly negative on the OXPHOS axis because `BCL2L1` is among the most
-> positive transcripts on it. Only 6 of 35 ratios on the OXPHOS axis and 3 of 35
-> on the MYC axis exceed both of their component transcripts in both cohorts,
-> and the median ratio is weaker than one of its two parts. We therefore present
-> the ratios as a compact display of the component correlations, and not as a
-> measurement of apoptotic priming - a post-translational property that
-> transcript abundance cannot address.
+> A pairwise ratio inherits the correlations of both its members and adds almost
+> nothing to them. An additive model of numerator and denominator identity
+> accounts for 92 to 95% of the variance across the 35 ratios, in both cohorts
+> and on both axes, with the pro-apoptotic numerator contributing about twice as
+> much as the anti-apoptotic denominator (R-squared 0.58 to 0.74 against 0.20 to
+> 0.35). Once proliferation is accounted for, **none** of the 35 ratios on the
+> OXPHOS axis exceeds both of its component transcripts in both cohorts, and 5
+> of 35 do so on the MYC axis. We therefore present the ratios as a compact
+> display of the component correlations, and not as a measurement of apoptotic
+> priming - a post-translational property that transcript abundance cannot
+> address.
+
+That 92-95% is the sentence to keep if only one survives editing. It says the
+matrix carries no pair-specific information, which is the whole reason the
+subsection is descriptive.
 
 **3. The two axes differ in the same direction as the wider machinery.** This is
 what ties the subsection back to the paper's spine.
@@ -220,7 +227,7 @@ what ties the subsection back to the paper's spine.
 
 | | |
 |---|---|
-| "the priming ratio increases with OXPHOS" | The ratio is its denominator. Say which transcript moves |
+| "the priming ratio increases with OXPHOS" | The ratio is its two components added. Say which transcript moves |
 | "MYC represses BCL2, shifting the balance towards death" | `BCL2` is -0.22 on the reference estimator and -0.06 and -0.01 on the other two after conditioning. Estimator-dependent; do not write it |
 | "OXPHOS-high tumours are more primed" | Priming is not measurable here. Write "carry a higher `BAD`/`MCL1` transcript ratio" and let the reader draw the inference |
 | any interaction language | Tested, failed three falsifiers, and the sibling pre-registered study found the functional version null |
@@ -231,8 +238,8 @@ what ties the subsection back to the paper's spine.
   BCL2-family transcripts ranked by their correlation with OXPHOS, showing that
   pro- and anti-apoptotic members are interleaved across the whole range."
 - **the ratio matrix** (`E10_fig3`): "All 35 pro-over-anti transcript ratios
-  against each axis. Columns are dominated by their denominator; see Methods for
-  the fraction that exceed both component transcripts."
+  against each axis, adjusted for proliferation. An additive model of the two
+  component transcripts accounts for 92-95% of these values; see Methods."
 - **the compartment split** (`E10_fig6`): supplementary. It is the same matrix
   inside luminal and basal tumours and its main use is to show that the pooled
   MYC column is a between-subtype effect.
