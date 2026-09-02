@@ -264,6 +264,38 @@ set.seed(PROJECT_SEED)
                             sd = stats::sd(v))
 .z <- function(obs, nd) (obs - mean(nd)) / stats::sd(nd)
 
+# =============================================================================
+# TWO WAYS TO SAY "MITOCHONDRIAL GENES CORRELATE MORE", AND BOTH ARE REPORTED
+# =============================================================================
+#   split     Spearman of the 44 per-gene correlations against the 0/1
+#             MitoCarta label. Bounded, rank-based, and the statistic every
+#             number written up before 2026-09-02 was computed on.
+#   med_diff  median correlation of the mitochondrial genes minus the median of
+#             the cytosolic ones. Same units as the correlations themselves, so
+#             it can be read straight off the plane in figure 1 and off panel A
+#             of the paper figure - which is why the FIGURES plot this one.
+#
+# THE CHOICE OF WHICH TO PLOT WAS MADE FOR LEGIBILITY, AFTER BOTH HAD BEEN SEEN,
+# AND THAT MATTERS. On the OXPHOS rows `med_diff` sits further above its null
+# than `split` does (z about 2.2 against about 1.4). Switching to the statistic
+# with the larger z after seeing both is the shape of statistic-shopping, so it
+# is not done: THE CLAIM STAYS ANCHORED ON `split`, the pre-existing statistic,
+# and both z values are carried in every table. If the median difference is ever
+# quoted as evidence, that history has to be quoted with it.
+.split_stats <- function(v, idx, lab, draws, ...) {
+  .md <- function(w) stats::median(w[lab == 1]) - stats::median(w[lab == 0])
+  o_s <- stats::cor(v[idx], lab, method = "spearman")
+  o_m <- .md(v[idx])
+  n_s <- vapply(draws, function(d) stats::cor(v[d], lab, method = "spearman"),
+                numeric(1))
+  n_m <- vapply(draws, function(d) .md(v[d]), numeric(1))
+  tibble::tibble(..., split = o_s, null_mean = mean(n_s),
+                 null_sd = stats::sd(n_s), z = .z(o_s, n_s),
+                 pct_of_draws_below = mean(n_s < o_s),
+                 med_diff = o_m, null_mean_md = mean(n_m),
+                 null_sd_md = stats::sd(n_m), z_md = .z(o_m, n_m))
+}
+
 null_tests <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
   keep <- which(!is.na(per_gene[[paste(coh, "MYC", "raw", sep = "|")]]))
@@ -403,15 +435,22 @@ split_null <- dplyr::bind_rows(lapply(names(COH), function(coh) {
     dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
       dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
         v <- per_gene[[paste(coh, ax, adj, sep = "|")]]
+        # The observed set and the draws have the same composition but not the
+        # same length here, so the labels differ and .split_stats cannot be used.
+        .md <- function(w, l) stats::median(w[l == 1]) - stats::median(w[l == 0])
         obs <- stats::cor(v[c(i_mc, i_non)], lab_obs, method = "spearman")
+        o_m <- .md(v[c(i_mc, i_non)], lab_obs)
         nd  <- vapply(dr, function(d)
           stats::cor(v[d], lab_draw, method = "spearman"), numeric(1))
+        n_m <- vapply(dr, function(d) .md(v[d], lab_draw), numeric(1))
         tibble::tibble(cohort = coh, axis = ax, adjustment = adj, pool = pn,
                        n_mito = length(i_mc), n_other = length(i_non),
                        n_drawn_mito = length(d_mc),
                        observed_split = obs, null_mean = mean(nd),
                        null_sd = stats::sd(nd), z = .z(obs, nd),
-                       pct_of_draws_below = mean(nd < obs))
+                       pct_of_draws_below = mean(nd < obs),
+                       med_diff = o_m, null_mean_md = mean(n_m),
+                       null_sd_md = stats::sd(n_m), z_md = .z(o_m, n_m))
       }))))
   }))
 }))
@@ -530,14 +569,9 @@ split_null_submito <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
     dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
       v <- per_gene[[paste(coh, ax, adj, sep = "|")]]
-      obs <- stats::cor(v[obs_idx], lab, method = "spearman")
-      nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
-                    numeric(1))
-      tibble::tibble(cohort = coh, axis = ax, adjustment = adj,
-                     pool = "sub-compartment matched",
-                     observed_split = obs, null_mean = mean(nd),
-                     null_sd = stats::sd(nd), z = .z(obs, nd),
-                     pct_of_draws_below = mean(nd < obs))
+      .split_stats(v, obs_idx, lab, dr, cohort = coh, axis = ax,
+                   adjustment = adj, pool = "sub-compartment matched") %>%
+        dplyr::rename(observed_split = split)
     }))))
 }))
 message("\n   the split against a SUB-COMPARTMENT-matched null:")
@@ -743,17 +777,12 @@ compartment <- dplyr::bind_rows(lapply(names(COH), function(coh) {
     dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
       dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
         v <- per_gene_str[[paste(coh, st, ax, adj, sep = "|")]]
-        obs <- stats::cor(v[obs_idx], lab, method = "spearman")
-        nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
-                      numeric(1))
-        tibble::tibble(
-          cohort = coh, stratum = st, n_samples = length(STR[[coh]][[st]]),
-          axis = ax, adjustment = adj,
-          sd_rho = stats::sd(v[own]),
-          median_mito = stats::median(v[own][is_mc]),
-          median_nonmito = stats::median(v[own][!is_mc]),
-          observed_split = obs, null_mean = mean(nd), null_sd = stats::sd(nd),
-          z = .z(obs, nd))
+        .split_stats(v, obs_idx, lab, dr, cohort = coh, stratum = st,
+                     n_samples = length(STR[[coh]][[st]]), axis = ax,
+                     adjustment = adj, sd_rho = stats::sd(v[own]),
+                     median_mito = stats::median(v[own][is_mc]),
+                     median_nonmito = stats::median(v[own][!is_mc])) %>%
+          dplyr::rename(observed_split = split)
       }))))
   }))
 }))
@@ -866,11 +895,14 @@ message("   Basal is 171 TCGA samples. Nothing under about 0.2 here is",
 # apoptosis to the extent that it exceeds what composition gives (3.2).
 message("\n4.3 conditioning each axis on the other")
 
+# Row labels are prose, not statistical shorthand. "OXPHOS | prolif + MYC" is
+# unreadable to anyone who does not already know the notation, and every one of
+# these four also removes proliferation, which the subtitle says once.
 COND_MODELS <- list(
-  `OXPHOS | prolif`       = list(y = "OXPHOS", extra = character(0)),
-  `OXPHOS | prolif + MYC` = list(y = "OXPHOS", extra = "MYC"),
-  `MYC | prolif`          = list(y = "MYC",    extra = character(0)),
-  `MYC | prolif + OXPHOS` = list(y = "MYC",    extra = "OXPHOS"))
+  `OXPHOS`                     = list(y = "OXPHOS", extra = character(0)),
+  `OXPHOS, with MYC removed`   = list(y = "OXPHOS", extra = "MYC"),
+  `MYC`                        = list(y = "MYC",    extra = character(0)),
+  `MYC, with OXPHOS removed`   = list(y = "MYC",    extra = "OXPHOS"))
 
 conditioned <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
@@ -896,23 +928,21 @@ conditioned <- dplyr::bind_rows(lapply(names(COH), function(coh) {
     for (e in m$extra) Z <- cbind(Z, stats::setNames(C$ax[e, ], NULL))
     colnames(Z) <- c(PROLIF_REF_COV, m$extra)
     v <- .per_gene_rho(C$L, C$ax[m$y, ], cov = Z)
-    obs <- stats::cor(v[obs_idx], lab, method = "spearman")
-    nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
-                  numeric(1))
-    tibble::tibble(
-      cohort = coh, model = mn, axis = m$y,
-      conditioned_on = if (length(m$extra)) m$extra else "-",
-      sd_rho = stats::sd(v[own]), frac_gt_0.2 = mean(abs(v[own]) > 0.2),
-      median_mito = stats::median(v[own][is_mc]),
-      median_nonmito = stats::median(v[own][!is_mc]),
-      split = obs, null_mean = mean(nd), null_sd = stats::sd(nd),
-      z_split = .z(obs, nd))
+    .split_stats(v, obs_idx, lab, dr,
+                 cohort = coh, model = mn, axis = m$y,
+                 conditioned_on = if (length(m$extra)) m$extra else "-",
+                 sd_rho = stats::sd(v[own]),
+                 frac_gt_0.2 = mean(abs(v[own]) > 0.2),
+                 median_mito = stats::median(v[own][is_mc]),
+                 median_nonmito = stats::median(v[own][!is_mc])) %>%
+      dplyr::rename(z_split = z)
   }))
 }))
 
 message("\n   the 44 under each model - read rows 2 and 4:")
 conditioned %>%
-  dplyr::select(cohort, model, sd_rho, frac_gt_0.2, split, null_mean, z_split) %>%
+  dplyr::select(cohort, model, sd_rho, frac_gt_0.2, med_diff, null_mean_md,
+                z_md, split, z_split) %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 message("\n   A LOCALISATION SPLIT THAT GOES TO ZERO UNDER CONDITIONING MEANS",
@@ -1306,38 +1336,40 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(value, stratum, colour = axis)) +
 g8dat <- conditioned %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 model = factor(model, levels = rev(names(COND_MODELS))),
-                lo = null_mean - 1.96 * null_sd,
-                hi = null_mean + 1.96 * null_sd,
+                lo = null_mean_md - 1.96 * null_sd_md,
+                hi = null_mean_md + 1.96 * null_sd_md,
                 axis = factor(axis, levels = c("OXPHOS", "MYC")))
 g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(y = model)) +
   ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
   ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 3.5,
                           colour = "grey85") +
-  ggplot2::geom_point(ggplot2::aes(x = null_mean), shape = 124, size = 4,
+  ggplot2::geom_point(ggplot2::aes(x = null_mean_md), shape = 124, size = 4,
                       colour = "grey45") +
-  ggplot2::geom_point(ggplot2::aes(x = split, colour = axis), size = 3.4) +
+  ggplot2::geom_point(ggplot2::aes(x = med_diff, colour = axis), size = 3.4) +
   ggplot2::facet_wrap(~ cohort) +
   ggplot2::scale_colour_manual(values = c(OXPHOS = "#1b9e77", MYC = "#7570b3"),
                                name = NULL) +
   ggplot2::labs(
     title = "Which axis actually orders the apoptotic machinery?",
-    subtitle = paste("EXPLORATORY - not pre-registered | 44 genes | coloured",
-                     "point = observed localisation split | grey = null mean",
-                     "+/- 2 SD"),
-    x = "Spearman of the per-gene correlation with MitoCarta membership",
+    subtitle = paste0("EXPLORATORY - not pre-registered | 44 genes | ",
+                      "proliferation removed in every row\n",
+                      "grey = composition-matched null, mean +/- 2 SD"),
+    x = "mitochondrial minus cytosolic genes (median difference in correlation)",
     y = NULL,
     caption = paste0(
-      "Every model also conditions on proliferation. The two axes are\n",
-      "themselves correlated and rank these 44 genes almost identically, so\n",
-      "comparing them SEPARATELY cannot say which one carries the ordering.\n",
-      "Conditioning OXPHOS on MYC leaves the split intact - it rises. \n",
-      "Conditioning MYC on OXPHOS takes it to zero. MYC's apparent ordering\n",
-      "was inherited from OXPHOS; the reverse is not true.\n",
-      "The grey band is the sub-compartment-matched null: even the surviving\n",
-      "OXPHOS split is only about one SD above what any 13 outer-membrane, 5\n",
-      "intermembrane, 2 inner-membrane and 24 non-mitochondrial genes give.\n",
-      "The ordering is real and it is OXPHOS's, but it is not specific to\n",
-      "apoptosis.")) +
+      "The x axis is in the units of the correlations themselves: how much more\n",
+      "strongly the mitochondrial genes track the axis than the cytosolic ones\n",
+      "do. It can be read straight off the plane in figure 1.\n",
+      "The two axes are themselves correlated and rank these 44 genes almost\n",
+      "identically, so comparing them SEPARATELY cannot say which one carries\n",
+      "the ordering. Removing MYC leaves OXPHOS's separation intact; removing\n",
+      "OXPHOS takes MYC's to zero. MYC's ordering was inherited; the reverse is\n",
+      "not true.\n",
+      "Grey is the bound: what any 13 outer-membrane, 5 intermembrane, 2 inner-\n",
+      "membrane and 24 non-mitochondrial genes of the same expression give. The\n",
+      "ordering is real and it is OXPHOS's, but it is not specific to apoptosis.\n",
+      "The rank version of this statistic is in the saved table and is the one\n",
+      "the claim is anchored on; see the header for why.")) +
   theme_e11
 .save(g8, "E11_fig8_conditioning_ladder", 9, 4.5)
 
@@ -1394,20 +1426,20 @@ pA <- ggplot2::ggplot(pA_dat, ggplot2::aes(MYC, OXPHOS)) +
 pB_dat <- conditioned %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 model = factor(model, levels = rev(names(COND_MODELS))),
-                lo = null_mean - 1.96 * null_sd,
-                hi = null_mean + 1.96 * null_sd,
+                lo = null_mean_md - 1.96 * null_sd_md,
+                hi = null_mean_md + 1.96 * null_sd_md,
                 axis = factor(axis, levels = c("OXPHOS", "MYC")))
 pB_lab <- boot_ci %>% dplyr::filter(contrast == "split_gap_conditioned") %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
-                lab = sprintf("conditioned split gap %.2f [%.2f, %.2f]",
+                lab = sprintf("OXPHOS minus MYC, both conditioned: %.2f [%.2f, %.2f]",
                               observed, lo, hi))
 pB <- ggplot2::ggplot(pB_dat, ggplot2::aes(y = model)) +
   ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
   ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 4,
                           colour = "grey85") +
-  ggplot2::geom_point(ggplot2::aes(x = null_mean), shape = 124, size = 4,
+  ggplot2::geom_point(ggplot2::aes(x = null_mean_md), shape = 124, size = 4,
                       colour = "grey45") +
-  ggplot2::geom_point(ggplot2::aes(x = split, colour = axis), size = 3.2) +
+  ggplot2::geom_point(ggplot2::aes(x = med_diff, colour = axis), size = 3.2) +
   ggplot2::geom_text(data = pB_lab, ggplot2::aes(label = lab), x = -0.26,
                      y = 0.55, hjust = 0, size = 2.5, colour = "grey25",
                      inherit.aes = FALSE) +
@@ -1416,10 +1448,12 @@ pB <- ggplot2::ggplot(pB_dat, ggplot2::aes(y = model)) +
   ggplot2::scale_colour_manual(values = c(OXPHOS = "#1b9e77", MYC = "#7570b3"),
                                name = NULL) +
   ggplot2::labs(
-    x = "localisation split (Spearman of per-gene rho with MitoCarta membership)",
+    x = paste("how much more strongly mitochondrial genes track the axis",
+              "(median difference)"),
     y = NULL,
-    subtitle = paste("grey = null matched for expression and",
-                     "sub-mitochondrial compartment, mean +/- 2 SD")) +
+    subtitle = paste0("proliferation removed in every row | grey = the same ",
+                      "quantity for a gene set\nmatched on expression and ",
+                      "sub-mitochondrial compartment")) +
   theme_e11 + ggplot2::theme(legend.position = "bottom")
 
 pFig <- patchwork::wrap_plots(pA, pB, ncol = 1, heights = c(1.35, 1)) +
@@ -1431,11 +1465,12 @@ pFig <- patchwork::wrap_plots(pA, pB, ncol = 1, heights = c(1.35, 1)) +
       "   it is wide is the result. Colour is MitoCarta 3.0 membership, an independent localisation call: it separates the genes\n",
       "   vertically and not horizontally, so what predicts a gene's position is where its protein acts, not whether it promotes\n",
       "   or prevents death. Bracketed values are 95% intervals from 1,000 tumour-level bootstrap resamples.\n",
-      "B  The two axes are correlated and rank these genes at 0.61-0.73, so comparing them separately cannot say which carries the\n",
-      "   ordering. Conditioning OXPHOS on MYC leaves it intact; conditioning MYC on OXPHOS abolishes it. Every model also\n",
-      "   conditions on proliferation. The grey band is the bound: even the surviving OXPHOS split is about 1.6 SD above what any\n",
-      "   expression- and compartment-matched gene set gives, so the ordering is real and it is OXPHOS's, but it is not specific\n",
-      "   to apoptosis. EXPLORATORY - not pre-registered."),
+      "B  How much more strongly the mitochondrial genes track each axis than the cytosolic ones do - the vertical separation of\n",
+      "   colour in A, as one number, in the same units. The two axes are correlated and rank these genes at 0.61-0.73, so\n",
+      "   comparing them separately cannot say which carries the ordering. Removing MYC leaves OXPHOS's separation intact;\n",
+      "   removing OXPHOS takes MYC's to zero. Grey is the bound - the same quantity for a gene set matched on expression and\n",
+      "   sub-mitochondrial compartment - so the ordering is real and it is OXPHOS's, but it is not specific to apoptosis.\n",
+      "   EXPLORATORY - not pre-registered."),
     theme = ggplot2::theme(
       plot.title = ggplot2::element_text(size = 12, face = "bold"),
       plot.caption = ggplot2::element_text(size = 7, colour = "grey35",

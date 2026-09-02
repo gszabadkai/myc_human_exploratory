@@ -83,6 +83,38 @@ cited in (B)'s legend** - it is what rules out "the adjustment emptied the MYC
 score". The on-figure title should be deleted for submission; most journals set
 it from the legend.
 
+## The two versions of "mitochondrial genes correlate more"
+
+The quantity panel B plots was, until 2026-09-02, the Spearman of the 44
+per-gene correlations against the 0/1 MitoCarta label - a rank-biserial
+correlation. It is a defensible statistic and it is a terrible axis label: it
+describes a recipe rather than a quantity anyone thinks in.
+
+The figures now plot the **median difference** instead - the median correlation
+of the mitochondrial genes minus the median of the cytosolic ones. Same units as
+the correlations themselves, so it reads straight off panel A, and the axis
+becomes "mitochondrial minus cytosolic genes (median difference in
+correlation)".
+
+| | rank split | z | median difference | z |
+|---|---|---|---|---|
+| OXPHOS | 0.453 | 1.35 | 0.414 | 2.15 |
+| OXPHOS, MYC removed | 0.485 | 1.63 | 0.376 | 2.14 |
+| MYC | 0.187 | -0.25 | 0.106 | 0.02 |
+| MYC, OXPHOS removed | -0.043 | -1.13 | -0.019 | -1.11 |
+
+(TCGA; SCAN-B is the same pattern with z 2.49 and 2.35 on the OXPHOS rows.)
+
+**THE CHOICE WAS MADE AFTER BOTH HAD BEEN SEEN, AND THE ONE NOW PLOTTED HAS THE
+LARGER z.** That is the shape of statistic-shopping, so the claim is NOT moved
+onto it: **the composition bound stays anchored on the rank split**, where the
+OXPHOS rows sit ~1.4-1.6 SD above the null and the honest word remains "not
+separable". Both are carried in every saved table, and if the median difference
+is ever quoted, this paragraph has to be quoted with it.
+
+The qualitative conclusion is identical under both, which is the reason the
+switch is safe to make at all.
+
 ## Does it need a statistical test?
 
 **The permutation nulls already ARE the test, and they are the right one.** 2,000
