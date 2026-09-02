@@ -19,7 +19,7 @@
 
 # Checked for presence, attached by the scripts that need them. GSVA is slow to
 # attach and only E02 uses it; ggrepel is called as ggrepel:: by E08, E10 and
-# E11; patchwork composes E11's paper figure and nothing else.
+# E11; patchwork composes the E11 paper figure and the E14 falsifier panel.
 .pkg_analysis <- c("GSVA", "decoupleR", "msigdbr", "ggrepel", "patchwork")
 
 .check_packages <- function(pkgs, tier) {
