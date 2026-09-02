@@ -16,3 +16,6 @@ outputs/*
 .Rproj.user/
 *.Rproj
 .DS_Store
+
+# Stray device output from headless Rscript runs
+Rplots.pdf
