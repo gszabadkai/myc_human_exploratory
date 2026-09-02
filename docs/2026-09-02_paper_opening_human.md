@@ -90,11 +90,13 @@ per-gene correlations against the 0/1 MitoCarta label - a rank-biserial
 correlation. It is a defensible statistic and it is a terrible axis label: it
 describes a recipe rather than a quantity anyone thinks in.
 
-The figures now plot the **median difference** instead - the median correlation
-of the mitochondrial genes minus the median of the cytosolic ones. Same units as
-the correlations themselves, so it reads straight off panel A, and the axis
-becomes "mitochondrial minus cytosolic genes (median difference in
-correlation)".
+The figures now plot **delta-rho** instead - the median correlation of the
+mitochondrial genes minus the median of the cytosolic ones. Same units as the
+correlations themselves, so it reads straight off panel A, and the axis becomes
+`delta-rho (median rho of mitochondrial minus cytosolic genes)`, set in
+plotmath so the symbol renders. Naming both groups in the label is deliberate:
+`delta-rho` alone would be read as a change BETWEEN the rows of the panel, which
+are four different models.
 
 | | rank split | z | median difference | z |
 |---|---|---|---|---|
@@ -131,13 +133,18 @@ narrow.
 | contrast | tested against | TCGA | SCAN-B |
 |---|---|---|---|
 | SD ratio, OXPHOS / MYC | 1 | **1.64 [1.47, 1.78]** | **1.56 [1.46, 1.65]** |
-| localisation split gap | 0 | 0.27 [0.21, 0.33] | 0.35 [0.30, 0.40] |
-| split gap, mutually conditioned | 0 | **0.53 [0.44, 0.58]** | **0.58 [0.52, 0.64]** |
+| rank split gap | 0 | 0.27 [0.21, 0.33] | 0.35 [0.30, 0.40] |
+| rank split gap, mutually conditioned | 0 | 0.53 [0.44, 0.58] | 0.58 [0.52, 0.64] |
+| **delta-rho gap** | 0 | 0.31 [0.25, 0.37] | 0.29 [0.24, 0.33] |
+| **delta-rho gap, mutually conditioned** | 0 | **0.40 [0.34, 0.47]** | **0.31 [0.28, 0.35]** |
 
-All six exclude their null value, and the conditioned gap is the largest of the
-three - conditioning does not weaken the contrast, it sharpens it. Two
-independent cohorts agreeing remains the stronger evidence; these are what a
-reviewer will ask for.
+All ten exclude their null value, and the conditioned gap is larger than the
+unconditioned one on both statistics - conditioning does not weaken the
+contrast, it sharpens it. **The delta-rho rows are the ones printed on the
+figure**, because an interval must be in the units of the axis it sits beside;
+the rank rows are what the composition bound is anchored on. Two independent
+cohorts agreeing remains the stronger evidence; these are what a reviewer will
+ask for.
 
 **Two things NOT to do.**
 

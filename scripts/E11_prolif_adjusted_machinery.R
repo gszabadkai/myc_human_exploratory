@@ -960,7 +960,10 @@ message("\n   A LOCALISATION SPLIT THAT GOES TO ZERO UNDER CONDITIONING MEANS",
 #                 spread along one axis than the other. 1.0 is no difference.
 #   SPLIT GAP     the localisation split on OXPHOS minus the one on MYC, under
 #                 MUTUAL CONDITIONING, which is the version section 4.3 licenses.
-#                 0 is no difference.
+#                 0 is no difference. Computed BOTH ways - on the rank split,
+#                 which the claim is anchored on, and as delta-rho, which is
+#                 what the figures plot. AN INTERVAL MUST BE IN THE UNITS OF THE
+#                 AXIS IT IS PRINTED BESIDE or it is worse than no interval.
 #
 # THE RESAMPLING UNIT IS THE TUMOUR, NOT THE GENE, and that choice is the whole
 # validity of the interval. The 44 genes are heavily co-expressed - a
@@ -995,6 +998,7 @@ boot_ci <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   pf  <- C$cov[, PROLIF_REF_COV]
   n   <- ncol(G)
 
+  .md <- function(w) stats::median(w[is_mc == 1]) - stats::median(w[is_mc == 0])
   .one <- function(i) {
     RG <- t(apply(G[, i, drop = FALSE], 1L, rank))
     rp <- rank(pf[i]); rm_ <- rank(myc[i]); ro <- rank(ox[i])
@@ -1002,22 +1006,22 @@ boot_ci <- dplyr::bind_rows(lapply(names(COH), function(coh) {
     r_myc <- .pg_small(RG, rm_, cbind(rp))
     r_ox_c  <- .pg_small(RG, ro,  cbind(rp, rm_))
     r_myc_c <- .pg_small(RG, rm_, cbind(rp, ro))
-    c(sd_ratio  = stats::sd(r_ox) / stats::sd(r_myc),
-      split_gap = stats::cor(r_ox, is_mc, method = "spearman") -
-                  stats::cor(r_myc, is_mc, method = "spearman"),
-      split_gap_conditioned =
-        stats::cor(r_ox_c,  is_mc, method = "spearman") -
-        stats::cor(r_myc_c, is_mc, method = "spearman"))
+    .sp <- function(w) stats::cor(w, is_mc, method = "spearman")
+    c(sd_ratio                  = stats::sd(r_ox) / stats::sd(r_myc),
+      split_gap                 = .sp(r_ox)   - .sp(r_myc),
+      split_gap_conditioned     = .sp(r_ox_c) - .sp(r_myc_c),
+      delta_rho_gap             = .md(r_ox)   - .md(r_myc),
+      delta_rho_gap_conditioned = .md(r_ox_c) - .md(r_myc_c))
   }
-  obs <- .one(seq_len(n))
-  bs  <- vapply(seq_len(BOOT_N), function(b) .one(sample.int(n, n, TRUE)),
-                numeric(3))
+  obs   <- .one(seq_len(n))
+  bs    <- vapply(seq_len(BOOT_N), function(b) .one(sample.int(n, n, TRUE)),
+                  numeric(5))
+  nullv <- c(1, 0, 0, 0, 0)
+  lo    <- apply(bs, 1L, stats::quantile, 0.025)
   tibble::tibble(cohort = coh, contrast = names(obs), observed = obs,
-                 lo = apply(bs, 1L, stats::quantile, 0.025),
-                 hi = apply(bs, 1L, stats::quantile, 0.975),
-                 null_value = c(1, 0, 0),
-                 excludes_null = (obs > c(1, 0, 0)) ==
-                   (apply(bs, 1L, stats::quantile, 0.025) > c(1, 0, 0)))
+                 lo = lo, hi = apply(bs, 1L, stats::quantile, 0.975),
+                 null_value = nullv,
+                 excludes_null = (obs > nullv) == (lo > nullv))
 }))
 message("   ", BOOT_N, " tumour-level resamples per cohort")
 boot_ci %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -1354,7 +1358,8 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(y = model)) +
     subtitle = paste0("EXPLORATORY - not pre-registered | 44 genes | ",
                       "proliferation removed in every row\n",
                       "grey = composition-matched null, mean +/- 2 SD"),
-    x = "mitochondrial minus cytosolic genes (median difference in correlation)",
+    x = expression(Delta*rho * "   (median " * rho *
+                   " of mitochondrial minus cytosolic genes)"),
     y = NULL,
     caption = paste0(
       "The x axis is in the units of the correlations themselves: how much more\n",
@@ -1429,10 +1434,26 @@ pB_dat <- conditioned %>%
                 lo = null_mean_md - 1.96 * null_sd_md,
                 hi = null_mean_md + 1.96 * null_sd_md,
                 axis = factor(axis, levels = c("OXPHOS", "MYC")))
-pB_lab <- boot_ci %>% dplyr::filter(contrast == "split_gap_conditioned") %>%
+# The gap between the two CONDITIONED rows, drawn as the span it is rather than
+# written in a corner. A number printed beside an axis must be in that axis's
+# units: this is the delta-rho version, matching what the points show. The rank
+# version - which the composition claim is anchored on - stays in the table.
+#
+# Row order after reversing the factor: 1 = MYC conditioned, 2 = MYC,
+# 3 = OXPHOS conditioned, 4 = OXPHOS. The span is drawn below row 1 so it
+# crosses no data.
+pB_span <- conditioned %>%
+  dplyr::filter(model %in% c("OXPHOS, with MYC removed",
+                             "MYC, with OXPHOS removed")) %>%
+  dplyr::select(cohort, model, med_diff) %>%
+  tidyr::pivot_wider(names_from = model, values_from = med_diff) %>%
+  dplyr::rename(x_myc = `MYC, with OXPHOS removed`,
+                x_ox  = `OXPHOS, with MYC removed`) %>%
+  dplyr::left_join(
+    boot_ci %>% dplyr::filter(contrast == "delta_rho_gap_conditioned") %>%
+      dplyr::select(cohort, observed, lo, hi), by = "cohort") %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
-                lab = sprintf("OXPHOS minus MYC, both conditioned: %.2f [%.2f, %.2f]",
-                              observed, lo, hi))
+                lab = sprintf("%.2f [%.2f, %.2f]", observed, lo, hi))
 pB <- ggplot2::ggplot(pB_dat, ggplot2::aes(y = model)) +
   ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
   ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 4,
@@ -1440,16 +1461,22 @@ pB <- ggplot2::ggplot(pB_dat, ggplot2::aes(y = model)) +
   ggplot2::geom_point(ggplot2::aes(x = null_mean_md), shape = 124, size = 4,
                       colour = "grey45") +
   ggplot2::geom_point(ggplot2::aes(x = med_diff, colour = axis), size = 3.2) +
-  ggplot2::geom_text(data = pB_lab, ggplot2::aes(label = lab), x = -0.26,
-                     y = 0.55, hjust = 0, size = 2.5, colour = "grey25",
+  ggplot2::geom_segment(
+    data = pB_span, ggplot2::aes(x = x_myc, xend = x_ox, y = 0.45, yend = 0.45),
+    inherit.aes = FALSE, linewidth = 0.4, colour = "grey30",
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.05, "in"),
+                        type = "closed")) +
+  ggplot2::geom_text(data = pB_span,
+                     ggplot2::aes(x = (x_myc + x_ox) / 2, label = lab),
+                     y = 0.62, size = 2.5, colour = "grey25",
                      inherit.aes = FALSE) +
   ggplot2::facet_wrap(~ cohort) +
-  ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.75, 0.5))) +
+  ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.8, 0.5))) +
   ggplot2::scale_colour_manual(values = c(OXPHOS = "#1b9e77", MYC = "#7570b3"),
                                name = NULL) +
   ggplot2::labs(
-    x = paste("how much more strongly mitochondrial genes track the axis",
-              "(median difference)"),
+    x = expression(Delta*rho * "   (median " * rho *
+                   " of mitochondrial minus cytosolic genes)"),
     y = NULL,
     subtitle = paste0("proliferation removed in every row | grey = the same ",
                       "quantity for a gene set\nmatched on expression and ",
@@ -1468,7 +1495,8 @@ pFig <- patchwork::wrap_plots(pA, pB, ncol = 1, heights = c(1.35, 1)) +
       "B  How much more strongly the mitochondrial genes track each axis than the cytosolic ones do - the vertical separation of\n",
       "   colour in A, as one number, in the same units. The two axes are correlated and rank these genes at 0.61-0.73, so\n",
       "   comparing them separately cannot say which carries the ordering. Removing MYC leaves OXPHOS's separation intact;\n",
-      "   removing OXPHOS takes MYC's to zero. Grey is the bound - the same quantity for a gene set matched on expression and\n",
+      "   removing OXPHOS takes MYC's to zero. The arrow spans the two conditioned rows and carries that difference with its\n",
+      "   95% bootstrap interval. Grey is the bound - the same quantity for a gene set matched on expression and\n",
       "   sub-mitochondrial compartment - so the ordering is real and it is OXPHOS's, but it is not specific to apoptosis.\n",
       "   EXPLORATORY - not pre-registered."),
     theme = ggplot2::theme(
