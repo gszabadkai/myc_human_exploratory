@@ -90,6 +90,7 @@
 source(here::here("scripts", "E00_setup_packages.R"))
 source(here::here("functions", "correlation_engine.R"))
 source(here::here("functions", "gene_matrix.R"))
+source(here::here("functions", "strata.R"))
 
 message("\nE11: does the apoptotic machinery still track OXPHOS, and MYC not,",
         "\n     once proliferation is taken out?\n", strrep("=", 78))
@@ -427,6 +428,128 @@ message("\n   `null_mean` IS THE NUMBER TO READ FIRST. It is how large the",
         " the extent that it exceeds that.")
 
 # =============================================================================
+# 3.2 THE STRICTER NULL AGAIN: match the SUB-COMPARTMENT too
+# =============================================================================
+# Section 3.1 matched MitoCarta MEMBERSHIP. That is not the whole of the
+# composition: E10 found a ladder inside the organelle - not in MitoCarta
+# -0.100, outer membrane +0.085, intermembrane space +0.115, inner membrane
+# +0.443 - so 20 mitochondrial genes drawn without regard to compartment are
+# not the same object as the machinery's 20, which are 13 MOM, 5 IMS and 2 MIM.
+#
+# This null matches that distribution exactly, expression-matching within each
+# compartment separately, still drawing from the strict pool with every OXPHOS
+# and mitoribosome gene removed. It is the hardest test of E10 R1 available
+# without a new annotation source.
+#
+# IF THE OBSERVED SPLIT SITS INSIDE THIS NULL, the whole of E10 R1's 0.453 is
+# expression plus sub-mitochondrial location and none of it is apoptosis.
+#
+# THE POOLS ARE SMALL AND THE BINNING IS COARSE BECAUSE OF IT. IMS holds 39
+# usable genes, so it gets 2 expression bins rather than 20; MOM 110 gets 4 and
+# MIM 213 gets 8. That is weaker expression matching than section 3, and it is a
+# limitation of the annotation, not a choice.
+message("\n3.2 the same null, matching sub-mitochondrial compartment as well")
+
+mitocarta_sheet <- suppressWarnings(readxl::read_xls(PATH_MITOCARTA, sheet = 2))
+SUBMITO <- stats::setNames(
+  mitocarta_sheet[["MitoCarta3.0_SubMitoLocalization"]], mitocarta_sheet$Symbol)
+
+# The machinery's own composition, which is what the draws must reproduce.
+#
+# NOTE THE unname() AND THE names() PUT BACK. Subsetting a named vector by a
+# name it does not carry returns an element named <NA>, not one named by the
+# key that was asked for. Leaving that in place makes the 24 non-MitoCarta
+# genes unnamed, the later lookup by gene symbol returns NA for all of them,
+# split() drops NA groups silently, and the label vector comes out constant -
+# which yields an NA correlation and no error anywhere.
+canon_sub <- unname(SUBMITO[CANON])
+canon_sub[is.na(canon_sub)] <- "(not in MitoCarta)"
+names(canon_sub) <- CANON
+stopifnot(!anyNA(names(canon_sub)), !anyNA(canon_sub),
+          length(canon_sub) == length(CANON))
+message("   the 44 by compartment: ",
+        paste(names(table(canon_sub)), table(canon_sub), sep = " ",
+              collapse = " | "))
+
+# Bins scale with the pool. A 39-gene pool cannot support 20 ventiles and
+# .matched_draw would stop rather than quietly draw a worse match.
+.nbins <- function(n) max(2L, min(N_BINS, n %/% 25L))
+
+# Build one composition-matched draw set for a cohort, reusable across axes and
+# adjustments because the draws do not depend on which correlation is read.
+.compartment_draws <- function(C, keep, own, want, pool_genes) {
+  parts <- list()
+  for (cmp in names(want)) {
+    i_want <- want[[cmp]]
+    if (!length(i_want)) next
+    pool <- if (cmp == "(not in MitoCarta)") {
+      setdiff(keep, which(rownames(C$L) %in% MC_ALL))
+    } else {
+      intersect(keep, which(rownames(C$L) %in%
+                              intersect(pool_genes,
+                                        names(SUBMITO)[!is.na(SUBMITO) &
+                                                         SUBMITO == cmp])))
+    }
+    # The machinery's own genes must be IN the binning (or their bin is NA and
+    # the draw silently returns nothing) and OUT of the selection. CYCS is the
+    # gene that makes this necessary: it is IMS but sits in the OXPHOS arm, so
+    # the strict pool excludes it.
+    pool <- union(pool, i_want)
+    B <- .expression_bins(C$L, pool, n_bins = .nbins(length(pool)))
+    parts[[cmp]] <- list(want = i_want, B = B)
+  }
+  parts
+}
+
+split_null_submito <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  keep <- which(!is.na(per_gene[[paste(coh, "MYC", "raw", sep = "|")]]))
+  gr <- .gene_rows(CANON, C$L, C$res)
+  own <- match(rownames(gr$mat), rownames(C$L)); own <- own[!is.na(own)]
+  sub_of <- canon_sub[rownames(gr$mat)]
+  want <- lapply(split(own, sub_of), function(v) intersect(v, keep))
+  want <- want[lengths(want) > 0L]
+
+  parts <- .compartment_draws(C, keep, own, want, MC_STRICT)
+  dr <- replicate(NULL_DRAWS,
+                  unlist(lapply(parts, function(pp)
+                    .matched_draw(pp$want, pp$B, exclude = own)),
+                    use.names = FALSE),
+                  simplify = FALSE)
+  # Labels follow the same compartment order in the observed set and the draws.
+  obs_idx <- unlist(lapply(parts, function(pp) pp$want), use.names = FALSE)
+  lab <- as.numeric(rep(names(parts) != "(not in MitoCarta)",
+                        vapply(parts, function(pp) length(pp$want), integer(1))))
+  # A constant label gives an NA correlation and no error. Stop instead.
+  if (length(unique(lab)) < 2L || length(obs_idx) != length(lab)) {
+    stop("the composition labels are degenerate in ", coh, " - ",
+         length(obs_idx), " genes, ", length(unique(lab)), " label value(s). ",
+         "The sub-compartment lookup has lost genes.", call. = FALSE)
+  }
+
+  dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+    dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
+      v <- per_gene[[paste(coh, ax, adj, sep = "|")]]
+      obs <- stats::cor(v[obs_idx], lab, method = "spearman")
+      nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
+                    numeric(1))
+      tibble::tibble(cohort = coh, axis = ax, adjustment = adj,
+                     pool = "sub-compartment matched",
+                     observed_split = obs, null_mean = mean(nd),
+                     null_sd = stats::sd(nd), z = .z(obs, nd),
+                     pct_of_draws_below = mean(nd < obs))
+    }))))
+}))
+message("\n   the split against a SUB-COMPARTMENT-matched null:")
+split_null_submito %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("\n   Compare with section 3.1. A null that RISES when the compartment",
+        " is matched\n   means the compartment ladder was carrying the split;",
+        " a z that falls towards\n   zero means E10 R1 is composition and",
+        " nothing else.")
+
+# =============================================================================
 # 4. The 44 genes one by one, on both axes, before and after
 # =============================================================================
 message("\n4. the 44 genes, gene by gene")
@@ -537,6 +660,179 @@ purity_tab %>% dplyr::group_by(axis) %>%
   as.data.frame() %>% print(row.names = FALSE)
 message("   TCGA only, n = ", sum(PURITY_OK), ". SCAN-B has no purity estimate",
         " and this row\n   cannot be replicated - trap 2.")
+
+# =============================================================================
+# 4.2 THE 44 INSIDE THE LUMINAL AND BASAL COMPARTMENTS
+# =============================================================================
+# P1 - the claim that the OXPHOS/MYC contrast survives proliferation - was
+# measured on all samples. E10 fig9 showed that for the BCL2-family ratios the
+# POOLED MYC value sits outside the range of both its compartments for 27 of 39
+# ratios in TCGA and 26 in SCAN-B, which is the D3/S1 signature of a
+# between-subtype effect read as a within-subtype one. If the same is true of
+# the 44, then P1's MYC column is describing the difference between luminal and
+# basal tumours rather than anything inside either.
+#
+# THE COMPARISON IS UNEVEN AND SAYING SO IS PART OF THE RESULT. Luminal is 696
+# TCGA and 2,436 SCAN-B samples; Basal is 171 and 317. A 171-sample stratum
+# gives a 95% interval about +/- 0.15 wide on a single gene's rho, so a
+# Luminal-minus-Basal difference under roughly 0.2 is not separable from
+# sampling in TCGA. The nulls absorb this - a null draw in Basal is exactly as
+# noisy as the observed set - but the per-gene numbers do not.
+message("\n4.2 the 44 by compartment")
+
+STRATA_E11 <- c("Luminal", "Basal")
+STR <- list(TCGA = .build_strata(frames, "TCGA", ID_T),
+            `SCAN-B` = .build_strata(frames, "SCAN-B", ID_S))
+tibble::tibble(stratum = c("all", STRATA_E11),
+               TCGA = lengths(STR$TCGA[c("all", STRATA_E11)]),
+               `SCAN-B` = lengths(STR$`SCAN-B`[c("all", STRATA_E11)])) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# Per-gene correlations again, but within each compartment. PROLIF_STD is
+# dropped here - section 4 showed it and PROLIF_DISJOINT agree to the third
+# decimal - and so are the stripped estimators, which are a check on the
+# correction rather than a question about subtype.
+message("\n   per-gene correlations within each compartment")
+per_gene_str <- list()
+for (coh in names(COH)) {
+  C <- COH[[coh]]
+  for (st in STRATA_E11) {
+    ids <- STR[[coh]][[st]]
+    Lsub <- C$L[, ids, drop = FALSE]
+    for (ax in c("MYC", "OXPHOS")) {
+      for (adj in c("raw", "adj. PROLIF_DISJOINT")) {
+        cv <- ADJUSTMENTS[[adj]]
+        Z  <- if (is.null(cv)) NULL else C$cov[ids, cv, drop = FALSE]
+        per_gene_str[[paste(coh, st, ax, adj, sep = "|")]] <-
+          .per_gene_rho(Lsub, C$ax[ax, ids], cov = Z)
+      }
+    }
+    rm(Lsub); invisible(gc(verbose = FALSE))
+    message("   ", coh, " ", st, " (n = ", length(ids), ") - done")
+  }
+}
+
+# The two summaries, and the composition-matched null for the split. Without
+# the null this section would repeat exactly the error section 3.1 found.
+compartment <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  gr <- .gene_rows(CANON, C$L, C$res)
+  own <- match(rownames(gr$mat), rownames(C$L)); own <- own[!is.na(own)]
+  sub_of <- canon_sub[rownames(gr$mat)]
+  is_mc <- rownames(C$L)[own] %in% MC_ALL
+
+  dplyr::bind_rows(lapply(STRATA_E11, function(st) {
+    keep <- which(!is.na(per_gene_str[[paste(coh, st, "MYC", "raw",
+                                             sep = "|")]]))
+    want <- lapply(split(own, sub_of), function(v) intersect(v, keep))
+    want <- want[lengths(want) > 0L]
+    parts <- .compartment_draws(C, keep, own, want, MC_STRICT)
+    dr <- replicate(NULL_DRAWS,
+                    unlist(lapply(parts, function(pp)
+                      .matched_draw(pp$want, pp$B, exclude = own)),
+                      use.names = FALSE),
+                    simplify = FALSE)
+    obs_idx <- unlist(lapply(parts, function(pp) pp$want), use.names = FALSE)
+    lab <- as.numeric(rep(names(parts) != "(not in MitoCarta)",
+                          vapply(parts, function(pp) length(pp$want),
+                                 integer(1))))
+    if (length(unique(lab)) < 2L || length(obs_idx) != length(lab)) {
+      stop("degenerate composition labels in ", coh, " ", st, call. = FALSE)
+    }
+
+    dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+      dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
+        v <- per_gene_str[[paste(coh, st, ax, adj, sep = "|")]]
+        obs <- stats::cor(v[obs_idx], lab, method = "spearman")
+        nd  <- vapply(dr, function(d) stats::cor(v[d], lab, method = "spearman"),
+                      numeric(1))
+        tibble::tibble(
+          cohort = coh, stratum = st, n_samples = length(STR[[coh]][[st]]),
+          axis = ax, adjustment = adj,
+          sd_rho = stats::sd(v[own]),
+          median_mito = stats::median(v[own][is_mc]),
+          median_nonmito = stats::median(v[own][!is_mc]),
+          observed_split = obs, null_mean = mean(nd), null_sd = stats::sd(nd),
+          z = .z(obs, nd))
+      }))))
+  }))
+}))
+
+# The pooled row, computed the same way, so the three can be compared directly.
+pooled_row <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  gr <- .gene_rows(CANON, C$L, C$res)
+  own <- match(rownames(gr$mat), rownames(C$L)); own <- own[!is.na(own)]
+  is_mc <- rownames(C$L)[own] %in% MC_ALL
+  dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+    dplyr::bind_rows(lapply(c("raw", "adj. PROLIF_DISJOINT"), function(adj) {
+      v <- per_gene[[paste(coh, ax, adj, sep = "|")]]
+      tibble::tibble(cohort = coh, stratum = "all",
+                     n_samples = length(COH[[coh]]$ids), axis = ax,
+                     adjustment = adj, sd_rho = stats::sd(v[own]),
+                     median_mito = stats::median(v[own][is_mc]),
+                     median_nonmito = stats::median(v[own][!is_mc]),
+                     observed_split = stats::cor(v[own], as.numeric(is_mc),
+                                                 method = "spearman"),
+                     null_mean = NA_real_, null_sd = NA_real_, z = NA_real_)
+    }))))
+}))
+compartment <- dplyr::bind_rows(pooled_row, compartment) %>%
+  dplyr::mutate(stratum = factor(stratum, levels = c("all", STRATA_E11)))
+
+message("\n   spread and split of the 44, by compartment (adjusted):")
+compartment %>% dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+  dplyr::select(cohort, stratum, n_samples, axis, sd_rho, observed_split,
+                null_mean, z) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::arrange(cohort, axis, stratum) %>% as.data.frame() %>%
+  print(row.names = FALSE)
+
+message("\n   IS THE POOLED VALUE OUTSIDE BOTH ITS COMPARTMENTS?")
+message("   (that is the D3/S1 signature - a between-subtype effect read as a",
+        " within one)")
+outside <- compartment %>%
+  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+  dplyr::select(cohort, axis, stratum, sd_rho, observed_split) %>%
+  tidyr::pivot_wider(names_from = stratum,
+                     values_from = c(sd_rho, observed_split)) %>%
+  dplyr::mutate(
+    sd_pooled_outside = sd_rho_all < pmin(sd_rho_Luminal, sd_rho_Basal) |
+                        sd_rho_all > pmax(sd_rho_Luminal, sd_rho_Basal),
+    split_pooled_outside =
+      observed_split_all < pmin(observed_split_Luminal, observed_split_Basal) |
+      observed_split_all > pmax(observed_split_Luminal, observed_split_Basal))
+outside %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   and the per-gene values, Luminal minus Basal, both cohorts",
+        " agreeing on sign:")
+gene_compartment <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  C <- COH[[coh]]
+  gr <- .gene_rows(CANON, C$L, C$res)
+  own <- match(rownames(gr$mat), rownames(C$L))
+  dplyr::bind_rows(lapply(STRATA_E11, function(st)
+    dplyr::bind_rows(lapply(c("MYC", "OXPHOS"), function(ax)
+      tibble::tibble(cohort = coh, stratum = st, axis = ax,
+                     gene = rownames(gr$mat),
+                     rho = per_gene_str[[paste(coh, st, ax,
+                                               "adj. PROLIF_DISJOINT",
+                                               sep = "|")]][own])))))
+})) %>%
+  dplyr::left_join(dplyr::distinct(dplyr::select(gene_tab, gene, mitocarta,
+                                                 effect)), by = "gene")
+gene_compartment %>%
+  tidyr::pivot_wider(names_from = stratum, values_from = rho) %>%
+  dplyr::mutate(diff = Luminal - Basal) %>%
+  dplyr::select(cohort, axis, gene, mitocarta, diff) %>%
+  tidyr::pivot_wider(names_from = cohort, values_from = diff) %>%
+  dplyr::filter(sign(TCGA) == sign(`SCAN-B`)) %>%
+  dplyr::arrange(dplyr::desc(abs(TCGA) + abs(`SCAN-B`))) %>% utils::head(12) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   Basal is 171 TCGA samples. Nothing under about 0.2 here is",
+        " separable from\n   sampling in that cohort - read the column, not",
+        " the row.")
 
 # =============================================================================
 # 5. Figures
@@ -765,12 +1061,93 @@ g5 <- ggplot2::ggplot(g5dat, ggplot2::aes(y = adjustment)) +
   theme_e11
 .save(g5, "E11_fig5_split_vs_composition_null", 8, 6.5)
 
+# --- FIG 6: the two nulls side by side --------------------------------------
+g6dat <- dplyr::bind_rows(
+  split_null %>% dplyr::select(cohort, axis, adjustment, pool, observed_split,
+                               null_mean, null_sd, z),
+  split_null_submito %>% dplyr::select(cohort, axis, adjustment, pool,
+                                       observed_split, null_mean, null_sd, z)) %>%
+  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+  dplyr::mutate(pool = factor(pool, levels = c(names(POOLS),
+                                               "sub-compartment matched")),
+                cohort = factor(cohort, levels = names(COHORT_COLS)),
+                lo = null_mean - 1.96 * null_sd,
+                hi = null_mean + 1.96 * null_sd)
+g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(y = pool)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_linerange(ggplot2::aes(xmin = lo, xmax = hi), linewidth = 3.5,
+                          colour = "grey80") +
+  ggplot2::geom_point(ggplot2::aes(x = null_mean), shape = 124, size = 4,
+                      colour = "grey40") +
+  ggplot2::geom_point(ggplot2::aes(x = observed_split), size = 3.2,
+                      colour = "#d7191c") +
+  ggplot2::facet_grid(cohort ~ axis) +
+  ggplot2::labs(
+    title = "Three nulls for one number, each stricter than the last",
+    subtitle = paste("EXPLORATORY - not pre-registered | proliferation-adjusted",
+                     "| red = observed over the 44 | grey = null mean +/- 2 SD"),
+    x = "Spearman of the per-gene rho with MitoCarta membership", y = NULL,
+    caption = paste0(
+      "Top row matches only MitoCarta membership. The middle row removes every\n",
+      "OXPHOS and mitoribosome gene from the pool, because those track an OXPHOS\n",
+      "score by definition. The bottom row also matches the SUB-COMPARTMENT -\n",
+      "13 outer membrane, 5 intermembrane space, 2 inner membrane, as the\n",
+      "machinery is - because E10 found a ladder by depth into the organelle.\n",
+      "E10 R1 read 0.453 as a fact about apoptosis. It is a statement about\n",
+      "apoptosis only to the extent the red point escapes the grey bar.")) +
+  theme_e11
+.save(g6, "E11_fig6_three_nulls", 8.5, 5)
+
+# --- FIG 7: does the contrast hold inside a subtype? -------------------------
+g7dat <- compartment %>%
+  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT") %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS))) %>%
+  tidyr::pivot_longer(c(sd_rho, observed_split), names_to = "statistic",
+                      values_to = "value") %>%
+  dplyr::mutate(statistic = dplyr::recode(statistic,
+    sd_rho = "spread of the 44 (SD of rho)",
+    observed_split = "localisation split"))
+g7null <- compartment %>%
+  dplyr::filter(adjustment == "adj. PROLIF_DISJOINT", !is.na(null_mean)) %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                statistic = "localisation split",
+                lo = null_mean - 1.96 * null_sd, hi = null_mean + 1.96 * null_sd)
+g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(value, stratum, colour = axis)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_linerange(data = g7null,
+                          ggplot2::aes(xmin = lo, xmax = hi, y = stratum),
+                          inherit.aes = FALSE, linewidth = 3,
+                          colour = "grey85") +
+  ggplot2::geom_point(size = 2.8) +
+  ggplot2::facet_grid(cohort ~ statistic, scales = "free_x") +
+  ggplot2::scale_colour_manual(values = c(MYC = "#7570b3", OXPHOS = "#1b9e77"),
+                               name = NULL) +
+  ggplot2::labs(
+    title = "Does the contrast survive inside a single subtype?",
+    subtitle = paste("EXPLORATORY - not pre-registered | proliferation-adjusted",
+                     "| Luminal = LumA + LumB (696 / 2,436), Basal (171 / 317)"),
+    x = NULL, y = NULL,
+    caption = paste0(
+      "The `all` row is the pooled value and is NOT an average of the two below\n",
+      "it. A pooled point outside the range of its own two compartments is\n",
+      "reading a difference BETWEEN subtypes, which is what E10 fig9 found for\n",
+      "the BCL2-family ratios on the MYC axis - though here it runs the other\n",
+      "way for MYC, where pooling UNDERSTATES both compartments. Grey bars on\n",
+      "the localisation-split panel are the sub-compartment-matched null for\n",
+      "that stratum: a point inside its own bar is composition, and all of them\n",
+      "are. Basal is 171 TCGA samples and everything about it is correspondingly\n",
+      "wide.")) +
+  theme_e11
+.save(g7, "E11_fig7_contrast_by_compartment", 9, 5)
+
 # =============================================================================
 # 6. Save
 # =============================================================================
 message("\n6. save")
 saveRDS(list(
   null_tests = null_tests, split_null = split_null,
+  split_null_submito = split_null_submito, compartment = compartment,
+  gene_compartment = gene_compartment, pooled_outside = outside,
   gene_tab = gene_tab, wide = wide,
   spread = spread, s6_adj = s6_adj, replication = replication,
   purity_tab = purity_tab, overlap_audit = overlap_audit,
@@ -778,6 +1155,7 @@ saveRDS(list(
   settings = list(null_draws = NULL_DRAWS, n_bins = N_BINS,
                   prolif_covariate = PROLIF_REF_COV, myc_axis = MYC_REF,
                   adjustments = names(ADJUSTMENTS), seed = PROJECT_SEED,
+                  strata = c("all", STRATA_E11),
                   gene_scale = "linear DESeq2-normalised, rank-transformed"),
   rules = list(
     claim = paste("the question was: after correcting for proliferation, does",
@@ -803,6 +1181,22 @@ saveRDS(list(
                             "and are partly adjusted for themselves. Every",
                             "summary is given with and without them and they",
                             "are marked on figure 1."),
+    submito = paste("section 3.2 is stricter again: it matches the",
+                    "sub-mitochondrial compartment of the machinery's 20 genes",
+                    "(13 MOM, 5 IMS, 2 MIM) as well as membership, because E10",
+                    "found a ladder by depth into the organelle. Its pools are",
+                    "small - IMS has 39 usable genes - so its expression",
+                    "matching is coarser than section 3's, which is a limit of",
+                    "the annotation and not a choice."),
+    compartments = paste("section 4.2 asks whether P1 holds inside a subtype.",
+                         "Basal is 171 TCGA and 317 SCAN-B samples and a",
+                         "171-sample stratum gives a 95% interval about +/-",
+                         "0.15 wide on one gene's rho, so a Luminal-minus-Basal",
+                         "difference under roughly 0.2 is not separable from",
+                         "sampling there. A POOLED value outside the range of",
+                         "both compartments is a between-subtype effect - the",
+                         "D3/S1 artefact, which E10 fig9 found for the",
+                         "BCL2-family ratios on the MYC axis."),
     composition = paste("section 3.1 is the null E10 R1 did not have: 20",
                         "MitoCarta plus 24 other genes, expression-matched",
                         "within each half. If the observed split sits inside",
@@ -822,7 +1216,7 @@ readr::write_csv(gene_tab, PATH_E11_CSV)
 message("\nE11: done.")
 message("    results/prolif_adjusted_machinery.rds")
 message("    outputs/tables/E11_gene_rho_by_adjustment.csv")
-message("    5 figures in outputs/figures/:")
+message("    7 figures in outputs/figures/:")
 message("      fig1 THE PICTURE - the 44 genes on the MYC-OXPHOS plane,")
 message("           before and after proliferation is partialled out")
 message("      fig2 THE CONTROL - the same adjustment against the mitoribosome,")
@@ -830,6 +1224,8 @@ message("           which is what says fig1 is about apoptosis and not the score
 message("      fig3 the per-gene slopegraph of what the adjustment does")
 message("      fig4 whether the localisation split survives the adjustment")
 message("      fig5 whether that split is more than mitochondrial composition")
+message("      fig6 the same number against three nulls, each stricter")
+message("      fig7 whether the contrast survives inside a single subtype")
 
 # =============================================================================
 # Sandbox
