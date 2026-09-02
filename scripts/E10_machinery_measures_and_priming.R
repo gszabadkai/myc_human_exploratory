@@ -100,6 +100,7 @@
 
 source(here::here("scripts", "E00_setup_packages.R"))
 source(here::here("functions", "gene_matrix.R"))
+source(here::here("functions", "strata.R"))
 
 message("\nE10: the canonical machinery, both axes, both measures, and the ",
         "priming ratios\n", strrep("=", 78))
@@ -112,6 +113,15 @@ PATH_E10_PRIME <- file.path(DIR_TABLES,  "E10_priming_ratios.csv")
 PRIMING_PRO  <- c("BCL2L11", "BMF", "PMAIP1", "BBC3", "BCL2L2", "BID", "BAD",
                   "BIK")
 PRIMING_ANTI <- c("BCL2", "BCL2L1", "MCL1", "BCL2L2", "BCL2A1")
+
+# The priming ratios are read in the luminal and basal compartments as well as
+# pooled. The mouse arm shows luminal expansion, so `Luminal` = LumA + LumB is
+# the compartment the question is about; `Basal` is its contrast. `all` stays in
+# so the pooled value is beside them and a between-subtype effect - which is
+# what D3/S1 turned out to be for BCL2 against MYC - stays visible as the
+# pooled column disagreeing with both.
+STRATA_PRIMING <- c("all", "Luminal", "Basal")
+MIN_STRATUM_N  <- 30L
 
 # Percentile below which a gene-level correlation is flagged as unreadable.
 # Same value E08 used, and for the same reason: below it a Spearman is largely
@@ -176,6 +186,14 @@ COH <- list(
   `SCAN-B` = list(G = GS, res = RES_S, ax = AX_S, ids = ID_S))
 message("   TCGA ", length(ID_T), " samples | SCAN-B ", length(ID_S),
         " samples | ", nrow(AX_T), " axes")
+
+frames <- readRDS(file.path(DIR_RESULTS, "frames.rds"))$frames
+STR <- list(TCGA = .build_strata(frames, "TCGA", ID_T),
+            `SCAN-B` = .build_strata(frames, "SCAN-B", ID_S))
+tibble::tibble(stratum = STRATA_PRIMING,
+               TCGA = lengths(STR$TCGA[STRATA_PRIMING]),
+               `SCAN-B` = lengths(STR$`SCAN-B`[STRATA_PRIMING])) %>%
+  as.data.frame() %>% print(row.names = FALSE)
 
 CANON_GENES  <- sort(e08$canonical$gene)
 PRIMING_ALL  <- sort(unique(c(PRIMING_PRO, PRIMING_ANTI)))
@@ -738,6 +756,98 @@ component_cor %>%
   dplyr::arrange(side, dplyr::desc(OXPHOS)) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
+# --- 5.1 THE SAME RATIOS INSIDE THE LUMINAL AND BASAL COMPARTMENTS -----------
+# Spearman only. E10 section 4 showed the two measures differ by at most 0.10
+# over these genes and by under 0.07 almost everywhere, so carrying Pearson
+# through the strata would quadruple the grid to say the same thing.
+#
+# WHY THIS SPLIT AND NOT ANOTHER. The mouse arm shows luminal expansion, so the
+# luminal compartment is the one the question is about. And D3/S1 are the
+# warning: `BCL2` against MYC is -0.369 pooled and -0.009 inside LumA, because
+# the pooled value was reading the difference BETWEEN subtypes rather than
+# anything within one. A pooled column that disagrees with BOTH of its strata is
+# that same artefact, and it is only visible when all three are side by side.
+message("\n5.1 the priming ratios by compartment (Spearman)")
+
+.stratum_cors <- function(coh, st, B) {
+  ids <- STR[[coh]][[st]]
+  if (is.null(ids) || length(ids) < MIN_STRATUM_N) return(NULL)
+  .cor_block(COH[[coh]]$ax[, ids, drop = FALSE], B[, ids, drop = FALSE],
+             "spearman") %>%
+    dplyr::mutate(cohort = coh, stratum = st)
+}
+
+ratio_strata <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  R <- .ratio_matrix(GR[[coh]]$mat)
+  dplyr::bind_rows(lapply(STRATA_PRIMING, .stratum_cors, coh = coh, B = R))
+})) %>% dplyr::rename(ratio = item)
+
+component_strata <- dplyr::bind_rows(lapply(names(COH), function(coh) {
+  M <- GR[[coh]]$mat[PRIMING_ALL, , drop = FALSE]
+  dplyr::bind_rows(lapply(STRATA_PRIMING, .stratum_cors, coh = coh, B = M))
+})) %>% dplyr::rename(gene = item) %>%
+  dplyr::left_join(dplyr::distinct(dplyr::select(component_cor, gene, side)),
+                   by = "gene")
+
+priming_strata <- ratio_strata %>%
+  dplyr::left_join(RATIO_GRID, by = "ratio") %>%
+  dplyr::left_join(dplyr::select(component_strata, cohort, stratum, axis,
+                                 pro = gene, rho_pro = rho),
+                   by = c("cohort", "stratum", "axis", "pro")) %>%
+  dplyr::left_join(dplyr::select(component_strata, cohort, stratum, axis,
+                                 anti = gene, rho_anti = rho),
+                   by = c("cohort", "stratum", "axis", "anti")) %>%
+  dplyr::mutate(best_component = pmax(abs(rho_pro), abs(rho_anti)),
+                gain = abs(rho) - best_component) %>%
+  dplyr::select(cohort, stratum, axis, ratio, pro, anti, n, rho, ci_lo, ci_hi,
+                rho_pro, rho_anti, best_component, gain)
+
+message("\n   does the POOLED value sit between its two compartments, or",
+        " outside both?")
+message("   (outside both is the D3/S1 signature - a between-subtype effect",
+        " read as a within one)")
+between_test <- priming_strata %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::select(cohort, axis, ratio, stratum, rho) %>%
+  tidyr::pivot_wider(names_from = stratum, values_from = rho) %>%
+  dplyr::mutate(pooled_outside = all < pmin(Luminal, Basal) |
+                                 all > pmax(Luminal, Basal))
+between_test %>% dplyr::group_by(cohort, axis) %>%
+  dplyr::summarise(n_ratios = dplyr::n(),
+                   n_pooled_outside_both = sum(pooled_outside),
+                   .groups = "drop") %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   the ratios where the two compartments most disagree",
+        " (both cohorts agreeing on the sign of the difference):")
+lum_basal_gap <- priming_strata %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS"),
+                stratum %in% c("Luminal", "Basal")) %>%
+  dplyr::select(cohort, axis, ratio, stratum, rho) %>%
+  tidyr::pivot_wider(names_from = stratum, values_from = rho) %>%
+  dplyr::mutate(diff = Luminal - Basal) %>%
+  dplyr::select(cohort, axis, ratio, diff) %>%
+  tidyr::pivot_wider(names_from = cohort, values_from = diff) %>%
+  dplyr::filter(sign(TCGA) == sign(`SCAN-B`))
+lum_basal_gap %>%
+  dplyr::arrange(dplyr::desc(abs(TCGA) + abs(`SCAN-B`))) %>% utils::head(12) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  dplyr::rename(`Luminal-Basal, TCGA` = TCGA,
+                `Luminal-Basal, SCAN-B` = `SCAN-B`) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   the 12 component genes by compartment (Spearman, OXPHOS):")
+component_strata %>%
+  dplyr::filter(axis == "OXPHOS") %>%
+  dplyr::select(cohort, gene, side, stratum, rho) %>%
+  tidyr::pivot_wider(names_from = c(cohort, stratum), values_from = rho) %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 2))) %>%
+  dplyr::arrange(side, gene) %>% as.data.frame() %>% print(row.names = FALSE)
+message("\n   NOTE: Basal is 171 TCGA and 317 SCAN-B samples. A 171-sample",
+        " stratum gives a\n   95% interval about +/- 0.15 wide on rho, so a",
+        " Basal-versus-Luminal difference\n   smaller than about 0.2 is not",
+        " separable from sampling in TCGA.")
+
 # =============================================================================
 # 6. Figures
 # =============================================================================
@@ -1036,6 +1146,68 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort,
   theme_e10
 .save(g8, "E10_fig8_priming_components", 8, 6)
 
+# --- the priming ratios by compartment ---------------------------------------
+STRAT_COLS <- c(all = "grey30", Luminal = "#7b3294", Basal = "#008837")
+
+g9dat <- priming_strata %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
+                anti = factor(anti, levels = PRIMING_ANTI),
+                cohort = factor(cohort, levels = names(COHORT_COLS)),
+                stratum = factor(stratum, levels = STRATA_PRIMING))
+LIM9 <- max(abs(g9dat$rho))
+g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
+  ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
+  ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", rho)), size = 2) +
+  ggplot2::facet_grid(stratum ~ cohort + axis) +
+  ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
+                                high = "#d7191c", midpoint = 0,
+                                limits = c(-LIM9, LIM9), na.value = "grey85",
+                                name = "Spearman rho of log2(pro/anti)") +
+  ggplot2::labs(
+    title = "The priming ratios inside the luminal and basal compartments",
+    subtitle = paste0("EXPLORATORY - not pre-registered | Spearman only | ",
+                      "Luminal = LumA + LumB (696 TCGA / 2,436 SCAN-B), ",
+                      "Basal (171 / 317)"),
+    x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
+    caption = paste0(
+      "The `all` row is the pooled value and is NOT an average of the two below it. A pooled cell that sits OUTSIDE the range of\n",
+      "its own two compartments is reading a difference BETWEEN subtypes rather than anything within one - the D3/S1 artefact,\n",
+      "where BCL2 against MYC is -0.369 pooled and -0.009 inside LumA. Basal is 171 TCGA samples, so a 95% interval there is\n",
+      "about +/- 0.15 wide and a Luminal-Basal difference under roughly 0.2 is not separable from sampling in that cohort.")) +
+  theme_e10 +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                 legend.key.width = ggplot2::unit(1.4, "cm"))
+.save(g9, "E10_fig9_priming_by_compartment", 13, 10)
+
+g10dat <- component_strata %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
+                stratum = factor(stratum, levels = STRATA_PRIMING),
+                gene = factor(gene, levels = PRIMING_ORDER))
+g10 <- ggplot2::ggplot(g10dat, ggplot2::aes(rho, gene, colour = stratum)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_linerange(ggplot2::aes(xmin = ci_lo, xmax = ci_hi),
+                          position = ggplot2::position_dodge(width = 0.7),
+                          linewidth = 0.4, alpha = 0.6) +
+  ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.7),
+                      size = 1.7) +
+  ggplot2::facet_grid(side ~ cohort + axis, scales = "free_y",
+                      space = "free_y") +
+  ggplot2::scale_colour_manual(values = STRAT_COLS, name = NULL) +
+  ggplot2::labs(
+    title = "The 12 priming genes by compartment",
+    subtitle = paste("EXPLORATORY - not pre-registered | Spearman with 95%",
+                     "Fisher-z intervals; Basal is the widest by far"),
+    x = "Spearman rho with the axis", y = NULL,
+    caption = paste0(
+      "The intervals are here because the compartments have very different\n",
+      "sizes and a Basal point is not the same kind of estimate as a Luminal\n",
+      "one. Where the three colours stack, the correlation is a within-subtype\n",
+      "property; where `all` sits outside both, it is between-subtype.")) +
+  theme_e10
+.save(g10, "E10_fig10_priming_components_by_compartment", 11, 6)
+
 # =============================================================================
 # 7. Save
 # =============================================================================
@@ -1047,9 +1219,12 @@ saveRDS(list(
   s6_by_axis = s6_by_axis, measure_gap = measure_gap,
   priming = priming, component_cor = component_cor, coexpr = coexpr,
   gain_summary = gain_summary, ratio_grid = RATIO_GRID,
+  priming_strata = priming_strata, component_strata = component_strata,
+  between_test = between_test, lum_basal_gap = lum_basal_gap,
   expr_rank = expr_rank,
   settings = list(priming_pro = PRIMING_PRO, priming_anti = PRIMING_ANTI,
                   low_expr_pct = LOW_EXPR_PCT, msigdb_version = MSIGDB_VERSION,
+                  strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
                   myc_axis = MYC_REF, seed = PROJECT_SEED),
@@ -1076,6 +1251,13 @@ saveRDS(list(
                    "|rho of the ratio| minus the stronger component's |rho| -",
                    "is positive in BOTH cohorts. Otherwise it is a single gene",
                    "wearing a ratio's name."),
+    strata = paste("the compartment split is Spearman only - section 4 showed",
+                   "the two measures differ by at most 0.10 over these genes.",
+                   "A POOLED value outside the range of its own two",
+                   "compartments is a between-subtype effect, not a within-",
+                   "subtype one; that is what D3/S1 found for BCL2 against",
+                   "MYC. Basal is 171 TCGA samples and its intervals are",
+                   "about +/- 0.15 wide."),
     selection = paste("no cell of this grid is a finding on its own. 44 x 6 x 2",
                       "x 2 gene cells plus 39 x 6 x 2 x 2 ratio cells; read",
                       "structure and cross-cohort agreement, never one",
@@ -1088,7 +1270,7 @@ message("\nE10: done.")
 message("    results/machinery_and_priming.rds")
 message("    outputs/tables/E10_canonical_machinery.csv")
 message("    outputs/tables/E10_priming_ratios.csv")
-message("    8 figures in outputs/figures/:")
+message("    10 figures in outputs/figures/:")
 message("      fig1 the 44 vs OXPHOS, Spearman - the E08 fig6 panel, re-derived")
 message("      fig2 the 44 vs MYC, Spearman - the new axis, same row order")
 message("      fig3 the 44 vs MYC, Pearson")
@@ -1098,6 +1280,8 @@ message("      fig6 the ", nrow(RATIO_GRID),
         "-cell priming-ratio heatmap, both axes and both measures")
 message("      fig7 whether a ratio beats its stronger component")
 message("      fig8 the 12 priming genes before any ratio is taken")
+message("      fig9 the ratio heatmap again, split by luminal and basal")
+message("      fig10 the 12 genes by compartment, with intervals")
 
 # =============================================================================
 # Sandbox

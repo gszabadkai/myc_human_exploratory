@@ -18,6 +18,18 @@ cross-cohort agreement are the result; no interval here is one.
 
 ---
 
+> **CORRECTION, 2026-09-02, from E11 section 3.1.** R1 below is arithmetically
+> right and its interpretation was wrong. The 0.453 split is what ANY 20
+> MitoCarta plus 24 non-MitoCarta genes of this expression profile produce - a
+> composition-matched null gives 0.40-0.46 and the observed value sits inside
+> it (z = 0.06 to 0.44). Under a stricter null pool that removes every OXPHOS
+> and mitoribosome gene the null falls to 0.29-0.37 and the observed sits about
+> one SD above (z = 0.83 to 1.16), consistently in all four cohort x adjustment
+> cells but not separably. **S6 replicates under an independent annotation, and
+> it is not specific to apoptosis.** Read R1 as "the machinery behaves like
+> mitochondrial genes of its expression profile", not as "the machinery has a
+> localisation-organised death programme". E10 did not run that null; E11 does.
+
 ## R1. S6 SURVIVES an independent localisation, and it survives exactly
 
 The claim under test (S6): among the 44 genes carrying a `family_pathway` label,
@@ -41,8 +53,10 @@ is `BCL2A1`, which MitoCarta places at the outer membrane and the curation does
 not. The independent predictor is not merely close to the original, it is
 numerically identical, and both beat direction of effect by a factor of two.
 
-**S6 stands, and it is now a claim about protein localisation rather than about
-one curation.**
+**S6 stands as a replication, and it is now a claim about protein localisation
+rather than about one curation.** Whether protein localisation says anything
+about APOPTOSIS specifically is a different question, and the correction above
+is the answer: it does not.
 
 ### R1a. The compartment ladder
 
@@ -218,10 +232,10 @@ through - it is below the 25th percentile in both cohorts.
 
 ## What would falsify each of these
 
-- **R1** dies if a third independent localisation source disagrees with
-  MitoCarta on the genes that carry the effect, or if the MIM/IMS ladder does
-  not survive being widened past two genes. The obvious next source is
-  UniProt subcellular location.
+- **R1** DIED, in the sense that mattered, on 2026-09-02: the split is inside a
+  composition-matched null (E11 section 3.1). What survives is the replication
+  across annotation sources. It would die further if the MIM/IMS ladder does
+  not survive being widened past two genes.
 - **R3** dies if the split reappears on MYC under an estimator other than
   `FELSHER__MITOSTRIP`. The panel is scored; this is a filter away.
 - **R5** is already stated as a negative and needs no falsifier. The positive
