@@ -131,16 +131,21 @@ construction (trap 3). They are crossed on figs 2 and 3.
 
 ---
 
-## R4. Pearson changes almost nothing for these 44 genes
+## R4. WITHDRAWN 2026-09-02 - superseded by E09
 
-Largest Spearman-Pearson gap over 176 gene x axis x cohort cells is **0.102**
-(`TP53` against MYC in TCGA); everything else is under 0.07. The S6 split holds
-at 0.442 under Pearson against 0.453 under Spearman.
+R4 was a 44-gene spot check finding that Pearson changed almost nothing (largest
+gap 0.102, everything else under 0.07, the S6 split 0.442 against 0.453). E09
+then answered the same question properly over 220 pairs and all four
+instruments: the measures correlate at 0.996, bicor sides with Spearman in all
+twelve of the largest disagreements, and nothing is non-monotone. See
+`docs/2026-09-02_e09_correlation_measures.md`.
 
-**The measure is not what is carrying any of this**, on the stated scale
-(log2(DESeq2-normalised + 1) at gene level against the GSVA score). E09 remains
-the script that adjudicates Spearman against Pearson properly, with bicor as the
-arbiter; this is a spot check on 44 genes, not that analysis.
+**The Pearson computation and its four figures were removed from E10 on
+2026-09-02**, on the author's instruction and because E09 makes them redundant.
+The script is Spearman throughout and emits 7 figures rather than 10. The
+finding "the measure does not matter" is E09's, not this script's - and E09
+qualifies it: the measure DOES matter on mitoPPS, where the mean departure is
+0.029 and reaches 0.093.
 
 ---
 

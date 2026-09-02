@@ -19,33 +19,36 @@
 #       disagree completely, and D3/S1 say the BCL2 column against MYC is
 #       between-subtype pooling while the OXPHOS column is stratum-stable.
 #
-#   Q-c (author) THE SAME TWO FIGURES UNDER PEARSON, and the BCL2-family
-#       PRIMING RATIOS - every pro-apoptotic over every anti-apoptotic gene -
-#       against MYC and OXPHOS under both measures, as a heatmap.
+#   Q-c (author) THE BCL2-FAMILY PRIMING RATIOS - every pro-apoptotic gene over
+#       every anti-apoptotic gene - against MYC and OXPHOS, as a heatmap, and
+#       inside the luminal and basal compartments.
 #
 # =============================================================================
-# WHAT MAKES THE PEARSON COMPARISON MEANINGFUL, AND IT IS A SCALE DECISION
+# EVERYTHING HERE IS SPEARMAN, AND E09 IS WHY
 # =============================================================================
-# Spearman is invariant to monotone transforms; Pearson is not. So "the Pearson
-# version of this figure" is undefined until the scale is stated. E09 made the
-# same decision and it is repeated here:
+# An earlier version of this script carried a Pearson panel beside every
+# Spearman one. E09 ran on 2026-09-02 and made that redundant: over 220 pairs
+# the two measures correlate at 0.996, bicor sits WITH Spearman in all twelve of
+# the largest disagreements - so every one of them is a heavy tail rather than
+# magnitude carrying information ranks discard - and the mean departure is 0.009
+# on GSVA. Nothing in the atlas is non-monotone either; the largest spline gain
+# over a straight line is 0.051 and the headline pair is 0.012.
 #
-#   GENE LEVEL   log2(linear DESeq2-normalised + 1). One matrix, both measures.
-#                The +1 is a pseudocount, not a filter - every gene in this
-#                script sits above the 25th expression percentile in both
-#                cohorts (checked in section 2), so the offset is negligible
-#                and no rho depends on it.
-#   AXIS LEVEL   the GSVA scores as E02 built them. GSVA output is already a
-#                roughly symmetric per-sample statistic, which is the scale
-#                Pearson assumes.
+# So the Pearson panels were four extra figures that said what the Spearman
+# panels said. THEY WERE REMOVED ON 2026-09-02, and the finding that they showed
+# nothing is E09's, not this script's - see
+# docs/2026-09-02_e09_correlation_measures.md, C1 to C4.
 #
-# BECAUSE log2(x + 1) IS MONOTONE, THE SPEARMAN VALUES COMPUTED HERE ARE THE
-# SAME NUMBERS E08 COMPUTED ON THE RAW LINEAR MATRIX. Section 4 asserts that
-# against `canonical$mean_rho` rather than assuming it.
+# THE ONE PLACE E09 SAYS THE MEASURE DOES MATTER IS mitoPPS, where the mean
+# departure is 0.029 and reaches 0.093. A Pearson against a mitoPPS score is not
+# to be reported anywhere in this study.
 #
-# mitoPPS is carried in the tables but NOT plotted under Pearson. It is a
-# composition statistic on a linear scale with a long right tail (CLAUDE.md
-# trap 6), and a Pearson on it would be measuring the tail.
+# SCALE. The gene matrix is log2(linear DESeq2-normalised + 1). Now that every
+# correlation is rank-based this is invariant - Spearman on log2(x + 1) is the
+# same number as Spearman on x, which is what lets section 4 assert against
+# E08's values computed on the raw linear matrix. The transform survives because
+# `expr_pct` is taken on it, and an expression percentile on a log scale is not
+# dominated by a handful of enormous genes the way a linear one is.
 #
 # =============================================================================
 # THE PRIMING RATIOS, AND THE ONE THING TO KNOW BEFORE READING THEM
@@ -94,8 +97,9 @@
 # which is the one thing that makes 39 ratios a panel rather than a fishing
 # expedition - but it is not a pre-registration and must not be read as one.
 #
-# SCALE: log2(linear + 1) at gene level; GSVA as built at axis level.
-# SPECIES: human, natively. No ortholog function is called.
+# SCALE: log2(linear + 1) at gene level; GSVA as built at axis level. Every
+# correlation is Spearman. SPECIES: human, natively. No ortholog function is
+# called.
 # =============================================================================
 
 source(here::here("scripts", "E00_setup_packages.R"))
@@ -155,9 +159,10 @@ ID_S <- colnames(sc$gsva_arms)
 
 tcga_lin  <- readRDS(PATH_TCGA_LINEAR)
 scanb_lin <- readRDS(PATH_SCANB_LINEAR)
-# THE ONE MATRIX BOTH MEASURES ARE COMPUTED FROM. log2(x + 1) is monotone, so
-# every Spearman below is identical to the one E08 computed on the raw linear
-# matrix - section 4 asserts it - while Pearson now has a stated scale.
+# log2(x + 1) is monotone, so every Spearman below is identical to the one E08
+# computed on the raw linear matrix - section 4 asserts it. The transform is
+# kept because `expr_pct` is taken on it, and an expression percentile on a log
+# scale is not dominated by a handful of enormous genes the way a linear one is.
 GT <- log2(tcga_lin$mat[, ID_T, drop = FALSE] + 1)
 GS <- log2(scanb_lin$mat[, ID_S, drop = FALSE] + 1)
 rm(tcga_lin, scanb_lin); invisible(gc(verbose = FALSE))
@@ -226,32 +231,27 @@ if (length(miss_all)) {
 # =============================================================================
 message("\n2. measures")
 
-# Spearman and Pearson of every AXIS against every ITEM, in one call each.
-# Fisher-z intervals: Bonett-Wright for Spearman, se = sqrt((1 + rho^2/2)/(n-3)),
-# which is the same variance the atlas engine uses; the plain 1/(n-3) is the
-# Pearson case and understates a rank correlation.
+# Spearman of every AXIS against every ITEM in one call.
+# Fisher-z intervals with the Bonett-Wright variance, se =
+# sqrt((1 + rho^2/2)/(n-3)), which is the same variance the atlas engine uses;
+# the plain 1/(n-3) is the Pearson case and understates a rank correlation.
 #
 # THE INTERVAL IS FOR DESCRIBING ONE CELL, NEVER FOR SELECTING ONE. This script
 # emits 44 x 6 x 2 x 2 gene cells plus 39 x 6 x 2 x 2 ratio cells; a cell whose
 # interval excludes zero is not a finding.
-.cor_block <- function(A, B, method) {
+.cor_block <- function(A, B) {
   n <- ncol(A)
   stopifnot(identical(colnames(A), colnames(B)))
-  R  <- suppressWarnings(stats::cor(t(A), t(B), method = method))
+  R  <- suppressWarnings(stats::cor(t(A), t(B), method = "spearman"))
   z  <- atanh(pmin(pmax(R, -0.999999999), 0.999999999))
-  se <- if (method == "spearman") sqrt((1 + R^2 / 2) / (n - 3)) else
-        matrix(1 / sqrt(n - 3), nrow(R), ncol(R))
+  se <- sqrt((1 + R^2 / 2) / (n - 3))
   tibble::tibble(
     axis   = rep(rownames(R), times = ncol(R)),
     item   = rep(colnames(R), each  = nrow(R)),
-    method = method,
     n      = n,
     rho    = as.vector(R),
     ci_lo  = as.vector(tanh(z - 1.959964 * se)),
     ci_hi  = as.vector(tanh(z + 1.959964 * se)))
-}
-.both_measures <- function(A, B) {
-  dplyr::bind_rows(.cor_block(A, B, "spearman"), .cor_block(A, B, "pearson"))
 }
 
 # Expression percentile, per cohort, over the whole matrix. Carried so that a
@@ -488,7 +488,7 @@ message("\n4. the canonical machinery, both axes, both measures")
 
 gene_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
-  .both_measures(C$ax, GR[[coh]]$mat[CANON_GENES, , drop = FALSE]) %>%
+  .cor_block(C$ax, GR[[coh]]$mat[CANON_GENES, , drop = FALSE]) %>%
     dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(gene = item)
 
@@ -499,7 +499,7 @@ gene_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
 # not, one of the two scripts is not reading the plane it says it is, and every
 # number below is suspect.
 check <- gene_cor %>%
-  dplyr::filter(axis == "OXPHOS", method == "spearman") %>%
+  dplyr::filter(axis == "OXPHOS") %>%
   dplyr::select(cohort, gene, rho) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = rho) %>%
   dplyr::inner_join(dplyr::select(e08$canonical, gene, e08_TCGA = TCGA,
@@ -548,7 +548,7 @@ for (est in c(MYC_REF, MYC_LOW_ENTANG, MB_REF)) {
 MB_OVERLAP <- in_myc(MB_REF, GENES_WANTED)
 
 canon_wide <- gene_cor %>%
-  dplyr::select(cohort, axis, method, gene, rho) %>%
+  dplyr::select(cohort, axis, gene, rho) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = rho) %>%
   dplyr::mutate(
     mean_rho = (TCGA + `SCAN-B`) / 2,
@@ -568,7 +568,7 @@ canon_wide <- gene_cor %>%
 
 message("\n   the 44 against MYC (", MYC_REF, "), Spearman, ranked:")
 canon_wide %>%
-  dplyr::filter(axis == "MYC", method == "spearman") %>%
+  dplyr::filter(axis == "MYC") %>%
   dplyr::arrange(mean_rho) %>%
   dplyr::mutate(dplyr::across(c(TCGA, `SCAN-B`, mean_rho), ~ round(.x, 3))) %>%
   dplyr::select(gene, TCGA, `SCAN-B`, mean_rho, agree, effect,
@@ -578,20 +578,19 @@ canon_wide %>%
 message("\n   do the two axes agree about these 44 genes?")
 axis_agree <- canon_wide %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
-  dplyr::select(method, axis, gene, mean_rho) %>%
+  dplyr::select(axis, gene, mean_rho) %>%
   tidyr::pivot_wider(names_from = axis, values_from = mean_rho) %>%
-  dplyr::group_by(method) %>%
   dplyr::summarise(spearman_of_the_two_axes =
                      stats::cor(MYC, OXPHOS, method = "spearman"),
                    median_MYC = stats::median(MYC),
-                   median_OXPHOS = stats::median(OXPHOS), .groups = "drop")
+                   median_OXPHOS = stats::median(OXPHOS))
 axis_agree %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
 message("\n   does the S6 split hold on the MYC axis too?")
 s6_by_axis <- canon_wide %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
-  dplyr::group_by(axis, method) %>%
+  dplyr::group_by(axis) %>%
   dplyr::summarise(
     vs_mitocarta = stats::cor(mean_rho, as.numeric(mitocarta),
                               method = "spearman"),
@@ -601,22 +600,6 @@ s6_by_axis <- canon_wide %>%
     median_nonmito = stats::median(mean_rho[!mitocarta]), .groups = "drop")
 s6_by_axis %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
-
-message("\n   where do SPEARMAN and PEARSON disagree most over the 44?")
-measure_gap <- canon_wide %>%
-  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
-  dplyr::select(axis, method, gene, TCGA, `SCAN-B`) %>%
-  tidyr::pivot_longer(c(TCGA, `SCAN-B`), names_to = "cohort",
-                      values_to = "rho") %>%
-  tidyr::pivot_wider(names_from = method, values_from = rho) %>%
-  dplyr::mutate(gap = pearson - spearman)
-measure_gap %>% dplyr::arrange(dplyr::desc(abs(gap))) %>% utils::head(12) %>%
-  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
-  as.data.frame() %>% print(row.names = FALSE)
-message("   Pearson ABOVE Spearman means a minority of samples with large",
-        " expression\n   carry the association; BELOW means the rank",
-        " relationship is the robust one.\n   E09 is the script that settles",
-        " which reading to trust, with bicor as the arbiter.")
 
 # =============================================================================
 # 5. Q-c: the BCL2-family priming ratios
@@ -658,14 +641,14 @@ message("   ", nrow(RATIO_GRID), " ratios (", length(PRIMING_PRO), " x ",
 ratio_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
   M <- GR[[coh]]$mat
-  .both_measures(C$ax, .ratio_matrix(M)) %>% dplyr::mutate(cohort = coh)
+  .cor_block(C$ax, .ratio_matrix(M)) %>% dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(ratio = item)
 
 # The components, and the co-expression that decides whether a ratio can add
 # anything at all.
 component_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   C <- COH[[coh]]
-  .both_measures(C$ax, GR[[coh]]$mat[PRIMING_ALL, , drop = FALSE]) %>%
+  .cor_block(C$ax, GR[[coh]]$mat[PRIMING_ALL, , drop = FALSE]) %>%
     dplyr::mutate(cohort = coh)
 })) %>% dplyr::rename(gene = item) %>%
   dplyr::left_join(dplyr::select(expr_rank, cohort, gene, expr_decile,
@@ -677,32 +660,30 @@ component_cor <- dplyr::bind_rows(lapply(names(COH), function(coh) {
 
 coexpr <- dplyr::bind_rows(lapply(names(COH), function(coh) {
   M <- GR[[coh]]$mat
-  dplyr::bind_rows(lapply(c("spearman", "pearson"), function(meth) {
-    v <- vapply(seq_len(nrow(RATIO_GRID)), function(i)
-      stats::cor(M[RATIO_GRID$pro[i], ], M[RATIO_GRID$anti[i], ],
-                 method = meth), numeric(1))
-    RATIO_GRID %>% dplyr::mutate(cohort = coh, method = meth, coexpr = v)
-  }))
+  v <- vapply(seq_len(nrow(RATIO_GRID)), function(i)
+    stats::cor(M[RATIO_GRID$pro[i], ], M[RATIO_GRID$anti[i], ],
+               method = "spearman"), numeric(1))
+  RATIO_GRID %>% dplyr::mutate(cohort = coh, coexpr = v)
 }))
 
 priming <- ratio_cor %>%
   dplyr::left_join(RATIO_GRID, by = "ratio") %>%
-  dplyr::left_join(dplyr::select(component_cor, cohort, method, axis,
+  dplyr::left_join(dplyr::select(component_cor, cohort, axis,
                                  pro = gene, rho_pro = rho),
-                   by = c("cohort", "method", "axis", "pro")) %>%
-  dplyr::left_join(dplyr::select(component_cor, cohort, method, axis,
+                   by = c("cohort", "axis", "pro")) %>%
+  dplyr::left_join(dplyr::select(component_cor, cohort, axis,
                                  anti = gene, rho_anti = rho),
-                   by = c("cohort", "method", "axis", "anti")) %>%
-  dplyr::left_join(coexpr, by = c("cohort", "method", "pro", "anti", "ratio")) %>%
+                   by = c("cohort", "axis", "anti")) %>%
+  dplyr::left_join(coexpr, by = c("cohort", "pro", "anti", "ratio")) %>%
   dplyr::mutate(best_component = pmax(abs(rho_pro), abs(rho_anti)),
                 gain = abs(rho) - best_component) %>%
-  dplyr::select(cohort, method, axis, ratio, pro, anti, n, rho, ci_lo, ci_hi,
+  dplyr::select(cohort, axis, ratio, pro, anti, n, rho, ci_lo, ci_hi,
                 rho_pro, rho_anti, coexpr, best_component, gain)
 
 message("\n   strongest ratios against OXPHOS subunits (Spearman, both cohorts",
         " agreeing in sign):")
 priming %>%
-  dplyr::filter(axis == "OXPHOS", method == "spearman") %>%
+  dplyr::filter(axis == "OXPHOS") %>%
   dplyr::select(cohort, ratio, rho, gain) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = c(rho, gain)) %>%
   dplyr::filter(sign(rho_TCGA) == sign(`rho_SCAN-B`)) %>%
@@ -713,7 +694,7 @@ priming %>%
 
 message("\n   the same against MYC (", MYC_REF, "):")
 priming %>%
-  dplyr::filter(axis == "MYC", method == "spearman") %>%
+  dplyr::filter(axis == "MYC") %>%
   dplyr::select(cohort, ratio, rho, gain) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = c(rho, gain)) %>%
   dplyr::filter(sign(rho_TCGA) == sign(`rho_SCAN-B`)) %>%
@@ -727,10 +708,10 @@ priming %>%
 message("\n   DOES THE RATIO BEAT ITS PARTS? (gain > 0 in both cohorts)")
 gain_summary <- priming %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
-  dplyr::select(cohort, method, axis, ratio, gain) %>%
+  dplyr::select(cohort, axis, ratio, gain) %>%
   tidyr::pivot_wider(names_from = cohort, values_from = gain) %>%
   dplyr::mutate(both_positive = TCGA > 0 & `SCAN-B` > 0)
-gain_summary %>% dplyr::group_by(axis, method) %>%
+gain_summary %>% dplyr::group_by(axis) %>%
   dplyr::summarise(n_ratios = dplyr::n(),
                    n_gain_in_both = sum(both_positive),
                    median_gain_TCGA = round(stats::median(TCGA), 3),
@@ -749,7 +730,7 @@ if (nrow(winners)) {
 
 message("\n   the components on their own (Spearman, mean over cohorts):")
 component_cor %>%
-  dplyr::filter(axis %in% c("MYC", "OXPHOS"), method == "spearman") %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
   dplyr::group_by(gene, side, axis) %>%
   dplyr::summarise(mean_rho = round(mean(rho), 3), .groups = "drop") %>%
   tidyr::pivot_wider(names_from = axis, values_from = mean_rho) %>%
@@ -757,9 +738,6 @@ component_cor %>%
   as.data.frame() %>% print(row.names = FALSE)
 
 # --- 5.1 THE SAME RATIOS INSIDE THE LUMINAL AND BASAL COMPARTMENTS -----------
-# Spearman only. E10 section 4 showed the two measures differ by at most 0.10
-# over these genes and by under 0.07 almost everywhere, so carrying Pearson
-# through the strata would quadruple the grid to say the same thing.
 #
 # WHY THIS SPLIT AND NOT ANOTHER. The mouse arm shows luminal expansion, so the
 # luminal compartment is the one the question is about. And D3/S1 are the
@@ -772,8 +750,7 @@ message("\n5.1 the priming ratios by compartment (Spearman)")
 .stratum_cors <- function(coh, st, B) {
   ids <- STR[[coh]][[st]]
   if (is.null(ids) || length(ids) < MIN_STRATUM_N) return(NULL)
-  .cor_block(COH[[coh]]$ax[, ids, drop = FALSE], B[, ids, drop = FALSE],
-             "spearman") %>%
+  .cor_block(COH[[coh]]$ax[, ids, drop = FALSE], B[, ids, drop = FALSE]) %>%
     dplyr::mutate(cohort = coh, stratum = st)
 }
 
@@ -874,7 +851,7 @@ theme_e10 <- ggplot2::theme_bw(base_size = 9) +
 # side and read for MOVEMENT; re-sorting each panel by its own values would
 # make every panel look like a gradient and hide the only thing worth seeing.
 ORDER_KEY <- canon_wide %>%
-  dplyr::filter(axis == "OXPHOS", method == "spearman") %>%
+  dplyr::filter(axis == "OXPHOS") %>%
   dplyr::select(gene, order_rho = mean_rho)
 MODULE_ORDER <- ORDER_KEY %>%
   dplyr::left_join(dplyr::select(reannot, gene, cdc_module), by = "gene") %>%
@@ -883,10 +860,9 @@ MODULE_ORDER <- ORDER_KEY %>%
   dplyr::arrange(m) %>% dplyr::pull(cdc_module)
 GENE_ORDER <- ORDER_KEY %>% dplyr::arrange(order_rho) %>% dplyr::pull(gene)
 
-.machinery_plot <- function(ax, meth, xlab, title, caption, flag_genes,
-                            flag_label) {
+.machinery_plot <- function(ax, xlab, title, caption, flag_genes, flag_label) {
   d <- canon_wide %>%
-    dplyr::filter(axis == ax, method == meth) %>%
+    dplyr::filter(axis == ax) %>%
     dplyr::left_join(ORDER_KEY, by = "gene") %>%
     dplyr::mutate(gene = factor(gene, levels = GENE_ORDER),
                   cdc_module = factor(cdc_module, levels = MODULE_ORDER))
@@ -955,27 +931,27 @@ CAP_MITO <- paste0(
   "Circles mark the 20 genes MitoCarta 3.0 places in the mitochondrion - an INDEPENDENT\n",
   "localisation call, not the curation's own. The dashed line is the module median, and\n",
   "bars span the two cohorts, so a short bar is a gene that replicates. Rows and module\n",
-  "order are FIXED to the OXPHOS Spearman panel in all four figures, so they can be laid\n",
-  "side by side and read for movement. A STARRED gene sits below the 25th expression\n",
-  "percentile in at least one cohort: its rho is largely a correlation of quantisation\n",
-  "noise with a score and must not be read as a result.\n")
+  "order are FIXED to the OXPHOS panel in both figures, so the two can be laid side by\n",
+  "side and read for movement. A STARRED gene sits below the 25th expression percentile\n",
+  "in at least one cohort: its rho is largely a correlation of quantisation noise with a\n",
+  "score and must not be read as a result.\n")
 
 .save(.machinery_plot(
-  "OXPHOS", "spearman",
+  "OXPHOS",
   "mean Spearman rho with OXPHOS subunits (GSVA), across cohorts",
-  "The canonical machinery against OXPHOS - Spearman",
+  "The canonical machinery against OXPHOS",
   paste0(CAP_MITO,
     "The cross is CYCS, 1 of the 89 genes in the OXPHOS subunits arm itself, so its value\n",
     "is partly a correlation with itself. This is the E08 fig6 panel, recomputed here and\n",
     "asserted identical to it."),
   FLAG_OXPHOS, "in the OXPHOS subunits arm itself"),
-  "E10_fig1_machinery_oxphos_spearman", 9, 9)
+  "E10_fig1_machinery_oxphos", 9, 9)
 
 .save(.machinery_plot(
-  "MYC", "spearman",
+  "MYC",
   paste0("mean Spearman rho with MYC activity (", MYC_REF,
          ", GSVA), across cohorts"),
-  "The canonical machinery against MYC - Spearman",
+  "The canonical machinery against MYC",
   paste0(CAP_MITO,
     "FELSHER__MITOSTRIP contains none of these 44 genes, so there is no self-overlap on\n",
     "this axis. The crosses are the two that are HALLMARK E2F/G2M members - BIRC5 at the\n",
@@ -983,83 +959,23 @@ CAP_MITO <- paste0(
     "construction. This is NOT the OXPHOS panel re-drawn; the rows are in the same order,\n",
     "so compare the two gene by gene."),
   FLAG_MYC, "a HALLMARK E2F/G2M proliferation gene"),
-  "E10_fig2_machinery_myc_spearman", 9, 9)
-
-.save(.machinery_plot(
-  "MYC", "pearson",
-  paste0("mean Pearson r with MYC activity (", MYC_REF, ", GSVA), across cohorts"),
-  "The canonical machinery against MYC - Pearson on log2 expression",
-  paste0(CAP_MITO,
-    "Pearson is NOT scale-free: this is log2(DESeq2-normalised + 1) against the GSVA\n",
-    "score, and on any other gene-level scale it would be a different number. Where this\n",
-    "differs from the Spearman panel, samples with extreme expression are pulling that\n",
-    "gene - E09 is the script that adjudicates, with bicor as the arbiter."),
-  FLAG_MYC, "a HALLMARK E2F/G2M proliferation gene"),
-  "E10_fig3_machinery_myc_pearson", 9, 9)
-
-.save(.machinery_plot(
-  "OXPHOS", "pearson",
-  "mean Pearson r with OXPHOS subunits (GSVA), across cohorts",
-  "The canonical machinery against OXPHOS - Pearson on log2 expression",
-  paste0(CAP_MITO,
-    "Pearson is NOT scale-free: this is log2(DESeq2-normalised + 1) against the GSVA\n",
-    "score. The cross is CYCS, inside the OXPHOS arm itself. If the localisation split\n",
-    "holds under BOTH measures it is not a rank artefact; if it holds under only one,\n",
-    "that is the finding."),
-  FLAG_OXPHOS, "in the OXPHOS subunits arm itself"),
-  "E10_fig4_machinery_oxphos_pearson", 9, 9)
-
-# The measure disagreement, in one plot rather than four comparisons by eye.
-g5dat <- canon_wide %>%
-  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
-  dplyr::select(axis, method, gene, TCGA, `SCAN-B`, mitocarta, effect) %>%
-  tidyr::pivot_longer(c(TCGA, `SCAN-B`), names_to = "cohort",
-                      values_to = "rho") %>%
-  tidyr::pivot_wider(names_from = method, values_from = rho) %>%
-  dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)))
-g5 <- ggplot2::ggplot(g5dat, ggplot2::aes(spearman, pearson)) +
-  ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
-  ggplot2::geom_hline(yintercept = 0, linewidth = 0.2) +
-  ggplot2::geom_vline(xintercept = 0, linewidth = 0.2) +
-  ggplot2::geom_point(ggplot2::aes(colour = effect, shape = mitocarta),
-                      size = 1.7) +
-  ggrepel::geom_text_repel(
-    data = dplyr::filter(g5dat, abs(pearson - spearman) > 0.045),
-    ggplot2::aes(label = gene), size = 2.3, max.overlaps = 25,
-    show.legend = FALSE, seed = PROJECT_SEED) +
-  ggplot2::facet_grid(cohort ~ axis) +
-  ggplot2::scale_colour_manual(values = EFFECT_COLS, name = NULL) +
-  ggplot2::scale_shape_manual(values = c(`FALSE` = 1, `TRUE` = 16),
-                              name = "in MitoCarta 3.0") +
-  ggplot2::labs(
-    title = "Does the measure change the answer for the apoptotic machinery?",
-    subtitle = paste("EXPLORATORY - not pre-registered | 44 genes x 2 axes x 2",
-                     "cohorts; Pearson on log2(normalised + 1)"),
-    x = "Spearman rho", y = "Pearson r",
-    caption = paste0(
-      "Points on the diagonal mean the choice of measure is immaterial for that\n",
-      "gene. Labelled genes differ by more than 0.045. Pearson ABOVE the diagonal\n",
-      "means a minority of high-expressing samples carry the association; BELOW\n",
-      "means the rank relationship is the robust one.")) +
-  theme_e10
-.save(g5, "E10_fig5_spearman_vs_pearson", 8, 7)
+  "E10_fig2_machinery_myc", 9, 9)
 
 # --- the priming ratios ------------------------------------------------------
 g6dat <- priming %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
   dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
                 anti = factor(anti, levels = PRIMING_ANTI),
-                cohort = factor(cohort, levels = names(COHORT_COLS)),
-                method = factor(method, levels = c("spearman", "pearson")))
+                cohort = factor(cohort, levels = names(COHORT_COLS)))
 LIM <- max(abs(g6dat$rho))
 g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
   ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
   ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", rho)), size = 2.1) +
-  ggplot2::facet_grid(method ~ cohort + axis) +
+  ggplot2::facet_grid(cohort ~ axis) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
                                 limits = c(-LIM, LIM), na.value = "grey85",
-                                name = "correlation of log2(pro/anti)") +
+                                name = "Spearman rho of log2(pro/anti)") +
   ggplot2::labs(
     title = "Every BCL2-family priming ratio against MYC and against OXPHOS",
     subtitle = paste("EXPLORATORY - not pre-registered |", nrow(RATIO_GRID),
@@ -1069,26 +985,26 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
     # paste0 does not insert spaces, so a rendered caption line may be split
     # across two source strings to keep the file inside 80 columns.
     caption = paste0(
-      "BCL2L2 appears on both of the author's lists; it is Bcl-w and canonically ",
-      "anti-apoptotic. The empty cell is BCL2L2/BCL2L2.\n",
-      "RED means the ratio rises with the axis - a MORE PRIMED transcriptome in ",
-      "high-MYC or high-OXPHOS tumours. A COLUMN that is\n",
-      "uniformly coloured is the denominator gene talking rather than priming: ",
-      "check `gain` in the table before reading any cell\n",
-      "as a ratio. Only 4 to 6 of the 39 ratios beat both of their component ",
-      "genes in both cohorts.")) +
+      "BCL2L2 is on both of the author's lists; it is Bcl-w and canonically\n",
+      "anti-apoptotic. The empty cell is BCL2L2/BCL2L2. RED means the ratio\n",
+      "rises with the axis - a MORE PRIMED transcriptome in high-MYC or\n",
+      "high-OXPHOS tumours. A COLUMN that is uniformly coloured is the\n",
+      "denominator gene talking rather than priming: check `gain` before\n",
+      "reading any cell as a ratio. Only 6 of the 39 on OXPHOS and 4 on MYC\n",
+      "beat both of their component genes in both cohorts.")) +
   theme_e10 +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
                  legend.key.width = ggplot2::unit(1.4, "cm"))
-.save(g6, "E10_fig6_priming_ratio_heatmap", 13, 7)
+.save(g6, "E10_fig3_priming_ratio_heatmap", 8, 7)
 
 # Does the ratio beat its parts? The falsifier, drawn.
 g7dat <- priming %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
-                abs_rho = abs(rho))
+                abs_rho = abs(rho),
+                beats_parts = gain > 0)
 g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
-                                          colour = method)) +
+                                          colour = beats_parts)) +
   ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
   ggplot2::geom_point(size = 1.4, alpha = 0.75) +
   ggrepel::geom_text_repel(data = dplyr::filter(g7dat, gain > 0.045),
@@ -1096,8 +1012,9 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
                            max.overlaps = 12, min.segment.length = 0.2,
                            show.legend = FALSE, seed = PROJECT_SEED) +
   ggplot2::facet_grid(cohort ~ axis) +
-  ggplot2::scale_colour_manual(values = c(spearman = "#1b9e77",
-                                          pearson = "#7570b3"), name = NULL) +
+  ggplot2::scale_colour_manual(values = c(`TRUE` = "#1b9e77",
+                                          `FALSE` = "grey60"),
+                               name = "the ratio beats both its genes") +
   ggplot2::labs(
     title = "Does a priming ratio measure more than its stronger half?",
     subtitle = paste("EXPLORATORY - not pre-registered | each point is one of",
@@ -1110,13 +1027,13 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
       "to it. Only ratios above the line IN BOTH COHORTS are worth reporting as\n",
       "ratios, and the median ratio sits below it on every axis and both measures.")) +
   theme_e10
-.save(g7, "E10_fig7_ratio_vs_components", 8, 7)
+.save(g7, "E10_fig4_ratio_vs_components", 8, 7)
 
 # The 12 component genes on their own, which is what most of the heatmap is.
 # Ordered by the mean OXPHOS Spearman, stated rather than inferred - reorder()
 # on a column that mixes two axes would silently average them.
 PRIMING_ORDER <- component_cor %>%
-  dplyr::filter(axis == "OXPHOS", method == "spearman") %>%
+  dplyr::filter(axis == "OXPHOS") %>%
   dplyr::group_by(gene) %>%
   dplyr::summarise(m = mean(rho), .groups = "drop") %>%
   dplyr::arrange(m) %>% dplyr::pull(gene)
@@ -1124,15 +1041,15 @@ g8dat <- component_cor %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
                 gene = factor(gene, levels = PRIMING_ORDER))
-g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort,
-                                          shape = method)) +
+g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort)) +
   ggplot2::geom_vline(xintercept = 0, linewidth = 0.3) +
-  ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.55),
+  ggplot2::geom_linerange(ggplot2::aes(xmin = ci_lo, xmax = ci_hi),
+                          position = ggplot2::position_dodge(width = 0.5),
+                          linewidth = 0.4, alpha = 0.6) +
+  ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.5),
                       size = 1.9) +
   ggplot2::facet_grid(side ~ axis, scales = "free_y", space = "free_y") +
   ggplot2::scale_colour_manual(values = COHORT_COLS, name = NULL) +
-  ggplot2::scale_shape_manual(values = c(spearman = 16, pearson = 1),
-                              name = NULL) +
   ggplot2::labs(
     title = "The 12 priming genes on their own, before any ratio is taken",
     subtitle = paste("EXPLORATORY - not pre-registered | the author's pro and",
@@ -1144,7 +1061,7 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort,
       "the ratio adds them. Every gene here clears the 25th expression percentile\n",
       "in both cohorts, so none of these cells carries the low-expression caveat.")) +
   theme_e10
-.save(g8, "E10_fig8_priming_components", 8, 6)
+.save(g8, "E10_fig5_priming_components", 8, 6)
 
 # --- the priming ratios by compartment ---------------------------------------
 STRAT_COLS <- c(all = "grey30", Luminal = "#7b3294", Basal = "#008837")
@@ -1166,9 +1083,8 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
                                 name = "Spearman rho of log2(pro/anti)") +
   ggplot2::labs(
     title = "The priming ratios inside the luminal and basal compartments",
-    subtitle = paste0("EXPLORATORY - not pre-registered | Spearman only | ",
-                      "Luminal = LumA + LumB (696 TCGA / 2,436 SCAN-B), ",
-                      "Basal (171 / 317)"),
+    subtitle = paste0("EXPLORATORY - not pre-registered | Luminal = LumA + ",
+                      "LumB (696 TCGA / 2,436 SCAN-B), Basal (171 / 317)"),
     x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
     caption = paste0(
       "The `all` row is the pooled value and is NOT an average of the two below it. A pooled cell that sits OUTSIDE the range of\n",
@@ -1178,7 +1094,7 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
   theme_e10 +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
                  legend.key.width = ggplot2::unit(1.4, "cm"))
-.save(g9, "E10_fig9_priming_by_compartment", 13, 10)
+.save(g9, "E10_fig6_priming_by_compartment", 13, 10)
 
 g10dat <- component_strata %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
@@ -1197,8 +1113,8 @@ g10 <- ggplot2::ggplot(g10dat, ggplot2::aes(rho, gene, colour = stratum)) +
   ggplot2::scale_colour_manual(values = STRAT_COLS, name = NULL) +
   ggplot2::labs(
     title = "The 12 priming genes by compartment",
-    subtitle = paste("EXPLORATORY - not pre-registered | Spearman with 95%",
-                     "Fisher-z intervals; Basal is the widest by far"),
+    subtitle = paste("EXPLORATORY - not pre-registered | 95% Fisher-z",
+                     "intervals; Basal is the widest by far"),
     x = "Spearman rho with the axis", y = NULL,
     caption = paste0(
       "The intervals are here because the compartments have very different\n",
@@ -1206,7 +1122,7 @@ g10 <- ggplot2::ggplot(g10dat, ggplot2::aes(rho, gene, colour = stratum)) +
       "one. Where the three colours stack, the correlation is a within-subtype\n",
       "property; where `all` sits outside both, it is between-subtype.")) +
   theme_e10
-.save(g10, "E10_fig10_priming_components_by_compartment", 11, 6)
+.save(g10, "E10_fig7_priming_components_by_compartment", 11, 6)
 
 # =============================================================================
 # 7. Save
@@ -1216,7 +1132,7 @@ saveRDS(list(
   reannot = reannot, predictors = predictors,
   reactome_modules = REACTOME_MODULES, hit_counts = hit_counts,
   gene_cor = gene_cor, canon_wide = canon_wide, axis_agree = axis_agree,
-  s6_by_axis = s6_by_axis, measure_gap = measure_gap,
+  s6_by_axis = s6_by_axis,
   priming = priming, component_cor = component_cor, coexpr = coexpr,
   gain_summary = gain_summary, ratio_grid = RATIO_GRID,
   priming_strata = priming_strata, component_strata = component_strata,
@@ -1227,13 +1143,17 @@ saveRDS(list(
                   strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
+                  measure = "spearman",
                   myc_axis = MYC_REF, seed = PROJECT_SEED),
   rules = list(
-    scale = paste("Pearson is not scale-free. Every Pearson here is on",
-                  "log2(normalised + 1) at gene level against the GSVA score;",
-                  "on any other gene scale it is a different number. The",
-                  "Spearman values are identical to E08's, asserted in",
-                  "section 4."),
+    measure = paste("Spearman throughout. The Pearson panels this script",
+                    "once carried were removed on 2026-09-02: E09 showed the",
+                    "two measures correlate at 0.996 over 220 pairs, bicor",
+                    "sides with Spearman in all twelve of the largest",
+                    "disagreements, and the mean departure on GSVA is 0.009.",
+                    "The one instrument where the measure does matter is",
+                    "mitoPPS (0.029, up to 0.093) and a Pearson against a",
+                    "mitoPPS score is not reported anywhere in this study."),
     independence = paste("Reactome supplies the module and MitoCarta 3.0 the",
                          "localisation. Neither saw the CDC curation, which is",
                          "the whole point of the re-annotation. They answer",
@@ -1251,15 +1171,13 @@ saveRDS(list(
                    "|rho of the ratio| minus the stronger component's |rho| -",
                    "is positive in BOTH cohorts. Otherwise it is a single gene",
                    "wearing a ratio's name."),
-    strata = paste("the compartment split is Spearman only - section 4 showed",
-                   "the two measures differ by at most 0.10 over these genes.",
-                   "A POOLED value outside the range of its own two",
+    strata = paste("A POOLED value outside the range of its own two",
                    "compartments is a between-subtype effect, not a within-",
                    "subtype one; that is what D3/S1 found for BCL2 against",
                    "MYC. Basal is 171 TCGA samples and its intervals are",
                    "about +/- 0.15 wide."),
-    selection = paste("no cell of this grid is a finding on its own. 44 x 6 x 2",
-                      "x 2 gene cells plus 39 x 6 x 2 x 2 ratio cells; read",
+    selection = paste("no cell of this grid is a finding on its own. 44 x 6 x",
+                      "2 gene cells plus 39 x 6 x 2 ratio cells; read",
                       "structure and cross-cohort agreement, never one",
                       "interval.")),
   built = Sys.time()), PATH_E10)
@@ -1270,18 +1188,14 @@ message("\nE10: done.")
 message("    results/machinery_and_priming.rds")
 message("    outputs/tables/E10_canonical_machinery.csv")
 message("    outputs/tables/E10_priming_ratios.csv")
-message("    10 figures in outputs/figures/:")
-message("      fig1 the 44 vs OXPHOS, Spearman - the E08 fig6 panel, re-derived")
-message("      fig2 the 44 vs MYC, Spearman - the new axis, same row order")
-message("      fig3 the 44 vs MYC, Pearson")
-message("      fig4 the 44 vs OXPHOS, Pearson")
-message("      fig5 Spearman against Pearson for all 44, both axes")
-message("      fig6 the ", nrow(RATIO_GRID),
-        "-cell priming-ratio heatmap, both axes and both measures")
-message("      fig7 whether a ratio beats its stronger component")
-message("      fig8 the 12 priming genes before any ratio is taken")
-message("      fig9 the ratio heatmap again, split by luminal and basal")
-message("      fig10 the 12 genes by compartment, with intervals")
+message("    7 figures in outputs/figures/:")
+message("      fig1 the 44 vs OXPHOS - the E08 fig6 panel, re-derived")
+message("      fig2 the 44 vs MYC - the new axis, same row order")
+message("      fig3 the ", nrow(RATIO_GRID), "-cell priming-ratio heatmap")
+message("      fig4 whether a ratio beats its stronger component")
+message("      fig5 the 12 priming genes before any ratio is taken")
+message("      fig6 the ratio heatmap again, split by luminal and basal")
+message("      fig7 the 12 genes by compartment, with intervals")
 
 # =============================================================================
 # Sandbox
@@ -1303,7 +1217,7 @@ if (FALSE) {
 
   # Q-b: MYC against OXPHOS for the same 44
   x$canon_wide %>%
-    dplyr::filter(method == "spearman", axis %in% c("MYC", "OXPHOS")) %>%
+    dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
     dplyr::select(axis, gene, mean_rho) %>%
     tidyr::pivot_wider(names_from = axis, values_from = mean_rho) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -1314,7 +1228,7 @@ if (FALSE) {
 
   # and the heatmap's numbers, as a table
   x$priming %>%
-    dplyr::filter(axis == "OXPHOS", method == "spearman") %>%
+    dplyr::filter(axis == "OXPHOS") %>%
     dplyr::select(cohort, ratio, rho, rho_pro, rho_anti, coexpr, gain) %>%
     dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
     as.data.frame()
