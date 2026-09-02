@@ -226,8 +226,8 @@ gA <- gene_rho %>% dplyr::left_join(compartment, by = "gene") %>%
   ggplot2::scale_shape_manual(values = c(MOM = 16, `not in MitoCarta` = 1),
                               name = NULL) +
   ggplot2::labs(
-    subtitle = paste("A.  Eleven of the twelve priming proteins sit in the",
-                     "SAME membrane, yet they span the whole range."),
+    subtitle = paste("A.  Eleven of the twelve priming genes are in the same",
+                     "mitochondrial regulon, yet they span the whole range."),
     x = "correlation with OXPHOS (proliferation removed)", y = NULL) +
   theme_e13
 
@@ -249,8 +249,8 @@ gB <- ggplot2::ggplot(gB_dat, ggplot2::aes(ox, expr)) +
                      inherit.aes = FALSE) +
   ggplot2::facet_grid(cohort ~ gene, scales = "free_y") +
   ggplot2::labs(
-    subtitle = paste("B.  BAD and MCL1 are both outer-membrane BCL2-family",
-                     "proteins - and they tilt opposite ways."),
+    subtitle = paste("B.  BAD and MCL1 are both BCL2-family, both in the",
+                     "regulon - and they tilt opposite ways."),
     x = "OXPHOS score", y = "log2 expression") +
   theme_e13
 

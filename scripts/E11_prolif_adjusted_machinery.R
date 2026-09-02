@@ -82,6 +82,23 @@
 # E10's unadjusted numbers, which is exactly why it needs a control and a
 # falsifier rather than a p-value.
 #
+# =============================================================================
+# WHAT "MITOCHONDRIAL" MEANS HERE, AND IT IS NOT LOCALISATION
+# =============================================================================
+# MitoCarta is a PROTEOME catalogue: membership means a protein was detected at
+# mitochondria, not that it sits there constitutively. Half the BCL2 family
+# translocates - BAX is cytosolic until activated, BID must be cleaved first,
+# BAD is held by 14-3-3 when phosphorylated - so a static localisation reading
+# of these genes does not hold.
+#
+# And a transcript has no idea where its protein ends up. At this level of
+# measurement MitoCarta membership marks MEMBERSHIP OF THE NUCLEAR-ENCODED
+# MITOCHONDRIAL REGULON - transcripts co-regulated with mitochondrial
+# biogenesis. That is the claim this data type can support, and it is the
+# reason the composition null comes out flat: any transcript in that regulon
+# tracks an OXPHOS score. Read "mitochondrial genes" below as "regulon
+# members" throughout.
+#
 # SCALE: linear DESeq2-normalised at gene level, and every correlation is
 # rank-based, so the log-versus-linear question does not arise (see the header
 # of functions/correlation_engine.R). SPECIES: human, natively.
@@ -1359,7 +1376,7 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(y = model)) +
                       "proliferation removed in every row\n",
                       "grey = composition-matched null, mean +/- 2 SD"),
     x = expression(Delta*rho * "   (median " * rho *
-                   " of mitochondrial minus cytosolic genes)"),
+                   ", mitochondrial-regulon minus other genes)"),
     y = NULL,
     caption = paste0(
       "The x axis is in the units of the correlations themselves: how much more\n",
