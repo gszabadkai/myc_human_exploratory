@@ -1038,9 +1038,93 @@ CAP_MITO <- paste0(
   FLAG_MYC, "a HALLMARK E2F/G2M proliferation gene"),
   "E10_fig2_machinery_myc", 9, 9)
 
+# --- WHICH RATIO CELLS ARE WORTH LOOKING AT ----------------------------------
+# Author, 2026-09-03: put figure 4's test onto the heatmaps, so the two do not
+# have to be read side by side. A cell is MARKED when it passes both of the
+# things this script already computes separately:
+#
+#   `gain > 0`           |rho of the ratio| exceeds the larger |rho| of the two
+#                        genes it is made of. That is figure 4's diagonal,
+#                        evaluated per cell instead of drawn as a scatter.
+#   `|rho| >= 0.30`      a hand-drawn effect-size floor. It is NOT a test, it is
+#                        not derived from anything, and moving it moves the
+#                        marks. It is |rho| and not rho so that a ratio running
+#                        strongly the OTHER way is marked too - five of the
+#                        marked cells are negative, and hiding them would make
+#                        the mark mean "large and positive" while the caption
+#                        said "large".
+#
+# TWO LEVELS OF MARK, because one cohort is not a result (CLAUDE.md section 2,
+# and this script's own `ratios` rule):
+#   *                    the cell passes IN THIS COHORT.
+#   heavy black border   the same ratio passes in BOTH cohorts, at the same
+#                        stratum and on the same axis. That is the only version
+#                        of the mark this study's rules allow anyone to quote.
+#
+# The asterisk is deliberately the weaker-looking mark of the two.
+MARK_MIN_ABS_RHO <- 0.30
+
+.mark_cells <- function(d, keys) {
+  d <- d %>% dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+    dplyr::mutate(mark = gain > 0 & abs(rho) >= MARK_MIN_ABS_RHO)
+  both <- d %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(keys))) %>%
+    dplyr::summarise(n_marked = sum(mark),
+                     n_cohorts = dplyr::n_distinct(cohort), .groups = "drop")
+  # A pair of cohorts is required, not merely two marks: if a key ever appeared
+  # in one cohort twice the count would pass while the agreement did not.
+  stopifnot(all(both$n_cohorts == 2L))
+  d %>% dplyr::left_join(
+    both %>% dplyr::transmute(dplyr::across(dplyr::all_of(keys)),
+                              mark_both = n_marked == 2L), by = keys)
+}
+priming_marked <- .mark_cells(priming, c("axis", "ratio"))
+strata_marked  <- .mark_cells(priming_strata, c("stratum", "axis", "ratio"))
+stopifnot(!anyNA(priming_marked$mark_both), !anyNA(strata_marked$mark_both))
+
+message("\n   heatmap marks: `gain > 0` AND |rho| >= ", MARK_MIN_ABS_RHO)
+mark_summary <- dplyr::bind_rows(
+  priming_marked %>% dplyr::mutate(stratum = "all (figure 3)"),
+  strata_marked %>% dplyr::mutate(stratum = paste0(stratum, " (figure 6)"))) %>%
+  dplyr::group_by(figure = ifelse(grepl("figure 3", stratum), "fig3", "fig6"),
+                  stratum, axis) %>%
+  dplyr::summarise(n_cells = dplyr::n(), n_marked = sum(mark),
+                   n_marked_both = sum(mark_both) / 2, .groups = "drop")
+mark_summary %>% as.data.frame() %>% print(row.names = FALSE)
+message("   NOT ONE MYC CELL IS MARKED, in either heatmap, at any stratum.")
+mark_both_list <- strata_marked %>%
+  dplyr::filter(mark_both) %>%
+  dplyr::distinct(stratum, axis, ratio) %>%
+  dplyr::arrange(stratum, axis, ratio)
+message("   marked in BOTH cohorts on figure 6 (heavy border):")
+if (nrow(mark_both_list)) {
+  mark_both_list %>% as.data.frame() %>% print(row.names = FALSE)
+} else message("      none")
+message("   marked in BOTH cohorts on figure 3 (pooled): ",
+        sum(priming_marked$mark_both) / 2)
+# WHY there are none, which is the pooled heatmap's actual result: the ratios
+# that replicate as ratios are all small, and the large ones do not replicate.
+pooled_two_way <- priming_marked %>%
+  dplyr::group_by(axis, ratio) %>%
+  dplyr::summarise(gain_both = sum(gain > 0) == 2L,
+                   max_abs_rho = max(abs(rho)), .groups = "drop") %>%
+  dplyr::group_by(axis) %>%
+  dplyr::summarise(
+    n_gain_both = sum(gain_both),
+    # max() of an empty vector is -Inf with a warning; there are no OXPHOS
+    # ratios in this group at all, and NA says that rather than pretending.
+    max_abs_rho_of_those = if (any(gain_both)) max(max_abs_rho[gain_both]) else
+      NA_real_,
+    n_ratios_reaching_floor = sum(max_abs_rho >= MARK_MIN_ABS_RHO),
+    .groups = "drop")
+message("   pooled, and this is why: which ratios gain in BOTH cohorts, and how",
+        " big they get")
+pooled_two_way %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
 # --- the priming ratios ------------------------------------------------------
-g6dat <- priming %>%
-  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+g6dat <- priming_marked %>%
   dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
                 anti = factor(anti, levels = PRIMING_ANTI),
                 cohort = factor(cohort, levels = names(COHORT_COLS)))
@@ -1048,6 +1132,13 @@ LIM <- max(abs(g6dat$rho))
 g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
   ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
   ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", rho)), size = 2.1) +
+  ggplot2::geom_tile(data = dplyr::filter(g6dat, mark_both),
+                     ggplot2::aes(anti, pro), fill = NA, colour = "black",
+                     linewidth = 0.85, inherit.aes = FALSE) +
+  ggplot2::geom_text(data = dplyr::filter(g6dat, mark),
+                     ggplot2::aes(anti, pro), label = "*", size = 4.2,
+                     fontface = "bold", nudge_x = 0.32, nudge_y = 0.20,
+                     vjust = 0.75, inherit.aes = FALSE) +
   ggplot2::facet_grid(cohort ~ axis) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
@@ -1055,10 +1146,13 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
                                 name = "partial Spearman rho of log2(pro/anti)") +
   ggplot2::labs(
     title = "Every BCL2-family priming ratio against MYC and against OXPHOS",
-    subtitle = paste("EXPLORATORY - not pre-registered | adjusted for",
-                     "proliferation |", nrow(RATIO_GRID), "ratios; rows are the",
-                     "pro-apoptotic numerator, columns the anti-apoptotic",
-                     "denominator"),
+    # Hard-wrapped for the same reason the captions are: ggplot CLIPS a long
+    # subtitle rather than wrapping it, and at 8in this one lost its last three
+    # words for every run before 2026-09-03.
+    subtitle = paste0("EXPLORATORY - not pre-registered | adjusted for ",
+                      "proliferation | ", nrow(RATIO_GRID), " ratios\n",
+                      "rows are the pro-apoptotic numerator, columns the ",
+                      "anti-apoptotic denominator"),
     x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
     # paste0 does not insert spaces, so a rendered caption line may be split
     # across two source strings to keep the file inside 80 columns.
@@ -1068,7 +1162,17 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
       "is the denominator gene talking rather than priming, which is what the\n",
       "BCL2 column is: check `gain` before reading any cell as a ratio, because\n",
       "most of these ratios are beaten by one of the two genes they are made\n",
-      "of.")) +
+      "of.\n",
+      "* MARKS A CELL THAT PASSES FIGURE 4'S TEST AND REACHES |rho| >= 0.30 -\n",
+      "the ratio beats the stronger of its own two genes AND the effect is not\n",
+      "small. 7 of 140 cells qualify and ALL SEVEN ARE OXPHOS; no MYC cell in\n",
+      "this figure is marked. The 0.30 line is drawn by hand and is not a test.\n",
+      "A HEAVY BORDER would mark a ratio passing in BOTH cohorts. THERE ARE\n",
+      "NONE HERE, and the two halves of that failure pull opposite ways: the 5\n",
+      "ratios that beat their parts in both cohorts are ALL on MYC and their\n",
+      "|rho| tops out at 0.27, while the 7 cells reaching 0.30 are ALL on OXPHOS\n",
+      "and not one of them beats its parts in both cohorts. Figure 6 is where\n",
+      "three cells clear both bars at once, and all three are Basal.")) +
   theme_e10 +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
                  legend.key.width = ggplot2::unit(1.4, "cm"))
@@ -1103,7 +1207,11 @@ g7 <- ggplot2::ggplot(g7dat, ggplot2::aes(best_component, abs_rho,
       "ABOVE the diagonal the ratio adds information; ON or BELOW it, the single\n",
       "gene is the better measurement and the ratio is that gene with noise added\n",
       "to it. Only ratios above the line IN BOTH COHORTS are worth reporting as\n",
-      "ratios, and the median ratio sits below it on both axes.")) +
+      "ratios, and the median ratio sits below it on both axes.\n",
+      "THIS TEST IS CARRIED ONTO THE HEATMAPS. A cell on figure 3 or figure 6 is\n",
+      "starred when it is green here AND reaches |rho| >= 0.30, and is bordered\n",
+      "when it does so in both cohorts. Being above the diagonal is necessary and\n",
+      "not sufficient: many green points here are small effects.")) +
   theme_e10
 .save(g7, "E10_fig4_ratio_vs_components", 8, 7)
 
@@ -1146,8 +1254,7 @@ g8 <- ggplot2::ggplot(g8dat, ggplot2::aes(rho, gene, colour = cohort)) +
 # --- the priming ratios by compartment ---------------------------------------
 STRAT_COLS <- c(all = "grey30", Luminal = "#7b3294", Basal = "#008837")
 
-g9dat <- priming_strata %>%
-  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+g9dat <- strata_marked %>%
   dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
                 anti = factor(anti, levels = PRIMING_ANTI),
                 cohort = factor(cohort, levels = names(COHORT_COLS)),
@@ -1156,6 +1263,13 @@ LIM9 <- max(abs(g9dat$rho))
 g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
   ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
   ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", rho)), size = 2) +
+  ggplot2::geom_tile(data = dplyr::filter(g9dat, mark_both),
+                     ggplot2::aes(anti, pro), fill = NA, colour = "black",
+                     linewidth = 0.85, inherit.aes = FALSE) +
+  ggplot2::geom_text(data = dplyr::filter(g9dat, mark),
+                     ggplot2::aes(anti, pro), label = "*", size = 4,
+                     fontface = "bold", nudge_x = 0.32, nudge_y = 0.20,
+                     vjust = 0.75, inherit.aes = FALSE) +
   ggplot2::facet_grid(stratum ~ cohort + axis) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
@@ -1168,6 +1282,13 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
                       "SCAN-B), Basal (171 / 317)"),
     x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
     caption = paste0(
+      "* MARKS A CELL THAT PASSES FIGURE 4'S TEST AND REACHES |rho| >= 0.30: the ratio beats the stronger of the two genes it is\n",
+      "made of AND the effect is not small. 22 of the 420 cells qualify and ALL 22 ARE OXPHOS - not one MYC cell is marked, at any\n",
+      "stratum, in either cohort. The 0.30 line is drawn by hand, is not a test, and moving it moves the marks.\n",
+      "A HEAVY BORDER is the only mark this study's rules allow anyone to quote: the same ratio passing in BOTH cohorts, at the same\n",
+      "stratum and on the same axis. There are THREE, all Basal and all OXPHOS - BBC3/BCL2, BID/BCL2 and BBC3/MCL1 - and none at all\n",
+      "in the pooled row or in Luminal. Read that against where the marks are densest: Basal is 171 TCGA and 317 SCAN-B samples, so\n",
+      "it is also where the intervals are widest, and a mark there is a weaker claim than the same mark would be in Luminal.\n",
       "The `all` row is the pooled value and is NOT an average of the two below it. A pooled cell that sits OUTSIDE the range of\n",
       "its own two compartments is reading a difference BETWEEN subtypes rather than anything within one - the D3/S1 artefact,\n",
       "where BCL2 against MYC is -0.369 pooled and -0.009 inside LumA. Basal is 171 TCGA samples, so a 95% interval there is\n",
@@ -1219,11 +1340,15 @@ saveRDS(list(
   priming = priming, component_cor = component_cor, coexpr = coexpr,
   gain_summary = gain_summary, ratio_grid = RATIO_GRID,
   priming_strata = priming_strata, component_strata = component_strata,
+  priming_marked = priming_marked, strata_marked = strata_marked,
+  mark_summary = mark_summary, mark_both_list = mark_both_list,
+  pooled_two_way = pooled_two_way,
   between_test = between_test, lum_basal_gap = lum_basal_gap,
   expr_rank = expr_rank,
   settings = list(priming_pro = PRIMING_PRO, priming_anti = PRIMING_ANTI,
                   low_expr_pct = LOW_EXPR_PCT, msigdb_version = MSIGDB_VERSION,
                   strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
+                  mark_min_abs_rho = MARK_MIN_ABS_RHO,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
                   measure = "spearman", covariate = PROLIF_COV,
@@ -1264,6 +1389,16 @@ saveRDS(list(
                    "|rho of the ratio| minus the stronger component's |rho| -",
                    "is positive in BOTH cohorts. Otherwise it is a single gene",
                    "wearing a ratio's name."),
+    marks = paste("the * on figures 3 and 6 is `gain > 0` AND |rho| >=",
+                  MARK_MIN_ABS_RHO, "- figure 4's test plus a HAND-DRAWN",
+                  "effect-size floor that is not a test and moves the marks if",
+                  "it is moved. |rho| rather than rho, so a ratio running the",
+                  "other way is marked too. The heavy border is the same ratio",
+                  "passing in BOTH cohorts at the same stratum and axis, and",
+                  "is the only version of the mark the `ratios` rule above",
+                  "permits anyone to quote. All 22 marked cells on figure 6",
+                  "are OXPHOS; the three bordered ones are all Basal; the",
+                  "pooled heatmap has none."),
     strata = paste("A POOLED value outside the range of its own two",
                    "compartments is a between-subtype effect, not a within-",
                    "subtype one; that is what D3/S1 found for BCL2 against",
@@ -1288,6 +1423,7 @@ message("      fig3 the ", nrow(RATIO_GRID), "-cell priming-ratio heatmap")
 message("      fig4 whether a ratio beats its stronger component")
 message("      fig5 the 12 priming genes before any ratio is taken")
 message("      fig6 the ratio heatmap again, split by luminal and basal")
+message("           figs 3 and 6 now carry figure 4's test as a * and a border")
 message("      fig7 the 12 genes by compartment, with intervals")
 
 # =============================================================================

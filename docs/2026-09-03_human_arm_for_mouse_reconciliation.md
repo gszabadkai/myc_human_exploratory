@@ -30,7 +30,7 @@ re-derive what the first one meant.
 | **E10** | re-sourced 2026-09-03 00:43 and now carries `covariate: PROLIF_DISJOINT`. Its verification check passed exactly as predicted: ratios beating both components **0 of 35 on OXPHOS, 5 of 35 on MYC** |
 | **E14** | on disk is the current build - `plot_sets` of four, `mito_pair_md_agree = FALSE`. Both verdicts reproduce: `APOPTOSIS-SPECIFIC in both cohorts`, `SURVIVES` on the infiltrate falsifier |
 | **E15** | written 2026-09-03 and **not yet run by the author**. A display script: it recomputes nothing, and asserts its numbers are bit-equal to E14's. See `e15_two_axis_gene_view.md` |
-| **one small re-run outstanding** | `E10` gained an `additive_fit` block on 2026-09-03 so that section 5.3's headline number regenerates from code instead of from a note. **~15 s.** The values do not change - the block reproduces 0.921-0.946 exactly against the object already on disk |
+| **E10 re-run outstanding, ~14 s** | two changes since the object on disk was written. (1) an `additive_fit` block so section 5.3's headline number regenerates from code rather than from a note - the values do not change, it reproduces 0.921-0.946. (2) 2026-09-03: figures 3 and 6 now carry figure 4's test as a cell mark, and figure 3's clipped subtitle is fixed. `additive_fit` is NOT in the saved object yet |
 
 Two cohorts throughout: TCGA-BRCA n=1,095, SCAN-B/GSE202203 n=3,207. Two arms of
 evidence only ever count when they agree; a single cohort is a description.
@@ -222,7 +222,7 @@ the only comparator was a random draw.
 | Supplementary | `E14_fig5` - the infiltrate falsifier | **must be cited in `E14_fig6`'s legend.** The panel's whole weight rests on that negative not being infiltrate |
 | Supplementary | `E14_fig1` head-to-head, `E14_fig3` pathway ladder | the three-step version of the same argument |
 | Supplementary | `E13` panel A or `E10_fig5` - the 12 BCL2-family transcripts ranked | "pro- and anti-apoptotic members are interleaved across the whole range" |
-| Supplementary | `E10_fig3` ratio matrix, `E10_fig6` luminal/basal split | descriptive only |
+| Supplementary | `E10_fig3` ratio matrix, `E10_fig6` luminal/basal split | descriptive, but no longer only: both now mark the cells where the ratio beats its own two genes AND reaches \|rho\| 0.30. **Not one MYC cell is marked anywhere**; the three cells passing in both cohorts are all Basal OXPHOS (`BBC3/BCL2`, `BID/BCL2`, `BBC3/MCL1`) and none is pooled. `e10_machinery_and_priming.md` R5c |
 
 Delete on-figure titles for submission. Tables:
 `E14_comparator_splits.csv`, `E14_mitocarta_pathway_ladder.csv`,

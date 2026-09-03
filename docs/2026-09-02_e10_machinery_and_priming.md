@@ -216,6 +216,46 @@ If a seventh pro-apoptotic gene is wanted, `HRK` and `BOK` are both already
 scored in section 4. `HRK` would need its low-expression flag carried through -
 it is below the 25th percentile in both cohorts.
 
+### R5c. The two tests, put on the heatmaps - ADDED 2026-09-03
+
+Author's request: stop making a reader hold figure 4 in their head while looking
+at figure 3 or figure 6. Both heatmaps now carry the test as a cell mark.
+
+| mark | meaning |
+|---|---|
+| `*` | in **this cohort**, `gain > 0` **and** `\|rho\| >= 0.30` - the ratio beats the stronger of its own two genes, and the effect is not small |
+| **heavy black border** | the same ratio does that in **both cohorts**, at the same stratum and on the same axis |
+
+The 0.30 floor is **hand-drawn, is not a test, and moving it moves the marks.**
+It is `|rho|` rather than `rho` so a ratio running strongly the other way is
+marked too - five of the marked cells are negative, and hiding them would make
+the mark mean "large and positive" while the caption said "large".
+
+**What the marks show, and it is a cleaner statement than R5's table:**
+
+1. **Not one MYC cell is marked**, in either heatmap, at any stratum, in either
+   cohort. All 22 marked cells on figure 6 and all 7 on figure 3 are OXPHOS.
+2. **The pooled heatmap has no bordered cell at all, and the two halves of that
+   failure pull opposite ways.** The 5 ratios that beat their parts in both
+   cohorts are all on MYC and their `|rho|` tops out at **0.27**; the 7 cells
+   that reach 0.30 are all on OXPHOS and not one of them beats its parts in both
+   cohorts. *Pooled, a priming ratio is either replicable or large, never both.*
+3. **Three cells clear both bars in both cohorts, and all three are Basal
+   OXPHOS**: `BBC3/BCL2`, `BID/BCL2`, `BBC3/MCL1`. Nothing in Luminal, nothing
+   pooled.
+4. **Read (3) against where the marks are densest.** Basal is 171 TCGA and 317
+   SCAN-B samples, so it is also where the intervals are widest - about +/- 0.15
+   in TCGA. A mark in Basal is a weaker claim than the same mark would be in
+   Luminal, and three cells out of 70 is a hypothesis, not a result.
+
+Saved as `priming_marked`, `strata_marked`, `mark_summary`, `mark_both_list` and
+`pooled_two_way`; the constant is `settings$mark_min_abs_rho`.
+
+**Also fixed in the same pass:** figure 3's subtitle had been clipped, not
+wrapped, since the figure was written - ggplot clips a long subtitle the same
+way it clips a caption, and every run before 2026-09-03 silently lost its last
+three words.
+
 ---
 
 ## R6. Housekeeping the script does that is worth knowing about
