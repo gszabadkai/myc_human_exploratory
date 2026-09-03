@@ -66,7 +66,18 @@ for (f in files) {
     try(eval(parse(text = ln), envir = env), silent = TRUE)
   }
   # If the sandbox's own input is missing, that is a skip rather than a failure.
-  paths <- unlist(lapply(ls(env), function(v) {
+  # "Its own input" means the constants the SANDBOX NAMES, not every path the
+  # script declares. E15 declares the three upstream objects it reads as well
+  # as the one it writes; keying the skip on "any of them exists" made it fail
+  # on a missing output instead of skipping, which is the opposite of the rule
+  # above. Falling back to every path keeps the behaviour for a sandbox that
+  # hard-codes its filename rather than using a constant.
+  const <- ls(env)
+  named <- const[vapply(const,
+                        function(v) grepl(paste0("\\b", v, "\\b"), code),
+                        logical(1))]
+  if (!length(named)) named <- const
+  paths <- unlist(lapply(named, function(v) {
     val <- get(v, envir = env)
     if (is.character(val) && length(val) == 1L) val else NULL
   }))

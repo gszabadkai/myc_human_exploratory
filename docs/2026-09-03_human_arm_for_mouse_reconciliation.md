@@ -29,6 +29,7 @@ re-derive what the first one meant.
 | **E09 - E14** | all run by the author. Every number below is read from a saved object, not from a dry run |
 | **E10** | re-sourced 2026-09-03 00:43 and now carries `covariate: PROLIF_DISJOINT`. Its verification check passed exactly as predicted: ratios beating both components **0 of 35 on OXPHOS, 5 of 35 on MYC** |
 | **E14** | on disk is the current build - `plot_sets` of four, `mito_pair_md_agree = FALSE`. Both verdicts reproduce: `APOPTOSIS-SPECIFIC in both cohorts`, `SURVIVES` on the infiltrate falsifier |
+| **E15** | written 2026-09-03 and **not yet run by the author**. A display script: it recomputes nothing, and asserts its numbers are bit-equal to E14's. See `e15_two_axis_gene_view.md` |
 | **one small re-run outstanding** | `E10` gained an `additive_fit` block on 2026-09-03 so that section 5.3's headline number regenerates from code instead of from a note. **~15 s.** The values do not change - the block reproduces 0.921-0.946 exactly against the object already on disk |
 
 Two cohorts throughout: TCGA-BRCA n=1,095, SCAN-B/GSE202203 n=3,207. Two arms of
@@ -215,6 +216,7 @@ the only comparator was a random draw.
 | **Main, panel A** | `E11_fig9` A - the 44 on the MYC x OXPHOS plane, square identically-scaled axes, coloured by regulon membership, adjusted column, both cohorts | the cloud is taller than wide and the colour separates vertically |
 | **Main, panel B** | `E11_fig9` B - the conditioning ladder, four rows, two cohorts, with the compartment-matched null band and bootstrap intervals | **not optional.** It is what turns A from a description into a test |
 | **Main or supplementary** | `E14_fig6` - the one-panel specificity figure | x = what a programme's regulon members do, y = what its cytosolic members do. Four programmes, only apoptosis below zero |
+| Supplementary | `E15_fig1` - the 44 as one bar per gene, MYC point and OXPHOS point, sorted by the difference, both cohorts | the per-gene version of panel A, for a reader who wants to know WHICH genes carry it. Cite `E15_fig3` with it if the difference is quoted in the text |
 | Supplementary | `E11_fig2` - the mitoribosome control | **must be cited in panel B's legend.** It rules out "the adjustment emptied the MYC score" |
 | Supplementary | `E14_fig5` - the infiltrate falsifier | **must be cited in `E14_fig6`'s legend.** The panel's whole weight rests on that negative not being infiltrate |
 | Supplementary | `E14_fig1` head-to-head, `E14_fig3` pathway ladder | the three-step version of the same argument |
@@ -223,7 +225,7 @@ the only comparator was a random draw.
 
 Delete on-figure titles for submission. Tables:
 `E14_comparator_splits.csv`, `E14_mitocarta_pathway_ladder.csv`,
-`E11_gene_rho_by_adjustment.csv`.
+`E11_gene_rho_by_adjustment.csv`, `E15_gene_rho_two_axes.csv`.
 
 ### 5.3 The priming subsection - descriptive, three sentences
 
@@ -414,6 +416,17 @@ arm should sit **below** it while the regulon members sit above.
    rather than "cytosolic and apoptotic". **This is the single most valuable
    next human analysis** and it should be done before H2 is leaned on hard in
    either arm.
+
+   - **Its other half: what the shared correlate of the cytosolic genes
+     actually is.** `data/collectri_human/` is pinned, snapshotted and has
+     never been used for this. Two forms - which CollecTRI regulons contain the
+     44, and whether per-sample regulon activity tracks either half. The
+     comparator asks whether the property is "cytosolic and apoptotic" or
+     "cytosolic and stress-responsive"; the regulon test asks what the
+     correlate is. **Falsifier for the "two regulons" language:** if no regulon
+     separates the halves beyond the mitochondrial ones, the phrase goes and
+     "different correlate" replaces it. `e15_two_axis_gene_view.md` V5.
+
 2. **`LumA` alone**, the homogeneous stratum where stromal and immune
    composition vary least. Named in E14 as the falsifier for H2.
 3. Score `COLLECTRI_MYC_STIM` (739 genes, in the snapshot, never scored) as a
