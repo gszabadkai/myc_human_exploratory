@@ -8,6 +8,12 @@ supersedes: docs/2026-09-02_handoff_evening.md - which is KEPT, because the
          act on its "RUN THIS" table; both scripts in it have been run.
 ---
 
+> **SUPERSEDED 2026-09-04 by `docs/2026-09-04_handoff.md`.** Everything still
+> live here is carried there, including the same two-script "RUN THIS" table.
+> **Do not act on section 6** - it says 15 commits are unpushed, which was true
+> when written and is not now; `origin/main` is at `17c09ca`. Kept only because
+> `docs/2026-09-02_handoff_evening.md` points at it.
+
 # Handoff - two short re-runs, and the model is written
 
 `main`, tree clean. `E00`-`E15` are all written. **`E15` and `E10` are both a
