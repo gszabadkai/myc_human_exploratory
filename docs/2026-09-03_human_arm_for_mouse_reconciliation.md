@@ -40,9 +40,9 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | | |
 |---|---|
 | **Every number below is read from a saved object**, not from a dry run. Where a number has no script behind it, it says so |
-| **E10** | re-sourced 2026-09-03 17:00. Current build: carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, and figure 8. **Section 5.0a-ii was added to the script after that run** - the numbers in 3.3a and 3.3b are correct (verified against a redirected dry run that wrote nothing into the repo) but `results/machinery_and_priming.rds` does not carry `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` or `$priming$discord` until E10 is re-sourced. **No existing object changes**; three are added and one column |
+| **E10** | re-sourced 2026-09-04. `results/machinery_and_priming.rds` is current and carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, figure 8, and section 5.0a-ii's `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` and `$priming$discord` |
 | **E11, E12, E13, E14** | all run by the author, unchanged since 2026-09-02 |
-| **E15** | run 2026-09-03 14:51. Its figures 1-4 are current; **figure 5 on disk is the earlier two-panel version** - the one-panel both-cohorts rewrite is in the script and needs a re-source. No number changes |
+| **E15** | re-sourced 2026-09-04. All five figures on disk are the current ones, `fig5` included |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -1154,15 +1154,10 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
 3. **`LumA` alone** - the homogeneous stratum where stromal and immune
    composition vary least. Named in E14 as the falsifier for H2, and it is also
    where V6 should be checked from the other side.
-4. **Re-source `E15`** to pick up the one-panel `fig5`. No numbers change.
-   **Re-source `E10`** as well, to put 3.3a and 3.3b's tables into
-   `results/machinery_and_priming.rds`. Also no existing number changes -
-   three objects and one column are added (0.section, and the dry run is in
-   the scratchpad).
-   - **The `BID`/`BBC3` numerator test named in 3.3b is the cheapest real
-     falsifier left in the priming section** and it needs a third cohort, not
-     more work on these two: METABRIC is out of scope, so this is a note for
-     whoever reopens that decision.
+4. **The `BID` / `BBC3` numerator test named in 3.3b is the cheapest real
+   falsifier left in the priming section**, and it needs a third cohort rather
+   than more work on these two. METABRIC is out of scope, so this is a note for
+   whoever reopens that decision.
 5. Score `COLLECTRI_MYC_STIM` (739 genes, in the snapshot, never scored) as a
    fifth base; drop `ELLWOOD` and recompute the entanglement slope. Both need a
    pipeline re-run.
