@@ -8,11 +8,16 @@ supersedes: docs/2026-09-02_handoff_evening.md - which is KEPT, because the
          act on its "RUN THIS" table; both scripts in it have been run.
 ---
 
-# Handoff - one 10-second re-run, and the model is written
+# Handoff - two short re-runs, and the model is written
 
-`main`, tree clean, **15 commits ahead of `origin/main` and not pushed.**
-`E00`-`E15` are all written. **`E10` was re-sourced at 17:00 and is fully
-current.** Only `E15` is behind, and only cosmetically.
+`main`, tree clean. `E00`-`E15` are all written. **`E15` and `E10` are both a
+re-source behind**, and in both cases no existing number changes.
+
+**Updated 2026-09-03, later:** `E10` gained script section **5.0a-ii** in answer
+to "the OXPHOS row of the gain table is 0 in both cohorts - is a gain in one
+cohort worth a mention?" It is; sections 3.3a and 3.3b of the synthesis document
+are the write-up, verified against a redirected dry run that wrote nothing into
+the repo. Re-source `E10` to put the three new objects on disk.
 
 ---
 
@@ -26,9 +31,9 @@ This repo is EXPLORATORY. Nothing is pre-registered. The sibling repo
 myc_human_validation is a COMPLETED pre-registered study, frozen at d3ac60e,
 not reopened, and its no-post-hoc rule does NOT apply here.
 
-Everything is run except E15, which needs re-sourcing to pick up a redrawn
-figure 5 - no number changes. I source scripts in Positron; you write and edit
-them, you do not run them.
+Everything is run except E15 and E10, both of which need re-sourcing and
+neither of which changes an existing number. I source scripts in Positron; you
+write and edit them, you do not run them.
 
 The next step is confronting the human model in section 5 of the synthesis
 document with a mouse model built from experiments. Details of the human data
@@ -42,15 +47,25 @@ matter for that; section 2 of the same document is the inventory.
 | script | why | time |
 |---|---|---|
 | **`E15_two_axis_gene_view.R`** | figure 5 was redrawn after your 14:51 run: both cohorts in **one** panel, no droplines to zero, narrower, gene names coloured by MitoCarta membership. **No number changes** - it is a display script and recomputes nothing | ~10 s |
+| **`E10_machinery_measures_and_priming.R`** | new section **5.0a-ii**: what the OXPHOS `gain > 0 in both` = 0 does and does not mean. Adds `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` and a `discord` column on `$priming` / `$priming_strata`. **Every existing object is bit-identical** - checked object by object against the 17:00 run | ~20 s |
 
 **Check as it scrolls past:**
 `anchor OK: the split recomputed here is bit-equal to E14's for all 8 cohort x
 axis x adjustment cells`. If that line does not appear, E11 or E14 has moved
 underneath E15 and nothing downstream is comparable.
 
-**Everything else is current. Do not re-run E09-E14.** `E10` at 17:00 carries
-`additive_fit`, `diff_tab`, the `*` / `**` / `^` / border cell marks and
-figure 8; `E11`, `E12`, `E13`, `E14` are unchanged since 2026-09-02.
+**`scripts/check_sandboxes.R` reports `E10 ... FAILED` until you re-source it**,
+and that is the check working, not breaking: E10's sandbox now names
+`x$gain_one_cohort`, which the saved object will not carry until the re-run. The
+three new sandbox lines were verified against the dry-run object. After the
+re-source it goes back to `OK`; if it does not, something else moved.
+
+From `E10`, three lines worth reading as they scroll: the `gain` rank agreement
+between cohorts (**+0.408** OXPHOS, +0.560 MYC), the discordance table, and
+`positive gains outside the discordant block: 2 of 29`.
+
+**Everything else is current. Do not re-run E09, E11-E14.** `E11`, `E12`, `E13`,
+`E14` are unchanged since 2026-09-02.
 
 ---
 

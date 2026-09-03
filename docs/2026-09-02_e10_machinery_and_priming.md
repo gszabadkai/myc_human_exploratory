@@ -381,6 +381,39 @@ three panels line up cell for cell. Saved as `diff_tab` with all three
 quantities plus `axes_discordant`, `readings_disagree`, `fold` and
 `ratio_stable` per cell; the constant is `settings$ratio_stable_min`.
 
+### R5e. What the OXPHOS zero does and does not mean - ADDED 2026-09-03
+
+Asked after the proliferation-adjusted pass returned `gain > 0 in both` = **0**
+of 35 on OXPHOS: is a gain in ONE cohort worth a mention? Script section
+**5.0a-ii**, saving `gain_rank_agree`, `gain_by_discord` and `gain_one_cohort`.
+The both-cohorts rule is unchanged and still decides what gets reported.
+
+1. **`gain` is stable, and stably negative.** The *ordering* of the 35 ratios by
+   gain agrees between cohorts - Spearman **+0.408** OXPHOS, **+0.560** MYC -
+   while the mean sits at -0.116 / -0.110 and -0.050 / -0.031. Noise around zero
+   would not reproduce its own ordering. The distribution is shifted down, not
+   absent.
+2. **10 of 35 OXPHOS ratios gain in exactly one cohort**, and the largest single
+   gain anywhere in the grid is one of them: `BCL2L11/BCL2L1` **+0.090** in TCGA
+   - against **-0.176** in SCAN-B, the largest loss on the same list. The
+   falsifier is doing its job on its own best-looking cell.
+3. **The near miss is very near.** `BAD/MCL1`, the strongest OXPHOS ratio
+   (+0.507 / +0.467 adjusted), fails by **-0.018 / -0.015**.
+4. **R5's qualitative observation is now quantified, and it survives the
+   covariate.** R5 said of the unadjusted gainers that "every one of those pairs
+   a pro-apoptotic gene with an anti-apoptotic gene that moves the *opposite*
+   way on that axis". Adjusted: **27 of 29 positive gains are discordant, and on
+   OXPHOS it is 10 of 10.** Concordant OXPHOS ratios gain **0 of 16** in either
+   cohort, mean -0.193 / -0.159. The two exceptions are MYC/SCAN-B cells whose
+   denominator is `BCL2L1` at rho +0.033, where the sign is a coin flip.
+5. **Why the two textbook cells fail to replicate is checkable.** `BID/MCL1` and
+   `BBC3/MCL1` gain in TCGA only; the denominator holds across cohorts
+   (`MCL1` -0.241 / -0.292) while the numerators halve (`BID` +0.329 -> +0.091,
+   `BBC3` +0.365 -> +0.170). The pair loses discordance on the numerator side.
+
+Read with `2026-09-03_human_arm_for_mouse_reconciliation.md` sections 3.3a and
+3.3b, which is where this is written up for the paper.
+
 ---
 
 ## R6. Housekeeping the script does that is worth knowing about

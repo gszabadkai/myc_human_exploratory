@@ -716,9 +716,13 @@ priming <- ratio_cor %>%
                    by = c("cohort", "axis", "anti")) %>%
   dplyr::left_join(coexpr, by = c("cohort", "pro", "anti", "ratio")) %>%
   dplyr::mutate(best_component = pmax(abs(rho_pro), abs(rho_anti)),
-                gain = abs(rho) - best_component) %>%
+                gain = abs(rho) - best_component,
+                # do the numerator and the denominator lean OPPOSITE ways on
+                # this axis? Used by 5.0a-ii; see the comment there for why a
+                # piece of arithmetic is worth carrying as a column.
+                discord = sign(rho_pro) != sign(rho_anti)) %>%
   dplyr::select(cohort, axis, ratio, pro, anti, n, rho, ci_lo, ci_hi,
-                rho_pro, rho_anti, coexpr, best_component, gain)
+                rho_pro, rho_anti, coexpr, best_component, gain, discord)
 
 message("\n   strongest ratios against OXPHOS subunits (Spearman, both cohorts",
         " agreeing in sign):")
@@ -767,6 +771,90 @@ if (nrow(winners)) {
 } else {
   message("   NONE. Every ratio is a single gene wearing a ratio's name.")
 }
+
+# --- 5.0a-ii WHAT A ZERO IN THAT TABLE DOES AND DOES NOT MEAN ---------------
+# Added 2026-09-03, after the OXPHOS row of the falsifier came back 0-of-35 and
+# the question was asked whether a gain in ONE cohort is worth a mention.
+#
+# The both-cohorts rule above decides what gets reported and it does not move:
+# a ratio that gains in one cohort and loses in the other has not earned the
+# word "ratio". But "zero in both" and "nothing there" are different claims,
+# and reporting only the zero hides two things that ARE reproducible:
+#
+#  (i) the ORDERING of the 35 ratios by gain agrees across cohorts even though
+#      the SIGN does not. The whole distribution sits below zero and the same
+#      ratios sit at the top of it in TCGA and in SCAN-B. That is not a list of
+#      winners; it is evidence that `gain` is measuring something stable, which
+#      is what makes the negative verdict worth stating at all.
+#
+# (ii) every positive gain, on both axes and in both cohorts, belongs to a
+#      ratio whose numerator and denominator lean OPPOSITE ways on the axis.
+#      This half is arithmetic, not biology - dividing two things that move
+#      together subtracts the shared signal, dividing two things that move
+#      apart adds them. It is recorded because it says which cells of the grid
+#      could EVER gain, so a one-cohort gain outside the discordant block would
+#      be a genuine surprise and one inside it is not.
+#
+# The biology sits in WHICH pairs are discordant, not in the arithmetic: on the
+# OXPHOS axis the discordant block is essentially the pro-death-up /
+# anti-death-down quadrant, i.e. the axis splits the BCL2 family rather than
+# lifting it. That is section 3/5 of the reconciliation note, tested elsewhere.
+message("\n5.0a-ii what the zero does and does not mean")
+
+message("   (i) is `gain` a stable quantity, or noise around zero?")
+gain_rank_agree <- gain_summary %>%
+  dplyr::group_by(axis) %>%
+  dplyr::summarise(
+    n_ratios     = dplyr::n(),
+    n_gain_both  = sum(TCGA > 0 & `SCAN-B` > 0),
+    n_gain_one   = sum(xor(TCGA > 0, `SCAN-B` > 0)),
+    n_gain_none  = sum(TCGA <= 0 & `SCAN-B` <= 0),
+    mean_TCGA    = mean(TCGA),
+    `mean_SCAN-B` = mean(`SCAN-B`),
+    best_cell    = max(c(TCGA, `SCAN-B`)),
+    # rank agreement of gain BETWEEN cohorts, over the 35 ratios
+    rank_rho     = stats::cor(TCGA, `SCAN-B`, method = "spearman"),
+    .groups = "drop")
+gain_rank_agree %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   (ii) do the positive gains live in the discordant block?")
+gain_by_discord <- priming %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::group_by(axis, cohort, discord) %>%
+  dplyr::summarise(n_ratios = dplyr::n(), n_gain_pos = sum(gain > 0),
+                   mean_gain = mean(gain), max_gain = max(gain),
+                   .groups = "drop")
+gain_by_discord %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   the ratios that gain in exactly ONE cohort (reported as such,",
+        " never as winners):")
+gain_one_cohort <- gain_summary %>%
+  dplyr::filter(xor(TCGA > 0, `SCAN-B` > 0)) %>%
+  dplyr::mutate(gains_in   = dplyr::if_else(TCGA > 0, "TCGA", "SCAN-B"),
+                gain_win   = pmax(TCGA, `SCAN-B`),
+                gain_other = pmin(TCGA, `SCAN-B`)) %>%
+  dplyr::left_join(
+    priming %>% dplyr::select(cohort, axis, ratio, rho, rho_pro, rho_anti,
+                              best_component, discord),
+    by = c("axis", "ratio", "gains_in" = "cohort")) %>%
+  dplyr::arrange(axis, dplyr::desc(gain_win)) %>%
+  dplyr::select(axis, ratio, gains_in, gain_win, gain_other, rho,
+                best_component, rho_pro, rho_anti, discord)
+gain_one_cohort %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# NOT a stopifnot. "every positive gain is discordant" is a FINDING, and an
+# assertion on a finding turns a changed result into a crashed script instead
+# of a reported change. It is printed, not enforced.
+message("\n   positive gains outside the discordant block: ",
+        sum(priming$gain > 0 & !priming$discord &
+              priming$axis %in% c("MYC", "OXPHOS")),
+        " of ", sum(priming$gain > 0 & priming$axis %in% c("MYC", "OXPHOS")))
 
 # --- 5.0b HOW MUCH OF A RATIO IS JUST ITS TWO GENES -------------------------
 # THE NUMBER THE PAPER LEANS ON, AND UNTIL 2026-09-03 IT LIVED IN NO SCRIPT.
@@ -852,9 +940,10 @@ priming_strata <- ratio_strata %>%
                                  anti = gene, rho_anti = rho),
                    by = c("cohort", "stratum", "axis", "anti")) %>%
   dplyr::mutate(best_component = pmax(abs(rho_pro), abs(rho_anti)),
-                gain = abs(rho) - best_component) %>%
+                gain = abs(rho) - best_component,
+                discord = sign(rho_pro) != sign(rho_anti)) %>%
   dplyr::select(cohort, stratum, axis, ratio, pro, anti, n, rho, ci_lo, ci_hi,
-                rho_pro, rho_anti, best_component, gain)
+                rho_pro, rho_anti, best_component, gain, discord)
 
 message("\n   does the POOLED value sit between its two compartments, or",
         " outside both?")
@@ -1712,6 +1801,8 @@ saveRDS(list(
   s6_by_axis = s6_by_axis,
   priming = priming, component_cor = component_cor, coexpr = coexpr,
   gain_summary = gain_summary, ratio_grid = RATIO_GRID,
+  gain_rank_agree = gain_rank_agree, gain_by_discord = gain_by_discord,
+  gain_one_cohort = gain_one_cohort,
   priming_strata = priming_strata, component_strata = component_strata,
   priming_marked = priming_marked, strata_marked = strata_marked,
   mark_summary = mark_summary, mark_both_list = mark_both_list,
@@ -1870,6 +1961,12 @@ if (FALSE) {
 
   # Q-c: which ratios actually beat their parts
   x$gain_summary %>% dplyr::filter(both_positive) %>% as.data.frame()
+
+  # Q-c-ii: and what a zero in that table does not mean - is `gain` stable,
+  # where do the positive gains live, and which ratios gain in one cohort only
+  x$gain_rank_agree %>% as.data.frame()
+  x$gain_by_discord %>% as.data.frame()
+  x$gain_one_cohort %>% dplyr::filter(axis == "OXPHOS") %>% as.data.frame()
 
   # and the heatmap's numbers, as a table
   x$priming %>%

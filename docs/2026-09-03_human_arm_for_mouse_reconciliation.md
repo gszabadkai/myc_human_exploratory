@@ -40,7 +40,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | | |
 |---|---|
 | **Every number below is read from a saved object**, not from a dry run. Where a number has no script behind it, it says so |
-| **E10** | re-sourced 2026-09-03 17:00. Current build: carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, and figure 8 |
+| **E10** | re-sourced 2026-09-03 17:00. Current build: carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, and figure 8. **Section 5.0a-ii was added to the script after that run** - the numbers in 3.3a and 3.3b are correct (verified against a redirected dry run that wrote nothing into the repo) but `results/machinery_and_priming.rds` does not carry `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` or `$priming$discord` until E10 is re-sourced. **No existing object changes**; three are added and one column |
 | **E11, E12, E13, E14** | all run by the author, unchanged since 2026-09-02 |
 | **E15** | run 2026-09-03 14:51. Its figures 1-4 are current; **figure 5 on disk is the earlier two-panel version** - the one-panel both-cohorts rewrite is in the script and needs a re-source. No number changes |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
@@ -232,10 +232,13 @@ self-pair, no empty cell.
 | object | rows | what it holds |
 |---|---|---|
 | `machinery_and_priming.rds$component_cor` | 144 | **the 12 genes x 2 axes x 2 cohorts, with 95% Fisher-z CIs.** The primary human priming table |
-| `$priming` | 420 | the 35 ratios x axes x cohorts: `rho`, `ci_lo/hi`, `rho_pro`, `rho_anti`, `coexpr`, `best_component`, `gain` |
+| `$priming` | 420 | the 35 ratios x axes x cohorts: `rho`, `ci_lo/hi`, `rho_pro`, `rho_anti`, `coexpr`, `best_component`, `gain`, `discord` |
 | `$priming_strata` | 1,260 | the same, split `all` / `Luminal` / `Basal` |
 | `$additive_fit` | 4 | the R2 of `rho ~ pro + anti` per axis per cohort |
 | `$gain_summary` | 70 | per ratio, `gain` in each cohort and `both_positive` |
+| `$gain_rank_agree` | 2 | per axis, the both/one/neither split and the **cross-cohort rank agreement of `gain`** (3.3a) |
+| `$gain_by_discord` | 8 | gain split by whether the two components lean opposite ways (3.3b) |
+| `$gain_one_cohort` | 19 | the ratios that gain in exactly one cohort - **read with 3.3a, never as winners** |
 | `$diff_tab` | 70 | the three ways to collapse the two axes into one number, per ratio |
 | `$gene_lean` | 12 | per gene, `rho(OXPHOS) - rho(MYC)` per cohort and whether it is OXPHOS-led |
 | `$between_test` | 140 | pooled value against its own Luminal and Basal values |
@@ -340,6 +343,115 @@ The five that gain on MYC are all under **+0.07**, and they reshuffled
 completely when the proliferation covariate was added - none of them is one of
 the three the unadjusted run named. **A list that changes identity under a
 covariate is a description of noise; the safest thing is not to name them.**
+
+#### 3.3a What that zero does and does not mean
+
+The both-cohorts rule is what decides what gets reported and it does not move.
+But `0` and *nothing there* are different claims, and three things behind the
+zero are themselves reproducible.
+
+**First, the distribution, not just its sign.** Splitting the 35 ratios by how
+many cohorts they gain in:
+
+| axis | gain in both | gain in one | gain in neither | mean gain (T / S) | best single cell |
+|---|---|---|---|---|---|
+| **OXPHOS** | 0 | **10** | 25 | -0.116 / -0.110 | **+0.090** |
+| **MYC** | 5 | 9 | 21 | -0.050 / -0.031 | +0.062 |
+
+Two readings run in opposite directions and both are true. The OXPHOS
+distribution sits **two to three times as far below zero** as the MYC one -
+ratios cost more on the OXPHOS axis, which is the negative result. And yet **the single
+largest gain anywhere in the grid is on OXPHOS, not MYC** (+0.090 against
++0.062). The zero in the table is a statement about reproducibility, not about
+size.
+
+**Second, `gain` is a stable quantity that happens to be negative.** The
+*ordering* of the 35 ratios by gain agrees between the cohorts even though the
+sign does not: Spearman **+0.408** on OXPHOS, **+0.560** on MYC. If gain were
+noise around zero the ordering would not survive at all. It is not that the
+measurement is unstable; it is that the whole distribution is shifted down and
+the top of a reproducible ordering brushes zero one cohort at a time.
+
+**Third, the near miss is very near.** `BAD/MCL1`, the strongest OXPHOS priming
+ratio in the grid (+0.507 / +0.467), fails the test by **-0.018 / -0.015** -
+a margin of about 3% of the correlation it is made of. The
+verdict "the ratio is its components" is right, but it is right by a whisker for
+the cell that matters most, and that is worth saying out loud in the paper
+rather than only reporting the 0.
+
+**The ten that gain in exactly one cohort** (proliferation-adjusted; `rho` and
+`best component` are from the cohort that gains):
+
+| ratio | gains in | gain there | gain in the other | ratio rho | best component | pro / anti rho |
+|---|---|---|---|---|---|---|
+| `BCL2L11/BCL2L1` | TCGA | **+0.090** | -0.176 | -0.515 | 0.426 | -0.314 / **+0.426** |
+| `BID/MCL1` | TCGA | **+0.077** | -0.033 | +0.406 | 0.329 | +0.329 / **-0.241** |
+| `BID/BCL2A1` | SCAN-B | +0.045 | -0.179 | +0.152 | 0.107 | +0.091 / -0.107 |
+| `BMF/BCL2L1` | SCAN-B | +0.042 | -0.009 | -0.392 | 0.350 | -0.223 / +0.350 |
+| `BBC3/MCL1` | TCGA | +0.040 | -0.017 | +0.405 | 0.365 | +0.365 / -0.241 |
+| `BIK/MCL1` | TCGA | +0.027 | -0.007 | +0.365 | 0.338 | +0.338 / -0.241 |
+| `BIK/BCL2L2` | TCGA | +0.012 | -0.105 | +0.350 | 0.338 | +0.338 / -0.145 |
+| `BBC3/BCL2L2` | TCGA | +0.009 | -0.080 | +0.374 | 0.365 | +0.365 / -0.145 |
+| `BBC3/BCL2` | SCAN-B | +0.008 | -0.020 | +0.179 | 0.170 | +0.170 / -0.074 |
+| `BBC3/BCL2A1` | SCAN-B | +0.008 | -0.168 | +0.178 | 0.170 | +0.170 / -0.107 |
+
+**None of these is a result and none should be quoted as one.** Six of the ten
+lose in the other cohort by more than they win by in this one, and the top of
+the list is the worst offender: `BCL2L11/BCL2L1` is the largest gain in the grid
+and the largest loss on the list.
+
+But the list is not arbitrary either, which is the point of writing it down:
+
+#### 3.3b Which cells can gain at all, and why the OXPHOS ones fail
+
+**27 of the 29 positive gains in the grid belong to a ratio whose numerator and
+denominator lean OPPOSITE ways on the axis - and on the OXPHOS axis it is 10 of
+10.** Splitting the 35 ratios by whether `sign(rho_pro) != sign(rho_anti)`:
+
+| axis | cohort | components | n | n with gain > 0 | mean gain | best |
+|---|---|---|---|---|---|---|
+| OXPHOS | TCGA | same direction | 16 | **0** | -0.193 | -0.044 |
+| OXPHOS | TCGA | **opposite** | 19 | 6 | -0.052 | +0.090 |
+| OXPHOS | SCAN-B | same direction | 16 | **0** | -0.159 | -0.016 |
+| OXPHOS | SCAN-B | **opposite** | 19 | 4 | -0.069 | +0.045 |
+| MYC | TCGA | same direction | 17 | **0** | -0.093 | -0.010 |
+| MYC | TCGA | **opposite** | 18 | 9 | -0.009 | +0.052 |
+| MYC | SCAN-B | same direction | 17 | 2 | -0.057 | +0.015 |
+| MYC | SCAN-B | **opposite** | 18 | 8 | -0.006 | +0.062 |
+
+The two exceptions are both `MYC` in SCAN-B (`BBC3/BCL2L1` +0.015,
+`BAD/BCL2L1` +0.004) and both have `BCL2L1` as the denominator, whose MYC rho
+there is **+0.033** - close enough to zero that calling the pair concordant is a
+coin flip on a sign, and small enough that the gains are trivial.
+
+Half of this is arithmetic and must be labelled as such: dividing two things
+that move together subtracts the shared signal, dividing two things that move
+apart adds them. Nobody should be surprised.
+
+**The biology is in which pairs are discordant.** On the OXPHOS axis the
+discordant block is essentially the *pro-death-up / anti-death-down* quadrant -
+`{BAD, BBC3, BIK, BID} x {MCL1, BCL2, BCL2L2, BCL2A1}`, plus the three cells
+where the two down-going sensitisers meet `BCL2L1`. **The OXPHOS axis splits the
+BCL2 family rather than lifting it**, which is 3.1 and section 5 restated at the
+level of pairs, and it is why 19 of 35 OXPHOS cells are even eligible to gain.
+
+So the failure of the ratios on the OXPHOS axis is **not** "OXPHOS does not
+reach priming". It is narrower and more useful: *within a discordant pair, the
+axis's effect is already fully carried by whichever of the two genes it moves
+more.* That is the additive fit of 3.5 (92.1-94.6%) stated one pair at a time,
+and it is why the components, not the ratios, are what section 5's model is
+built on.
+
+**Why the two best OXPHOS cells do not replicate is checkable, not mysterious.**
+`BID/MCL1` and `BBC3/MCL1` are textbook priming ratios - sensitiser up,
+guardian down - and both gain in TCGA. Their denominator is stable across
+cohorts (`MCL1` -0.241 / -0.292); their **numerators are not**. `BID` falls from
+**+0.329 to +0.091** and `BBC3` from **+0.365 to +0.170** between TCGA and
+SCAN-B. The pair loses its discordance strength on the numerator side, so the
+ratio has nothing left to add. **That is a falsifiable statement**: a third
+cohort in which `BID` and `BBC3` correlate with OXPHOS at TCGA strength should
+show `BID/MCL1` and `BBC3/MCL1` gaining; one in which they behave like SCAN-B
+should not. Nothing about the ratio itself needs to be invoked.
 
 Figure `E10_fig4` draws this as a scatter against the diagonal. Figures
 `E10_fig3` and `E10_fig6` carry the same test onto the heatmap cells:
@@ -517,8 +629,9 @@ in the sensitiser's cognate list. Listed in section 10 to be folded into `E10`.
 | filter | survivors |
 |---|---|
 | all 35 ratios | 35 |
-| ...`gain > 0` in both cohorts, OXPHOS | **0** |
+| ...`gain > 0` in both cohorts, OXPHOS | **0** (but 10 in one cohort, and the best single cell in the grid is one of them - 3.3a) |
 | ...`gain > 0` in both cohorts, MYC | 5, all under +0.07, all reshuffled by the covariate |
+| ...components lean opposite ways, OXPHOS | 19 of 35 - **the only cells that ever gain**, 10 of 10 (3.3b) |
 | ...`gain > 0` AND `\|rho\| >= 0.30`, pooled | 7 cells, all OXPHOS, **0 in both cohorts** |
 | ...same, any stratum | 22 cells, all OXPHOS |
 | ...same, in **both cohorts** | **3, all Basal OXPHOS** |
@@ -1042,6 +1155,14 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    composition vary least. Named in E14 as the falsifier for H2, and it is also
    where V6 should be checked from the other side.
 4. **Re-source `E15`** to pick up the one-panel `fig5`. No numbers change.
+   **Re-source `E10`** as well, to put 3.3a and 3.3b's tables into
+   `results/machinery_and_priming.rds`. Also no existing number changes -
+   three objects and one column are added (0.section, and the dry run is in
+   the scratchpad).
+   - **The `BID`/`BBC3` numerator test named in 3.3b is the cheapest real
+     falsifier left in the priming section** and it needs a third cohort, not
+     more work on these two: METABRIC is out of scope, so this is a note for
+     whoever reopens that decision.
 5. Score `COLLECTRI_MYC_STIM` (739 genes, in the snapshot, never scored) as a
    fifth base; drop `ELLWOOD` and recompute the entanglement slope. Both need a
    pipeline re-run.
