@@ -217,6 +217,7 @@ the only comparator was a random draw.
 | **Main, panel B** | `E11_fig9` B - the conditioning ladder, four rows, two cohorts, with the compartment-matched null band and bootstrap intervals | **not optional.** It is what turns A from a description into a test |
 | **Main or supplementary** | `E14_fig6` - the one-panel specificity figure | x = what a programme's regulon members do, y = what its cytosolic members do. Four programmes, only apoptosis below zero |
 | Supplementary | `E15_fig1` - the 44 as one bar per gene, MYC point and OXPHOS point, sorted by the difference, both cohorts | the per-gene version of panel A, for a reader who wants to know WHICH genes carry it. Cite `E15_fig3` with it if the difference is quoted in the text |
+| Supplementary | `E15_fig4` - the two halves as bars, mean +/- SD, on MYC, on OXPHOS and on their difference, every gene drawn on top | the most compact statement of the result. **Must carry its SD-not-SE sentence wherever it goes** - the SD is nearly as wide as the distance between the means |
 | Supplementary | `E11_fig2` - the mitoribosome control | **must be cited in panel B's legend.** It rules out "the adjustment emptied the MYC score" |
 | Supplementary | `E14_fig5` - the infiltrate falsifier | **must be cited in `E14_fig6`'s legend.** The panel's whole weight rests on that negative not being infiltrate |
 | Supplementary | `E14_fig1` head-to-head, `E14_fig3` pathway ladder | the three-step version of the same argument |

@@ -36,7 +36,7 @@ for the same 44 genes, in all eight cohort x axis x adjustment cells.** If a
 future edit to E11 changes those numbers, E15 stops rather than drawing them.
 
 Outputs: `results/two_axis_gene_view.rds`,
-`outputs/tables/E15_gene_rho_two_axes.csv`, three figures.
+`outputs/tables/E15_gene_rho_two_axes.csv`, four figures.
 
 ---
 
@@ -45,7 +45,8 @@ Outputs: `results/two_axis_gene_view.rds`,
 `E15_fig1` - one bar per gene, hollow point = MYC, filled point = OXPHOS, rows
 sorted by the cross-cohort mean of the difference, both cohorts, same order.
 `E15_fig2` - the same 44 as a numbered heatmap, raw and adjusted, halves
-stacked. `E15_fig3` - the arithmetic check in V2.
+stacked. `E15_fig3` - the arithmetic check in V2. `E15_fig4` - the two halves
+as bars, mean +/- SD, with every gene drawn on top (V1b).
 
 Adjusted, TCGA / SCAN-B. The split is Spearman of the quantity with MitoCarta
 membership across the 44 genes - the study's anchor statistic:
@@ -65,6 +66,47 @@ because it is computed inside each gene rather than across two summaries.
 The difference **replicates**: Spearman 0.83 between cohorts, 38 of 44 agreeing
 in sign. The six that do not - `BCL2L11`, `BOK`, `CASP10`, `CASP8`, `DIABLO`,
 `XIAP` - are drawn with a dotted bar and are all small-gap genes.
+
+## V1b. The same thing as two bars - `E15_fig4`
+
+Requested 2026-09-03: mean +/- SD of the proliferation-adjusted per-gene
+difference, mitochondrial against cytosolic. The two components are drawn beside
+it on the same y axis, because a reader shown only the difference cannot tell
+whether it comes from OXPHOS moving or from MYC moving, and that is the point.
+
+Adjusted, TCGA / SCAN-B. `sep` is the gap between the two group means:
+
+| | mitochondrial (n=20) | cytosolic (n=24) | sep |
+|---|---|---|---|
+| **MYC** | +0.078 +/- 0.196 / +0.055 +/- 0.152 | +0.002 +/- 0.183 / +0.003 +/- 0.161 | **+0.076 / +0.053** |
+| **OXPHOS** | +0.167 +/- 0.286 / +0.143 +/- 0.226 | -0.106 +/- 0.283 / -0.094 +/- 0.209 | **+0.273 / +0.237** |
+| **OXPHOS - MYC** | +0.089 +/- 0.188 / +0.088 +/- 0.171 | -0.108 +/- 0.186 / -0.096 +/- 0.161 | **+0.197 / +0.184** |
+
+Three readings, in order of how much weight they take:
+
+1. **MYC's two bars are on the same side of zero and 0.05-0.08 apart. OXPHOS's
+   straddle zero and are 0.24-0.27 apart.** MYC separates the halves three to
+   four times less, and does not reverse their sign.
+2. **The error bar is +/- one SD of the genes in the group, not an uncertainty
+   on the mean.** At 0.16-0.19 it is nearly as wide as the distance between the
+   means, and the bars overlap: **these halves separate on average and not gene
+   by gene.** Every gene is drawn on top so that is visible rather than
+   inferred. The SE of each mean is about a fifth of the SD (0.033-0.042 for the
+   difference).
+3. **A mean and a rank statistic disagree slightly here, and both are right.**
+   Subtracting MYC costs the mean-scale separation +0.08 / +0.05 (0.273 to
+   0.197) while it costs the rank-based split nothing (0.453 to 0.471; 0.489 to
+   0.485). Means subtract exactly and ranks do not - the two weight genes
+   differently. **Neither should be quoted as the other**, and both are in
+   `bar_diff` and `split_tab`.
+
+Robustness: deleting all eight flagged genes - `CYCS`, `TP53`, `BIRC5` and the
+five below the 25th expression percentile - leaves the means at +0.089 / +0.069
+(mitochondrial) and -0.107 / -0.091 (cytosolic). The difference is not carried
+by them. **No test is reported**, here or anywhere in E15: two groups of a
+curated 44, in a study whose atlas is a grid of thousands of cells. The reading
+is the direction, its size relative to the spread, and that both cohorts show
+it.
 
 ## V2. The one arithmetic caveat, and it is real
 
@@ -208,10 +250,16 @@ test asks what the shared correlate actually is.**
 ## V7. What this changes in the paper
 
 Nothing yet, and deliberately: every number here was already established. It
-earns a **supplementary figure slot** - `E15_fig1` as the per-gene version of
-`E11_fig9` panel A, for a reader who wants to know which genes carry it - and
-`E15_gene_rho_two_axes.csv` as the underlying table. `E15_fig3` belongs in the
-supplement beside it if the difference is quoted anywhere in the text.
+earns **supplementary figure slots** - `E15_fig1` as the per-gene version of
+`E11_fig9` panel A, for a reader who wants to know which genes carry it, and
+`E15_fig4` as the two-bar summary of the same thing for a reader who does not -
+plus `E15_gene_rho_two_axes.csv` as the underlying table. `E15_fig3` belongs in
+the supplement beside them if the difference is quoted anywhere in the text.
+
+`E15_fig4` is the most compact statement of the result in the whole study and
+is the candidate if a main-figure panel is ever needed at this altitude. It must
+carry its SD-not-SE sentence wherever it goes; without it the overlap between
+the two distributions is invisible and the figure overclaims.
 
 `E15_fig2` is a table drawn as a figure. It is the right object for a reviewer
 and probably the wrong one for a page.

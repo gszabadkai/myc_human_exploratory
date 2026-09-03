@@ -608,6 +608,164 @@ g3 <- ggplot2::ggplot(f3, ggplot2::aes(value, quantity)) +
   theme_e15
 .save(g3, "E15_fig3_gap_vs_spread", 8.6, 4.6)
 
+# --- FIG 4: the two halves as bars, mean +/- SD -----------------------------
+# The author asked for the difference as a bar chart. The two components are
+# drawn beside it in the same units and on the same y axis, because a reader
+# shown only the right-hand pair cannot tell whether the difference comes from
+# OXPHOS moving or from MYC moving, and the answer is the whole point: the MYC
+# bars are the same height as each other and the OXPHOS bars are opposite.
+#
+# THE ERROR BAR IS A SPREAD, NOT AN UNCERTAINTY. It is the SD of the 20 or 24
+# genes in the group, so it is nearly as wide as the distance between the two
+# means and the bars overlap heavily. That is the honest picture: these groups
+# separate ON AVERAGE and not gene by gene. The individual genes are drawn on
+# top so the SD can be read as what it is, and the SE of each mean - about a
+# fifth of the SD - is in the caption and in `bar_tab`.
+f4 <- dplyr::bind_rows(
+  gene_axes %>% dplyr::filter(adjustment == ADJ_MAIN) %>%
+    dplyr::transmute(cohort, gene, mito_class, quantity = axis, value = rho),
+  pairs_tab %>% dplyr::filter(adjustment == ADJ_MAIN) %>%
+    dplyr::transmute(cohort, gene, mito_class, quantity = "OXPHOS - MYC",
+                     value = gap)) %>%
+  dplyr::mutate(cohort = factor(cohort, levels = COHORT_LEVELS),
+                quantity = factor(quantity,
+                                  levels = c("MYC", "OXPHOS", "OXPHOS - MYC")))
+stopifnot(nrow(f4) == N_CANON * 2L * 3L, !anyNA(f4$quantity))
+
+bar_tab <- f4 %>%
+  dplyr::group_by(cohort, quantity, mito_class) %>%
+  dplyr::summarise(n = dplyr::n(), mean = mean(value), sd = stats::sd(value),
+                   se = stats::sd(value) / sqrt(dplyr::n()), .groups = "drop") %>%
+  dplyr::mutate(lo = mean - sd, hi = mean + sd)
+message("\n   figure 4 as a table - mean +/- SD by half, under ", ADJ_MAIN, ":")
+bar_tab %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# The difference of the two group means, and the same difference after each
+# axis is standardised - the V2 caveat carried into this figure's units.
+bar_diff <- dplyr::bind_rows(
+  bar_tab %>% dplyr::select(cohort, quantity, mito_class, mean) %>%
+    tidyr::pivot_wider(names_from = mito_class, values_from = mean) %>%
+    dplyr::mutate(scale = "rho"),
+  pairs_tab %>% dplyr::filter(adjustment == ADJ_MAIN) %>%
+    dplyr::group_by(cohort, mito_class) %>%
+    dplyr::summarise(m = mean(gap_z), .groups = "drop") %>%
+    tidyr::pivot_wider(names_from = mito_class, values_from = m) %>%
+    dplyr::mutate(quantity = "OXPHOS - MYC", scale = "SD-standardised")) %>%
+  dplyr::mutate(diff = .data[[MITO_LEVELS[1]]] - .data[[MITO_LEVELS[2]]]) %>%
+  dplyr::select(cohort, quantity, scale, dplyr::all_of(MITO_LEVELS), diff)
+message("\n   difference between the two group means:")
+bar_diff %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# Does the difference survive dropping every gene the figures flag? Three are
+# partly self-correlated or self-adjusted, five are low-expression. Eight of 44.
+FLAGGED <- sort(unique(c(annot$gene[annot$in_oxphos_arm | annot$in_prolif_cov],
+                         LOW_GENES)))
+bar_trim <- pairs_tab %>%
+  dplyr::filter(adjustment == ADJ_MAIN, !gene %in% FLAGGED) %>%
+  dplyr::group_by(cohort, mito_class) %>%
+  dplyr::summarise(n = dplyr::n(), mean = mean(gap), sd = stats::sd(gap),
+                   .groups = "drop")
+message("\n   the same difference with the ", length(FLAGGED),
+        " flagged genes deleted (", paste(FLAGGED, collapse = ", "), "):")
+bar_trim %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+.bd <- function(coh, q, sc = "rho")
+  .n(bar_diff, cohort == coh, quantity == q, scale == sc)$diff
+.bt <- function(coh, cls, col)
+  .n(bar_tab, cohort == coh, quantity == "OXPHOS - MYC",
+     mito_class == cls)[[col]]
+.tr <- function(coh, cls)
+  .n(bar_trim, cohort == coh, mito_class == cls)$mean
+
+CAP4 <- sprintf(paste0(
+  "The right-hand pair is what was asked for: the per-gene difference between",
+  " the axes, averaged\n",
+  "within each half. The two left pairs are its components, on the same y axis",
+  " so the heights are\n",
+  "comparable.\n",
+  "READ ACROSS. The GAP BETWEEN THE TWO BARS is %+.2f / %+.2f on OXPHOS (TCGA",
+  " / SCAN-B) and only\n",
+  "%+.2f / %+.2f on MYC - MYC separates the halves three to four times less,",
+  " and its two bars sit on\n",
+  "the same side of zero while the OXPHOS pair straddles it. Means subtract",
+  " exactly, so the right-hand\n",
+  "pair is the middle pair minus the left one and its separation is %+.2f /",
+  " %+.2f.\n",
+  "ON THE RANK STATISTIC THE SUBTRACTION COSTS NOTHING (figures 1 and 3: 0.45",
+  " to 0.47 in TCGA, 0.49\n",
+  "to 0.49 in SCAN-B) WHILE ON THIS MEAN SCALE IT COSTS %+.2f / %+.2f. The two",
+  " are not in conflict -\n",
+  "a rank statistic and a mean weight genes differently - but neither should be",
+  " quoted as the other.\n",
+  "Standardising each axis by the SD of its own 44 values first puts the",
+  " separation at %+.2f / %+.2f,\n",
+  "which is the figure-3 caveat in this figure's units.\n",
+  "THE ERROR BAR IS +/- ONE SD OF THE GENES IN THE GROUP, NOT AN UNCERTAINTY",
+  " ON THE MEAN. It is\n",
+  "almost as wide as the distance between the means, and the bars overlap:",
+  " these halves separate ON\n",
+  "AVERAGE and not gene by gene. Every gene is drawn on top so that spread can",
+  " be seen rather than\n",
+  "inferred. The SE of each mean is about a fifth of the SD - for the",
+  " difference, %.3f and %.3f\n",
+  "(mitochondrial) against %.3f and %.3f (cytosolic).\n",
+  "n = 20 mitochondrial and 24 cytosolic. Deleting all %d flagged genes - the",
+  " three partly\n",
+  "self-correlated or self-adjusted and the five below the 25th expression",
+  " percentile - leaves the\n",
+  "means at %+.3f / %+.3f (mitochondrial) and %+.3f / %+.3f (cytosolic), so",
+  " the difference is not\n",
+  "carried by them. NO TEST IS REPORTED. Two groups of a curated 44 in a study",
+  " whose atlas is a grid\n",
+  "of thousands of cells; the reading is the direction, its size relative to",
+  " the spread, and that\n",
+  "both cohorts show it."),
+  .bd("TCGA", "OXPHOS"), .bd("SCAN-B", "OXPHOS"),
+  .bd("TCGA", "MYC"), .bd("SCAN-B", "MYC"),
+  .bd("TCGA", "OXPHOS - MYC"), .bd("SCAN-B", "OXPHOS - MYC"),
+  .bd("TCGA", "MYC"), .bd("SCAN-B", "MYC"),
+  .bd("TCGA", "OXPHOS - MYC", "SD-standardised"),
+  .bd("SCAN-B", "OXPHOS - MYC", "SD-standardised"),
+  .bt("TCGA", MITO_CLS, "se"), .bt("SCAN-B", MITO_CLS, "se"),
+  .bt("TCGA", CYTO_CLS, "se"), .bt("SCAN-B", CYTO_CLS, "se"),
+  length(FLAGGED),
+  .tr("TCGA", MITO_CLS), .tr("SCAN-B", MITO_CLS),
+  .tr("TCGA", CYTO_CLS), .tr("SCAN-B", CYTO_CLS))
+
+g4 <- ggplot2::ggplot(bar_tab, ggplot2::aes(mito_class, mean)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
+  ggplot2::geom_col(ggplot2::aes(fill = mito_class), width = 0.62,
+                    alpha = 0.4, colour = NA) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = lo, ymax = hi,
+                                      colour = mito_class),
+                         width = 0.16, linewidth = 0.55) +
+  ggplot2::geom_point(data = f4, ggplot2::aes(mito_class, value,
+                                              colour = mito_class),
+                      position = ggplot2::position_jitter(width = 0.17,
+                                                          height = 0,
+                                                          seed = PROJECT_SEED),
+                      size = 0.85, alpha = 0.65, show.legend = FALSE) +
+  ggplot2::geom_point(ggplot2::aes(colour = mito_class), size = 2.3) +
+  ggplot2::facet_grid(cohort ~ quantity) +
+  ggplot2::scale_fill_manual(values = COMP_COLS, name = NULL) +
+  ggplot2::scale_colour_manual(values = COMP_COLS, name = NULL) +
+  ggplot2::scale_x_discrete(labels = c("mitochondrial\n(MitoCarta, n = 20)",
+                                       "cytosolic\n(not in MitoCarta, n = 24)")) +
+  ggplot2::labs(
+    title = paste("OXPHOS separates the two halves in opposite directions;",
+                  "MYC barely separates them"),
+    subtitle = paste0("EXPLORATORY - not pre-registered | mean +/- 1 SD of the ",
+                      "per-gene values | partial Spearman on ", PROLIF_COV),
+    x = NULL, y = "per-gene Spearman rho (right column: a difference of two)",
+    caption = CAP4) +
+  theme_e15 +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(size = 6.8),
+                 legend.position = "none")
+.save(g4, "E15_fig4_gap_by_membership_bars", 8.4, 7.4)
+
 # =============================================================================
 # 5. Save
 # =============================================================================
@@ -621,6 +779,8 @@ saveRDS(list(
   gene_axes = gene_axes, pairs_tab = pairs_tab, gene_order = gene_order,
   annot = annot, sd_tab = sd_tab, split_tab = split_tab, half_tab = half_tab,
   rep_tab = rep_tab, ends = ends, anchor_chk = anchor_chk,
+  bar_tab = bar_tab, bar_diff = bar_diff, bar_trim = bar_trim,
+  flagged = FLAGGED,
   low_expr = low_expr, disagree = DISAGREE, lab_levels = LAB_LEVELS,
   settings = list(myc_axis = MYC_REF, prolif_covariate = PROLIF_COV,
                   adjustments = ADJ_LEVELS, main_adjustment = ADJ_MAIN,
@@ -653,6 +813,12 @@ saveRDS(list(
                            "cell is a finding. Five genes sit below the 25th",
                            "expression percentile in at least one cohort and",
                            "are starred on every panel."),
+    error_bar = paste("figure 4's error bar is +/- one SD of the 20 or 24 genes",
+                      "in the group, NOT an uncertainty on the mean. It is",
+                      "almost as wide as the distance between the two means:",
+                      "the halves separate on average and not gene by gene.",
+                      "Every gene is drawn on top for that reason, and the SE",
+                      "is in `bar_tab`. No test is reported."),
     control = paste("none of these figures may be read as MYC being unrelated",
                     "to the machinery. E11 figure 2 is the control that shows",
                     "the adjusted MYC axis still tracks the mitoribosome; an",
@@ -663,10 +829,11 @@ readr::write_csv(csv_out, PATH_E15_CSV)
 message("\nE15: done.")
 message("    results/two_axis_gene_view.rds")
 message("    outputs/tables/E15_gene_rho_two_axes.csv")
-message("    3 figures in outputs/figures/:")
+message("    4 figures in outputs/figures/:")
 message("      fig1 the dumbbell - one bar per gene, sorted by the difference")
 message("      fig2 the same 44 as a numbered heatmap, raw and adjusted")
 message("      fig3 how much of the difference is the axes' spread")
+message("      fig4 the two halves as bars, mean +/- SD, with every gene on top")
 
 # =============================================================================
 # Sandbox
@@ -710,6 +877,18 @@ if (FALSE) {
                      med_MYC = round(stats::median(rho_MYC), 3),
                      med_gap = round(stats::median(gap), 3), .groups = "drop") %>%
     as.data.frame()
+
+  # Figure 4 as a table: mean +/- SD, and the difference between the means.
+  x$bar_tab %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+  x$bar_diff %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+  x$bar_trim %>%
+    dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+    as.data.frame()
+  x$flagged
 
   # The starred genes, which must never be read as results.
   x$low_expr %>% dplyr::filter(low_expression) %>% as.data.frame()
