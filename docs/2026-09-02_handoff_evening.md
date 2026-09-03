@@ -6,6 +6,10 @@ purpose: ONE script to re-run. The science has moved a long way; the paper
 supersedes: docs/2026-09-02_handoff.md (deleted)
 ---
 
+> **SUPERSEDED 2026-09-03 by `docs/2026-09-03_handoff_evening.md`.** Both
+> scripts in section 1 below have been run. This file is kept only because the
+> synthesis document cites it; **do not act on its "RUN THIS" table.**
+
 # Handoff - one script to re-run, and the paper has a spine now
 
 `main` level with `origin`, tree clean. **`E00`-`E13` are all written and all
