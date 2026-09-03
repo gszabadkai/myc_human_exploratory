@@ -224,7 +224,9 @@ at figure 3 or figure 6. Both heatmaps now carry the test as a cell mark.
 | mark | meaning |
 |---|---|
 | `*` | in **this cohort**, `gain > 0` **and** `\|rho\| >= 0.30` - the ratio beats the stronger of its own two genes, and the effect is not small |
-| **heavy black border** | the same ratio does that in **both cohorts**, at the same stratum and on the same axis |
+| `**` | the starred cell's **two genes are each governed more by OXPHOS than by MYC on their own**: `\|rho(OXPHOS) - rho(MYC)\| >= 0.20` in at least one cohort |
+| `^` on an axis label | that gene passes the `**` gene test, so a `**` can only appear where a marked row crosses a marked column |
+| **heavy black border** | the same ratio does the `*` test in **both cohorts**, at the same stratum and on the same axis |
 
 The 0.30 floor is **hand-drawn, is not a test, and moving it moves the marks.**
 It is `|rho|` rather than `rho` so a ratio running strongly the other way is
@@ -248,8 +250,45 @@ the mark mean "large and positive" while the caption said "large".
    in TCGA. A mark in Basal is a weaker claim than the same mark would be in
    Luminal, and three cells out of 70 is a hypothesis, not a result.
 
-Saved as `priming_marked`, `strata_marked`, `mark_summary`, `mark_both_list` and
-`pooled_two_way`; the constant is `settings$mark_min_abs_rho`.
+**The `**` gene test, added 2026-09-03.** The per-gene quantity is E15 figure
+5's - `rho(gene, OXPHOS) - rho(gene, MYC)`, both partial on `PROLIF_DISJOINT` -
+and it is recomputed here from `component_cor` rather than read from E15, for
+two reasons: E15 runs after this script, and E11's pipeline covers only 10 of
+these 12 genes because `BIK` and `BCL2L2` are not among the canonical 44. **On
+the 10 both cover, the two pipelines agree to 0.000 in all 20 cohort-by-gene
+cells** (checked 2026-09-03), so the `^` genes here are the same genes E15
+figure 5 puts at the top and bottom of its axis.
+
+| gene | side | TCGA | SCAN-B | `^` |
+|---|---|---|---|---|
+| `BCL2L1` | anti | +0.455 | +0.317 | yes |
+| `BAD` | pro | +0.363 | +0.368 | yes |
+| `BIK` | pro | +0.330 | +0.163 | yes |
+| `MCL1` | anti | **-0.321** | **-0.254** | yes |
+| `BBC3` | pro | +0.202 | +0.061 | yes |
+| `PMAIP1` | pro | +0.048 | +0.159 | no |
+| the other six | | all within +/- 0.18 | | no |
+
+**The threshold is on the MAGNITUDE, chosen by the author over the signed
+version, and the choice matters.** It admits `MCL1`, which leans hard to OXPHOS
+while running the *other* way. That is not a loophole, it is the productive
+configuration: R5 found a ratio only beats its own two genes when they move
+oppositely, so a denominator leaning negative is exactly what makes
+`log2(pro/anti)` add instead of cancel. **Under the signed rule (`gap >= +0.20`)
+not one marked cell in either heatmap qualifies** - the same structural tension
+seen from the other side. `mark2_signed` keeps that count.
+
+5. **7 of the 22 marked cells on figure 6 are `**`, and EVERY ONE OF THEM HAS
+   `MCL1` AS DENOMINATOR** - `BBC3/MCL1` five times, `BIK/MCL1` twice,
+   `BAD/MCL1` once. On figure 3 it is 2 of 7, both TCGA, both `/MCL1`.
+6. **`BBC3/MCL1` in Basal is the only cell in the figure carrying all three
+   marks**: starred in both cohorts, bordered, and `**` in both. If one priming
+   ratio is ever carried forward from this study, it is that one, and it is
+   still a hypothesis in the cohort with the widest intervals.
+
+Saved as `priming_marked`, `strata_marked`, `mark_summary`, `mark_both_list`,
+`pooled_two_way`, `gene_gap`, `gene_lean` and `lean_genes`; the constants are
+`settings$mark_min_abs_rho` and `settings$mark2_min_abs_gap`.
 
 **Also fixed in the same pass:** figure 3's subtitle had been clipped, not
 wrapped, since the figure was written - ggplot clips a long subtitle the same

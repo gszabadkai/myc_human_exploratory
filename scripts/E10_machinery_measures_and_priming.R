@@ -1082,6 +1082,61 @@ priming_marked <- .mark_cells(priming, c("axis", "ratio"))
 strata_marked  <- .mark_cells(priming_strata, c("stratum", "axis", "ratio"))
 stopifnot(!anyNA(priming_marked$mark_both), !anyNA(strata_marked$mark_both))
 
+# --- WHICH GENES ARE GOVERNED BY OXPHOS RATHER THAN BY MYC ------------------
+# Author, 2026-09-03: among the marked cells, mark harder the ones whose TWO
+# genes are BOTH governed more by OXPHOS than by MYC. The per-gene quantity is
+# E15 figure 5's - rho(gene, OXPHOS) - rho(gene, MYC), both partial on
+# PROLIF_DISJOINT - and it is RECOMPUTED HERE from `component_cor` rather than
+# read from E15. Two reasons: E15 runs after this script, and E11's pipeline
+# covers only 10 of these 12 genes, because BIK and BCL2L2 are not among the
+# canonical 44. On the 10 it does cover the two pipelines agree to 0.000 in all
+# 20 cohort-by-gene cells, checked 2026-09-03.
+#
+# THE THRESHOLD IS ON THE MAGNITUDE, |gap| >= 0.20, chosen by the author over
+# the signed version. It admits MCL1, whose gap is -0.32 / -0.25: MCL1 leans
+# hard to OXPHOS while running the OTHER WAY. That is not a loophole, it is the
+# productive configuration - R5 found that a ratio only beats its own two genes
+# when they move oppositely, so a denominator leaning negative is exactly what
+# lets log2(pro/anti) add rather than cancel. Under the signed rule
+# (gap >= +0.20) NOT ONE marked cell qualifies anywhere, which is the same
+# structural tension seen from the other side; both counts are printed below.
+MARK2_MIN_ABS_GAP <- 0.20
+
+gene_gap <- component_cor %>%
+  dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
+  dplyr::select(cohort, gene, side, axis, rho) %>%
+  tidyr::pivot_wider(names_from = axis, values_from = rho) %>%
+  dplyr::mutate(gap = OXPHOS - MYC)
+stopifnot(nrow(gene_gap) == length(c(PRIMING_PRO, PRIMING_ANTI)) * 2L,
+          !anyNA(gene_gap$gap))
+gene_lean <- gene_gap %>%
+  dplyr::group_by(gene, side) %>%
+  dplyr::summarise(gap_TCGA = gap[cohort == "TCGA"],
+                   gap_SCANB = gap[cohort == "SCAN-B"],
+                   max_abs_gap = max(abs(gap)),
+                   max_signed_gap = max(gap), .groups = "drop") %>%
+  dplyr::mutate(oxphos_led = max_abs_gap >= MARK2_MIN_ABS_GAP,
+                oxphos_led_signed = max_signed_gap >= MARK2_MIN_ABS_GAP) %>%
+  dplyr::arrange(side, dplyr::desc(max_abs_gap))
+LEAN_GENES <- sort(gene_lean$gene[gene_lean$oxphos_led])
+LEAN_SIGNED <- sort(gene_lean$gene[gene_lean$oxphos_led_signed])
+
+.mark2 <- function(d)
+  dplyr::mutate(d, mark2 = mark & pro %in% LEAN_GENES & anti %in% LEAN_GENES,
+                mark2_signed = mark & pro %in% LEAN_SIGNED &
+                  anti %in% LEAN_SIGNED)
+priming_marked <- .mark2(priming_marked)
+strata_marked  <- .mark2(strata_marked)
+
+message("\n   per-gene |rho(OXPHOS) - rho(MYC)|, the E15 figure 5 quantity:")
+gene_lean %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   OXPHOS-led at |gap| >= ", MARK2_MIN_ABS_GAP, ": ",
+        paste(LEAN_GENES, collapse = ", "))
+message("   under the SIGNED rule it would be: ",
+        paste(LEAN_SIGNED, collapse = ", "), " - and no marked cell qualifies")
+
 message("\n   heatmap marks: `gain > 0` AND |rho| >= ", MARK_MIN_ABS_RHO)
 mark_summary <- dplyr::bind_rows(
   priming_marked %>% dplyr::mutate(stratum = "all (figure 3)"),
@@ -1089,9 +1144,17 @@ mark_summary <- dplyr::bind_rows(
   dplyr::group_by(figure = ifelse(grepl("figure 3", stratum), "fig3", "fig6"),
                   stratum, axis) %>%
   dplyr::summarise(n_cells = dplyr::n(), n_marked = sum(mark),
-                   n_marked_both = sum(mark_both) / 2, .groups = "drop")
+                   n_marked_both = sum(mark_both) / 2,
+                   n_mark2 = sum(mark2), n_mark2_signed = sum(mark2_signed),
+                   .groups = "drop")
 mark_summary %>% as.data.frame() %>% print(row.names = FALSE)
 message("   NOT ONE MYC CELL IS MARKED, in either heatmap, at any stratum.")
+message("   ** cells - both genes OXPHOS-led - on figure 6:")
+strata_marked %>% dplyr::filter(mark2) %>%
+  dplyr::transmute(stratum, cohort, axis, ratio, rho = round(rho, 3),
+                   gain = round(gain, 3), bordered = mark_both) %>%
+  dplyr::arrange(stratum, cohort, ratio) %>%
+  as.data.frame() %>% print(row.names = FALSE)
 mark_both_list <- strata_marked %>%
   dplyr::filter(mark_both) %>%
   dplyr::distinct(stratum, axis, ratio) %>%
@@ -1123,6 +1186,12 @@ pooled_two_way %>%
   dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 3))) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
+# A ^ on an axis label marks a gene that is OXPHOS-led on its own, so a reader
+# can see WHERE a ** could ever appear - only at the crossing of a marked row
+# and a marked column - and can see the crossings that stayed unstarred.
+.axis_lab <- function(v)
+  stats::setNames(paste0(v, ifelse(v %in% LEAN_GENES, " ^", "")), v)
+
 # --- the priming ratios ------------------------------------------------------
 g6dat <- priming_marked %>%
   dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
@@ -1136,10 +1205,12 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
                      ggplot2::aes(anti, pro), fill = NA, colour = "black",
                      linewidth = 0.85, inherit.aes = FALSE) +
   ggplot2::geom_text(data = dplyr::filter(g6dat, mark),
-                     ggplot2::aes(anti, pro), label = "*", size = 4.2,
-                     fontface = "bold", nudge_x = 0.32, nudge_y = 0.20,
-                     vjust = 0.75, inherit.aes = FALSE) +
+                     ggplot2::aes(anti, pro, label = ifelse(mark2, "**", "*")),
+                     size = 4.2, fontface = "bold", nudge_x = 0.29,
+                     nudge_y = 0.20, vjust = 0.75, inherit.aes = FALSE) +
   ggplot2::facet_grid(cohort ~ axis) +
+  ggplot2::scale_x_discrete(labels = .axis_lab(PRIMING_ANTI)) +
+  ggplot2::scale_y_discrete(labels = .axis_lab(PRIMING_PRO)) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
                                 limits = c(-LIM, LIM), na.value = "grey85",
@@ -1167,6 +1238,15 @@ g6 <- ggplot2::ggplot(g6dat, ggplot2::aes(anti, pro, fill = rho)) +
       "the ratio beats the stronger of its own two genes AND the effect is not\n",
       "small. 7 of 140 cells qualify and ALL SEVEN ARE OXPHOS; no MYC cell in\n",
       "this figure is marked. The 0.30 line is drawn by hand and is not a test.\n",
+      "** UPGRADES A STARRED CELL whose TWO genes are each governed more by\n",
+      "OXPHOS than by MYC on their own: |rho(OXPHOS) - rho(MYC)| >= 0.20 in at\n",
+      "least one cohort. Those five genes carry a ^ on the axis - BAD, BBC3 and\n",
+      "BIK above, BCL2L1 and MCL1 across - so a ** can only ever appear where a\n",
+      "marked row crosses a marked column. Two do here, both TCGA and both with\n",
+      "MCL1 underneath. MCL1 qualifies by running the OTHER WAY (-0.32 / -0.25)\n",
+      "and that is the productive case, not a loophole: a ratio beats its own\n",
+      "genes only when they move oppositely. Under a SIGNED rule no cell in\n",
+      "either heatmap qualifies at all.\n",
       "A HEAVY BORDER would mark a ratio passing in BOTH cohorts. THERE ARE\n",
       "NONE HERE, and the two halves of that failure pull opposite ways: the 5\n",
       "ratios that beat their parts in both cohorts are ALL on MYC and their\n",
@@ -1267,10 +1347,12 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
                      ggplot2::aes(anti, pro), fill = NA, colour = "black",
                      linewidth = 0.85, inherit.aes = FALSE) +
   ggplot2::geom_text(data = dplyr::filter(g9dat, mark),
-                     ggplot2::aes(anti, pro), label = "*", size = 4,
-                     fontface = "bold", nudge_x = 0.32, nudge_y = 0.20,
-                     vjust = 0.75, inherit.aes = FALSE) +
+                     ggplot2::aes(anti, pro, label = ifelse(mark2, "**", "*")),
+                     size = 4, fontface = "bold", nudge_x = 0.29,
+                     nudge_y = 0.20, vjust = 0.75, inherit.aes = FALSE) +
   ggplot2::facet_grid(stratum ~ cohort + axis) +
+  ggplot2::scale_x_discrete(labels = .axis_lab(PRIMING_ANTI)) +
+  ggplot2::scale_y_discrete(labels = .axis_lab(PRIMING_PRO)) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
                                 limits = c(-LIM9, LIM9), na.value = "grey85",
@@ -1285,9 +1367,18 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
       "* MARKS A CELL THAT PASSES FIGURE 4'S TEST AND REACHES |rho| >= 0.30: the ratio beats the stronger of the two genes it is\n",
       "made of AND the effect is not small. 22 of the 420 cells qualify and ALL 22 ARE OXPHOS - not one MYC cell is marked, at any\n",
       "stratum, in either cohort. The 0.30 line is drawn by hand, is not a test, and moving it moves the marks.\n",
+      "** UPGRADES A STARRED CELL whose TWO genes are each governed more by OXPHOS than by MYC ON THEIR OWN - |rho(OXPHOS) - rho(MYC)|\n",
+      ">= 0.20 in at least one cohort, which is the quantity E15 figure 5 draws. The five genes that qualify carry a ^ on the axis:\n",
+      "BAD, BBC3, BIK as numerators, BCL2L1 and MCL1 as denominators. A ** can therefore only appear where a marked row crosses a\n",
+      "marked column, and 7 of the 22 do - EVERY ONE OF THEM WITH MCL1 UNDERNEATH. MCL1 qualifies by running the OTHER WAY (-0.32 /\n",
+      "-0.25), which is the productive case rather than a loophole: a ratio beats its own two genes only when they move oppositely,\n",
+      "so a denominator leaning the other way is exactly what makes log2(pro/anti) add instead of cancel. Under a SIGNED rule\n",
+      "(gap >= +0.20) not one cell in either heatmap qualifies, which is that same tension seen from the other side. The 0.20 line,\n",
+      "like the 0.30 one, is drawn by hand and is not a test.\n",
       "A HEAVY BORDER is the only mark this study's rules allow anyone to quote: the same ratio passing in BOTH cohorts, at the same\n",
       "stratum and on the same axis. There are THREE, all Basal and all OXPHOS - BBC3/BCL2, BID/BCL2 and BBC3/MCL1 - and none at all\n",
-      "in the pooled row or in Luminal. Read that against where the marks are densest: Basal is 171 TCGA and 317 SCAN-B samples, so\n",
+      "in the pooled row or in Luminal. BBC3/MCL1 IN BASAL IS THE ONLY CELL IN THE FIGURE CARRYING ALL THREE MARKS - starred in both\n",
+      "cohorts, bordered, and ** in both. Read that against where the marks are densest: Basal is 171 TCGA and 317 SCAN-B samples, so\n",
       "it is also where the intervals are widest, and a mark there is a weaker claim than the same mark would be in Luminal.\n",
       "The `all` row is the pooled value and is NOT an average of the two below it. A pooled cell that sits OUTSIDE the range of\n",
       "its own two compartments is reading a difference BETWEEN subtypes rather than anything within one - the D3/S1 artefact,\n",
@@ -1342,13 +1433,15 @@ saveRDS(list(
   priming_strata = priming_strata, component_strata = component_strata,
   priming_marked = priming_marked, strata_marked = strata_marked,
   mark_summary = mark_summary, mark_both_list = mark_both_list,
-  pooled_two_way = pooled_two_way,
+  pooled_two_way = pooled_two_way, gene_gap = gene_gap, gene_lean = gene_lean,
+  lean_genes = LEAN_GENES,
   between_test = between_test, lum_basal_gap = lum_basal_gap,
   expr_rank = expr_rank,
   settings = list(priming_pro = PRIMING_PRO, priming_anti = PRIMING_ANTI,
                   low_expr_pct = LOW_EXPR_PCT, msigdb_version = MSIGDB_VERSION,
                   strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
                   mark_min_abs_rho = MARK_MIN_ABS_RHO,
+                  mark2_min_abs_gap = MARK2_MIN_ABS_GAP,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
                   measure = "spearman", covariate = PROLIF_COV,
@@ -1399,6 +1492,19 @@ saveRDS(list(
                   "permits anyone to quote. All 22 marked cells on figure 6",
                   "are OXPHOS; the three bordered ones are all Basal; the",
                   "pooled heatmap has none."),
+    marks2 = paste("** upgrades a starred cell whose two genes are BOTH",
+                   "OXPHOS-led on their own: |rho(OXPHOS) - rho(MYC)| >=",
+                   MARK2_MIN_ABS_GAP, "in at least one cohort, which is E15",
+                   "figure 5's quantity recomputed from `component_cor` (E11's",
+                   "pipeline misses BIK and BCL2L2; on the 10 genes both cover",
+                   "they agree to 0.000). The threshold is on the MAGNITUDE by",
+                   "the author's choice on 2026-09-03, which admits MCL1 at",
+                   "-0.32 / -0.25. That is the productive configuration, not a",
+                   "loophole - a ratio beats its parts only when they move",
+                   "oppositely - and under the signed rule NOT ONE marked cell",
+                   "qualifies. `mark2_signed` keeps that count. All 7 ** cells",
+                   "on figure 6 have MCL1 as denominator, and BBC3/MCL1 in",
+                   "Basal is the only cell carrying all three marks."),
     strata = paste("A POOLED value outside the range of its own two",
                    "compartments is a between-subtype effect, not a within-",
                    "subtype one; that is what D3/S1 found for BCL2 against",
@@ -1423,7 +1529,8 @@ message("      fig3 the ", nrow(RATIO_GRID), "-cell priming-ratio heatmap")
 message("      fig4 whether a ratio beats its stronger component")
 message("      fig5 the 12 priming genes before any ratio is taken")
 message("      fig6 the ratio heatmap again, split by luminal and basal")
-message("           figs 3 and 6 now carry figure 4's test as a * and a border")
+message("           figs 3 and 6 carry figure 4's test as a * and a border,")
+message("           and ** where both genes are OXPHOS-led (^ on the axes)")
 message("      fig7 the 12 genes by compartment, with intervals")
 
 # =============================================================================

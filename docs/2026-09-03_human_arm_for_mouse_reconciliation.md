@@ -222,7 +222,7 @@ the only comparator was a random draw.
 | Supplementary | `E14_fig5` - the infiltrate falsifier | **must be cited in `E14_fig6`'s legend.** The panel's whole weight rests on that negative not being infiltrate |
 | Supplementary | `E14_fig1` head-to-head, `E14_fig3` pathway ladder | the three-step version of the same argument |
 | Supplementary | `E13` panel A or `E10_fig5` - the 12 BCL2-family transcripts ranked | "pro- and anti-apoptotic members are interleaved across the whole range" |
-| Supplementary | `E10_fig3` ratio matrix, `E10_fig6` luminal/basal split | descriptive, but no longer only: both now mark the cells where the ratio beats its own two genes AND reaches \|rho\| 0.30. **Not one MYC cell is marked anywhere**; the three cells passing in both cohorts are all Basal OXPHOS (`BBC3/BCL2`, `BID/BCL2`, `BBC3/MCL1`) and none is pooled. `e10_machinery_and_priming.md` R5c |
+| Supplementary | `E10_fig3` ratio matrix, `E10_fig6` luminal/basal split | descriptive, but no longer only: both now mark the cells where the ratio beats its own two genes AND reaches \|rho\| 0.30. **Not one MYC cell is marked anywhere**; the three cells passing in both cohorts are all Basal OXPHOS (`BBC3/BCL2`, `BID/BCL2`, `BBC3/MCL1`) and none is pooled. A second mark, `**`, adds "and both genes are OXPHOS-led on their own" - 7 of 22, every one with `MCL1` underneath. **`BBC3/MCL1` in Basal is the only cell carrying all three marks** and is the one priming ratio worth carrying forward. `e10_machinery_and_priming.md` R5c |
 
 Delete on-figure titles for submission. Tables:
 `E14_comparator_splits.csv`, `E14_mitocarta_pathway_ladder.csv`,
