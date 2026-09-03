@@ -1417,6 +1417,30 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
 # question and asserting it in a caption would be weaker than showing it.
 # Direction is not lost: it stays in figure 3, and the `*` `**` and border marks
 # are carried here so the two figures line up cell for cell.
+#
+# A THIRD PANEL, THE RATIO, ASKED FOR 2026-09-03 - and it deserves a fair test
+# because the multiplicative reading is the better sentence. "OXPHOS is 4.9
+# times stronger here" says more than "0.41 more", and where both correlations
+# are solid that is the statement to make. It is drawn as
+# log2(|rho(OXPHOS)| / |rho(MYC)|), because a ratio belongs on a log scale or 2x
+# and 1/2x are not equidistant from parity.
+#
+#   THE SIGN CANNOT GO INTO THE NUMBER. The proposal was to give the ratio the
+#   original sign. That reintroduces exactly the collision the middle panel
+#   removes: `BIK/MCL1` would score +4.15 and `BCL2L11/BCL2L1` -2.28, and both
+#   are OXPHOS-dominated. So the sign is carried as a `-` on the label instead -
+#   the same information, in a channel that does not fight the colour.
+#
+#   THE DENOMINATOR IS THE REAL PROBLEM, and it is worse than the sign. A ratio
+#   explodes when its denominator approaches zero, and small MYC correlations
+#   are not an accident here - they are the finding. `BAD/BCL2A1` in TCGA has a
+#   MYC rho of 0.005, which at n = 1,095 is inside its own 95% interval of about
+#   +/- 0.06; its OXPHOS rho is an unremarkable 0.268; and the ratio scores it
+#   49.7-fold, the strongest cell in the panel. `BCL2L11/BCL2L1`, the genuinely
+#   strong cell, scores 4.9. THE RANKING IS DRIVEN BY HOW CLOSE THE DENOMINATOR
+#   GOT TO ZERO. Only 25 of the 70 cells have BOTH correlations at |rho| >= 0.10
+#   and the other 45 are faded, so the panel can be read for the cells where a
+#   ratio means something and not used as the map.
 DIFF_LEVELS <- c(
   "SIGNED   rho(OXPHOS) - rho(MYC)\nred = the ratio RISES more with OXPHOS",
   "WHICH AXIS   |rho(OXPHOS)| - |rho(MYC)|\nred = OXPHOS GOVERNS it more")
@@ -1462,6 +1486,26 @@ diff_tab %>% dplyr::filter(mark, readings_disagree) %>%
                    which_axis = round(which_axis, 3)) %>%
   as.data.frame() %>% print(row.names = FALSE)
 
+# The floor below which a ratio is a ratio against noise. Hand-drawn, like the
+# other two constants, but anchored: the 95% half-width of a Spearman rho is
+# about 0.059 in TCGA and 0.035 in SCAN-B, so 0.10 is roughly twice the first.
+RATIO_STABLE_MIN <- 0.10
+diff_tab <- diff_tab %>%
+  dplyr::mutate(log2_ratio = log2(abs(rho_OXPHOS) / abs(rho_MYC)),
+                fold = 2^abs(log2_ratio),
+                ratio_stable = abs(rho_MYC) >= RATIO_STABLE_MIN &
+                  abs(rho_OXPHOS) >= RATIO_STABLE_MIN)
+stopifnot(all(is.finite(diff_tab$log2_ratio)))
+message("   the RATIO panel: only ", sum(diff_tab$ratio_stable), " of ",
+        nrow(diff_tab), " cells have BOTH |rho| >= ", RATIO_STABLE_MIN,
+        "; the rest are faded")
+message("   the ratio's extremes, which are denominator artefacts:")
+diff_tab %>% dplyr::arrange(dplyr::desc(abs(log2_ratio))) %>% utils::head(4) %>%
+  dplyr::transmute(cohort, ratio, MYC = round(rho_MYC, 3),
+                   OXPHOS = round(rho_OXPHOS, 3), fold = round(fold, 1),
+                   stable = ratio_stable) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
 g11dat <- dplyr::bind_rows(
   diff_tab %>% dplyr::mutate(quantity = DIFF_LEVELS[1], value = signed),
   diff_tab %>% dplyr::mutate(quantity = DIFF_LEVELS[2], value = which_axis)) %>%
@@ -1470,81 +1514,162 @@ g11dat <- dplyr::bind_rows(
                 anti = factor(anti, levels = PRIMING_ANTI),
                 cohort = factor(cohort, levels = names(COHORT_COLS)))
 LIM11 <- max(abs(g11dat$value))
+g12dat <- diff_tab %>%
+  dplyr::mutate(pro = factor(pro, levels = rev(PRIMING_PRO)),
+                anti = factor(anti, levels = PRIMING_ANTI),
+                cohort = factor(cohort, levels = names(COHORT_COLS)),
+                # The direction lives on the LABEL, never in the number: a "-"
+                # says the ratio's relation to OXPHOS runs downward, and the
+                # colour goes on saying only which axis governs it.
+                lab = paste0(sprintf("%.1f", fold), "x",
+                             ifelse(rho_OXPHOS < 0, "-", "")))
+# THE SCALE IS SET BY THE CELLS THE PANEL SAYS ARE READABLE. Left to the full
+# range the two denominator artefacts (49.7x and 22.7x) would own both ends of
+# the colour bar and every trustworthy cell would come out nearly white - the
+# artefact would set the contrast for the whole panel. So the limits come from
+# the stable cells and the faded ones are squished to the rail, which is exactly
+# what a faded cell should look like.
+LIM12 <- max(abs(g12dat$log2_ratio[g12dat$ratio_stable]))
 FLIP <- diff_tab %>% dplyr::filter(mark, readings_disagree) %>%
   dplyr::mutate(lab = paste0(ratio, " in ", cohort)) %>% dplyr::pull(lab)
 
 CAP11 <- sprintf(paste0(
-  "ONE NUMBER PER RATIO INSTEAD OF TWO, and the point of the figure is that",
-  " there are two ways to form\n",
-  "it and only the right-hand one can be read at a glance.\n",
+  "ONE NUMBER PER RATIO INSTEAD OF TWO, AND THERE ARE THREE WAYS TO FORM IT.",
+  " Only the middle one can be\n",
+  "read straight off the colour.\n",
   "LEFT, the SIGNED difference. It keeps the DIRECTION of the relationship, so",
   " its sign says which way\n",
-  "the ratio moves and NOT which axis governs it. RIGHT, the difference OF THE",
+  "the ratio moves and NOT which axis governs it. MIDDLE, the difference OF THE",
   " MAGNITUDES - not the\n",
   "magnitude of the difference. Its sign says only WHICH AXIS GOVERNS, so red",
   " means OXPHOS everywhere\n",
   "in that panel and direction is not encoded at all.\n",
-  "THE TWO DISAGREE IN SIGN ON %d OF THE %d CELLS, so the choice is not",
-  " cosmetic. %s is the clearest\n",
-  "case: %.2f on MYC against %.2f on OXPHOS, which is OXPHOS governing it",
-  " about five times over. The\n",
-  "signed panel scores it %+.2f - the same deep blue a MYC-dominated cell",
-  " would get - and the which-axis\n",
-  "panel scores it %+.2f. Both starred cells that flip do so this way, and",
-  " both are ratios whose\n",
-  "correlation with OXPHOS is strongly NEGATIVE.\n",
-  "SO: USE THE RIGHT-HAND PANEL TO FIND WHERE OXPHOS WINS, AND FIGURE 3 TO",
-  " READ THE DIRECTION. The two\n",
-  "cannot be one number. On %d of the 70 cells the axes point in opposite",
-  " directions altogether, and\n",
-  "there the signed difference ADDS the two correlations rather than",
-  " differencing them.\n",
-  "The * ** ^ and border marks are figure 3's, carried unchanged so the two",
-  " figures line up cell for\n",
-  "cell: * the ratio beats its own two genes and reaches |rho| 0.30 in this",
-  " cohort; ** its two genes\n",
-  "are each OXPHOS-led on their own; ^ on an axis marks those genes; a heavy",
-  " border would mark a cell\n",
-  "passing in both cohorts, and pooled there are none."),
+  "THE FIRST TWO DISAGREE IN SIGN ON %d OF THE %d CELLS. %s is the clearest",
+  " case: %.2f on MYC against\n",
+  "%.2f on OXPHOS, which is OXPHOS governing it about five times over. The",
+  " signed panel scores it %+.2f -\n",
+  "the same deep blue a MYC-dominated cell would get - and the which-axis panel",
+  " scores it %+.2f. Both\n",
+  "starred cells that flip do so this way, and both are ratios whose",
+  " correlation with OXPHOS is\n",
+  "strongly NEGATIVE. On %d of the 70 cells the axes point in opposite",
+  " directions altogether, and there\n",
+  "the signed difference ADDS the two correlations rather than differencing",
+  " them.\n",
+  "RIGHT, THE RATIO, ON ITS OWN SCALE - and it gets the better sentence where",
+  " it works: 'OXPHOS is 4.9\n",
+  "times stronger here' says more than '0.41 more'. Two things had to be done",
+  " to it. The sign could not\n",
+  "go into the number - that is the left panel's mistake in multiplicative",
+  " clothing - so it is a '-' on\n",
+  "the label instead. And A RATIO EXPLODES WHEN ITS DENOMINATOR APPROACHES",
+  " ZERO, which here is not an\n",
+  "accident but the finding: small MYC correlations are what this study keeps",
+  " reporting. `BAD/BCL2A1`\n",
+  "in TCGA has a MYC rho of %.3f - inside its own 95%% interval of about +/-",
+  " 0.06 - an unremarkable\n",
+  "OXPHOS rho of %.3f, and scores %.1f-fold, the strongest cell in the panel.",
+  " `BCL2L11/BCL2L1`, the\n",
+  "genuinely strong cell, scores %.1f. THE RANKING IS DRIVEN BY HOW CLOSE THE",
+  " DENOMINATOR GOT TO ZERO.\n",
+  "Only %d of the %d cells have BOTH correlations at |rho| >= %.2f; the other",
+  " %d are FADED, and the colour\n",
+  "scale is set by the readable ones so a faded cell beyond it simply clips -",
+  " left to the full range the\n",
+  "two artefacts would own both ends of the bar and every trustworthy cell",
+  " would come out white. Read the\n",
+  "solid cells as ratios and use the middle panel as the map.\n",
+  "The * ** ^ and border marks are figure 3's, carried unchanged so the figures",
+  " line up cell for cell."),
   N_DISAGREE, nrow(diff_tab), FLIP[1],
   .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$rho_MYC,
   .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$rho_OXPHOS,
   .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$signed,
   .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$which_axis,
-  N_DISCORD)
+  N_DISCORD,
+  .one(diff_tab, ratio == "BAD/BCL2A1", cohort == "TCGA")$rho_MYC,
+  .one(diff_tab, ratio == "BAD/BCL2A1", cohort == "TCGA")$rho_OXPHOS,
+  .one(diff_tab, ratio == "BAD/BCL2A1", cohort == "TCGA")$fold,
+  .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$fold,
+  sum(diff_tab$ratio_stable), nrow(diff_tab), RATIO_STABLE_MIN,
+  sum(!diff_tab$ratio_stable))
+
+# The two panels that share rho units, and the ratio panel that does not. They
+# CANNOT share a fill scale - one is in rho, the other in log2-fold - so this is
+# two plots composed, not one facet_grid with three columns. A single legend
+# spanning both would be a legend that lies about half its cells.
+.mark_layers <- function(d) list(
+  ggplot2::geom_tile(data = dplyr::filter(d, mark_both),
+                     ggplot2::aes(anti, pro), fill = NA, colour = "black",
+                     linewidth = 0.85, inherit.aes = FALSE),
+  ggplot2::geom_text(data = dplyr::filter(d, mark),
+                     ggplot2::aes(anti, pro, label = ifelse(mark2, "**", "*")),
+                     size = 4.2, fontface = "bold", nudge_x = 0.29,
+                     nudge_y = 0.20, vjust = 0.75, inherit.aes = FALSE))
+.grid_bits <- list(
+  ggplot2::scale_x_discrete(labels = .axis_lab(PRIMING_ANTI)),
+  ggplot2::scale_y_discrete(labels = .axis_lab(PRIMING_PRO)),
+  ggplot2::labs(x = "anti-apoptotic (denominator)",
+                y = "pro-apoptotic (numerator)"),
+  theme_e10,
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                 legend.key.width = ggplot2::unit(1.1, "cm"),
+                 strip.text.x = ggplot2::element_text(size = 7.5)))
 
 g11 <- ggplot2::ggplot(g11dat, ggplot2::aes(anti, pro, fill = value)) +
   ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
   ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", value)), size = 2.1) +
-  ggplot2::geom_tile(data = dplyr::filter(g11dat, mark_both),
-                     ggplot2::aes(anti, pro), fill = NA, colour = "black",
-                     linewidth = 0.85, inherit.aes = FALSE) +
-  ggplot2::geom_text(data = dplyr::filter(g11dat, mark),
-                     ggplot2::aes(anti, pro, label = ifelse(mark2, "**", "*")),
-                     size = 4.2, fontface = "bold", nudge_x = 0.29,
-                     nudge_y = 0.20, vjust = 0.75, inherit.aes = FALSE) +
+  .mark_layers(g11dat) +
   ggplot2::facet_grid(cohort ~ quantity) +
-  ggplot2::scale_x_discrete(labels = .axis_lab(PRIMING_ANTI)) +
-  ggplot2::scale_y_discrete(labels = .axis_lab(PRIMING_PRO)) +
   ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
                                 high = "#d7191c", midpoint = 0,
                                 limits = c(-LIM11, LIM11), na.value = "grey85",
                                 name = paste("difference in partial Spearman",
                                              "rho - the two panels differ in",
                                              "WHAT the sign means")) +
-  ggplot2::labs(
-    title = "The two axes as one number per ratio, formed the two possible ways",
+  .grid_bits
+
+g12 <- ggplot2::ggplot(g12dat, ggplot2::aes(anti, pro, fill = log2_ratio)) +
+  ggplot2::geom_tile(ggplot2::aes(alpha = ratio_stable), colour = "white",
+                     linewidth = 0.4) +
+  ggplot2::geom_text(ggplot2::aes(label = lab,
+                                  colour = ifelse(ratio_stable, "grey10",
+                                                  "grey55")), size = 1.95) +
+  .mark_layers(g12dat) +
+  ggplot2::facet_grid(cohort ~ .) +
+  ggplot2::scale_colour_identity() +
+  ggplot2::scale_alpha_manual(values = c(`FALSE` = 0.28, `TRUE` = 1),
+                              guide = "none") +
+  ggplot2::scale_fill_gradient2(
+    low = "#2c7bb6", mid = "grey96", high = "#d7191c", midpoint = 0,
+    limits = c(-LIM12, LIM12), oob = scales::squish, na.value = "grey85",
+    breaks = c(-2, -1, 0, 1, 2),
+    labels = c("4x MYC", "2x", "equal", "2x", "4x OXPHOS"),
+    name = paste0("|rho(OXPHOS)| / |rho(MYC)|, log2 scale\n",
+                  "scaled to the readable cells; faded ones clip")) +
+  .grid_bits +
+  ggplot2::labs(y = NULL)
+
+g11all <- patchwork::wrap_plots(g11, g12, widths = c(2, 1.06)) +
+  patchwork::plot_annotation(
+    title = paste("The two axes as one number per ratio, formed the three",
+                  "possible ways"),
     subtitle = paste0("EXPLORATORY - not pre-registered | adjusted for ",
-                      "proliferation | ", nrow(RATIO_GRID), " ratios\n",
-                      "rows are the pro-apoptotic numerator, columns the ",
-                      "anti-apoptotic denominator"),
-    x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
-    caption = CAP11) +
-  theme_e10 +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
-                 legend.key.width = ggplot2::unit(1.4, "cm"),
-                 strip.text.x = ggplot2::element_text(size = 7.5))
-.save(g11, "E10_fig8_axis_difference_heatmap", 9.6, 8.2)
+                      "proliferation | ", nrow(RATIO_GRID), " ratios | rows ",
+                      "are the pro-apoptotic numerator, columns the ",
+                      "anti-apoptotic denominator\n",
+                      "RIGHT PANEL: faded = at least one of the two ",
+                      "correlations is below |rho| ", RATIO_STABLE_MIN,
+                      ", so the ratio is taken against a number that is not ",
+                      "distinguishable from zero. A trailing - means the ",
+                      "ratio's OXPHOS correlation runs downward."),
+    caption = CAP11,
+    theme = ggplot2::theme(
+      plot.title = ggplot2::element_text(size = 13),
+      plot.subtitle = ggplot2::element_text(size = 8.5),
+      plot.caption = ggplot2::element_text(size = 7.2, colour = "grey30",
+                                           hjust = 0)))
+.save(g11all, "E10_fig8_axis_difference_heatmap", 14.5, 8.6)
 
 g10dat <- component_strata %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
@@ -1599,6 +1724,7 @@ saveRDS(list(
                   strata = STRATA_PRIMING, min_stratum_n = MIN_STRATUM_N,
                   mark_min_abs_rho = MARK_MIN_ABS_RHO,
                   mark2_min_abs_gap = MARK2_MIN_ABS_GAP,
+                  ratio_stable_min = RATIO_STABLE_MIN,
                   gene_scale = "log2(linear DESeq2-normalised + 1)",
                   axis_scale = "GSVA as built by E02",
                   measure = "spearman", covariate = PROLIF_COV,
@@ -1674,7 +1800,19 @@ saveRDS(list(
                        "which axis governs, so it is the panel to read for",
                        "that question. Direction stays in figure 3. On 13",
                        "cells the axes point opposite ways and the signed",
-                       "difference ADDS them."),
+                       "difference ADDS them. A THIRD form, the ratio",
+                       "log2(|rho(OXPHOS)|/|rho(MYC)|), is the better sentence",
+                       "where it works and the worse picture: it explodes as",
+                       "its denominator approaches zero, and small MYC",
+                       "correlations are the finding here rather than an",
+                       "accident. BAD/BCL2A1 in TCGA has a MYC rho of 0.005 -",
+                       "inside its own interval - and scores 49.7-fold against",
+                       "4.9 for the genuinely strong BCL2L11/BCL2L1. Only 25",
+                       "of 70 cells have both |rho| >= 0.10; the rest are faded",
+                       "and the scale is set by the readable ones. The sign is",
+                       "carried on the LABEL, never in the number - giving the",
+                       "ratio the original sign would rebuild the signed",
+                       "panel's collision in multiplicative form."),
     strata = paste("A POOLED value outside the range of its own two",
                    "compartments is a between-subtype effect, not a within-",
                    "subtype one; that is what D3/S1 found for BCL2 against",
@@ -1702,7 +1840,7 @@ message("      fig6 the ratio heatmap again, split by luminal and basal")
 message("           figs 3 and 6 carry figure 4's test as a * and a border,")
 message("           and ** where both genes are OXPHOS-led (^ on the axes)")
 message("      fig7 the 12 genes by compartment, with intervals")
-message("      fig8 the two axes as ONE number, formed the two possible ways")
+message("      fig8 the two axes as ONE number, formed the three possible ways")
 
 # =============================================================================
 # Sandbox

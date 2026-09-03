@@ -305,10 +305,11 @@ question with it: **what happens to the negative correlations.**
 It is the right question, and the answer is that there are two candidate
 differences which are **not** the same quantity:
 
-| | | sign means |
+| panel | quantity | its sign means |
 |---|---|---|
 | **signed** | `rho(OXPHOS) - rho(MYC)` | which **direction** the ratio moves |
 | **which-axis** | `\|rho(OXPHOS)\| - \|rho(MYC)\|` | which **axis governs** it |
+| **ratio** | `log2(\|rho(OXPHOS)\| / \|rho(MYC)\|)` | which **axis governs**, multiplicatively |
 
 The second is the difference **of the magnitudes**, not the magnitude of the
 difference, and it is the one to read for "where does OXPHOS win".
@@ -334,9 +335,51 @@ practical rule for the paper:
 > **Use the which-axis panel to find where OXPHOS wins, and figure 3 to read the
 > direction. The two cannot be one number.**
 
-The `*`, `**`, `^` and border marks are figure 3's, carried unchanged so the two
-figures line up cell for cell. Saved as `diff_tab` with both differences,
-`axes_discordant` and `readings_disagree` per cell.
+### R5d-ii. The ratio panel - asked for 2026-09-03, and it half works
+
+The multiplicative reading is the better sentence where it works: *"OXPHOS is
+4.9 times stronger here"* says more than *"0.41 more"*. It is drawn as
+`log2(|rho(OXPHOS)| / |rho(MYC)|)`, because a ratio belongs on a log scale or
+`2x` and `1/2x` are not equidistant from parity. Two things had to be done to
+it, and the second is the reason it is the third panel rather than the first.
+
+**The sign cannot go into the number.** The proposal was to give the ratio the
+original sign. That reintroduces exactly the collision the which-axis panel
+removes - `BIK/MCL1` would score **+4.15** and `BCL2L11/BCL2L1` **-2.28**, and
+both are OXPHOS-dominated. So the sign is carried as a trailing `-` on the tile
+label instead: the same information, in a channel that does not fight the
+colour.
+
+**The denominator is the real problem, and it is worse than the sign.** A ratio
+explodes as its denominator approaches zero, and **small MYC correlations are
+not an accident here - they are the finding.**
+
+| cell | MYC | OXPHOS | fold | readable |
+|---|---|---|---|---|
+| `BAD/BCL2A1` TCGA | **0.005** | 0.268 | **49.7x** | no |
+| `BIK/BCL2L2` TCGA | 0.015 | 0.350 | 22.7x | no |
+| `BIK/MCL1` TCGA | -0.021 | 0.365 | 17.7x | no |
+| `BCL2L11/BCL2L1` TCGA | -0.106 | **-0.515** | **4.9x** | **yes** |
+
+`BAD/BCL2A1` has a MYC rho of 0.005 - inside its own 95% interval of about
++/- 0.06 at n = 1,095 - and an unremarkable OXPHOS rho of 0.268, and it scores as
+the strongest cell in the panel. `BCL2L11/BCL2L1`, the genuinely strong cell,
+scores 4.9. **The ranking is driven by how close the denominator got to zero.**
+
+So the panel fades every cell where either correlation is below `|rho| = 0.10`
+(hand-drawn, roughly twice the 95% half-width in TCGA) - **45 of the 70** - and
+the colour scale is set by the 25 readable ones, with the faded ones clipping at
+the rail. Left to the full range the two artefacts would own both ends of the
+bar and every trustworthy cell would come out white.
+
+**Verdict: read the solid cells of the ratio panel as ratios, and use the
+which-axis panel as the map.** The ratio is the better sentence and the worse
+picture, for a reason specific to this study.
+
+The `*`, `**`, `^` and border marks are figure 3's, carried unchanged so all
+three panels line up cell for cell. Saved as `diff_tab` with all three
+quantities plus `axes_discordant`, `readings_disagree`, `fold` and
+`ratio_stable` per cell; the constant is `settings$ratio_stable_min`.
 
 ---
 
