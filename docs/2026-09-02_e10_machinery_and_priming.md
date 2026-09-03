@@ -295,6 +295,49 @@ wrapped, since the figure was written - ggplot clips a long subtitle the same
 way it clips a caption, and every run before 2026-09-03 silently lost its last
 three words.
 
+### R5d. The two axes as ONE number - figure 8, ADDED 2026-09-03
+
+Author's request: replace figure 3's two facet columns, MYC beside OXPHOS, with
+a single column holding their difference, so the cells where OXPHOS wins stand
+out instead of having to be compared across the page. And the author's own
+question with it: **what happens to the negative correlations.**
+
+It is the right question, and the answer is that there are two candidate
+differences which are **not** the same quantity:
+
+| | | sign means |
+|---|---|---|
+| **signed** | `rho(OXPHOS) - rho(MYC)` | which **direction** the ratio moves |
+| **which-axis** | `\|rho(OXPHOS)\| - \|rho(MYC)\|` | which **axis governs** it |
+
+The second is the difference **of the magnitudes**, not the magnitude of the
+difference, and it is the one to read for "where does OXPHOS win".
+
+**They disagree in sign on 22 of the 70 cells**, so this is not a quibble. The
+clearest case is `BCL2L11/BCL2L1` in TCGA: **-0.106 on MYC against -0.515 on
+OXPHOS**, which is OXPHOS governing the ratio about five times over. The signed
+difference scores it **-0.409** - the same deep blue a MYC-dominated cell would
+get - and the which-axis difference scores it **+0.409**. Both of the starred
+cells that flip do so this way (`BCL2L11/BCL2L1` in TCGA and `BMF/BCL2L1` in
+SCAN-B), and **both are ratios whose correlation with OXPHOS is strongly
+negative**. On a signed diverging scale the OXPHOS-dominated cells therefore
+land at *both ends*, which is exactly what the new figure was meant to fix.
+
+On **13 of the 70 cells the two axes point in opposite directions altogether**,
+and there the signed difference *adds* the two correlations rather than
+differencing them.
+
+**Both panels are drawn, side by side**, because the disagreement is the answer
+to the question and showing it is stronger than asserting it in a caption. The
+practical rule for the paper:
+
+> **Use the which-axis panel to find where OXPHOS wins, and figure 3 to read the
+> direction. The two cannot be one number.**
+
+The `*`, `**`, `^` and border marks are figure 3's, carried unchanged so the two
+figures line up cell for cell. Saved as `diff_tab` with both differences,
+`axes_discordant` and `readings_disagree` per cell.
+
 ---
 
 ## R6. Housekeeping the script does that is worth knowing about

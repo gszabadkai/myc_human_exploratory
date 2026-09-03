@@ -1389,6 +1389,163 @@ g9 <- ggplot2::ggplot(g9dat, ggplot2::aes(anti, pro, fill = rho)) +
                  legend.key.width = ggplot2::unit(1.4, "cm"))
 .save(g9, "E10_fig6_priming_by_compartment", 13, 10)
 
+# --- FIG 8: the two axes as ONE number, and how that number must be formed ---
+# Author, 2026-09-03: replace figure 3's two facet columns - MYC beside OXPHOS -
+# with a single column holding their difference, so the cells where OXPHOS wins
+# stand out instead of having to be compared across the page.
+#
+# THE QUESTION THE AUTHOR ASKED, AND IT IS THE RIGHT ONE: what happens to the
+# negative correlations. There are two candidate differences and they are NOT
+# the same quantity:
+#
+#   SIGNED     rho(OXPHOS) - rho(MYC). Keeps the DIRECTION of the relationship.
+#              Its sign says which way the ratio moves, not which axis governs
+#              it. `BCL2L11/BCL2L1` in TCGA is -0.106 on MYC and -0.515 on
+#              OXPHOS: OXPHOS governs it five times over, and this quantity
+#              scores it -0.409, the same deep blue a MYC-dominated cell would
+#              get. On a diverging scale the OXPHOS-dominated cells therefore
+#              land at BOTH ends and the figure cannot be read at a glance,
+#              which is exactly what the new figure was supposed to fix.
+#   WHICH AXIS |rho(OXPHOS)| - |rho(MYC)|. The difference OF THE MAGNITUDES,
+#              not the magnitude of the difference. Its sign says WHICH AXIS
+#              GOVERNS and nothing about direction, so one diverging scale is
+#              unambiguous: red = OXPHOS, blue = MYC. This is the same
+#              construction as `gain` and it is the panel to read.
+#
+# THEY DISAGREE IN SIGN ON 22 OF THE 70 CELLS, so this is not a quibble. Both
+# are drawn, side by side, because the disagreement IS the answer to the
+# question and asserting it in a caption would be weaker than showing it.
+# Direction is not lost: it stays in figure 3, and the `*` `**` and border marks
+# are carried here so the two figures line up cell for cell.
+DIFF_LEVELS <- c(
+  "SIGNED   rho(OXPHOS) - rho(MYC)\nred = the ratio RISES more with OXPHOS",
+  "WHICH AXIS   |rho(OXPHOS)| - |rho(MYC)|\nred = OXPHOS GOVERNS it more")
+
+diff_wide <- priming_marked %>%
+  dplyr::select(cohort, axis, ratio, pro, anti, rho, mark, mark2, mark_both) %>%
+  tidyr::pivot_wider(names_from = axis,
+                     values_from = c(rho, mark, mark2, mark_both))
+# Every mark in this study is an OXPHOS mark - section 6 asserts no MYC cell is
+# ever marked - so carrying `_OXPHOS` here is a simplification, not a choice,
+# and it stops being true silently if that ever changes.
+stopifnot(nrow(diff_wide) == nrow(RATIO_GRID) * 2L,
+          !any(diff_wide$mark_MYC), !any(diff_wide$mark2_MYC),
+          !any(diff_wide$mark_both_MYC))
+diff_tab <- diff_wide %>%
+  dplyr::transmute(cohort, ratio, pro, anti,
+                   rho_MYC, rho_OXPHOS,
+                   signed = rho_OXPHOS - rho_MYC,
+                   which_axis = abs(rho_OXPHOS) - abs(rho_MYC),
+                   axes_discordant = sign(rho_OXPHOS) != sign(rho_MYC),
+                   readings_disagree = sign(signed) != sign(which_axis),
+                   mark = mark_OXPHOS, mark2 = mark2_OXPHOS,
+                   mark_both = mark_both_OXPHOS)
+# A caption number must come from the object, never from a typed literal, or
+# the caption and the figure drift apart on the next run. This pulls exactly one
+# row and stops if it does not.
+.one <- function(d, ...) {
+  v <- dplyr::filter(d, ...)
+  stopifnot(nrow(v) == 1L)
+  v
+}
+N_DISAGREE <- sum(diff_tab$readings_disagree)
+N_DISCORD  <- sum(diff_tab$axes_discordant)
+message("\n   figure 8: the two ways to difference the axes")
+message("   the SIGNED and the WHICH-AXIS reading disagree in sign on ",
+        N_DISAGREE, " of ", nrow(diff_tab), " cells")
+message("   the two axes disagree about DIRECTION on ", N_DISCORD, " cells")
+message("   the starred cells where the two readings flip:")
+diff_tab %>% dplyr::filter(mark, readings_disagree) %>%
+  dplyr::transmute(cohort, ratio, MYC = round(rho_MYC, 3),
+                   OXPHOS = round(rho_OXPHOS, 3),
+                   signed = round(signed, 3),
+                   which_axis = round(which_axis, 3)) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+g11dat <- dplyr::bind_rows(
+  diff_tab %>% dplyr::mutate(quantity = DIFF_LEVELS[1], value = signed),
+  diff_tab %>% dplyr::mutate(quantity = DIFF_LEVELS[2], value = which_axis)) %>%
+  dplyr::mutate(quantity = factor(quantity, levels = DIFF_LEVELS),
+                pro = factor(pro, levels = rev(PRIMING_PRO)),
+                anti = factor(anti, levels = PRIMING_ANTI),
+                cohort = factor(cohort, levels = names(COHORT_COLS)))
+LIM11 <- max(abs(g11dat$value))
+FLIP <- diff_tab %>% dplyr::filter(mark, readings_disagree) %>%
+  dplyr::mutate(lab = paste0(ratio, " in ", cohort)) %>% dplyr::pull(lab)
+
+CAP11 <- sprintf(paste0(
+  "ONE NUMBER PER RATIO INSTEAD OF TWO, and the point of the figure is that",
+  " there are two ways to form\n",
+  "it and only the right-hand one can be read at a glance.\n",
+  "LEFT, the SIGNED difference. It keeps the DIRECTION of the relationship, so",
+  " its sign says which way\n",
+  "the ratio moves and NOT which axis governs it. RIGHT, the difference OF THE",
+  " MAGNITUDES - not the\n",
+  "magnitude of the difference. Its sign says only WHICH AXIS GOVERNS, so red",
+  " means OXPHOS everywhere\n",
+  "in that panel and direction is not encoded at all.\n",
+  "THE TWO DISAGREE IN SIGN ON %d OF THE %d CELLS, so the choice is not",
+  " cosmetic. %s is the clearest\n",
+  "case: %.2f on MYC against %.2f on OXPHOS, which is OXPHOS governing it",
+  " about five times over. The\n",
+  "signed panel scores it %+.2f - the same deep blue a MYC-dominated cell",
+  " would get - and the which-axis\n",
+  "panel scores it %+.2f. Both starred cells that flip do so this way, and",
+  " both are ratios whose\n",
+  "correlation with OXPHOS is strongly NEGATIVE.\n",
+  "SO: USE THE RIGHT-HAND PANEL TO FIND WHERE OXPHOS WINS, AND FIGURE 3 TO",
+  " READ THE DIRECTION. The two\n",
+  "cannot be one number. On %d of the 70 cells the axes point in opposite",
+  " directions altogether, and\n",
+  "there the signed difference ADDS the two correlations rather than",
+  " differencing them.\n",
+  "The * ** ^ and border marks are figure 3's, carried unchanged so the two",
+  " figures line up cell for\n",
+  "cell: * the ratio beats its own two genes and reaches |rho| 0.30 in this",
+  " cohort; ** its two genes\n",
+  "are each OXPHOS-led on their own; ^ on an axis marks those genes; a heavy",
+  " border would mark a cell\n",
+  "passing in both cohorts, and pooled there are none."),
+  N_DISAGREE, nrow(diff_tab), FLIP[1],
+  .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$rho_MYC,
+  .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$rho_OXPHOS,
+  .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$signed,
+  .one(diff_tab, ratio == "BCL2L11/BCL2L1", cohort == "TCGA")$which_axis,
+  N_DISCORD)
+
+g11 <- ggplot2::ggplot(g11dat, ggplot2::aes(anti, pro, fill = value)) +
+  ggplot2::geom_tile(colour = "white", linewidth = 0.4) +
+  ggplot2::geom_text(ggplot2::aes(label = sprintf("%.2f", value)), size = 2.1) +
+  ggplot2::geom_tile(data = dplyr::filter(g11dat, mark_both),
+                     ggplot2::aes(anti, pro), fill = NA, colour = "black",
+                     linewidth = 0.85, inherit.aes = FALSE) +
+  ggplot2::geom_text(data = dplyr::filter(g11dat, mark),
+                     ggplot2::aes(anti, pro, label = ifelse(mark2, "**", "*")),
+                     size = 4.2, fontface = "bold", nudge_x = 0.29,
+                     nudge_y = 0.20, vjust = 0.75, inherit.aes = FALSE) +
+  ggplot2::facet_grid(cohort ~ quantity) +
+  ggplot2::scale_x_discrete(labels = .axis_lab(PRIMING_ANTI)) +
+  ggplot2::scale_y_discrete(labels = .axis_lab(PRIMING_PRO)) +
+  ggplot2::scale_fill_gradient2(low = "#2c7bb6", mid = "grey96",
+                                high = "#d7191c", midpoint = 0,
+                                limits = c(-LIM11, LIM11), na.value = "grey85",
+                                name = paste("difference in partial Spearman",
+                                             "rho - the two panels differ in",
+                                             "WHAT the sign means")) +
+  ggplot2::labs(
+    title = "The two axes as one number per ratio, formed the two possible ways",
+    subtitle = paste0("EXPLORATORY - not pre-registered | adjusted for ",
+                      "proliferation | ", nrow(RATIO_GRID), " ratios\n",
+                      "rows are the pro-apoptotic numerator, columns the ",
+                      "anti-apoptotic denominator"),
+    x = "anti-apoptotic (denominator)", y = "pro-apoptotic (numerator)",
+    caption = CAP11) +
+  theme_e10 +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                 legend.key.width = ggplot2::unit(1.4, "cm"),
+                 strip.text.x = ggplot2::element_text(size = 7.5))
+.save(g11, "E10_fig8_axis_difference_heatmap", 9.6, 8.2)
+
 g10dat <- component_strata %>%
   dplyr::filter(axis %in% c("MYC", "OXPHOS")) %>%
   dplyr::mutate(cohort = factor(cohort, levels = names(COHORT_COLS)),
@@ -1434,7 +1591,7 @@ saveRDS(list(
   priming_marked = priming_marked, strata_marked = strata_marked,
   mark_summary = mark_summary, mark_both_list = mark_both_list,
   pooled_two_way = pooled_two_way, gene_gap = gene_gap, gene_lean = gene_lean,
-  lean_genes = LEAN_GENES,
+  lean_genes = LEAN_GENES, diff_tab = diff_tab,
   between_test = between_test, lum_basal_gap = lum_basal_gap,
   expr_rank = expr_rank,
   settings = list(priming_pro = PRIMING_PRO, priming_anti = PRIMING_ANTI,
@@ -1505,6 +1662,19 @@ saveRDS(list(
                    "qualifies. `mark2_signed` keeps that count. All 7 ** cells",
                    "on figure 6 have MCL1 as denominator, and BBC3/MCL1 in",
                    "Basal is the only cell carrying all three marks."),
+    difference = paste("figure 8 collapses the two axes into one number per",
+                       "ratio, and there are two ways to do it that disagree",
+                       "in sign on 22 of 70 cells. SIGNED,",
+                       "rho(OXPHOS) - rho(MYC), keeps direction and therefore",
+                       "scatters the OXPHOS-dominated cells across both ends",
+                       "of a diverging scale - BCL2L11/BCL2L1 in TCGA is",
+                       "-0.11 on MYC and -0.52 on OXPHOS and scores -0.41.",
+                       "WHICH-AXIS, |rho(OXPHOS)| - |rho(MYC)|, is the",
+                       "difference of the magnitudes and its sign means only",
+                       "which axis governs, so it is the panel to read for",
+                       "that question. Direction stays in figure 3. On 13",
+                       "cells the axes point opposite ways and the signed",
+                       "difference ADDS them."),
     strata = paste("A POOLED value outside the range of its own two",
                    "compartments is a between-subtype effect, not a within-",
                    "subtype one; that is what D3/S1 found for BCL2 against",
@@ -1522,7 +1692,7 @@ message("\nE10: done.")
 message("    results/machinery_and_priming.rds")
 message("    outputs/tables/E10_canonical_machinery.csv")
 message("    outputs/tables/E10_priming_ratios.csv")
-message("    7 figures in outputs/figures/:")
+message("    8 figures in outputs/figures/:")
 message("      fig1 the 44 vs OXPHOS - the E08 fig6 panel, re-derived")
 message("      fig2 the 44 vs MYC - the new axis, same row order")
 message("      fig3 the ", nrow(RATIO_GRID), "-cell priming-ratio heatmap")
@@ -1532,6 +1702,7 @@ message("      fig6 the ratio heatmap again, split by luminal and basal")
 message("           figs 3 and 6 carry figure 4's test as a * and a border,")
 message("           and ** where both genes are OXPHOS-led (^ on the axes)")
 message("      fig7 the 12 genes by compartment, with intervals")
+message("      fig8 the two axes as ONE number, formed the two possible ways")
 
 # =============================================================================
 # Sandbox
