@@ -36,7 +36,7 @@ for the same 44 genes, in all eight cohort x axis x adjustment cells.** If a
 future edit to E11 changes those numbers, E15 stops rather than drawing them.
 
 Outputs: `results/two_axis_gene_view.rds`,
-`outputs/tables/E15_gene_rho_two_axes.csv`, four figures.
+`outputs/tables/E15_gene_rho_two_axes.csv`, five figures.
 
 ---
 
@@ -46,7 +46,8 @@ Outputs: `results/two_axis_gene_view.rds`,
 sorted by the cross-cohort mean of the difference, both cohorts, same order.
 `E15_fig2` - the same 44 as a numbered heatmap, raw and adjusted, halves
 stacked. `E15_fig3` - the arithmetic check in V2. `E15_fig4` - the two halves
-as bars, mean +/- SD, with every gene drawn on top (V1b).
+as bars, mean +/- SD, with every gene drawn on top (V1b). `E15_fig5` - the
+difference alone, gene by gene, one panel per cohort (V1c).
 
 Adjusted, TCGA / SCAN-B. The split is Spearman of the quantity with MitoCarta
 membership across the 44 genes - the study's anchor statistic:
@@ -107,6 +108,31 @@ by them. **No test is reported**, here or anywhere in E15: two groups of a
 curated 44, in a study whose atlas is a grid of thousands of cells. The reading
 is the direction, its size relative to the spread, and that both cohorts show
 it.
+
+## V1c. The difference alone - `E15_fig5`
+
+Requested 2026-09-03: a Cleveland plot of the differences, coloured by MitoCarta
+membership, gene names on the x axis, a panel per cohort. It is figure 1 with
+the two component points removed; what is left is the bar length, which is the
+quantity the argument is about, and dropping the points buys the room for gene
+labels and two separate panels.
+
+**One decision worth recording. Both panels use the same gene order** - the
+cross-cohort mean, as in figures 1 and 2 - rather than each sorting on its own
+values. Per-panel sorting gives a tidier monotone descent and makes the two
+panels incomparable, which is the wrong trade in a study whose unit of evidence
+is cross-cohort agreement. The cost is that neither panel is monotone; **the
+departure from a clean slope is the replication being displayed**, and where it
+breaks is where the cohorts differ.
+
+What the eye gets from it that the summaries do not: the red points are
+concentrated at the positive end and the grey at the negative one, and the
+exceptions are visible by name rather than buried in a mean. `NOL3` and `BIRC5`
+are cytosolic and sit among the largest positive differences; `MCL1`, `BCL2A1`,
+`BCL2L11` and `BID` are MitoCarta members sitting at the negative end. Six genes
+carry a hollow point because the two cohorts disagree on the sign - `BCL2L11`,
+`BOK`, `CASP10`, `CASP8`, `DIABLO`, `XIAP` - and all six are small-difference
+genes near zero.
 
 ## V2. The one arithmetic caveat, and it is real
 
@@ -252,8 +278,9 @@ test asks what the shared correlate actually is.**
 Nothing yet, and deliberately: every number here was already established. It
 earns **supplementary figure slots** - `E15_fig1` as the per-gene version of
 `E11_fig9` panel A, for a reader who wants to know which genes carry it, and
-`E15_fig4` as the two-bar summary of the same thing for a reader who does not -
-plus `E15_gene_rho_two_axes.csv` as the underlying table. `E15_fig3` belongs in
+`E15_fig4` as the two-bar summary of the same thing for a reader who does not,
+`E15_fig5` as the per-gene difference on its own - plus
+`E15_gene_rho_two_axes.csv` as the underlying table. `E15_fig3` belongs in
 the supplement beside them if the difference is quoted anywhere in the text.
 
 `E15_fig4` is the most compact statement of the result in the whole study and
