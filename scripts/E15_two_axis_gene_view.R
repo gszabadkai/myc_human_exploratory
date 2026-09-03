@@ -766,80 +766,104 @@ g4 <- ggplot2::ggplot(bar_tab, ggplot2::aes(mito_class, mean)) +
                  legend.position = "none")
 .save(g4, "E15_fig4_gap_by_membership_bars", 8.4, 7.4)
 
-# --- FIG 5: the difference alone, gene by gene, one panel per cohort --------
-# Figure 1 with the two component points taken away. What is left is the bar
-# length, which is the quantity the argument is about, and dropping the points
-# buys enough room to put the gene names on the x axis and give each cohort its
-# own panel.
+# --- FIG 5: the difference alone, both cohorts in one panel -----------------
+# Figure 1 with the two component points taken away. What is left is the
+# quantity the argument is about, and dropping the components buys the room to
+# put both cohorts in ONE panel: the pair of points per gene is the replication,
+# read directly rather than by looking between two panels.
 #
-# BOTH PANELS USE THE SAME GENE ORDER - the cross-cohort mean, as in figures 1
-# and 2 - rather than each sorting on its own values. Per-panel sorting makes a
-# tidier monotone descent and makes the two panels incomparable, which is the
-# wrong trade in a study whose unit of evidence is cross-cohort agreement. The
-# cost is that neither panel is monotone; that departure from a clean slope IS
-# the replication being displayed.
+# BOTH COHORTS SHARE ONE GENE ORDER - the cross-cohort mean, as in figures 1, 2
+# and 4. Sorting each cohort on its own values would give a tidier monotone
+# descent and would make them incomparable, which is the wrong trade in a study
+# whose unit of evidence is cross-cohort agreement. Neither cohort is therefore
+# monotone; where the descent breaks is where the cohorts differ, and that
+# departure IS the replication being displayed.
+#
+# THE GENE NAMES ARE DRAWN AS DATA, NOT AS AXIS TEXT. Colouring 44 axis labels
+# needs a vectorised `element_text(colour = ...)`, which ggplot2 warns is
+# unsupported and whose recycling order is not guaranteed - a silently
+# re-ordered vector would colour every name wrongly and still render. Drawing
+# them from the same rows as the points cannot come apart from them.
 f5 <- pairs_tab %>%
   dplyr::filter(adjustment == ADJ_MAIN) %>%
-  dplyr::left_join(dplyr::select(gene_order, gene, agree), by = "gene") %>%
   dplyr::mutate(cohort = factor(cohort, levels = COHORT_LEVELS),
                 glab = factor(as.character(glab), levels = rev(LAB_LEVELS)))
 stopifnot(nrow(f5) == N_CANON * 2L, !anyNA(f5$glab))
+f5_pair <- f5 %>%
+  dplyr::select(glab, mito_class, cohort, gap) %>%
+  tidyr::pivot_wider(names_from = cohort, values_from = gap)
+stopifnot(nrow(f5_pair) == N_CANON)
+# Labels sit inside the panel under the lowest point, so they cannot collide
+# with the legend or the caption the way a clipped-off margin label would. The
+# breaks are taken from the DATA range, or the extra space below would grow an
+# axis tick in a region that has no data in it.
+Y_LAB <- min(f5$gap) - diff(range(f5$gap)) * 0.03
+Y_BRK <- pretty(range(f5$gap))
 
 CAP5 <- sprintf(paste0(
-  "The bar length from figure 1, on its own, with the genes on the x axis and a",
-  " panel per cohort.\n",
-  "Above zero the gene tracks OXPHOS more than MYC; below zero, MYC more than",
-  " OXPHOS.\n",
-  "GENE ORDER IS THE CROSS-COHORT MEAN AND IS SHARED BY BOTH PANELS, so the",
-  " two can be read against\n",
-  "each other. Neither panel is therefore monotone, and where it breaks is",
-  " where the cohorts differ.\n",
-  "Mean +/- SD: mitochondrial %+.2f +/- %.2f and %+.2f +/- %.2f, cytosolic",
+  "The bar length from figure 1 on its own: above zero the gene tracks OXPHOS",
+  " more than MYC, below\n",
+  "zero it tracks MYC more than OXPHOS. The two points joined by a thin line",
+  " are the two cohorts.\n",
+  "GENE ORDER IS THE CROSS-COHORT MEAN AND IS SHARED, so neither cohort is",
+  " monotone; where the\n",
+  "descent breaks is where the cohorts differ, and that is the replication",
+  " rather than a defect.\n",
+  "Mean +/- SD: MitoCarta %+.2f +/- %.2f and %+.2f +/- %.2f, non-MitoCarta",
   " %+.2f +/- %.2f and\n",
   "%+.2f +/- %.2f (TCGA and SCAN-B). The SD is a spread across genes, not an",
-  " uncertainty on the mean -\n",
+  " uncertainty on the mean;\n",
   "figure 4 draws both together.\n",
-  "A HOLLOW POINT is one of the %d genes whose two cohorts disagree on the",
-  " sign: %s.\n",
-  "* = below the 25th expression percentile in at least one cohort. [ox] =",
-  " CYCS, in the OXPHOS arm.\n",
-  "[p] = in the proliferation covariate. THE DIFFERENCE IS NOT IN A COMMON",
-  " UNIT - the 44 rho values\n",
-  "spread wider on OXPHOS than on MYC, and figure 3 puts a number on how much",
-  " of the split that buys."),
+  "* = below the 25th expression percentile in at least one cohort, so the",
+  " value is largely\n",
+  "quantisation noise. [ox] = CYCS, in the OXPHOS subunits arm and partly",
+  " correlated with itself.\n",
+  "[p] = in the proliferation covariate, so partly adjusted for itself.\n",
+  "THE DIFFERENCE IS NOT IN A COMMON UNIT - the 44 rho values spread wider on",
+  " OXPHOS than on MYC,\n",
+  "and figure 3 puts a number on how much of the split that buys."),
   .bt("TCGA", MITO_CLS, "mean"), .bt("TCGA", MITO_CLS, "sd"),
   .bt("SCAN-B", MITO_CLS, "mean"), .bt("SCAN-B", MITO_CLS, "sd"),
   .bt("TCGA", CYTO_CLS, "mean"), .bt("TCGA", CYTO_CLS, "sd"),
-  .bt("SCAN-B", CYTO_CLS, "mean"), .bt("SCAN-B", CYTO_CLS, "sd"),
-  length(DISAGREE), paste(DISAGREE, collapse = ", "))
+  .bt("SCAN-B", CYTO_CLS, "mean"), .bt("SCAN-B", CYTO_CLS, "sd"))
 
 g5 <- ggplot2::ggplot(f5, ggplot2::aes(glab, gap)) +
   ggplot2::geom_hline(yintercept = 0, linewidth = 0.3) +
-  ggplot2::geom_segment(ggplot2::aes(xend = glab, y = 0, yend = gap,
-                                     colour = mito_class), linewidth = 0.75) +
-  ggplot2::geom_point(ggplot2::aes(colour = mito_class, shape = agree),
-                      size = 1.9) +
-  ggplot2::facet_grid(cohort ~ .) +
-  ggplot2::scale_colour_manual(values = COMP_COLS, name = NULL) +
-  ggplot2::scale_shape_manual(values = c(`TRUE` = 16, `FALSE` = 1),
-                              breaks = c("FALSE"),
-                              labels = c("cohorts disagree on the sign"),
-                              name = NULL) +
+  ggplot2::geom_segment(data = f5_pair,
+                        ggplot2::aes(x = glab, xend = glab,
+                                     y = TCGA, yend = `SCAN-B`),
+                        colour = "grey72", linewidth = 0.4,
+                        inherit.aes = FALSE) +
+  ggplot2::geom_point(ggplot2::aes(colour = mito_class, shape = cohort),
+                      size = 1.7, stroke = 0.6) +
+  ggplot2::geom_text(data = f5_pair,
+                     ggplot2::aes(x = glab, y = Y_LAB, label = glab,
+                                  colour = mito_class),
+                     angle = 90, hjust = 1, vjust = 0.5, size = 2.05,
+                     show.legend = FALSE, inherit.aes = FALSE) +
+  ggplot2::scale_colour_manual(values = COMP_COLS, name = NULL,
+                               labels = c("MitoCarta 3.0", "non-MitoCarta")) +
+  ggplot2::scale_shape_manual(values = c(TCGA = 16, `SCAN-B` = 1), name = NULL) +
+  ggplot2::scale_y_continuous(breaks = Y_BRK,
+                              expand = ggplot2::expansion(mult = c(0.235, 0.06))) +
+  ggplot2::guides(colour = ggplot2::guide_legend(order = 1),
+                  shape = ggplot2::guide_legend(order = 2)) +
   ggplot2::labs(
-    title = "The OXPHOS-minus-MYC difference, gene by gene, in each cohort",
+    title = "The OXPHOS-minus-MYC difference, gene by gene, both cohorts",
     subtitle = paste0("EXPLORATORY - not pre-registered | 44 canonical genes | ",
                       "partial Spearman on ", PROLIF_COV,
-                      " | gene order shared by both panels"),
+                      " | one gene order, shared"),
     x = NULL,
     y = "per-gene rho with OXPHOS minus per-gene rho with MYC",
     caption = CAP5) +
   theme_e15 +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1,
-                                                     vjust = 0.5, size = 6.2),
+  ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                 axis.ticks.x = ggplot2::element_blank(),
                  panel.grid.major.x = ggplot2::element_blank(),
                  legend.key.height = ggplot2::unit(10, "pt"),
-                 legend.margin = ggplot2::margin(0, 0, 0, 0))
-.save(g5, "E15_fig5_difference_cleveland", 10.2, 6.6)
+                 legend.margin = ggplot2::margin(0, 0, 0, 0),
+                 legend.box.spacing = ggplot2::unit(4, "pt"))
+.save(g5, "E15_fig5_difference_cleveland", 8.0, 5.8)
 
 # =============================================================================
 # 5. Save
@@ -909,7 +933,7 @@ message("      fig1 the dumbbell - one bar per gene, sorted by the difference")
 message("      fig2 the same 44 as a numbered heatmap, raw and adjusted")
 message("      fig3 how much of the difference is the axes' spread")
 message("      fig4 the two halves as bars, mean +/- SD, with every gene on top")
-message("      fig5 the difference alone, gene by gene, one panel per cohort")
+message("      fig5 the difference alone, gene by gene, both cohorts in one panel")
 
 # =============================================================================
 # Sandbox

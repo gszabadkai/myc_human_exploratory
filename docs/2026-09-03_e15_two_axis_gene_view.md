@@ -47,7 +47,7 @@ sorted by the cross-cohort mean of the difference, both cohorts, same order.
 `E15_fig2` - the same 44 as a numbered heatmap, raw and adjusted, halves
 stacked. `E15_fig3` - the arithmetic check in V2. `E15_fig4` - the two halves
 as bars, mean +/- SD, with every gene drawn on top (V1b). `E15_fig5` - the
-difference alone, gene by gene, one panel per cohort (V1c).
+difference alone, gene by gene, both cohorts in one panel (V1c).
 
 Adjusted, TCGA / SCAN-B. The split is Spearman of the quantity with MitoCarta
 membership across the 44 genes - the study's anchor statistic:
@@ -111,28 +111,35 @@ it.
 
 ## V1c. The difference alone - `E15_fig5`
 
-Requested 2026-09-03: a Cleveland plot of the differences, coloured by MitoCarta
-membership, gene names on the x axis, a panel per cohort. It is figure 1 with
-the two component points removed; what is left is the bar length, which is the
-quantity the argument is about, and dropping the points buys the room for gene
-labels and two separate panels.
+Requested 2026-09-03, then revised: a Cleveland plot of the differences, gene
+names on the x axis coloured by MitoCarta membership, **both cohorts in one
+panel**, no droplines to zero, narrower. It is figure 1 with the two component
+points removed; what is left is the quantity the argument is about, and dropping
+the components buys the room to put both cohorts together, so the pair of points
+per gene reads as the replication directly rather than by looking between two
+panels.
 
-**One decision worth recording. Both panels use the same gene order** - the
-cross-cohort mean, as in figures 1 and 2 - rather than each sorting on its own
-values. Per-panel sorting gives a tidier monotone descent and makes the two
-panels incomparable, which is the wrong trade in a study whose unit of evidence
-is cross-cohort agreement. The cost is that neither panel is monotone; **the
-departure from a clean slope is the replication being displayed**, and where it
-breaks is where the cohorts differ.
+Two construction decisions worth recording.
 
-What the eye gets from it that the summaries do not: the red points are
-concentrated at the positive end and the grey at the negative one, and the
-exceptions are visible by name rather than buried in a mean. `NOL3` and `BIRC5`
-are cytosolic and sit among the largest positive differences; `MCL1`, `BCL2A1`,
-`BCL2L11` and `BID` are MitoCarta members sitting at the negative end. Six genes
-carry a hollow point because the two cohorts disagree on the sign - `BCL2L11`,
-`BOK`, `CASP10`, `CASP8`, `DIABLO`, `XIAP` - and all six are small-difference
-genes near zero.
+**One gene order, shared** - the cross-cohort mean, as in figures 1, 2 and 4 -
+rather than each cohort sorting on its own values. Per-cohort sorting gives a
+tidier monotone descent and makes the two incomparable, which is the wrong trade
+in a study whose unit of evidence is cross-cohort agreement. Neither cohort is
+therefore monotone; **where the descent breaks is where the cohorts differ, and
+that departure is the replication being displayed.**
+
+**The gene names are drawn as data, not as axis text.** Colouring 44 axis labels
+needs a vectorised `element_text(colour = ...)`, which ggplot2 warns is
+unsupported and whose recycling order is not guaranteed - a silently re-ordered
+vector would colour every name wrongly and still render. Drawing them from the
+same rows that position the points cannot come apart from them. This is the same
+rule figure 1 follows with its margin squares.
+
+What the eye gets from it that the summaries do not: the red names crowd the
+left of the axis and the grey ones the right, and the exceptions are legible by
+name rather than buried in a mean. `NOL3` and `BIRC5` are non-MitoCarta and sit
+among the largest positive differences; `MCL1`, `BCL2A1`, `BCL2L11` and `BID`
+are MitoCarta members at the negative end.
 
 ## V2. The one arithmetic caveat, and it is real
 
