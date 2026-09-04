@@ -6,6 +6,13 @@
 data/from_validation/*
 !data/from_validation/README.md
 
+# data/raw/depmap is a SYMLINK into myc_human_validation/data/raw/depmap.
+# Ignored because git would otherwise track it as a link object that resolves
+# only on this machine, and because the ~1.2 GB it points at is gitignored
+# there too. The README is tracked and is the only record this repo has of it.
+data/raw/depmap
+!data/raw/depmap_README.md
+
 results/*
 !results/.gitkeep
 outputs/*
