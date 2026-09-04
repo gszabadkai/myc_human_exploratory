@@ -13,7 +13,8 @@ sources: 2026-09-02_e10_machinery_and_priming.md,
          2026-09-02_priming_interaction_tested.md,
          2026-09-02_paper_opening_human.md,
          2026-09-02_handoff_evening.md,
-         2026-09-03_e15_two_axis_gene_view.md
+         2026-09-03_e15_two_axis_gene_view.md,
+         2026-09-04_e16_respiratory_rulers.md (G1; script written, NOT yet run)
 posture: EXPLORATORY. Nothing in the human arm is pre-registered.
 ---
 
@@ -43,6 +44,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E10** | re-sourced 2026-09-04. `results/machinery_and_priming.rds` is current and carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, figure 8, and section 5.0a-ii's `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` and `$priming$discord` |
 | **E11, E12, E13, E14** | all run by the author, unchanged since 2026-09-02 |
 | **E15** | re-sourced 2026-09-04. All five figures on disk are the current ones, `fig5` included |
+| **E16** | written 2026-09-04 and **NOT YET RUN**. It is the first script of a new line of work (G1) and its numbers are from a dry run, so they are quoted here only in 2.3a and 8.4 and are marked there. **It changes no number in this document** |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -155,6 +157,43 @@ claim and not a comparison of two marginal correlations.
 **One self-overlap to carry forward:** `CYCS` is 1 of the 89. Its OXPHOS value is
 partly self-correlation and it is marked on every panel.
 
+### 2.3a A third ruler, measured and not adopted: `ox_rel`
+
+*Added 2026-09-04 from `E16`, which is **written and not yet run** - every number
+in this subsection is from a dry run and is marked as such. Full note:
+`docs/2026-09-04_e16_respiratory_rulers.md`.*
+
+The mouse gate model proposes a further instrument - its own third ruler, and a
+fifth for the four listed above - built to be computable identically in any
+cohort of any species:
+
+```
+ox_rel = mean z(nuclear MitoCarta OXPHOS subunits) - mean z(the rest of MitoCarta)
+```
+
+`E16` builds it to the mouse's own recipe - **89 nuclear subunits over the other
+1,047 MitoCarta genes**, the 13 mtDNA-encoded ones in the **denominator** and
+never the numerator, on `log2(linear + 1)`. Four questions were asked of it and
+the answers matter for anything that swaps a ruler:
+
+| | |
+|---|---|
+| **Is it the same ruler as mitoPPS?** | **No.** They correlate 0.913 / 0.885 - and their MYC entanglements still differ by up to 0.089. Highly correlated and the same instrument are different claims |
+| **Is it more separable from MYC, as it is in the mouse?** | **Not in human.** The mouse ordering `ox_rel < ox_ppd < ox_lvl` holds on the MSigDB signature in both cohorts and **reverses** on MYC mRNA and on the CollecTRI regulon. It is less entangled than the incumbent with every *signature* estimator (-0.09 to -0.15) and **more** with the regulon (+0.093 / +0.137) |
+| **Does the 3.1 table survive it?** | **Yes.** 11 of 12 genes keep their sign in both cohorts (`BCL2A1` is the exception in both); `BAD` is top on every ruler; cross-ruler rank agreement over the 12 is 0.867 / 0.783 against an in-repo reference of 0.930 / 0.902 |
+| **Is it better in any respect?** | **Two.** It is the least proliferation-entangled of the four rulers in both cohorts, and the most infiltrate-robust in TCGA - mean shift 0.010 over the 12 against 0.022-0.038 for the others |
+
+**The reference arm does not change.** `OXPHOS subunits` GSVA stays the axis of
+this document; `ox_rel` joins the reported panel as a fifth instrument. Nothing
+in sections 3 to 8 is restated, because nothing in them moved.
+
+**The one general lesson, and it is 2.2's lesson on a new axis:** in the mouse,
+`ox_rel` was the least MYC-entangled ruler on all three of its estimators, so
+naming a ruler was a complete instruction. In human it depends on which MYC
+estimator is asked. **Separability from MYC is a property of the
+ruler-estimator PAIR, not of the ruler.** Anything that fixes one without fixing
+the other has fixed half a measurement. See 8.4 trap 9.
+
 ### 2.4 The covariate, and what "adjusted" means
 
 | | |
@@ -226,6 +265,7 @@ self-pair, no empty cell.
 | `E13_priming_and_content.R` | **is the OXPHOS association mitochondrial mass?** MOM/MOM ratios + random-pair null | `results/priming_and_content.rds` |
 | `E14_curated_comparators.R` | named non-apoptotic membrane-spanning comparators; infiltrate falsifier | `results/curated_comparators.rds` |
 | `E15_two_axis_gene_view.R` | display only; the 44 on both axes, per gene | `results/two_axis_gene_view.rds` |
+| `E16_respiratory_rulers.R` | **G1, a measurement check.** The mouse's `ox_rel` built to its own recipe; ruler agreement, separability, the 12 on every ruler, infiltrate control. **Written 2026-09-04, not yet run** | `results/respiratory_rulers.rds` |
 
 **Objects a mouse-model application would read first**, by name:
 
@@ -245,11 +285,15 @@ self-pair, no empty cell.
 | `priming_and_content.rds$ratio_rho` | 70 | ratios with **`ox_condM`** and **`myc_condO`** - the conditioned versions |
 | `priming_and_content.rds$mom_null` | 2 | the 500-draw random MOM/MOM null |
 | `borrowing_explainer.rds$decomp` | 2 | SD of the OXPHOS column, the MYC column, the borrowed part and MYC's own |
+| `respiratory_rulers.rds$twelve` | 96 | **the 12 x 4 rulers x 2 cohorts with intervals.** Its `ox_gsva` and `ox_ppd` rows reproduce `component_cor` exactly, which is the load block's control (2.3a) |
+| `respiratory_rulers.rds$separability` | 80 | each ruler against each MYC estimator and proliferation, raw, Spearman and Pearson |
+| `respiratory_rulers.rds$verdicts` | 5 | R1-R5, on rules fixed before the numbers |
 
 **Tables on disk:** `outputs/tables/E10_priming_ratios.csv`,
 `E10_canonical_machinery.csv`, `E11_gene_rho_by_adjustment.csv`,
 `E14_comparator_splits.csv`, `E14_mitocarta_pathway_ladder.csv`,
-`E15_gene_rho_two_axes.csv`.
+`E15_gene_rho_two_axes.csv`. `E16_ruler_separability.csv` and
+`E16_twelve_on_rulers.csv` appear once `E16` is sourced.
 
 **Priming figures:** `E10_fig3` the 35-cell ratio heatmap; `E10_fig4` does a
 ratio beat its parts; `E10_fig5` the 12 components with intervals; `E10_fig6`
@@ -299,6 +343,15 @@ OXPHOS. **This is the table to map a mouse model onto.**
    genes, not a shift in balance.
 
 Source: `machinery_and_priming.rds$component_cor`; figure `E10_fig5`.
+
+**This table does not depend on the ruler** (2.3a, `E16`, dry run). Re-computed
+against mitoPPS, against the absolute subunit level and against the mouse's
+`ox_rel`, 11 of the 12 genes keep their sign in both cohorts, `BAD` is top
+everywhere, and the three the mouse model names - `BBC3`, `BCL2L1`, `MCL1` -
+shift by at most 0.082 / 0.070. The single exception in both cohorts is
+`BCL2A1`, which is +0.143 / +0.070 on `ox_rel` against -0.004 / -0.107 here, and
+which is also the only cell in the grid that changes sign under purity and
+leukocyte fraction.
 
 ### 3.2 The 35-ratio grid, and the ceiling on what a ratio can carry
 
@@ -1113,6 +1166,27 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    bulk tumour RNA. If the mouse arm reads protein, function or perturbation, a
    null there does not refute a correlation here and a positive there does not
    confirm one. Say which claim each addresses before comparing.
+9. **A RULER THAT IS SEPARABLE FROM MYC IN ONE SPECIES NEED NOT BE IN THE
+   OTHER - and this one is not.** Added 2026-09-04 from `E16` (2.3a; written,
+   not yet run). The mouse's `ox_rel` was chosen because it was the least
+   MYC-entangled of three rulers on **all three** of its MYC estimators, so
+   naming the ruler was a complete instruction there. Built to the identical
+   recipe in human it reproduces that ordering on **2 of 6** cells: it wins on
+   the MSigDB signature in both cohorts and loses on MYC mRNA and on the
+   CollecTRI regulon in both. **Separability from MYC is a property of the
+   ruler-estimator PAIR, not of the ruler**, which is trap 3 of `CLAUDE.md`
+   arriving on a second axis. Two consequences for the handover:
+   - **A mouse result on `ox_rel` and a human result on `OXPHOS subunits` GSVA
+     are not automatically the same measurement.** They correlate 0.922 / 0.902
+     within cohort, which is high and is not identity.
+   - **A cross-species claim that a ruler is "the separable one" must name the
+     MYC estimator it was separable from**, in each species, or it is half a
+     statement. The pair that is most separable on the human numbers is
+     `ox_rel` with `FELSHER__MITOSTRIP` or with `MYC_UP.V1_UP__MITOSTRIP`.
+
+   What does NOT change: the 3.1 configuration survives every ruler tried, and
+   `BCL2L1` minus `BBC3` stays positive in **8 of 8** ruler-by-cohort cells - so
+   the explanation of N2's null does not rest on a ruler choice.
 
 ---
 
@@ -1158,9 +1232,13 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    falsifier left in the priming section**, and it needs a third cohort rather
    than more work on these two. METABRIC is out of scope, so this is a note for
    whoever reopens that decision.
-5. Score `COLLECTRI_MYC_STIM` (739 genes, in the snapshot, never scored) as a
+5. **Score `COLLECTRI_MYC_STIM`** (739 genes, in the snapshot, never scored) as a
    fifth base; drop `ELLWOOD` and recompute the entanglement slope. Both need a
-   pipeline re-run.
+   pipeline re-run. **Promoted 2026-09-04**: the CollecTRI regulon estimator is
+   the one place `ox_rel` loses its separability advantage (2.3a, 8.4 trap 9),
+   and there is a second, unused regulon estimator sitting in the same snapshot.
+   **It is the cheapest thing that could overturn 2.3a's pattern**, and until it
+   is scored the "regulon" column of that argument rests on one estimator.
 6. The ER-negative fatty-acid-oxidation reversal, untouched.
 7. A stranded total-RNA dataset for `MT-ND6` and `CO1`/`CO2`.
 
