@@ -46,7 +46,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E15** | re-sourced 2026-09-04. All five figures on disk are the current ones, `fig5` included |
 | **E16** | sourced 2026-09-04. `results/respiratory_rulers.rds` is on disk and reproduces its dry run in all 24 objects. It is the first script of a new line of work (G1); it is quoted here only in 2.3a and 8.4, and **it changes no number in this document** |
 | **E17** | sourced 2026-09-04. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency, and the first functional evidence this arm has produced. It is quoted here only in 5.2 arrow (f) and in V1. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md`, **and its addendum `docs/2026-09-04_b4_addendum.md`, which must be read with it** |
-| **E18** | **WRITTEN, NOT YET SOURCED.** The B4 addendum's task 1 - does the 3.1 transcript configuration reproduce in CCLE? It does not, and that removes B4's standing as a test of V1. Numbers are from a DRY RUN and are marked as such wherever they appear (5.2 arrow (f), V1, 8.4 traps 9 and 10, 10.1b). **It changes no number in this document**, which is measured in tumours: `scripts/E18_ccle_configuration.R`, `docs/2026-09-04_b4_addendum.md` |
+| **E18** | sourced 2026-09-04. `results/ccle_configuration.rds` is on disk and reproduces its dry run in all 13 non-timestamp objects. The B4 addendum's task 1 - does the 3.1 transcript configuration reproduce in CCLE? It does not, and that removes B4's standing as a test of V1. Quoted here in 5.2 arrow (f), V1, 8.4 traps 9 and 10, and 10.1b-1c. **It changes no number in this document**, which is measured in tumours: `scripts/E18_ccle_configuration.R`, `docs/2026-09-04_b4_addendum.md` |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -346,7 +346,7 @@ OXPHOS. **This is the table to map a mouse model onto.**
 
 Source: `machinery_and_priming.rds$component_cor`; figure `E10_fig5`.
 
-**This table does not depend on the ruler** (2.3a, `E16`, dry run). Re-computed
+**This table does not depend on the ruler** (2.3a, `E16`). Re-computed
 against mitoPPS, against the absolute subunit level and against the mouse's
 `ox_rel`, 11 of the 12 genes keep their sign in both cohorts, `BAD` is top
 everywhere, and the three the mouse model names - `BBC3`, `BCL2L1`, `MCL1` -
@@ -868,9 +868,9 @@ produces the dependency V1 predicts. It does not, and the reverse replicates:
 prediction, with 3 of 4 `MCL1` CIs excluding zero at n = 1,127.
 
 **Then the addendum asked whether the configuration is there at all, and it is
-not.** `E18` / `docs/2026-09-04_b4_addendum.md` (2026-09-04, **dry run**)
-measured the 3.1 configuration in the same cells, on the same four rulers, with
-the same estimator. `BCL2L1` is **+0.35 to +0.43** with OXPHOS in both tumour
+not.** `E18` / `docs/2026-09-04_b4_addendum.md` (2026-09-04, run) measured the
+3.1 configuration in the same cells, on the same four rulers, with the same
+estimator. `BCL2L1` is **+0.35 to +0.43** with OXPHOS in both tumour
 cohorts and **-0.11 to +0.01** in CCLE; the `BCL2L1 - BBC3` gap is positive in
 **8 of 8** tumour cells and negative in **8 of 8** CCLE cells; **0 of 4** rulers
 carry the configuration in breast and 0 of 4 pan-cancer. `MCL1` does transfer
@@ -961,7 +961,7 @@ BCL-XL-dependent, on all four rulers, in breast (n = 51) and pan-cancer
 (n = 1,127) alike, with 3 of 4 `MCL1` CIs excluding zero in the powered scope.
 
 *Why it is not a test of V1.* `E18` / `docs/2026-09-04_b4_addendum.md`
-(2026-09-04, **dry run**) measured the M2 configuration in the same cells:
+(2026-09-04, run) measured the M2 configuration in the same cells:
 **0 of 4 rulers reproduce it in breast and 0 of 4 pan-cancer**, `BCL2L1` runs
 **+0.35 to +0.43** in tumours against **-0.11 to +0.01** in CCLE, and the
 `BCL2L1 - BBC3` gap flips from positive in 8 of 8 tumour cells to negative in
@@ -1261,7 +1261,7 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    `BCL2L1` minus `BBC3` stays positive in **8 of 8** ruler-by-cohort cells - so
    the explanation of N2's null does not rest on a ruler choice.
 
-   **Added 2026-09-04 from `E18` (dry run):** that ruler-robustness is real and
+   **Added 2026-09-04 from `E18`:** that ruler-robustness is real and
    it is a property of these two tumour cohorts, not of the quantity. In CCLE
    the same gap, on the same four rulers, built by the same recipe, is
    **negative in 8 of 8 cells**. Ruler-robustness within a system says nothing
