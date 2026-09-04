@@ -45,7 +45,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E11, E12, E13, E14** | all run by the author, unchanged since 2026-09-02 |
 | **E15** | re-sourced 2026-09-04. All five figures on disk are the current ones, `fig5` included |
 | **E16** | sourced 2026-09-04. `results/respiratory_rulers.rds` is on disk and reproduces its dry run in all 24 objects. It is the first script of a new line of work (G1); it is quoted here only in 2.3a and 8.4, and **it changes no number in this document** |
-| **E17** | written 2026-09-04 and **NOT YET RUN**. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency. It is quoted here only in 5.2 arrow (f) and is marked there. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md` |
+| **E17** | sourced 2026-09-04. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency, and the first functional evidence this arm has produced. It is quoted here only in 5.2 arrow (f) and in V1. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md` |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -860,8 +860,8 @@ member does this                DOWN
 | **(f)** | The configuration reaches protein and sets priming | **none in this data type.** Transcript abundance only. **But see below: B4 now puts functional evidence against the step, not for it** | **NOT MEASURED here. The mouse arm's step** |
 
 **Arrow (f) is no longer evidence-free, and what it gained points the wrong
-way.** `E17` / B4 (2026-09-04, written not yet run;
-`docs/2026-09-04_b4_result.md`) asked DepMap whether the M2 configuration
+way.** `E17` / B4 (2026-09-04, run; `docs/2026-09-04_b4_result.md`) asked
+DepMap whether the M2 configuration
 produces the dependency V1 predicts. It does not, and the reverse replicates:
 **8 of 8 breast cells and 8 of 8 pan-cancer cells** point opposite to the
 prediction, with 3 of 4 `MCL1` CIs excluding zero at n = 1,127. OXPHOS-high cell
@@ -935,8 +935,8 @@ prediction that converts a transcript pattern into a therapeutic statement**, an
 the human arm cannot test it *in tumours*.
 
 **A COROLLARY OF V1 HAS NOW BEEN TESTED IN CELL LINES, AND IT FAILED AS THE
-CLEAN REVERSE.** B4 / `E17`, 2026-09-04 (written not yet run;
-`docs/2026-09-04_b4_result.md`): in DepMap, OXPHOS-high lines are marginally
+CLEAN REVERSE.** B4 / `E17`, 2026-09-04 (`docs/2026-09-04_b4_result.md`):
+in DepMap, OXPHOS-high lines are marginally
 **more** MCL1-dependent and **less** BCL-XL-dependent, on all four rulers, in
 breast (n = 51) and pan-cancer (n = 1,127) alike, with 3 of 4 `MCL1` CIs
 excluding zero in the powered scope.
