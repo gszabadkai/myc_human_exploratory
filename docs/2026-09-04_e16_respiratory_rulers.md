@@ -2,12 +2,11 @@
 
 **2026-09-04. EXPLORATORY. Nothing here is pre-registered.**
 
-Script: `scripts/E16_respiratory_rulers.R`. Written this session, **not yet run
-by the author** - the numbers below are from a dry run with the three output
-paths redirected to the scratchpad, and the repo was left untouched (`git status`
-clean apart from the new script). Sourcing it in Positron takes a few seconds:
-it reads six saved objects and builds two composites. That source is what puts
-`results/respiratory_rulers.rds` and the two CSVs on disk.
+Script: `scripts/E16_respiratory_rulers.R`. **Sourced by the author 2026-09-04
+at 11:29**, and `results/respiratory_rulers.rds` plus the two CSVs are on disk.
+The numbers below were written from a dry run beforehand; the real run
+reproduces **all 24 saved objects identically**, so every number here is now
+read from a saved object and the dry-run caveat is discharged.
 
 **This is a MEASUREMENT CHECK, not an analysis.** No interaction was fitted, no
 MYC stratification made, no subtype split taken, no new endpoint or ratio

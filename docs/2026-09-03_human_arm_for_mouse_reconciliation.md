@@ -14,7 +14,7 @@ sources: 2026-09-02_e10_machinery_and_priming.md,
          2026-09-02_paper_opening_human.md,
          2026-09-02_handoff_evening.md,
          2026-09-03_e15_two_axis_gene_view.md,
-         2026-09-04_e16_respiratory_rulers.md (G1; script written, NOT yet run)
+         2026-09-04_e16_respiratory_rulers.md (G1, run 2026-09-04)
 posture: EXPLORATORY. Nothing in the human arm is pre-registered.
 ---
 
@@ -44,7 +44,8 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E10** | re-sourced 2026-09-04. `results/machinery_and_priming.rds` is current and carries `additive_fit`, `diff_tab` with all three axis-difference forms, the `*` / `**` / `^` / border cell marks, figure 8, and section 5.0a-ii's `$gain_rank_agree`, `$gain_by_discord`, `$gain_one_cohort` and `$priming$discord` |
 | **E11, E12, E13, E14** | all run by the author, unchanged since 2026-09-02 |
 | **E15** | re-sourced 2026-09-04. All five figures on disk are the current ones, `fig5` included |
-| **E16** | written 2026-09-04 and **NOT YET RUN**. It is the first script of a new line of work (G1) and its numbers are from a dry run, so they are quoted here only in 2.3a and 8.4 and are marked there. **It changes no number in this document** |
+| **E16** | sourced 2026-09-04. `results/respiratory_rulers.rds` is on disk and reproduces its dry run in all 24 objects. It is the first script of a new line of work (G1); it is quoted here only in 2.3a and 8.4, and **it changes no number in this document** |
+| **E17** | written 2026-09-04 and **NOT YET RUN**. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency. It is quoted here only in 5.2 arrow (f) and is marked there. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md` |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -159,8 +160,8 @@ partly self-correlation and it is marked on every panel.
 
 ### 2.3a A third ruler, measured and not adopted: `ox_rel`
 
-*Added 2026-09-04 from `E16`, which is **written and not yet run** - every number
-in this subsection is from a dry run and is marked as such. Full note:
+*Added 2026-09-04 from `E16`, **sourced the same day**; every number in this
+subsection is read from `results/respiratory_rulers.rds`. Full note:
 `docs/2026-09-04_e16_respiratory_rulers.md`.*
 
 The mouse gate model proposes a further instrument - its own third ruler, and a
@@ -856,7 +857,24 @@ member does this                DOWN
 | **(c)** | The biogenesis programme raises regulon transcripts, including 11 of the 12 priming genes | median +0.249 / +0.197 | **real but GENERIC.** At its matched null (z **+0.48 / +0.62**), 63rd percentile of 30 pathways, below mitophagy's mitochondrial half (+0.210 / +0.184) |
 | **(d)** | ...and lowers cytosolic apoptotic effectors | mean **-0.106 / -0.094** against its own null (median -0.164 / -0.145), **0th percentile of 30 pathways**, unique among four curated membrane-spanning programmes, survives purity + leukocyte and death-receptor deletion | **the apoptosis-specific claim** |
 | **(e)** | Inside the regulon half the OXPHOS axis resolves gene by gene, and this is a property of the axis | MOM/MOM ratios not flat (0.246 / 0.147) but random MOM/MOM pairs equally not flat (0.200 / 0.153), excess z **+1.18 / -0.16 - does not replicate** | **the ordering is real; its apoptotic specificity is NOT shown** |
-| **(f)** | The configuration reaches protein and sets priming | **none.** Transcript abundance only | **NOT MEASURED. The mouse arm's step** |
+| **(f)** | The configuration reaches protein and sets priming | **none in this data type.** Transcript abundance only. **But see below: B4 now puts functional evidence against the step, not for it** | **NOT MEASURED here. The mouse arm's step** |
+
+**Arrow (f) is no longer evidence-free, and what it gained points the wrong
+way.** `E17` / B4 (2026-09-04, written not yet run;
+`docs/2026-09-04_b4_result.md`) asked DepMap whether the M2 configuration
+produces the dependency V1 predicts. It does not, and the reverse replicates:
+**8 of 8 breast cells and 8 of 8 pan-cancer cells** point opposite to the
+prediction, with 3 of 4 `MCL1` CIs excluding zero at n = 1,127. OXPHOS-high cell
+lines are marginally MORE MCL1-dependent and LESS BCL-XL-dependent - the
+inverse-of-supply direction, which a cell can show precisely because it has less
+of the protein.
+
+Three limits on how far that goes, all in the result note: `POLR2B` carries a
+same-signed effect about 60% of `MCL1`'s, so part of it is a general fitness
+gradient; OXPHOS ranks 11th-12th of 18 mitochondrial arms, so it is not
+respiratory-specific; and the BCL-XL drug leg could not be fitted at all.
+**M2 is untouched** - it is a statement about transcripts in tumours. What B4
+removes is the inference from that configuration to a dependency, which is V1.
 
 ### 5.3 What the model says about priming - five propositions
 
@@ -914,7 +932,24 @@ BCL-xL-dependent and less MCL1-dependent than OXPHOS-low tumours.** Testable by
 BH3 profiling with selective peptides (HRK for BCL-xL, MS1 for MCL1) or by
 sensitivity to selective mimetics (A-1331852 vs S63845). **This is the one
 prediction that converts a transcript pattern into a therapeutic statement**, and
-the human arm cannot test it.
+the human arm cannot test it *in tumours*.
+
+**A COROLLARY OF V1 HAS NOW BEEN TESTED IN CELL LINES, AND IT FAILED AS THE
+CLEAN REVERSE.** B4 / `E17`, 2026-09-04 (written not yet run;
+`docs/2026-09-04_b4_result.md`): in DepMap, OXPHOS-high lines are marginally
+**more** MCL1-dependent and **less** BCL-XL-dependent, on all four rulers, in
+breast (n = 51) and pan-cancer (n = 1,127) alike, with 3 of 4 `MCL1` CIs
+excluding zero in the powered scope.
+
+**This is a corollary, not V1 itself, and the distinction is load-bearing.** V1
+is BH3 profiling of *tumours*; B4 is CRISPR gene effect in *cell lines*, which
+have no stroma, no infiltrate and no selection history, and which measure
+dependency rather than priming (N3). A cell-line reversal does not settle a
+tumour prediction. What it does is remove the free assumption: the step from the
+M2 configuration to a dependency was previously untested in any system and is
+now tested in one, where it runs backwards. **V1 should be stated with that
+attached from here on.** Its two named limits are in the result note - `POLR2B`
+carries 60% of the `MCL1` effect, and OXPHOS ranks 11th-12th of 18 arms.
 
 **V2 - THE NULL THAT MUST HOLD.**
 BH3 profiling stratified by OXPHOS should show **no `MYC x OXPHOS` interaction**
@@ -1167,8 +1202,8 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    null there does not refute a correlation here and a positive there does not
    confirm one. Say which claim each addresses before comparing.
 9. **A RULER THAT IS SEPARABLE FROM MYC IN ONE SPECIES NEED NOT BE IN THE
-   OTHER - and this one is not.** Added 2026-09-04 from `E16` (2.3a; written,
-   not yet run). The mouse's `ox_rel` was chosen because it was the least
+   OTHER - and this one is not.** Added 2026-09-04 from `E16` (2.3a). The
+   mouse's `ox_rel` was chosen because it was the least
    MYC-entangled of three rulers on **all three** of its MYC estimators, so
    naming the ruler was a complete instruction there. Built to the identical
    recipe in human it reproduces that ordering on **2 of 6** cells: it wins on
@@ -1223,6 +1258,13 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
      ones, the phrase goes and "different correlate" replaces it.
      `e15_two_axis_gene_view.md` V5.
 
+1b. **A wider pan-essential floor panel in CCLE.** B4's `MCL1` reversal sits
+   about 1.5-1.8x above a same-signed `POLR2B` gradient whose pan-cancer CI
+   excludes zero on two rulers, while `RPL3` is clean. A handful of extra
+   common-essential control genes decides how much of the reversal is a general
+   fitness gradient. **Cheap, and it bounds the only functional result the human
+   arm has.** It is NOT the CCLE expression-matched null, which B4 does not
+   require because B4-a failed. `docs/2026-09-04_b4_result.md` section 9.4.
 2. **Fold the cognate-pairing test (3.8) into `E10`** so it regenerates from
    code. It is currently the only number in this document without a script.
 3. **`LumA` alone** - the homogeneous stratum where stromal and immune
