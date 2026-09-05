@@ -747,6 +747,114 @@ while the seven that reach 0.30 are all OXPHOS and none beats its parts twice.
 
 ---
 
+### 3.10 The functional line, end to end: B4, its addendum, and `E19`
+
+**This is the only functional evidence the human arm has produced, and it is an
+arc rather than a result** - each step changes what the previous one licenses,
+and reading any step alone gets it wrong in a specific, predictable way. It was
+written up across four dated notes (`b4_declaration`, `b4_result`,
+`b4_addendum`, `e19_subtype`, all 2026-09-04); this section is the account those
+four make together. **The numbers below are not re-derived here** - each is read
+from a saved object and the notes carry the tables.
+
+**Read the rules first, because they are what make the arc legible.** N3: these
+are Chronos gene-effect scores and transcript abundances, and nothing is
+"primed". No magnitude is compared across species or across cohorts (8.4 traps
+3 and 11) - a cell-line panel is a cohort. And **N2 outranks all of it.**
+
+#### What was asked, and where the prediction came from
+
+Prediction **V1** (5.5) reads a therapeutic statement off the 3.1 configuration:
+if `BCL2L1` is up and `MCL1` down in OXPHOS-high tumours *and that reaches
+protein*, then OXPHOS-high tumours should be more BCL-xL-dependent and less
+MCL1-dependent. Arrow **(f)** - "the configuration reaches protein and sets
+priming" - is the step that licenses it, and until 2026-09-04 arrow (f) had **no
+evidence attached to it at all.**
+
+B4 asked DepMap for a corollary of V1: the `OX` main effect on guardian
+dependency, in 51 breast lines and 1,127 pan-cancer lines, on all four rulers.
+The estimand was one the closed validation study's Block G had **fitted
+everywhere and reported nowhere** - it extracted only `MYC:OX`. Directions,
+floor genes and reading rules were fixed in `b4_declaration.md` and committed
+**before the script was written**.
+
+#### The four steps, and what each one removes
+
+| step | what it found | what it licenses | what it removes |
+|---|---|---|---|
+| **1. `E17`** - the fit | the **clean reverse**: 8 of 8 breast cells and 8 of 8 pan-cancer cells point opposite to V1, at n = 1,127 | nothing yet | the free assumption that arrow (f) had ever been tested |
+| **2. the addendum, tasks 2-3** - reading the fit properly | 6 of 16 pan-cancer intervals exclude zero and **all six are `MCL1`**; and compared per primary gene rather than against the largest, `POLR2B` **exceeds** `MCL1` on two of four rulers | `BCL2L1` as the one readable coefficient | the `MCL1` leg, which **sits at the pan-essential floor** and is not a dependency result |
+| **3. the addendum, task 1** - checking the premise | CCLE **does not carry the 3.1 configuration**: 0 of 4 rulers in breast, 0 of 4 pan-cancer; `BCL2L1` +0.35 to +0.43 in tumours against -0.11 to +0.01 in cell lines; the `BCL2L1 - BBC3` gap flips sign in 8 of 8 cells | nothing about V1 | **B4's standing as a test of V1** |
+| **4. `E19`** - closing the explanations | the configuration is **not compositional** (3.1a), and the mouse's own low-MYC slope `bX_wt(Bcl2l1)` is **+0.01, flat** (5.5) | a sharper problem | the two remaining ways to explain the disagreement away |
+
+#### Where that leaves each leg
+
+**B4 has no leg that both tests V1 and clears the floor.** The one leg whose
+transcript configuration transfers to CCLE (`MCL1`, negative on 4 of 4 rulers
+there) is the leg sitting at the pan-essential floor. The one leg above the
+floor (`BCL2L1`) has no transcript gradient in CCLE to be the inverse of - it is
+negative on 3 of 4 rulers where tumours are positive on 8 of 8.
+
+**So V1 is UNTESTED - not refuted and not supported.** That distinction is the
+whole point of the arc and it is the thing most likely to be lost when the
+reversal is quoted alone. The reversal happened; it is real; it is not evidence
+against V1 because it was not measured against the axis V1 is about.
+
+#### What survived every step
+
+- **The transcript configuration itself.** `BCL2L1` up with `MCL1` down in
+  OXPHOS-high tumours survives four rulers (2.3a), purity and leukocyte
+  adjustment (`E16` check 4: +0.419 -> +0.406 on n = 1,007), and **both
+  compartments** (3.1a: every Basal interval clear of zero). **M2 comes out of
+  this better supported than it went in.**
+- **The failure in CCLE is specific, not general.** `MCL1`, `BAD`, `BBC3` and
+  `BIK` keep their direction on 4 of 4 rulers against both tumour cohorts. Five
+  of the twelve agree on 4 of 4; three invert completely. It lands on the one
+  gene the prediction is built on.
+- **N2**, untouched throughout. B4 asked a different question, of a different
+  quantity, in a different system.
+
+#### What the arc leaves open, stated as the problem it now is
+
+The tumour `BCL2L1`-OXPHOS association is **real, within-subtype, purity-robust,
+four-ruler and two-cohort** - and **no system outside human tumours currently
+reproduces it, and no model in either arm currently predicts it.** Both cheap
+explanations are gone: purity (`E16`) and subtype (`E19`), the latter in the
+very compartment CCLE is enriched for (27 basal to 17 luminal of 71 lines, whose
+basal subset gives the same flat answer as the pool). And the mouse-side route -
+that the human cohort sits below `M*`, so the human marginal should match the
+mouse's slope at low MYC - **required `bX(Bcl2l1)` to be positive and it is
++0.01.**
+
+What remains is not cheap: selection history in culture, the absence of stroma,
+hypoxia and nutrient gradients, and what a `BCL2L1` transcript means in a
+proliferating monoculture. **The informative next move is a different system -
+not another cut of CCLE.** 10.1c.
+
+#### Three things this arc taught that outlive it
+
+Each is now a cross-species trap, because each applies to the mouse arm
+identically:
+
+1. **A functional test in a system that does not carry the configuration is not
+   a test of it** (8.4 trap 10). Check the second system's own 3.1-equivalent
+   *before* the functional comparison, not after it disagrees. One partial
+   Spearman panel.
+2. **A floor comparison must be per endpoint**, not against the largest one.
+   B4-b passed as declared because `vs_primary_max` compared each floor gene to
+   `BCL2L1` at +0.196; against `MCL1` at -0.048, `POLR2B` is 1.69x.
+3. **A skipped fit is not a null.** `E17` records every one in `$skipped` with
+   its n and reason - the live case is the BCL-XL drug leg, which sits in a
+   different PRISM screen and was never fitted at all.
+
+**Where the notes are:** `docs/2026-09-04_b4_declaration.md` (read first - it
+fixes every direction and reading rule, and was committed before the script
+existed), then `b4_result.md`, `b4_addendum.md` and `e19_subtype.md`. Saved
+objects: `results/depmap_ox_dependency.rds`, `results/ccle_configuration.rds`,
+`results/subtype_configuration.rds`.
+
+---
+
 ## 4. The context: the machinery-wide result, condensed
 
 The priming genes are 12 of a wider 44, and the wider result is what licenses
@@ -909,50 +1017,38 @@ member does this                DOWN
 | **(e)** | Inside the regulon half the OXPHOS axis resolves gene by gene, and this is a property of the axis | MOM/MOM ratios not flat (0.246 / 0.147) but random MOM/MOM pairs equally not flat (0.200 / 0.153), excess z **+1.18 / -0.16 - does not replicate** | **the ordering is real; its apoptotic specificity is NOT shown** |
 | **(f)** | The configuration reaches protein and sets priming | **none in this data type.** Transcript abundance only. **B4 looked and found the reverse - but see below: the configuration does not exist in the cells B4 looked in, so the arrow is back to evidence-free rather than contradicted** | **NOT MEASURED here. The mouse arm's step** |
 
-**Arrow (f) was tested, and the test did not hold - so the arrow is back to
-evidence-free, not contradicted.** `E17` / B4 (2026-09-04, run;
-`docs/2026-09-04_b4_result.md`) asked DepMap whether the M2 configuration
-produces the dependency V1 predicts. It does not, and the reverse replicates:
-**8 of 8 breast cells and 8 of 8 pan-cancer cells** point opposite to the
-prediction, with 3 of 4 `MCL1` CIs excluding zero at n = 1,127.
+**Arrow (f) was tested, the test did not hold, and the arrow is back to
+evidence-free rather than contradicted. The full account is 3.10** - this is the
+conclusion only, because the arc is four steps and reading any one of them alone
+gets it wrong.
 
-**Then the addendum asked whether the configuration is there at all, and it is
-not.** `E18` / `docs/2026-09-04_b4_addendum.md` (2026-09-04, run) measured the
-3.1 configuration in the same cells, on the same four rulers, with the same
-estimator. `BCL2L1` is **+0.35 to +0.43** with OXPHOS in both tumour
-cohorts and **-0.11 to +0.01** in CCLE; the `BCL2L1 - BBC3` gap is positive in
-**8 of 8** tumour cells and negative in **8 of 8** CCLE cells; **0 of 4** rulers
-carry the configuration in breast and 0 of 4 pan-cancer. `MCL1` does transfer
-(negative on 4 of 4 in CCLE breast), and so do `BAD`, `BBC3` and `BIK`. **It is
-`BCL2L1` - the gene the prediction is built on - that does not.**
+`E17` / B4 asked DepMap whether the M2 configuration produces the dependency V1
+predicts. It does not, and the reverse replicates on **8 of 8 breast and 8 of 8
+pan-cancer cells**. Then the addendum asked whether the configuration is present
+in those cells **at all**, and it is not - **0 of 4 rulers** in breast and 0 of 4
+pan-cancer, with `BCL2L1` the one gene that fails to transfer. **So B4 measured
+a dependency against an axis that does not order these genes the way tumours do:
+it did not test V1**, and its reversal is evidence neither against the arrow nor
+for it.
 
-So B4 measured a dependency against an axis that does not order these genes the
-way tumours do. **B4 did not test V1**, and its reversal is not evidence against
-the arrow; it is not evidence for it either.
+Two things follow for the model, and both are load-bearing:
 
-Four limits on how far any of it goes, all in the result note and its addendum:
-`POLR2B` carries a same-signed effect about 60% of `MCL1`'s pan-cancer and
-**exceeds** `MCL1` on two of four rulers in breast, so **the `MCL1` leg sits at
-the pan-essential floor and cannot be read as a dependency at all**; the
-`BCL2L1` leg is the only readable one and is null at n = 51 and at n = 1,127
-alike; OXPHOS ranks 11th-12th of 18 mitochondrial arms, so nothing here is
-respiratory-specific; and the BCL-XL drug leg could not be fitted at all.
-**M2 is untouched** - it is a statement about transcripts in tumours, measured
-in tumours. What B4 removes is the free assumption that the step from that
-configuration to a dependency had been tested; it has now been attempted once,
-in a system that does not carry the configuration.
+- **Arrow (f) still has no evidence**, and that is now a measured absence rather
+  than an untried step. B4 removed the free assumption that the transcript-to-
+  dependency step had ever been checked.
+- **M2 is untouched, and in fact better supported.** It is a claim about
+  transcripts in tumours, measured in tumours, and it now survives four rulers,
+  purity and leukocyte adjustment, **and** stratification into both compartments
+  (3.1a). The compositional explanations for the CCLE disagreement are
+  **exhausted** - purity by `E16` check 4, subtype by `E19`, the latter in the
+  very compartment CCLE is enriched for. **The two systems are not measuring
+  different mixtures of the same thing; they disagree about the thing.**
 
-**And the compositional explanations for that are now exhausted** (`E19`,
-2026-09-04). Purity was closed by `E16` check 4 (+0.419 -> +0.406 on the 1,007
-TCGA samples carrying purity and leukocyte fraction). **Subtype is now closed
-too, and closed in the compartment CCLE is enriched for**: `BCL2L1` holds inside
-Basal on 4 of 4 rulers in both cohorts with every interval clear of zero (3.1a),
-while CCLE breast is basal-enriched among labelled lines - 27 basal to 17
-luminal of 71 - and its basal subset gives the same flat `BCL2L1` as its pool
-(-0.04 to +0.12, n = 27, intervals about +/- 0.38, so it distinguishes nothing
-on its own). **The two systems are not measuring different mixtures of the same
-thing. They disagree about the thing.** M2 comes out of this BETTER supported,
-not worse: it now survives stratification as well as adjustment.
+Limits, if any of this is ever quoted alone: the `MCL1` leg sits at the
+pan-essential floor, the `BCL2L1` leg is the only readable one and is null at
+both sample sizes, OXPHOS ranks 11th-12th of 18 arms so nothing here is
+respiratory-specific, and the BCL-XL drug leg was never fitted. All four are in
+3.10 with their numbers.
 
 ### 5.3 What the model says about priming - five propositions
 
@@ -1016,18 +1112,13 @@ the human arm cannot test it *in tumours*.
 AND THEN THE TEST ITSELF WAS FOUND NOT TO APPLY.** Both halves must be carried
 together and neither is a rescue of the other.
 
-*The reversal.* B4 / `E17`, 2026-09-04 (`docs/2026-09-04_b4_result.md`): in
-DepMap, OXPHOS-high lines are marginally **more** MCL1-dependent and **less**
-BCL-XL-dependent, on all four rulers, in breast (n = 51) and pan-cancer
-(n = 1,127) alike, with 3 of 4 `MCL1` CIs excluding zero in the powered scope.
-
-*Why it is not a test of V1.* `E18` / `docs/2026-09-04_b4_addendum.md`
-(2026-09-04, run) measured the M2 configuration in the same cells:
-**0 of 4 rulers reproduce it in breast and 0 of 4 pan-cancer**, `BCL2L1` runs
-**+0.35 to +0.43** in tumours against **-0.11 to +0.01** in CCLE, and the
-`BCL2L1 - BBC3` gap flips from positive in 8 of 8 tumour cells to negative in
-8 of 8 CCLE cells. The dependency was measured against an axis that does not
-carry the transcript pattern the prediction is about.
+*The reversal, and why it is not a test.* **3.10 carries the arc end to end and
+is the place to read it.** In one line each: `E17` found OXPHOS-high lines
+marginally **more** MCL1-dependent and **less** BCL-XL-dependent on all four
+rulers in both scopes; the addendum then found that **CCLE does not carry the M2
+configuration at all** (0 of 4 rulers in breast, 0 of 4 pan-cancer), so the
+dependency was measured against an axis that does not order these genes the way
+tumours do.
 
 **V1 is therefore UNTESTED, not refuted and not supported.** V1 is BH3 profiling
 of *tumours*; B4 is CRISPR gene effect in *cell lines*, which have no stroma, no
@@ -1037,10 +1128,10 @@ functional test of V1 must first establish that the system it uses carries the
 3.1 configuration, and CCLE does not. That is 8.4 trap 10 and it applies to the
 mouse arm identically.
 
-Three limits on the reversal itself, if it is ever quoted alone: the `MCL1` leg
-sits at the pan-essential floor (`POLR2B` exceeds it on two of four rulers in
-breast); the `BCL2L1` leg is the only readable one and is null at both sample
-sizes; and OXPHOS ranks 11th-12th of 18 arms, so it is not respiratory-specific.
+The limits on the reversal itself, if it is ever quoted alone, are in 3.10 with
+their numbers - the `MCL1` leg is at the pan-essential floor, the `BCL2L1` leg
+is the only readable one and is null at both sample sizes, OXPHOS ranks
+11th-12th of 18 arms, and the BCL-XL drug leg was never fitted.
 
 **A RECONCILIATION ROUTE CLOSED 2026-09-04, and it was never written into this
 document, so nothing here is retracted.** The argument in circulation was that
@@ -1063,14 +1154,10 @@ magnitudes are compared across species (8.4 trap 3). `Bbc3`'s own `bX_wt` sits
 in a gitignored mouse results object and is **not readable at a pinned ref**; it
 is recorded as unavailable rather than inferred, and printing it would make the
 trigger endpoint readable the same way.
-**The obvious escape is already closed.** Cell lines have no stroma or
-infiltrate, so the natural reading is that the tumour `BCL2L1`-OXPHOS
-association is a compartment artefact. It is not: `E16` check 4 refits the
-twelve on the 1,007 TCGA samples with purity and leukocyte fraction on top of
-proliferation, and `BCL2L1` on `ox_gsva` moves **+0.419 -> +0.406** (largest
-shift on the three named genes: `MCL1` at +0.031). **The tumour association
-survives adjustment, so the two systems genuinely disagree about `BCL2L1` and
-the cheapest explanation has been eliminated.** Addendum section 7, item 2.
+
+**Both compositional escapes are closed** - purity by `E16` check 4 and subtype
+by `E19` - so the disagreement about `BCL2L1` is real rather than a difference
+of mixture. 3.10 and 3.1a.
 
 **V2 - THE NULL THAT MUST HOLD.**
 BH3 profiling stratified by OXPHOS should show **no `MYC x OXPHOS` interaction**
