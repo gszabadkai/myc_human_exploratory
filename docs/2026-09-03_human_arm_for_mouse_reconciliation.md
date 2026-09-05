@@ -47,6 +47,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E16** | sourced 2026-09-04. `results/respiratory_rulers.rds` is on disk and reproduces its dry run in all 24 objects. It is the first script of a new line of work (G1); it is quoted here only in 2.3a and 8.4, and **it changes no number in this document** |
 | **E17** | sourced 2026-09-04. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency, and the first functional evidence this arm has produced. It is quoted here only in 5.2 arrow (f) and in V1. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md`, **and its addendum `docs/2026-09-04_b4_addendum.md`, which must be read with it** |
 | **E18** | sourced 2026-09-04. `results/ccle_configuration.rds` is on disk and reproduces its dry run in all 13 non-timestamp objects. The B4 addendum's task 1 - does the 3.1 transcript configuration reproduce in CCLE? It does not, and that removes B4's standing as a test of V1. Quoted here in 5.2 arrow (f), V1, 8.4 traps 9 and 10, and 10.1b-1c. **It changes no number in this document**, which is measured in tumours: `scripts/E18_ccle_configuration.R`, `docs/2026-09-04_b4_addendum.md` |
+| **E19** | sourced 2026-09-04. `results/subtype_configuration.rds` is on disk and reproduces its dry run in all 18 non-timestamp objects. The twelve genes on four rulers inside Luminal and Basal, the per-gene between-subtype test, and the mouse's per-gene low-MYC slope. **It changes no number in this document** but it QUALIFIES two - see 3.1a and 3.7: `docs/2026-09-04_e19_subtype.md` |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -355,6 +356,39 @@ shift by at most 0.082 / 0.070. The single exception in both cohorts is
 which is also the only cell in the grid that changes sign under purity and
 leukocyte fraction.
 
+### 3.1a This table is not compositional either (`E19`, 2026-09-04)
+
+Added because until 2026-09-04 **`BCL2L1` had no within-subtype value anywhere
+in this repo.** 3.7 carried `BBC3` and `MCL1` in Basal because both appear in
+the three surviving ratios; `BCL2L1` appears in none of them. `E19` computed all
+twelve genes on all four rulers inside `Luminal` (696 / 2,436) and `Basal`
+(171 / 317), with the **pooled scores subset and never re-scored** - a
+re-scoring inside a stratum would have built a different axis, so the 144 cells
+E10 already carried are reproduced bit-equal as the control.
+
+**`BCL2L1` holds in both compartments, and not merely by sign:**
+
+| cohort | stratum | `ox_gsva` | `ox_ppd` | `ox_lvl` | `ox_rel` |
+|---|---|---|---|---|---|
+| TCGA | Luminal | +0.467 | +0.362 | +0.464 | +0.403 |
+| TCGA | **Basal** | **+0.412** | **+0.408** | **+0.410** | **+0.463** |
+| SCAN-B | Luminal | +0.317 | +0.300 | +0.334 | +0.296 |
+| SCAN-B | **Basal** | **+0.259** | **+0.270** | **+0.245** | **+0.284** |
+
+**Every Basal interval excludes zero - 8 of 8.** So the pooled +0.39 is not an
+artefact of mixing two subtypes with different means, and **ten of the twelve
+genes hold in both strata** on the same rule (the two that do not are `BCL2A1`
+and `BMF`, both small pooled values, neither in the configuration the model
+rests on).
+
+**One thing does change inside Basal, and it is not the guardian.** The
+`BCL2L1 - BBC3` gap is positive in **24 of 24** stratum cells, but in TCGA Basal
+it is +0.0001 on `ox_gsva` and +0.0007 on `ox_lvl` - zero to any honest reading.
+The reason is that **`BBC3` rises to meet `BCL2L1`** (+0.365 pooled to +0.412 in
+Basal, a rise of 0.047) while `BCL2L1` drops 0.014. The sensitiser catches up;
+the guardian barely moves. That is a different statement from "the configuration
+weakens in Basal", and only the per-gene table separates them.
+
 ### 3.2 The 35-ratio grid, and the ceiling on what a ratio can carry
 
 The question a ratio is supposed to answer is whether the *balance* moves. It
@@ -619,6 +653,21 @@ Source: `priming_interaction_tested.md` H1.
 Pooled values are not within-subtype values. **15 of 35 OXPHOS ratios in TCGA
 and 19 of 35 in SCAN-B sit outside the range of their own Luminal and Basal
 values** - i.e. they are reading a difference *between* subtypes.
+
+> **QUALIFIED 2026-09-04 by `E19`, and this matters for how much those counts
+> carry.** The test is a SIGN test with no magnitude threshold: it fires
+> whenever the pooled value misses a narrow stratum range **by any amount at
+> all**. Computing how far outside each one actually sits, the ratio-level
+> excursions are **small** - the largest anywhere is **0.091**
+> (`PMAIP1/BCL2A1`, TCGA, MYC) and the median among flagged cells is **0.007 to
+> 0.042** depending on cohort and axis. For comparison, the D3/S1 case the test
+> was built to catch - `BCL2` against MYC, -0.369 pooled against -0.009 inside
+> LumA - is an excursion of about **0.36**. Run per GENE rather than per ratio,
+> `E19` finds the same thing: `BCL2L1` is flagged on 7 of 8 cells and its
+> largest excursion is **0.043**, with **0.053** the largest anywhere in the
+> twelve. **The counts are correct; what they are counting is mostly narrow
+> stratum ranges. A flag count is not a between-subtype effect size**, and no
+> claim in this document should rest on one without its magnitude beside it.
 
 Cell marks by stratum, on the OXPHOS axis (`E10_fig6`):
 
@@ -893,6 +942,18 @@ in tumours. What B4 removes is the free assumption that the step from that
 configuration to a dependency had been tested; it has now been attempted once,
 in a system that does not carry the configuration.
 
+**And the compositional explanations for that are now exhausted** (`E19`,
+2026-09-04). Purity was closed by `E16` check 4 (+0.419 -> +0.406 on the 1,007
+TCGA samples carrying purity and leukocyte fraction). **Subtype is now closed
+too, and closed in the compartment CCLE is enriched for**: `BCL2L1` holds inside
+Basal on 4 of 4 rulers in both cohorts with every interval clear of zero (3.1a),
+while CCLE breast is basal-enriched among labelled lines - 27 basal to 17
+luminal of 71 - and its basal subset gives the same flat `BCL2L1` as its pool
+(-0.04 to +0.12, n = 27, intervals about +/- 0.38, so it distinguishes nothing
+on its own). **The two systems are not measuring different mixtures of the same
+thing. They disagree about the thing.** M2 comes out of this BETTER supported,
+not worse: it now survives stratification as well as adjustment.
+
 ### 5.3 What the model says about priming - five propositions
 
 **M1. OXPHOS status sets the LEVEL of individual BCL2-family transcripts, gene
@@ -980,6 +1041,28 @@ Three limits on the reversal itself, if it is ever quoted alone: the `MCL1` leg
 sits at the pan-essential floor (`POLR2B` exceeds it on two of four rulers in
 breast); the `BCL2L1` leg is the only readable one and is null at both sample
 sizes; and OXPHOS ranks 11th-12th of 18 arms, so it is not respiratory-specific.
+
+**A RECONCILIATION ROUTE CLOSED 2026-09-04, and it was never written into this
+document, so nothing here is retracted.** The argument in circulation was that
+the human cohort sits **below the mouse gate model's `M*`**, so the human
+marginal should correspond to the mouse's OXPHOS slope at low MYC - its `bX` -
+and the human +0.39 on `BCL2L1` would then be what the mouse predicts there.
+`E19` read the per-gene slopes from the pinned mouse ref
+(`e348dd8`, `docs/2026-09-02_myc_oxphos_priming_gate_model.md`, section 7,
+read-only): **`bX_wt(Bcl2l1)` = +0.01.** The mouse doc's own words are "a flat
+`Bcl2l1`". **At low MYC the mouse says respiration does nothing to `Bcl2l1`**,
+so that regime predicts approximately zero and has no room for the human number.
+It is not a sign reversal and falsifies nothing; it removes an explanation.
+
+What the two species **do** agree on, and it is worth keeping: the ORDERING of
+the two guardians against respiration at low MYC is the same - `Bcl2l1` above
+`Mcl1` in the mouse (+0.01 against -1.00), `BCL2L1` above `MCL1` in the human.
+**But the ordering is carried by different limbs** - by `Mcl1` falling in the
+mouse, by `BCL2L1` rising in the human. Same order, different mechanism. No
+magnitudes are compared across species (8.4 trap 3). `Bbc3`'s own `bX_wt` sits
+in a gitignored mouse results object and is **not readable at a pinned ref**; it
+is recorded as unavailable rather than inferred, and printing it would make the
+trigger endpoint readable the same way.
 **The obvious escape is already closed.** Cell lines have no stroma or
 infiltrate, so the natural reading is that the tumour `BCL2L1`-OXPHOS
 association is a compartment artefact. It is not: `E16` check 4 refits the
@@ -1292,6 +1375,17 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
       axis - and it should be run **before** the functional comparison, not
       after it disagrees.
 
+11. **A FLAG COUNT IS NOT AN EFFECT SIZE, IN EITHER SPECIES.** Added
+    2026-09-04 from `E19`. Several tests in this document report how many cells
+    cross a threshold - the between-subtype flag (3.7), the cell marks, the
+    ratio `gain` counts. **The between-subtype flag turned out to be almost
+    empty**: its largest excursion anywhere is 0.091 for ratios and 0.053 for
+    genes, against about 0.36 for the case it was built to catch, so it fires
+    mostly on narrow stratum ranges. The count was right and it was carrying
+    weight it could not support. Before a mouse count and a human count are
+    compared, **each needs the magnitude distribution behind it**, or two
+    "15 of 35"s can agree while describing entirely different things.
+
 ---
 
 ## 9. Superseded statements - read this, not that
@@ -1341,21 +1435,25 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
    `docs/2026-09-04_b4_addendum.md` section 3; `docs/2026-09-04_b4_result.md`
    section 9.4.
 
-1c. **Why CCLE and the tumours disagree about `BCL2L1`** - open, and the
-   cheapest explanation is already eliminated. `E16` check 4 shows the tumour
-   association survives purity and leukocyte adjustment (`ox_gsva` +0.419 ->
-   +0.406 on n = 1,007), so it is not a stroma or infiltrate artefact. What
-   remains on the list: selection history in culture, the absence of hypoxia and
-   nutrient gradients, and the possibility that `BCL2L1`'s tumour association is
-   carried by a subtype composition CCLE does not share - the last is testable
-   here, by re-running `E18`'s breast panel within PAM50-like CCLE subsets, and
-   it is the only one of the three this arm can reach.
+1c. **Why CCLE and the tumours disagree about `BCL2L1`** - still open, and now
+   with BOTH cheap explanations eliminated. `E16` check 4 closed purity (`ox_gsva`
+   +0.419 -> +0.406 on n = 1,007). **`E19` closed subtype** (3.1a): `BCL2L1`
+   holds inside Basal with every interval clear of zero, CCLE breast is
+   basal-enriched 27 to 17, and the CCLE basal subset gives the same flat answer
+   as the pool. What remains, and none of it is cheap: selection history in
+   culture, the absence of stroma, hypoxia and nutrient gradients, and a
+   difference in what `BCL2L1` transcript means in a proliferating monoculture.
+   **The most informative next move is a different system** - a tumour-derived
+   organoid panel, or any cell system with a measured OXPHOS axis - not another
+   cut of CCLE. `docs/2026-09-04_e19_subtype.md` section 5;
    `docs/2026-09-04_b4_addendum.md` section 7, item 2.
 2. **Fold the cognate-pairing test (3.8) into `E10`** so it regenerates from
    code. It is currently the only number in this document without a script.
-3. **`LumA` alone** - the homogeneous stratum where stromal and immune
-   composition vary least. Named in E14 as the falsifier for H2, and it is also
-   where V6 should be checked from the other side.
+3. **`LumA` alone** - narrowed by `E19`, which did `Luminal` (LumA + LumB) and
+   `Basal` for all twelve genes and found ten of twelve holding in both. What
+   `LumA` alone would still add is the *most* homogeneous stratum, where stromal
+   and immune composition vary least. Named in E14 as the falsifier for H2, and
+   it is also where V6 should be checked from the other side.
 4. **The `BID` / `BBC3` numerator test named in 3.3b is the cheapest real
    falsifier left in the priming section**, and it needs a third cohort rather
    than more work on these two. METABRIC is out of scope, so this is a note for
