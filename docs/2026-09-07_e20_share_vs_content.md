@@ -2,11 +2,13 @@
 
 **2026-09-07. EXPLORATORY. Nothing here is pre-registered.**
 
-Script: `scripts/E20_share_vs_content.R`. **NOT YET SOURCED BY THE AUTHOR.**
-Every number below is from a dry run (script copied to the scratchpad with
-`PATH_E20` and the table path redirected; repo `results/` and `outputs/`
-untouched, `git status` clean). **The dry-run caveat is discharged only when the
-author's run is compared object by object.**
+Script: `scripts/E20_share_vs_content.R`. **Sourced by the author 2026-09-07**,
+and `results/share_vs_content.rds` plus
+`outputs/tables/E20_share_vs_content.csv` are on disk. The numbers below were
+written from a dry run beforehand; the real run reproduces **all 14
+non-timestamp saved objects identically** - the seeded bootstrap included - so
+every number here is now read from a saved object and **the dry-run caveat is
+discharged**.
 
 **THIS IS A RE-READ, NOT A NEW ANALYSIS.** E16's separability table was produced
 to answer one question - which respiratory ruler is least MYC-entangled - and it
@@ -419,5 +421,5 @@ in either direction - the tripwire returns nothing.
 | object | `results/share_vs_content.rds` - `$panel`, `$contrast`, `$repro`, `$ruler_agreement`, `$adjudicate`, `$verdict_panel`, `$verdicts`, `$verdict`, `$dissent`, `$formulation_available`, `$set_sizes`, `$overlap_audit`, `$settings`, `$rules` |
 | table | `outputs/tables/E20_share_vs_content.csv` |
 | figures | none - this is a re-read, and every number in it is a table |
-| the control | `$repro`: 48 of E16's raw separability cells, max \|delta\| = 0 exactly |
+| the control | `$repro`: 48 of E16's raw separability cells, max \|delta\| = 0 exactly - **confirmed in the author's run** |
 | read for a different question | `docs/2026-09-04_e16_respiratory_rulers.md` sections 3 and 3.1 |
