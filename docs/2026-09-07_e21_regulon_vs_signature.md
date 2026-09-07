@@ -2,11 +2,13 @@
 
 **2026-09-07. EXPLORATORY. Nothing here is pre-registered.**
 
-Script: `scripts/E21_regulon_vs_signature.R`. **NOT YET SOURCED BY THE AUTHOR.**
-Every number below is from a dry run (script copied to the scratchpad with
-`PATH_E21` and the table path redirected; repo `results/` and `outputs/`
-untouched, `git status` clean). **The dry-run caveat is discharged only when the
-author's run is compared object by object.**
+Script: `scripts/E21_regulon_vs_signature.R`. **Sourced by the author
+2026-09-07**, and `results/regulon_vs_signature.rds` plus
+`outputs/tables/E21_regulon_vs_signature.csv` are on disk. The numbers below
+were written from a dry run beforehand; the real run reproduces **all 17
+non-timestamp saved objects identically** - the seeded bootstrap and all 4,800
+rows of the seeded random null included - so every number here is now read from
+a saved object and **the dry-run caveat is discharged**.
 
 **This is a NEW analysis, not a re-read.** It builds two new instruments over
 six gene sets and a size-matched random null. Three reproduction controls tie it
@@ -359,6 +361,6 @@ direction.
 | object | `results/regulon_vs_signature.rds` - `$dstat`, `$panel`, `$vs_null`, `$null_summary`, `$null_d`, `$instr_check`, `$attribution`, `$verdicts`, `$mb_repro`, `$halves_repro`, `$repro20`, `$overlap_audit`, `$settings`, `$rules` |
 | table | `outputs/tables/E21_regulon_vs_signature.csv` |
 | figures | none |
-| the controls | `$mb_repro` and `$halves_repro` at 0; `$repro20` at 64 cells, max \|delta\| = 0 |
+| the controls | `$mb_repro` and `$halves_repro` at 0; `$repro20` at 64 cells, max \|delta\| = 0 - **all three confirmed in the author's run** |
 | what it explains | `docs/2026-09-07_e20_share_vs_content.md` sections 0, 3 and 6 |
 | what it builds on | `docs/2026-09-01_phase2_estimator_findings.md` E3; `E06`'s `$regulon` and `$halves` |
