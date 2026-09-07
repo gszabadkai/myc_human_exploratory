@@ -2,10 +2,14 @@
 # =============================================================================
 # IS THERE A NEGATIVE DIRECT MYC EFFECT ON BBC3 AT FIXED OXPHOS?
 #
-# STAGE 1 ONLY - THE UNADJUSTED TWO-PREDICTOR FIT. THIS SCRIPT STOPS AT GATE 2.
-# The adjusted fits (purity, PROLIF_DISJOINT), the within-stratum fits and the
-# gated FOXO3 mediation are appended to THIS FILE after the gate clears. Do not
-# add them before it does.
+# STAGES 1 AND 2. GATE 2 CLEARED 2026-09-07 (sections 5-8): beta1 < 0 in 12 of
+# 12 unadjusted cells, D2 sign concordance on both rulers. Sections 9-13 are the
+# adjusted fits, the within-stratum fits, the twelve-gene specificity table and
+# the three pre-specified readings.
+#
+# THE GATED FOXO3 MEDIATION LEG IS STAGE 3 AND IS NOT IN THIS FILE YET. It is
+# appended only after the stage 2 report is accepted, and only on the gate rule
+# stated below.
 #
 # =============================================================================
 # WHAT THIS IS NOT - verbatim from the prompt, 2026-09-07
@@ -87,6 +91,55 @@
 #     leave-one-out rebuild of ox_rel per gene rather than arguing it away.
 #     ox_lvl needs no leave-one-out: none of the twelve is an OXPHOS subunit,
 #     and that is asserted.
+#
+# =============================================================================
+# THE THREE READINGS - PRE-SPECIFIED 2026-09-07, BEFORE STAGE 2 WAS RUN
+# =============================================================================
+# Fixed before any adjusted coefficient existed. They only count because they
+# were fixed here, and section 13 applies them mechanically.
+#
+#   (i)  SUPPORTED. beta1 negative AND its interval excluding zero on FELSHER
+#        AND regulon AND dose, after PROLIF_DISJOINT + purity, POOLED and
+#        WITHIN LUMINAL. Written as a MODEST effect, never as a large one.
+#
+#   (ii) NOT TRANSFERRED. beta1 -> 0 on adjustment across all estimators, in a
+#        case where it was NOT clearly present unadjusted on the same samples.
+#        The FOXO3-repression arm does not transfer to human tumours. A
+#        REPORTABLE NEGATIVE, and it is written as one.
+#
+#  (iii) AMBIGUOUS. beta1 -> 0 on adjustment HAVING BEEN PRESENT UNADJUSTED on
+#        the same samples. Proliferation may be a CONFOUNDER or a MEDIATOR -
+#        MYC -> PI3K/AKT -> FOXO3 nuclear exclusion -> BBC3 - and this model
+#        cannot separate them. Adjusting for a mediator destroys the effect it
+#        is meant to test.
+#
+#        UNDER (iii) THE FOXO3 REGULON MEDIATION LEG IS THE TIEBREAKER, AND ITS
+#        GATE OPENS ON THE UNADJUSTED beta1, NOT THE ADJUSTED ONE. Stated here,
+#        in advance, so it cannot be reached for afterwards. Stage 1 already
+#        put the unadjusted beta1 below zero in 12 of 12 cells with 10 of 12
+#        intervals excluding zero, so if (iii) fires the gate is already open.
+#
+# (ii) and (iii) are separated by ONE thing and it is computed, not judged:
+# whether the unadjusted effect was present ON THE SAME SAMPLE SET the adjusted
+# fit uses. That is why section 10 is a LADDER on a fixed subset rather than a
+# before-and-after on two different n.
+#
+# =============================================================================
+# A STANDALONE FINDING FROM SECTION 4, TO CARRY INTO THE NOTE
+# =============================================================================
+# rho(MYC transcript dose, ox_rel) is NEGATIVE and its interval excludes zero in
+# TCGA pooled (-0.103), TCGA Luminal (-0.163), SCAN-B pooled (-0.048) and SCAN-B
+# Luminal (-0.043). On ox_lvl it spans zero almost everywhere. Every ACTIVITY
+# estimator is positive throughout.
+#
+# So "MYC-high tumours are OXPHOS-high" is a statement about MYC ACTIVITY that
+# does not survive being made about MYC DOSE, and on the relative ruler dose
+# points the other way. THIS MAKES D2 CONSEQUENTIAL FOR THE H4 STATE
+# DEFINITION: which estimator defines the state decides the sign of its
+# relationship to the respiratory axis.
+#
+# It is LOGGED here and in the note as a standalone finding and is NOT acted on
+# by this script.
 #
 # =============================================================================
 # THE ESTIMATORS, AND WHY M_b SURVIVES THE CONTAMINATION CHECK
@@ -668,8 +721,8 @@ message("   both shifts under 0.01 everywhere: ", loo_ok,
 # =============================================================================
 # 8. GATE 2
 # =============================================================================
-message("\n", strrep("=", 78), "\n8. GATE 2 - STOP. Report this and wait.\n",
-        strrep("=", 78))
+message("\n", strrep("=", 78),
+        "\n8. GATE 2 - CLEARED 2026-09-07. Stage 2 follows.\n", strrep("=", 78))
 
 gate2 <- identity_chk %>%
   dplyr::filter(claims) %>%
@@ -688,10 +741,315 @@ gate2 %>% as.data.frame() %>% print(row.names = FALSE)
 message("\n   D2 SIGN CONCORDANCE: ",
         paste(sprintf("%s %s", d2$ruler, ifelse(d2$concordant, "YES", "NO")),
               collapse = " | "))
-message("   NOT RUN, AND NOT TO BE RUN UNTIL THE GATE CLEARS: the adjusted fits",
-        "\n   (purity, PROLIF_DISJOINT), the within-stratum fits, the twelve-gene",
-        "\n   specificity table as a REPORTED object, and the gated FOXO3",
-        " mediation.")
+message("   GATE CLEARED. Sections 9-13 follow. The FOXO3 mediation leg is",
+        " STAGE 3\n   and is still not in this file.")
+
+# =============================================================================
+# 9. STAGE 2 - the covariates
+# =============================================================================
+# PROLIF_DISJOINT (318 genes, disjoint from every fitted estimator and from the
+# ox_rel numerator; 75 shared with the 1,047-gene denominator, which section 1
+# printed) and purity.
+#
+# PURITY: TCGA only, source UNDOCUMENTED IN THIS REPO - see the header.
+# `genome_doublings` is NOT a covariate and is not added. SCAN-B has none and
+# NOTHING IS SUBSTITUTED; its ladder simply stops one rung short, and section
+# 10.2 bounds what that costs using the TCGA rung it cannot run.
+#
+# Covariates are Blom-scored ON THE FITTING SUBSET. The primary variables keep
+# their POOLED scores and are subset, per E19's no-re-scoring rule - so a
+# stratum fit uses the same MYC and OXPHOS axes as the pooled fit.
+message("\n9. stage 2: the covariates")
+
+PL <- fr %>% dplyr::filter(cohort == "TCGA") %>%
+  dplyr::select(sample_id, purity, leuko)
+PL <- PL[match(ID_T, PL$sample_id), ]
+IDS_PUR   <- ID_T[!is.na(PL$purity)]
+IDS_PURLK <- ID_T[stats::complete.cases(PL[, c("purity", "leuko")])]
+message("   TCGA purity-complete: ", length(IDS_PUR), " of ", length(ID_T),
+        " | with leukocyte fraction too: ", length(IDS_PURLK))
+message("   SCAN-B purity: 0 of ", length(ID_S), " - nothing substituted")
+
+COVV <- list(
+  TCGA = list(
+    prolif = stats::setNames(as.numeric(mito$gsva_cov[PROLIF_COV <- "PROLIF_DISJOINT", ID_T]), ID_T),
+    purity = stats::setNames(PL$purity, ID_T),
+    leuko  = stats::setNames(PL$leuko,  ID_T)),
+  `SCAN-B` = list(
+    prolif = stats::setNames(as.numeric(sc$gsva_cov["PROLIF_DISJOINT", ID_S]), ID_S)))
+
+# THE LADDER, per cohort, on ONE FIXED SUBSET so that every rung is comparable.
+# Comparing an adjusted value at n = 1,020 with the section 5 value at n = 1,095
+# would confound the covariate with the sample set, and the difference wanted
+# here is the covariate alone. E16 section 6's discipline, reused.
+LADDER <- list(
+  TCGA = list(subset = IDS_PUR,
+              rungs = list(unadjusted = character(0),
+                           `+PROLIF` = "prolif",
+                           `+PROLIF+purity` = c("prolif", "purity"))),
+  `SCAN-B` = list(subset = ID_S,
+                  rungs = list(unadjusted = character(0),
+                               `+PROLIF` = "prolif")))
+TOP_RUNG <- c(TCGA = "+PROLIF+purity", `SCAN-B` = "+PROLIF")
+message("   TCGA ladder on n = ", length(IDS_PUR),
+        " (all three rungs share it); SCAN-B on n = ", length(ID_S))
+
+.fit_adj <- function(y, m, o, cov = NULL) {
+  d <- data.frame(Y = y, M = m, O = o)
+  if (!is.null(cov) && ncol(cov)) d <- cbind(d, cov)
+  f  <- stats::lm(Y ~ ., data = d)
+  ci <- stats::confint(f); cf <- stats::coef(f)
+  tibble::tibble(beta1 = unname(cf["M"]), b1_lo = ci["M", 1], b1_hi = ci["M", 2],
+                 beta2 = unname(cf["O"]), b2_lo = ci["O", 1], b2_hi = ci["O", 2],
+                 n = length(y), k_cov = if (is.null(cov)) 0L else ncol(cov))
+}
+.cov_frame <- function(coh, which, ids) {
+  if (!length(which)) return(NULL)
+  M <- do.call(cbind, lapply(which, function(w) .blom(COVV[[coh]][[w]][ids])))
+  colnames(M) <- which
+  as.data.frame(M)
+}
+
+# =============================================================================
+# 10. The adjustment ladder - pooled, and the deltas per arm
+# =============================================================================
+message("\n10. the ladder, pooled")
+
+.ladder <- function(coh, ids, label, genes = PRIMING_ALL) {
+  Bc <- B[[coh]]; L <- LADDER[[coh]]
+  k  <- match(ids, colnames(Bc$Y))
+  dplyr::bind_rows(lapply(names(L$rungs), function(rn)
+    tidyr::expand_grid(gene = genes, estimator = names(EST_ALL), ruler = RULERS) %>%
+      purrr::pmap_dfr(function(gene, estimator, ruler)
+        .fit_adj(Bc$Y[gene, k], Bc$E[estimator, k], Bc$O[ruler, k],
+                 .cov_frame(coh, L$rungs[[rn]], ids)) %>%
+          dplyr::mutate(cohort = coh, stratum = label, rung = rn, gene = gene,
+                        estimator = estimator, ruler = ruler, .before = 1L))))
+}
+
+ladder_pooled <- dplyr::bind_rows(lapply(names(COH), function(coh)
+  .ladder(coh, LADDER[[coh]]$subset, "all"))) %>%
+  dplyr::mutate(b1_negative = b1_hi < 0, b2_positive = b2_lo > 0,
+                claims = estimator %in% names(EST_CLAIM))
+
+message("\n   ", FOCUS_GENE, " on ox_rel, every rung, claim estimators:")
+ladder_pooled %>%
+  dplyr::filter(gene == FOCUS_GENE, ruler == "ox_rel", claims) %>%
+  dplyr::transmute(cohort, estimator, rung, n,
+                   beta1 = sprintf("%+.3f", beta1),
+                   b1_ci = sprintf("[%+.3f, %+.3f]", b1_lo, b1_hi),
+                   beta2 = sprintf("%+.3f", beta2),
+                   b2_ci = sprintf("[%+.3f, %+.3f]", b2_lo, b2_hi)) %>%
+  dplyr::arrange(cohort, estimator, match(rung, c("unadjusted","+PROLIF","+PROLIF+purity"))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+message("\n   ", FOCUS_GENE, " on ox_rel, the two SENSITIVITY signatures -",
+        " REPORTED, NOT DROPPED:")
+ladder_pooled %>%
+  dplyr::filter(gene == FOCUS_GENE, ruler == "ox_rel", !claims) %>%
+  dplyr::transmute(cohort, estimator, rung,
+                   beta1 = sprintf("%+.3f", beta1),
+                   b1_ci = sprintf("[%+.3f, %+.3f]", b1_lo, b1_hi),
+                   beta2 = sprintf("%+.3f", beta2)) %>%
+  dplyr::arrange(cohort, estimator, match(rung, c("unadjusted","+PROLIF","+PROLIF+purity"))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# --- 10.1 THE DELTAS, both arms side by side --------------------------------
+# The explicit ask: how much the SAME covariate moves beta1 and beta2. If the
+# two arms move together the covariate is acting on the shared axis; if only
+# beta1 moves, it is acting on the MYC arm specifically.
+message("\n10.1 unadjusted -> adjusted delta, BOTH ARMS, same samples throughout")
+
+deltas <- ladder_pooled %>%
+  dplyr::filter(gene == FOCUS_GENE) %>%
+  dplyr::select(cohort, estimator, ruler, rung, beta1, beta2) %>%
+  tidyr::pivot_wider(names_from = rung, values_from = c(beta1, beta2)) %>%
+  dplyr::mutate(
+    d_b1_prolif = `beta1_+PROLIF` - beta1_unadjusted,
+    d_b2_prolif = `beta2_+PROLIF` - beta2_unadjusted,
+    d_b1_purity = if ("beta1_+PROLIF+purity" %in% names(.))
+      `beta1_+PROLIF+purity` - `beta1_+PROLIF` else NA_real_,
+    d_b2_purity = if ("beta2_+PROLIF+purity" %in% names(.))
+      `beta2_+PROLIF+purity` - `beta2_+PROLIF` else NA_real_,
+    d_b1_total = dplyr::coalesce(d_b1_purity, 0) + d_b1_prolif,
+    d_b2_total = dplyr::coalesce(d_b2_purity, 0) + d_b2_prolif,
+    frac_b1_lost = dplyr::if_else(abs(beta1_unadjusted) > 1e-8,
+                                  d_b1_total / abs(beta1_unadjusted), NA_real_),
+    frac_b2_lost = dplyr::if_else(abs(beta2_unadjusted) > 1e-8,
+                                  -d_b2_total / abs(beta2_unadjusted), NA_real_))
+message("\n   ox_rel. `frac lost` is the shrink toward zero as a fraction of",
+        " the unadjusted size:")
+deltas %>%
+  dplyr::filter(ruler == "ox_rel") %>%
+  dplyr::transmute(cohort, estimator,
+                   b1_unadj = sprintf("%+.3f", beta1_unadjusted),
+                   d_b1_prolif = sprintf("%+.3f", d_b1_prolif),
+                   d_b1_purity = sprintf("%+.3f", d_b1_purity),
+                   b1_frac_lost = sprintf("%.2f", frac_b1_lost),
+                   b2_unadj = sprintf("%+.3f", beta2_unadjusted),
+                   d_b2_prolif = sprintf("%+.3f", d_b2_prolif),
+                   d_b2_purity = sprintf("%+.3f", d_b2_purity),
+                   b2_frac_lost = sprintf("%.2f", frac_b2_lost)) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# --- 10.2 what purity costs, and the bound it puts on SCAN-B ---------------
+# SCAN-B cannot run the purity rung. The TCGA purity rung is the only evidence
+# available about how much that matters, and it is used as a BOUND rather than
+# a correction: if purity moves beta1 by very little in the cohort that has it,
+# the SCAN-B PROLIF-only fit is interpretable, and the reasoning is stated in
+# the note rather than left as a number.
+purity_cost <- deltas %>%
+  dplyr::filter(cohort == "TCGA") %>%
+  dplyr::select(estimator, ruler, d_b1_purity, d_b2_purity)
+message("\n10.2 what the purity rung costs in TCGA - the stated bound for SCAN-B:")
+purity_cost %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 4))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+PURITY_BOUND <- max(abs(purity_cost$d_b1_purity), na.rm = TRUE)
+message("   largest |d beta1| attributable to purity: ",
+        sprintf("%.4f", PURITY_BOUND))
+
+# --- 10.3 leukocyte fraction, a NAMED SENSITIVITY and not the reported model -
+# The prompt specifies PROLIF + purity. Leukocyte fraction is in the same
+# snapshot and CLAUDE.md trap 2 pairs it with purity, so it is run as a
+# sensitivity on ITS OWN complete-case subset and labelled as one.
+leuko_sens <- dplyr::bind_rows(lapply(names(EST_ALL), function(e)
+  dplyr::bind_rows(lapply(RULERS, function(r) {
+    k <- match(IDS_PURLK, colnames(B$TCGA$Y))
+    a <- .fit_adj(B$TCGA$Y[FOCUS_GENE, k], B$TCGA$E[e, k], B$TCGA$O[r, k],
+                  .cov_frame("TCGA", c("prolif", "purity"), IDS_PURLK))
+    b <- .fit_adj(B$TCGA$Y[FOCUS_GENE, k], B$TCGA$E[e, k], B$TCGA$O[r, k],
+                  .cov_frame("TCGA", c("prolif", "purity", "leuko"), IDS_PURLK))
+    tibble::tibble(estimator = e, ruler = r, n = length(IDS_PURLK),
+                   b1_purity = a$beta1, b1_plus_leuko = b$beta1,
+                   d_b1 = b$beta1 - a$beta1,
+                   b2_purity = a$beta2, b2_plus_leuko = b$beta2,
+                   d_b2 = b$beta2 - a$beta2)
+  }))))
+message("\n10.3 leukocyte fraction - SENSITIVITY, not the reported model (n = ",
+        length(IDS_PURLK), "):")
+leuko_sens %>%
+  dplyr::filter(ruler == "ox_rel") %>%
+  dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, 4))) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
+# =============================================================================
+# 11. Within stratum
+# =============================================================================
+# Pooled Blom scores, SUBSET - never re-scored (E19). TCGA strata are further
+# intersected with the purity-complete set so the ladder holds there too.
+#
+# BASAL IS SMALL AND IT IS SAID HERE, NOT DISCOVERED LATER. A Basal null is
+# WEAK EVIDENCE and is written as such, never as failure to hold; the interval
+# width is carried in the table beside every Basal estimate.
+message("\n11. within stratum")
+
+STRAT_IDS <- list()
+for (coh in names(COH)) for (s in c("Luminal", "Basal")) {
+  ids <- intersect(STR[[coh]][[s]], LADDER[[coh]]$subset)
+  STRAT_IDS[[paste(coh, s)]] <- ids
+}
+strat_n <- tibble::tibble(key = names(STRAT_IDS), n = lengths(STRAT_IDS))
+strat_n %>% as.data.frame() %>% print(row.names = FALSE)
+
+ladder_strata <- dplyr::bind_rows(lapply(names(COH), function(coh)
+  dplyr::bind_rows(lapply(c("Luminal", "Basal"), function(s)
+    .ladder(coh, STRAT_IDS[[paste(coh, s)]], s, genes = FOCUS_GENE))))) %>%
+  dplyr::mutate(b1_negative = b1_hi < 0, ci_width = b1_hi - b1_lo,
+                claims = estimator %in% names(EST_CLAIM))
+
+message("\n   ", FOCUS_GENE, ", TOP RUNG only, ox_rel, with interval WIDTH:")
+ladder_strata %>%
+  dplyr::filter(ruler == "ox_rel", rung == TOP_RUNG[cohort]) %>%
+  dplyr::transmute(cohort, stratum, estimator, n,
+                   beta1 = sprintf("%+.3f", beta1),
+                   b1_ci = sprintf("[%+.3f, %+.3f]", b1_lo, b1_hi),
+                   width = sprintf("%.3f", ci_width),
+                   beta2 = sprintf("%+.3f", beta2),
+                   b1_negative) %>%
+  dplyr::arrange(cohort, stratum, estimator) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+message("   A BASAL NULL IS WEAK EVIDENCE, NOT FAILURE TO HOLD. Quote the width.")
+
+# =============================================================================
+# 12. Specificity - the identical model on all twelve
+# =============================================================================
+# beta1 < 0 is only interesting if it is not a generic property of the roster.
+# Coefficient table, estimates with intervals, NO FDR - as specified.
+message("\n12. specificity: the identical model on all twelve")
+
+spec <- ladder_pooled %>%
+  dplyr::filter(rung == TOP_RUNG[cohort], claims) %>%
+  dplyr::mutate(side = dplyr::if_else(gene %in% PRIMING_PRO, "pro", "anti"))
+spec_summary <- spec %>%
+  dplyr::group_by(gene, side, ruler) %>%
+  dplyr::summarise(n_cells = dplyr::n(), n_b1_lt0 = sum(beta1 < 0),
+                   n_b1_neg_ci = sum(b1_negative),
+                   min_b1 = min(beta1), max_b1 = max(beta1), .groups = "drop")
+for (r in RULERS) {
+  message("\n   ", r, ", top rung, 3 claim estimators x 2 cohorts = 6 cells per gene:")
+  spec_summary %>%
+    dplyr::filter(ruler == r) %>%
+    dplyr::arrange(dplyr::desc(n_b1_neg_ci), min_b1) %>%
+    dplyr::transmute(gene, side, n_b1_lt0, n_b1_neg_ci,
+                     b1_range = sprintf("[%+.3f, %+.3f]", min_b1, max_b1),
+                     focus = dplyr::if_else(gene %in% c(FOCUS_GENE, "BCL2L1", "MCL1"),
+                                            "<--", "")) %>%
+    as.data.frame() %>% print(row.names = FALSE)
+}
+
+# =============================================================================
+# 13. THE THREE READINGS, applied mechanically
+# =============================================================================
+# The rules were fixed in the header before any adjusted coefficient existed.
+# (ii) and (iii) are separated by whether the unadjusted effect was present ON
+# THE SAME SAMPLES - which is exactly why section 10 is a ladder on one subset.
+message("\n13. the three readings")
+
+.b1 <- function(d, coh, est, r, rung, strat = "all")
+  d$beta1[d$cohort == coh & d$estimator == est & d$ruler == r &
+            d$rung == rung & d$stratum == strat]
+.b1neg <- function(d, coh, est, r, rung, strat = "all")
+  d$b1_negative[d$cohort == coh & d$estimator == est & d$ruler == r &
+                  d$rung == rung & d$stratum == strat]
+
+reading <- dplyr::bind_rows(lapply(RULERS, function(r) {
+  cells <- tidyr::expand_grid(cohort = names(COH), estimator = names(EST_CLAIM))
+  bbc <- ladder_pooled %>% dplyr::filter(gene == FOCUS_GENE)
+  unadj <- purrr::pmap_lgl(cells, function(cohort, estimator)
+    .b1neg(bbc, cohort, estimator, r, "unadjusted"))
+  adj   <- purrr::pmap_lgl(cells, function(cohort, estimator)
+    .b1neg(bbc, cohort, estimator, r, TOP_RUNG[cohort]))
+  lum <- purrr::pmap_lgl(cells, function(cohort, estimator)
+    .b1neg(ladder_strata, cohort, estimator, r, TOP_RUNG[cohort], "Luminal"))
+  tibble::tibble(
+    ruler = r,
+    n_unadj_neg = sum(unadj), n_adj_neg = sum(adj), n_luminal_neg = sum(lum),
+    reading_i   = all(adj) && all(lum),
+    reading_iii = all(unadj) && !(all(adj) && all(lum)),
+    reading_ii  = !all(unadj) && !all(adj))
+}))
+reading %>% as.data.frame() %>% print(row.names = FALSE)
+
+VERDICT <- vapply(seq_len(nrow(reading)), function(i)
+  if (reading$reading_i[i]) "(i) SUPPORTED - modest effect" else
+    if (reading$reading_iii[i]) "(iii) AMBIGUOUS - prolif confounder or mediator" else
+      if (reading$reading_ii[i]) "(ii) NOT TRANSFERRED - reportable negative" else
+        "UNCLASSIFIED - report the cells and stop", character(1))
+names(VERDICT) <- reading$ruler
+message("")
+for (r in RULERS) message("   ", r, ": ", VERDICT[[r]])
+
+# THE STAGE 3 GATE. Declared in the header before stage 2 ran: under (iii) the
+# mediation leg is the tiebreaker and its gate is the UNADJUSTED beta1.
+MEDIATION_GATE <- any(reading$reading_iii) &&
+  all(reading$n_unadj_neg == nrow(tidyr::expand_grid(cohort = names(COH),
+                                                     estimator = names(EST_CLAIM))))
+MEDIATION_GATE_ANY <- reading$reading_i | reading$reading_iii
+message("\n   STAGE 3 (FOXO3 mediation) GATE: ",
+        if (any(MEDIATION_GATE_ANY)) "OPEN" else "CLOSED",
+        "  - opens on reading (i) or, per the header, on the UNADJUSTED beta1",
+        "\n   under reading (iii). It is NOT run in this file.")
 
 # =============================================================================
 # 9. Save
@@ -701,9 +1059,43 @@ saveRDS(list(
   rho_myc_ox = rho_myc_ox,
   fit_a = fit_a, d2 = d2, identity_chk = identity_chk, marginals = marginals,
   loo = loo, loo_ok = loo_ok, gate2 = gate2,
+  ladder_pooled = ladder_pooled, deltas = deltas, purity_cost = purity_cost,
+  purity_bound = PURITY_BOUND, leuko_sens = leuko_sens,
+  strat_n = strat_n, ladder_strata = ladder_strata,
+  spec = spec, spec_summary = spec_summary,
+  reading = reading, verdict = VERDICT,
+  mediation_gate_open = any(MEDIATION_GATE_ANY),
   settings = list(
-    stage = "STAGE 1 ONLY - stops at GATE 2. Adjusted, stratified and mediation
-             fits are appended to this file after the gate clears.",
+    stage = paste("STAGES 1 AND 2. Gate 2 cleared 2026-09-07. The gated FOXO3",
+                  "mediation leg is stage 3 and is not in this file."),
+    readings = paste("(i) SUPPORTED: beta1 < 0 with interval excluding zero on",
+                     "all three claim estimators after PROLIF + purity, pooled",
+                     "AND within Luminal - a MODEST effect. (ii) NOT",
+                     "TRANSFERRED: beta1 -> 0 on adjustment where it was not",
+                     "present unadjusted on the same samples - a reportable",
+                     "negative. (iii) AMBIGUOUS: beta1 -> 0 on adjustment",
+                     "HAVING BEEN present unadjusted - proliferation may be",
+                     "confounder or mediator (MYC -> PI3K/AKT -> FOXO3 nuclear",
+                     "exclusion -> BBC3) and this model cannot separate them.",
+                     "Under (iii) the FOXO3 mediation leg is the tiebreaker and",
+                     "its gate opens on the UNADJUSTED beta1. Fixed 2026-09-07",
+                     "before stage 2 was run."),
+    standalone_finding = paste("rho(MYC transcript dose, ox_rel) is NEGATIVE",
+                               "with an interval excluding zero in TCGA pooled,",
+                               "TCGA Luminal, SCAN-B pooled and SCAN-B Luminal,",
+                               "while every ACTIVITY estimator is positive",
+                               "throughout. 'MYC-high tumours are OXPHOS-high'",
+                               "is an ACTIVITY statement that does not survive",
+                               "being made about DOSE. This makes D2",
+                               "consequential for the H4 STATE definition.",
+                               "Logged, not acted on here."),
+    ladder = paste("one fixed subset per cohort so every rung is comparable -",
+                   "TCGA n = 1020 purity-complete, SCAN-B n = 3207. Comparing",
+                   "across different n would confound the covariate with the",
+                   "sample set. E16 section 6's discipline."),
+    leuko = paste("leukocyte fraction is a NAMED SENSITIVITY on its own",
+                  "complete-case subset, not the reported model, which is",
+                  "PROLIF + purity as specified."),
     not_this = paste("MAIN-EFFECTS model. A different estimand from the",
                      "pre-registered MYC:OXPHOS interaction on PRIME, which is",
                      "null and permanently closed. No product term, no PRIME,",
@@ -798,5 +1190,53 @@ if (FALSE) {
 
   # What contaminates what, and why M_b__FULL is excluded.
   x$contamination %>% as.data.frame()
+
+  # ---- STAGE 2 ----
+
+  # The three pre-specified readings, and which one fired.
+  x$reading %>% as.data.frame(); x$verdict
+
+  # The ladder on BBC3: every rung on one fixed subset per cohort.
+  x$ladder_pooled %>%
+    dplyr::filter(gene == "BBC3", ruler == "ox_rel", claims) %>%
+    dplyr::transmute(cohort, estimator, rung, n, beta1 = round(beta1, 3),
+                     b1_ci = sprintf("[%+.3f, %+.3f]", b1_lo, b1_hi),
+                     beta2 = round(beta2, 3)) %>%
+    as.data.frame()
+
+  # BOTH ARMS' sensitivity to the same covariate, side by side.
+  x$deltas %>%
+    dplyr::filter(ruler == "ox_rel") %>%
+    dplyr::transmute(cohort, estimator,
+                     d_b1_prolif = round(d_b1_prolif, 3),
+                     d_b1_purity = round(d_b1_purity, 3),
+                     d_b2_prolif = round(d_b2_prolif, 3),
+                     d_b2_purity = round(d_b2_purity, 3),
+                     b1_frac_lost = round(frac_b1_lost, 2),
+                     b2_frac_lost = round(frac_b2_lost, 2)) %>%
+    as.data.frame()
+
+  # sig_clean is the least-entangled readout and the one that splits. It is a
+  # NAMED TENSION in the note, never a footnote - look at it here.
+  x$ladder_pooled %>%
+    dplyr::filter(gene == "BBC3", !claims) %>%
+    dplyr::transmute(cohort, ruler, estimator, rung, beta1 = round(beta1, 3),
+                     b1_ci = sprintf("[%+.3f, %+.3f]", b1_lo, b1_hi)) %>%
+    as.data.frame()
+
+  # Within stratum, top rung, with the interval WIDTH beside every Basal cell.
+  x$ladder_strata %>%
+    dplyr::filter(ruler == "ox_rel") %>%
+    dplyr::transmute(cohort, stratum, estimator, rung, n,
+                     beta1 = round(beta1, 3), width = round(ci_width, 3),
+                     b1_negative) %>%
+    as.data.frame()
+
+  # Specificity: is beta1 < 0 generic across the roster, or is BBC3 particular?
+  x$spec_summary %>% dplyr::filter(ruler == "ox_rel") %>% as.data.frame()
+
+  # What purity costs, and the bound it puts on the SCAN-B fit.
+  x$purity_cost %>% as.data.frame(); x$purity_bound
+  x$leuko_sens %>% dplyr::filter(ruler == "ox_rel") %>% as.data.frame()
 
 }
