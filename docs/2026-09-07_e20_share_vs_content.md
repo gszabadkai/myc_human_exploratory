@@ -10,6 +10,15 @@ non-timestamp saved objects identically** - the seeded bootstrap included - so
 every number here is now read from a saved object and **the dry-run caveat is
 discharged**.
 
+> **SUPERSEDED IN PART, 2026-09-07, by `docs/2026-09-07_e21_regulon_vs_signature.md`.**
+> The verdict below - ESTIMATOR-DEPENDENT - **stands as scored**. But E21 shows
+> the regulon's dissent is **explained by the size of its gene set**:
+> `regulon_all` (811) and the activation-only `regulon_stim` (736) both sit
+> **inside** their size-matched random null, where all three signatures sit
+> **outside** theirs. **`COLLECTRI_MYC_STIM` does NOT settle this question** -
+> section 0's "what would settle it" row and section 6 item 1 are withdrawn, and
+> E21 section 7 says what replaces them. Nothing else here changes.
+
 **THIS IS A RE-READ, NOT A NEW ANALYSIS.** E16's separability table was produced
 to answer one question - which respiratory ruler is least MYC-entangled - and it
 is read here for a different one. Nothing is re-scored: mitoPPS and GSVA are
@@ -33,7 +42,7 @@ cells reproduce, max |delta| = 0 exactly** (section 3). One quantity is new -
 | **Against the mitoribosome specifically?** | **One-directional, 8 of 8.** `rho(ox_lvl) - rho(ox_nuc_mtrib)` is positive in every adjudicating cell, both cohorts, raw and adjusted - **including the regulon**. |
 | **Why the two share rulers disagree** | The three signature estimators track the **mitoribosome** more than OXPHOS (`mtrib_lvl - ox_lvl` positive, 6 of 6). The regulon is the one estimator that does **not** (+0.004 / +0.003, both intervals covering 0). |
 | **"Overwhelmed, not undone"?** | **NOT AVAILABLE** on the rule fixed before the panel was computed. Two of its three conditions fail. Section 5 says exactly which, and what would settle it. |
-| **What would settle it** | **`COLLECTRI_MYC_STIM`, 739 genes, in the snapshot and never scored.** The entire verdict hangs on one regulon estimator. E16 already named this the cheapest thing that could overturn its own section 3.1; it is now the cheapest thing that could settle E20 too. |
+| **What would settle it** | ~~`COLLECTRI_MYC_STIM`~~ - **WITHDRAWN 2026-09-07.** `E21` scored it: the activation-only half gives `d = -0.086 / -0.110`, still negative, and sits inside its size-matched null. It is 736 genes and inherits the same size bias. What would settle it is a **signature-sized** regulon - `curation_effort >= 5` leaves 313 MYC targets, `> 10` leaves 101. `docs/2026-09-07_e21_regulon_vs_signature.md` section 8 item 1. |
 
 **The prompt's mouse premise - that development lowers OXPHOS *share* between 6W
 and 12W while compartment *content* rises - is taken as given and is NOT checked
@@ -375,13 +384,14 @@ rather than argued into:
 
 ## 6. What would change this answer
 
-1. **`COLLECTRI_MYC_STIM`, 739 genes, in `data/collectri_human/` and never
-   scored.** The whole verdict turns on **one** regulon estimator, `M_b`.
-   Scoring a second one is the cheapest thing that could settle whether the
-   dissent is a property of *regulon estimators* or a property of *this
-   regulon*. **E16 section 9 already named this the cheapest thing that could
-   overturn its own section 3.1; E20 gives the same item a second, independent
-   reason.** Handoff section 5 items 1 and 5.
+1. ~~**`COLLECTRI_MYC_STIM`**~~ - **ANSWERED AND WITHDRAWN, 2026-09-07.**
+   `E21` scored the activation-only regulon and it does **not** resolve the
+   dissent: `d = -0.086 / -0.110`, still negative, still material, and **inside
+   its own size-matched random null**. The dissent is not about the sign and not
+   about the instrument - putting the signature genes through ULM leaves all
+   three positive - it is about the regulon being 811 genes. What is still open
+   is a **signature-sized** regulon, which `curation_effort` makes available in
+   the same snapshot. `docs/2026-09-07_e21_regulon_vs_signature.md`.
 2. **A fourth signature estimator.** Three signature estimators agreeing is
    three points, and they share genes with each other. `myc_msigdb` is 23.5%
    proliferation-entangled and `myc_lowent` is 1.5%, so the panel does span the
@@ -395,6 +405,10 @@ rather than argued into:
    GC content and expression level all differ systematically between MRPs and
    OXPHOS subunits. A size- and expression-matched pseudo-set drawn from
    MitoCarta would say how much of its variance survives those.
+   **`E21` did the equivalent for `ox_rel` and it mattered**: the contrast
+   rulers carry a size-dependent null - median `d` runs -0.045 at n = 61 to
+   -0.089 at n = 811 - so no `d` should be read without its size-matched
+   comparator. The same control on `ox_nuc_mtrib` is still not done.
 5. **SCAN-B purity.** Not available (trap 2), never imputed. E16 check 4 showed
    the twelve-gene block is infiltrate-robust in TCGA, but no ruler in *this*
    note has been run through that control.
