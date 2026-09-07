@@ -2,11 +2,12 @@
 
 **2026-09-07. EXPLORATORY. Nothing here is pre-registered.**
 
-Script: `scripts/E23_guardian_balance.R`. **NOT YET SOURCED BY THE AUTHOR.**
-Every number below is from a dry run (script copied to the scratchpad with its
-three paths redirected, reading E22's dry-run object; repo `results/` and
-`outputs/` untouched, `git status` clean). **The dry-run caveat is discharged
-only when the author's run is compared object by object.**
+Script: `scripts/E23_guardian_balance.R`. **Sourced by the author 2026-09-07**,
+after `E22`, and `results/guardian_balance.rds` plus its table are on disk. The
+numbers below were written from a dry run that read `E22`'s dry-run object; the
+real run - reading `E22`'s real object - reproduces **all 18 non-timestamp saved
+objects identically**, so every number here is now read from a saved object and
+**the dry-run caveat is discharged**.
 
 **N3 throughout.** These are transcript associations. "Primed" is never written
 of a transcript.

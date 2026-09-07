@@ -2,11 +2,11 @@
 
 **2026-09-07. EXPLORATORY. Nothing here is pre-registered.**
 
-Script: `scripts/E22_bbc3_direct_myc_effect.R`. **NOT YET SOURCED BY THE
-AUTHOR.** Every number below is from a dry run (script copied to the scratchpad
-with the three output paths redirected; repo `results/` and `outputs/`
-untouched, `git status` clean). **The dry-run caveat is discharged only when the
-author's run is compared object by object.**
+Script: `scripts/E22_bbc3_direct_myc_effect.R`. **Sourced by the author
+2026-09-07**, and `results/bbc3_direct_myc_effect.rds` plus its two tables are
+on disk. The numbers below were written from a dry run beforehand; the real run
+reproduces **all 25 non-timestamp saved objects identically**, so every number
+here is now read from a saved object and **the dry-run caveat is discharged**.
 
 **N3 throughout.** Every number here is a transcript association. The word
 "primed" is never written of a transcript.
