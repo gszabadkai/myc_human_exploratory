@@ -48,6 +48,7 @@ analysis. Section 5 is a human-side model to confront the mouse one with.
 | **E17** | sourced 2026-09-04. B4, an exploratory FUNCTIONAL check in DepMap - the `OX` main effect on guardian dependency, and the first functional evidence this arm has produced. It is quoted here only in 5.2 arrow (f) and in V1. **It changes no number in this document**, because it is a different data type: `docs/2026-09-04_b4_result.md`, **and its addendum `docs/2026-09-04_b4_addendum.md`, which must be read with it** |
 | **E18** | sourced 2026-09-04. `results/ccle_configuration.rds` is on disk and reproduces its dry run in all 13 non-timestamp objects. The B4 addendum's task 1 - does the 3.1 transcript configuration reproduce in CCLE? It does not, and that removes B4's standing as a test of V1. Quoted here in 5.2 arrow (f), V1, 8.4 traps 9 and 10, and 10.1b-1c. **It changes no number in this document**, which is measured in tumours: `scripts/E18_ccle_configuration.R`, `docs/2026-09-04_b4_addendum.md` |
 | **E19** | sourced 2026-09-04. `results/subtype_configuration.rds` is on disk and reproduces its dry run in all 18 non-timestamp objects. The twelve genes on four rulers inside Luminal and Basal, the per-gene between-subtype test, and the mouse's per-gene low-MYC slope. **It changes no number in this document** but it QUALIFIES two - see 3.1a and 3.7: `docs/2026-09-04_e19_subtype.md` |
+| **E22, E23** | both sourced 2026-09-07, reproducing their dry runs in 25 of 25 and 18 of 18 non-timestamp objects; `E23`'s control returns 100 of `E22`'s single-gene cells at max \|delta\| = 0. MAIN-EFFECTS models on Blom normal scores - **a different estimator and a different estimand from everything else in this document**. Two pre-specified negatives, and the constraint they share. **They change no number here**, and 3.11 shows measured why: the quantity they destabilise is `beta1`, which 3.1 never reports. Quoted in 3.11, N9 and 8.4 trap 12: `docs/2026-09-07_e22_bbc3_direct_myc_effect.md`, `docs/2026-09-07_e23_guardian_balance.md` |
 | **The one number here with no script behind it** | section 3.8, the cognate-pairing test. Computed in session from `results/machinery_and_priming.rds$priming`; recipe given; listed in section 10 |
 
 **Two cohorts throughout.** Two arms of evidence only ever count when they agree;
@@ -855,6 +856,146 @@ objects: `results/depmap_ox_dependency.rds`, `results/ccle_configuration.rds`,
 
 ---
 
+### 3.11 The estimator constraint: two endpoints, opposite predictions, one failure (`E22`, `E23`, 2026-09-07; section added 2026-09-08)
+
+**This section is a constraint on how this document's MYC arm may be read. It
+changes no number in 3.1 and it is not a new claim about the twelve genes.**
+
+**A DIFFERENT ESTIMATOR FROM EVERYTHING ABOVE, and that is stated first so no
+number here reads as contradicting 3.1.** Sections 3.1-3.10 are partial Spearman
+on `PROLIF_DISJOINT`. `E22` and `E23` are **OLS on Blom normal scores**, which
+gives a `beta1` (MYC at fixed OXPHOS) and a `beta2` (OXPHOS at fixed MYC) rather
+than one partial rho. **`beta2` is 3.1's quantity; `beta1` is a quantity 3.1
+never reports.**
+
+**Also a different estimand from N1 and N2.** Both scripts are MAIN-EFFECTS
+models. No product term is fitted, `PRIME` is not computed, and **nothing in
+either bears on the registered interaction result.**
+
+#### What was asked, twice, with opposite predicted signs
+
+| | endpoint | predicted | licensed by | outcome |
+|---|---|---|---|---|
+| `E22` | `BBC3` | `beta1 < 0` - the mouse gland's `MYC -| FOXO3 -> PUMA` arm | the mouse gate model | **reading (ii), NOT TRANSFERRED** |
+| `E23` | `log2(MCL1) - log2(BCL2L1)` | `beta1 > 0` - the guardian balance | the mouse gate model, sections 3.3 and 4.3 | **SECOND NEGATIVE** |
+
+Neither failed by going quiet. **`E22`'s `beta1` crosses zero and lands
+significantly opposite** under adjustment (signature estimator, `ox_rel`:
+`-0.200 -> +0.136` in TCGA, `-0.060 -> +0.106` in SCAN-B, intervals excluding
+zero on the positive side), and within Luminal it is negative in **0 of 6**
+cells. **`E23` fails a battery that was pre-specified before it ran** - both
+failure readings fire, and its entanglement rule was validated against `E22`'s
+`BBC3` as a positive control, which fires on both rulers.
+
+#### The shared failure, and it is the finding
+
+**`beta1`'s sign is a function of how much proliferation the MYC estimator
+carries.** The panel spans a thirty-fold range in entanglement -
+`MYC_UP.V1_UP` 1.5 pct, `FELSHER` 14.8, `HALLMARK_V1` 23.5 - and on both
+endpoints the coefficient is ordered by it:
+
+| | `sig_clean` 1.5 | `FELSHER` 14.8 | `sig_entangled` 23.5 |
+|---|---|---|---|
+| `BBC3`, TCGA, top rung | **+0.249** | +0.136 | **-0.077** |
+| `BBC3`, SCAN-B, top rung | **+0.220** | +0.106 | **-0.200** |
+| `MCL1:BCL2L1`, TCGA | **-0.051** | +0.226 | +0.186 |
+| `MCL1:BCL2L1`, SCAN-B | **-0.280** | +0.036 | +0.183 |
+
+In both cases **the cleanest readout gives the opposite sign to the most
+entangled one**, and the three claim estimators sit between them. This is
+CLAUDE.md trap 3 escalated: the estimators were already known to disagree about
+*magnitude*: here they disagree about **direction**.
+
+#### How general is it - measured, not asserted
+
+The identical rule applied to all twelve genes at the top rung (monotone in
+`beta1` across the three signature estimators in **both** cohorts, with spread
+above 0.05):
+
+| ruler | entanglement-tracking | the worst | **`BID` and `PMAIP1`** |
+|---|---|---|---|
+| `ox_rel` | **4 of 12** | `BAD` 0.349, `BBC3` 0.326, `BMF` 0.252 | **neither fires** (spread 0.102, 0.078) |
+| `ox_lvl` | **7 of 12** | `BAD` 0.473, `BBC3` 0.450, `MCL1` 0.369 | **neither fires** (spread 0.099, 0.077) |
+
+**So it is a property of particular genes, not of the roster.** `BBC3` and `BAD`
+are the two worst on both rulers; `BID` and `PMAIP1` are among the most stable.
+
+#### What this does NOT touch - and the reason it does not
+
+**Section 3.1's table is unaffected, and this is measured rather than asserted.**
+3.1 reports OXPHOS associations, whose `E22` analogue is `beta2`. **`beta2` is
+positive in 50 of 50 cells with every interval excluding zero (+0.108 to
++0.550), and adjustment moves it by `-0.015` where it moves `beta1` by
+`+0.332` in the same fit.** The OXPHOS arm is not a proliferation artefact, not
+a purity artefact, and - unlike `beta1` - **does not depend on which MYC
+estimator is used**.
+
+**Section 6's surviving MYC main-effect claim also holds.** `BID` and `PMAIP1`
+are the two genes section 6 carries as keeping a MYC association after
+conditioning on OXPHOS. They are exactly the class this section constrains, so
+they were checked: **neither is entanglement-tracking on either ruler**, and
+each keeps its sign across the whole 1.5-to-23.5 pct range (`BID` +0.183 to
++0.477; `PMAIP1` -0.093 to -0.274). **The section 6 statement survives, and now
+it survives a test it had not been given.**
+
+#### What this DOES touch
+
+1. **Any `beta1`-type claim - a MYC main effect on a BCL2-family transcript at
+   fixed OXPHOS - needs its estimator named and its entanglement spread
+   reported.** A single estimator's sign is not interpretable on `BBC3`, `BAD`,
+   `BMF` or `BCL2L11` on `ox_rel`, nor additionally on `MCL1`, `BCL2L1` or
+   `BCL2L2` on `ox_lvl`.
+2. **`BCL2L1` is NOT promoted to a finding.** `E22`'s specificity control put it
+   at 6 of 6 negative - but that is on the three *claim* estimators only; on
+   `sig_clean` in SCAN-B it is **`+0.201`**, the opposite sign. It emerged from a
+   control, in the same data, after the fact. **The pre-specified object was the
+   `MCL1`/`BCL2L1` pair and it stays the pair.**
+3. **`E23` was never an independent test in this data and its note says so
+   first.** `E22` had already fitted both halves in the same samples, so
+   `beta1 > 0` on the difference was near-arithmetically assured; the ratio's
+   sign matches the halves difference in **30 of 30** cells. Its value was that
+   the battery could fail.
+
+#### One standalone number, logged here because it travels further than E22
+
+**`rho(MYC transcript dose, ox_rel)` is NEGATIVE with its interval excluding
+zero** in TCGA pooled (`-0.103`), TCGA Luminal (`-0.163`), SCAN-B pooled
+(`-0.048`) and SCAN-B Luminal (`-0.043`), while **every activity estimator is
+positive throughout**. On `ox_lvl` it spans zero almost everywhere.
+
+So **"MYC-high tumours are OXPHOS-high" is a statement about MYC ACTIVITY that
+does not survive being made about MYC DOSE**, and on the relative ruler dose
+points the other way. That is N7 with a sign attached, and it makes **D2
+consequential for the H4 STATE definition**: which estimator defines the state
+decides the sign of that state's relationship to the respiratory axis. Any
+argument that conditions on a "MYC-high, OXPHOS-high" state - the collider
+argument included - inherits an estimator choice it has not declared. **Logged;
+not acted on.**
+
+#### The scope of both negatives
+
+**Cross-sectional, post-selection, transcript-level**, and the middle one is the
+binding limitation: a `MYC -> FOXO3 -> BBC3` arm that kills the cells carrying
+it is selected against in prevalent tumours, so **its absence here is expected
+under the hypothesis as well as under its negation, and no cross-sectional
+design can separate the two.** The proposed mechanism is also post-translational
+(FOXO3 nuclear exclusion), which a transcript model cannot see. **Neither
+negative says the arm is absent in the mouse**, where it was observed under a
+different design.
+
+One methodological point that nearly bit, recorded because it generalises:
+`PROLIF_DISJOINT` is **318 of 318 inside HALLMARK `E2F_TARGETS` + `G2M_CHECKPOINT`,
+5 of 318 in `PI3K_AKT_MTOR_SIGNALING`, and does not contain `FOXO3`**. It is a
+cell-cycle *output* composite. Adjusting a MYC effect for E2F output is close to
+adjusting MYC for itself, and it cannot stand in for the mediator the FOXO3
+hypothesis names.
+
+**Where the notes are:** `docs/2026-09-07_e22_bbc3_direct_myc_effect.md` and
+`docs/2026-09-07_e23_guardian_balance.md`. Saved objects:
+`results/bbc3_direct_myc_effect.rds`, `results/guardian_balance.rds`.
+
+---
+
 ## 4. The context: the machinery-wide result, condensed
 
 The priming genes are 12 of a wider 44, and the wider result is what licenses
@@ -1228,6 +1369,7 @@ arm never claimed.
 | **N6** | **Mediation versus confounding is not identifiable.** `MYC -> OXPHOS -> genes` and a common cause give identical partial correlations. What IS ruled out is OXPHOS acting *through* MYC | structural |
 | **N7** | **MYC mRNA is not MYC activity.** `rho(log2 MYC, OXPHOS subunits) = -0.032` against `+0.388` for the activity signature | measured |
 | **N8** | **The within-compartment ordering is a property of the OXPHOS axis, not of the death machinery.** Random MOM/MOM pairs are as non-flat as the BCL2-family ones; the excess does not replicate | measured (3.4) |
+| **N9** | **The mouse gland's two pre-specified MYC main effects do not transfer.** `BBC3` (predicted `beta1 < 0`, the FOXO3-repression arm) and `MCL1:BCL2L1` (predicted `beta1 > 0`, the guardian balance) were tested with opposite predicted signs and **both are negatives**. **And they fail the same way: `beta1`'s SIGN is a function of the MYC estimator's proliferation entanglement**, so no single-estimator MYC main effect on a BCL2-family transcript is interpretable without its entanglement spread. Scope: cross-sectional, post-selection, transcript-level - **the absence is expected under the hypothesis as well as under its negation** | measured (3.11), two pre-specified endpoints |
 
 **What DID survive on the priming side** is narrow and should be carried as two
 genes, not as a programme: **`BID`** (+0.12 to +0.28) and **`PMAIP1`/NOXA**
@@ -1235,6 +1377,14 @@ genes, not as a programme: **`BID`** (+0.12 to +0.28) and **`PMAIP1`/NOXA**
 cohorts under all three estimators. Neither is a member of any estimator, so it
 is not self-overlap. Both are pro-apoptotic BH3-only proteins **moving in
 opposite directions**.
+
+**This paragraph is the one MYC main-effect claim in the document, so N9 was
+applied to it directly and it holds.** Neither `BID` nor `PMAIP1` is
+entanglement-tracking on either ruler - their spreads across the 1.5-to-23.5 pct
+range are 0.099-0.102 and 0.077-0.078, among the smallest of the twelve, and
+each keeps its sign throughout (`BID` +0.183 to +0.477, `PMAIP1` -0.093 to
+-0.274). **The four that do track on `ox_rel` are `BAD`, `BBC3`, `BMF` and
+`BCL2L11`**; see 3.11.
 
 ---
 
@@ -1472,6 +1622,29 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
     weight it could not support. Before a mouse count and a human count are
     compared, **each needs the magnitude distribution behind it**, or two
     "15 of 35"s can agree while describing entirely different things.
+
+12. **A MAIN-EFFECT SIGN CAN BE A PROPERTY OF THE ESTIMATOR RATHER THAN OF THE
+    SPECIES.** Added 2026-09-08 from `E22` and `E23`. The mouse names two
+    endpoints with **opposite** predicted directions - `BBC3` down, the
+    `Mcl1:Bcl2l1` balance up - and in human **both fail, in the same way**: the
+    partial MYC coefficient's SIGN is ordered by how much proliferation the MYC
+    estimator carries. On `BBC3` the least-entangled signature gives `+0.249`
+    and the most-entangled `-0.077` in the same cohort and fit.
+
+    - **So a mouse-human sign agreement on a MYC main effect is not evidence
+      until the human side is shown to be estimator-stable.** Picking the
+      estimator that agrees is available on 4 of 12 genes on `ox_rel` and 7 of
+      12 on `ox_lvl`, and it is available in **both** directions.
+    - **The check is cheap and it is a spread, not a count**: fit the panel
+      across the entanglement range and report the range of `beta1`, not one
+      value. `BID` and `PMAIP1` pass it; `BAD` and `BBC3` fail it worst.
+    - **This is trap 9 one level up.** Trap 9 says a ruler result needs its
+      estimator named. This says that on a MYC *main effect* the estimator does
+      not merely shift the number - **it can decide the sign**, so naming it is
+      necessary and no longer sufficient.
+    - **It does not touch the OXPHOS arm.** `beta2` is estimator-independent and
+      moves by `-0.015` where `beta1` moves by `+0.332` under the same
+      covariate. See 3.11.
 
 ---
 
