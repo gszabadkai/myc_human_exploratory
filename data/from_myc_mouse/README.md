@@ -78,9 +78,18 @@ session knows what is available without opening the object: `raw_pathway_scores`
   a cohort. **Never compare these values numerically with the human mitoPPS
   scores** -- the planned comparison is of **RANK within the panel**, which is
   why it is worth doing at all. CLAUDE.md traps 3 and 6.
-- **The panel-composition check has NOT been run and belongs to Phase 2.**
-  Pathway count against the human 142, the `min_genes` filter, and whether `mt-`
-  genes sit inside `OXPHOS subunits` are all open questions here.
+- **The panel-composition check HAS NOW BEEN RUN, 2026-09-10, and it passed.**
+  `scripts/E24_mitopps_rank_comparison.R` answered all three questions against
+  the saved object, as required below: **144 against the human 142** with the
+  **identical eight** pathways dropping under `min_genes = 3L` in both species,
+  and the 13 `mt-` genes in exactly one synthetic pathway with **none inside
+  `OXPHOS subunits` or the umbrella**. `OXPHOS subunits` is **89 in both**.
+  The object's `description` claim was verified against `gene_to_pathway` rather
+  than trusted. Full reconciliation table:
+  `docs/2026-09-10_e24_mitopps_rank_comparison.md` section 1, and
+  `results/mitopps_rank_comparison.rds$panel_reconciliation`. The paragraph
+  below is kept because it fixes **how** the check must be run if it is ever
+  re-run against a refreshed artefact.
   `docs/2026-09-10_mouse_corrections.md` section 7.2 fixes how to answer them:
   **against this saved object, never against the producing script**, because the
   `mt-` strip postdates the script's first version and an older copy of the

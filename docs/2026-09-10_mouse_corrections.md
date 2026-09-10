@@ -310,6 +310,17 @@ the standing scale-discipline rule.
 
 ### 7.4 No mouse artefact is snapshotted here
 
+> **SUPERSEDED 2026-09-10, later the same day.** This subsection records the
+> state at the time of the audit. The artefact was snapshotted in commit
+> `5dcd0b6`: `data/from_myc_mouse/mitopps_scores.rds`, md5
+> `b8a125af4bc0d5909ad03f6e126e2890`, with the tracked provenance README the
+> paragraph below asks for. The reconciliation it anticipates was then run in
+> `scripts/E24_mitopps_rank_comparison.R` and **passed** -- see
+> `docs/2026-09-10_e24_mitopps_rank_comparison.md` section 1, including 7.2's
+> `MT-` question, answered against `gene_to_pathway` in the saved object as 7.2
+> requires. The text below stands as the record of what was audited, not as a
+> current statement about `data/`.
+
 `data/` holds `collectri_human`, `from_validation`, `genesets_celldeath_human`,
 `genesets_from_library_human`, `genesets_metabolic_human`, `genesets_myc_human`,
 `menegollo_biclusters`, `mitocarta_human` and `raw`. **There is no

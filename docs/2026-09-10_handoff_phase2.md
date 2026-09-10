@@ -1,7 +1,9 @@
 ---
 date: 2026-09-10
-status: THE CURRENT ENTRY POINT for Phase 2. Disposable - delete once the plan is
-        decided and E24 is written.
+status: SPENT 2026-09-11. E24 is written, sourced and reported; the result note
+        docs/2026-09-10_e24_mitopps_rank_comparison.md is the entry point for
+        Phase 2 from here. This file is kept only as the record of the state
+        E24 started from, and is deletable.
 state: main clean at 5dcd0b6, three commits unpushed. Phase 1 CLOSED. Phase 2
        PLANNED, NOT STARTED - GATE 0 passed, no number below it computed, no
        script written.
@@ -13,6 +15,13 @@ supersedes: nothing. docs/2026-09-08_handoff.md remains the entry point for
 ---
 
 # Handoff - 2026-09-10: Phase 2 is planned, not started
+
+> **SPENT 2026-09-11.** `E24` was written, dry-run, sourced by the author and
+> written up. **G1 passed, G2 FAILED (the rank is size-structural, so R1 was
+> scored on the pre-specified size-matched band), G3 falls but its interval
+> covers zero, and R2's cohorts disagree.** Everything below describes the state
+> before that happened. Read
+> `docs/2026-09-10_e24_mitopps_rank_comparison.md` instead.
 
 **Nothing was analysed, nothing was computed, nothing was run.** The session that
 produced this ended in Plan Mode without writing a script, a result or a figure.
