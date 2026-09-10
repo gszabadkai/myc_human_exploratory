@@ -6,6 +6,14 @@
 data/from_validation/*
 !data/from_validation/README.md
 
+# data/from_myc_mouse/ holds ONE read-only artefact copied from myc_mouse, the
+# mitoPPS scores object (511 KB). Ignored to match data/from_validation/'s
+# convention rather than because of its size; it is REGENERABLE by re-copying
+# from the source path in data/from_myc_mouse/README.md, which also carries the
+# md5 and a one-line reproduction check. The README is not ignored.
+data/from_myc_mouse/*
+!data/from_myc_mouse/README.md
+
 # data/raw/depmap is a SYMLINK into myc_human_validation/data/raw/depmap.
 # Ignored because git would otherwise track it as a link object that resolves
 # only on this machine, and because the ~1.2 GB it points at is gitignored
