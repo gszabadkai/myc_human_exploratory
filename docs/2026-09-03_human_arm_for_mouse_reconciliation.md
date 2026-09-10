@@ -1312,12 +1312,31 @@ In any system where an OXPHOS axis can be defined: regulon members up, cytosolic
 effectors down. **The down leg is the novel one** - `Apaf1`, `Bmf`, `Hrk` and the
 death-receptor / NF-kB arm below the axis while regulon members sit above.
 
-**V4 - THE PERTURBATION PREDICTION, which is what would make "sets" causal.**
+**V4 - THE PERTURBATION PREDICTION. ANSWERED 2026-09-10, AND IT FAILED.**
 Move OXPHOS and read the 12 transcripts. **Lowering** it - ETC inhibition, or a
 genetic biogenesis perturbation - should take `BCL2L1`, `BAD`, `BIK` and `BBC3`
 down with it and bring `MCL1` up; raising it should do the reverse. **If they do not move, the human correlation is a property of
 tumour heterogeneity (subtype, stroma, infiltrate) and not a regulatory
 relationship**, and M1/M2 both fall.
+
+> **ANSWERED, IN THE NEGATIVE.** The mouse experiment intended to answer this was
+> a **double-construct** arm - the respiratory manipulation **plus** an
+> anti-apoptotic transgene - so its `BCL2L1` readout was **construct transcript,
+> not endogenous**. A later analysis found a **construct-free** arm in the same
+> cohort. There, with the respiratory programme raised, endogenous `Bcl2l1` is
+> **-0.113 log2 [-0.283, +0.174]** - null - with `Mcl1` null beside it
+> (**-0.100 [-0.229, +0.047]**).
+>
+> **The perturbation does not reproduce the human `BCL2L1` association.** V4 is
+> answered and failed, and is **no longer available as the outstanding causal
+> test**.
+>
+> **Read as what it is: ONE mouse result at n = 7 v 7.** It is **not evidence
+> against the human finding**, which stands on its own cross-sectional footing in
+> two cohorts. What it removes is V4's availability, not the human coefficient.
+> Whether a differently designed perturbation would deliver is a separate
+> question and nothing answers it.
+> `docs/2026-09-10_mouse_corrections.md` section 1.
 
 **V5 - AN ALREADY-REJECTED REFINEMENT, stated so it is not re-proposed.**
 The configuration is **not** organised by BH3 binding specificity: cognate
@@ -1471,7 +1490,7 @@ composition null as "not significant" and move on; report it as the bound it is.
 
 | question | why not | what would settle it |
 |---|---|---|
-| Does OXPHOS **cause** the configuration? | cross-sectional bulk RNA; mediation and confounding give identical partial correlations (N6) | **V4** - a perturbation that moves OXPHOS and reads the 12 |
+| Does OXPHOS **cause** the configuration? | cross-sectional bulk RNA; mediation and confounding give identical partial correlations (N6) | ~~**V4**~~ - **ANSWERED AND FAILED 2026-09-10.** The construct-free mouse arm gives endogenous `Bcl2l1` **-0.113 [-0.283, +0.174]**, null. One result at n = 7 v 7, and **not evidence against the human finding**. **No open test remains for this question** - 5.5, and `docs/2026-09-10_mouse_corrections.md` |
 | Does the configuration reach **protein**? | transcript abundance only | protein-level readout of the 12 |
 | Does it set **priming**? | priming is post-translational (N3) | **V1** - BH3 profiling stratified by OXPHOS |
 | Does `MYC x OXPHOS` set a threshold? | transcript version failed three falsifiers (N1); functional version pre-registered null (N2) | **V2** - BH3 profiling under a perturbation that moves OXPHOS |
@@ -1646,6 +1665,68 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
       moves by `-0.015` where `beta1` moves by `+0.332` under the same
       covariate. See 3.11.
 
+13. **A MOUSE PERTURBATION CONTRAST AND A HUMAN PARTIAL CORRELATION CAN LOOK
+    LIKE THEY DISAGREE WHEN THEY CANNOT.** Added 2026-09-10. `Bbc3` **falls**
+    under the mouse intervention where the human coefficients have it **rising**
+    (+0.293 to +0.366 TCGA, +0.145 to +0.173 SCAN-B, across four rulers). **This
+    is not a conflict.**
+
+    - The mouse fall is a **survivor signature**: across three independent
+      backgrounds it tracks how much transgene each tumour **retained**
+      (**-0.731 / -0.345 / +0.044** at **302 / 129 / 0.17 CPM**) and goes flat
+      where the transgene is lost.
+    - So the mouse quantity is a **between-arm contrast whose x-axis is retained
+      transgene dose** - an *outcome of selection*, with **no counterpart in a
+      human tumour cohort**. Nothing in TCGA or SCAN-B has a transgene to retain.
+    - The human quantity is a **within-population partial correlation on
+      unperturbed material**.
+
+    **Two quantities with no common estimand cannot disagree, and treating them
+    as though they do invents a reconciliation problem.** This is trap 3 -
+    magnitudes are not comparable across species - one level up: sometimes the
+    *sign* is not comparable either, because the x-axes are different variables.
+    **Human values unaffected.** `docs/2026-09-10_mouse_corrections.md` section 3.
+
+14. **A LOADING IS A PROPERTY OF A SUBSET, NOT OF A RULER.** Added 2026-09-10,
+    carried from the mouse `experimental-cohorts` branch notes. An
+    admissibility or specificity argument - *"the confound runs against my
+    prediction, so a positive result is credible"* - is only valid if it is
+    **computed on the exact subset the test runs on**. In the mouse fat-pad arm
+    `rho(ox_sub, Adipoq)` was **+0.538 over all 30 samples and +0.144 within the
+    subset actually tested**, and a second ruler's loading **flipped sign**
+    between the two.
+
+    **This repo pre-specifies analyses stratified by PAM50, TP53 status and
+    purity.** Every such argument must be **recomputed inside each stratum** and
+    never inherited from the full cohort. A loading measured on 1,095 tumours
+    says nothing admissible about a test run in Basal at 171.
+
+15. **CARRY A POSITIVE CONTROL THROUGH ANY COMPOSITION OR PURITY ADJUSTMENT, AND
+    READ IT FIRST.** Added 2026-09-10, same source. In the mouse fat-pad arm an
+    endpoint that genuinely rose across the series - `Mki67`, tau **+0.313**,
+    p **0.045** - went to **-0.096, p 0.715** after adjustment, while the
+    adjusters explained only **15%** of its variance. **The adjustment removed
+    the biology, and the control is the only reason that was noticed.**
+
+    **Any purity or leukocyte adjustment in this repo needs an endpoint that
+    MUST survive it, read BEFORE the endpoint of interest.** Note this is a
+    different object from the reproduction controls already used in `E16`,
+    `E19`, `E22` and `E23`, which prove a copied block has not drifted. This one
+    asks whether the adjustment has eaten the signal. **A repo that adjusts for
+    purity in TCGA and cannot in SCAN-B needs it in both directions.**
+
+16. **A RULE KEYED TO ONE RULER CAN PASS WHILE THE COHORT SAYS OTHERWISE.**
+    Added 2026-09-10, same source. Pre-registration fixes the decision rule,
+    which is its purpose - **but the pre-registered ruler is itself a choice,
+    and fixing the rule does not fix that choice.** In the mouse orthotopic arm
+    a rule pre-specified on one respiratory ruler **passed on that ruler while
+    two others in the same contrast excluded zero in the other direction**.
+
+    **Report every ruler in the contrast the rule is about, not only the one the
+    rule names.** Directly live here: **four rulers are in use** (`ox_gsva`,
+    `ox_ppd`, `ox_lvl`, `ox_rel`), 2.3a and 3.11 both turn on which one is read,
+    and trap 12 is the estimator-side twin of the same problem.
+
 ---
 
 ## 9. Superseded statements - read this, not that
@@ -1665,6 +1746,19 @@ with `MCL1` down.* This is what section 5 adds, and **V1** is how it is tested.
 ---
 
 ## 10. Still open on the human side
+
+**0. CDKN2A - CLOSED, and recorded here so it is neither re-proposed nor
+over-excluded (2026-09-10).** An earlier instruction to exclude it outright was
+**too broad**. The correct position:
+
+- **Not an anchor.** A p53/ARF-disabled cell line still shows the phenotype, so
+  the route is **dispensable**; and Menegollo et al. 2024 already reports CDKN2A
+  loss with the OXPHOS-high biclusters, so re-running it here **confirms prior
+  work rather than advancing past it**.
+- **But a valid instance** - one documented route past the gate, and **the only
+  one with independent human evidence**. Cite the companion paper for that
+  framing.
+- **Do not run a CDKN2A-versus-OXPHOS analysis in this repo.**
 
 1. **A cytosolic stress programme that is not apoptotic**, as the next
    comparator for arrow (d). If a proteotoxic or integrated-stress-response

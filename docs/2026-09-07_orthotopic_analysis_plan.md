@@ -1,5 +1,40 @@
 # The orthotopic series — what it carries and how to score it
 
+> # VOID — SAMPLE IDENTITY CORRECTION, 2026-09-10
+>
+> **Do not quote any part of this document.** The arm this plan treats as the
+> respiratory manipulation **alone** was a **double-construct** arm — the
+> respiratory manipulation **plus an anti-apoptotic transgene** — so its
+> `Bcl2l1` readout was **construct transcript, not endogenous**.
+>
+> **What that voids, specifically:**
+>
+> - **§1(a), the licensing relationship.** "PGC1α overexpression alone raised
+>   `Bcl2l1` 2.7× against EV … with no Bcl-xL construct present", and its claim
+>   to be "the single cleanest argument" that the human `BCL2L1` coefficient is
+>   causal. **Void.** In the **construct-free** arm of the same cohort,
+>   endogenous `Bcl2l1` is **-0.113 log2 [-0.283, +0.174]** — null — with `Mcl1`
+>   null beside it (-0.100 [-0.229, +0.047]).
+> - **§1(b), the MYC ceiling as an in vivo demonstration.** It rests on the same
+>   mislabelled arm. **Void as an intervention result.**
+> - **§1(c), the abstract sentence and the gland-versus-human comparison.**
+>   **Void**, and see synthesis 8.4 traps 3 and 13 before any version of it is
+>   rewritten.
+>
+> **The reverse direction is void too, and it is the sharper half.** In the same
+> cohort an anti-apoptotic construct moved **no respiratory ruler** — `ox_lvl`
+> **+0.093 [-0.298, +0.581]**, `ox_rel` **-0.023**, `ox_mt` **-0.246**, all
+> covering zero. So **"raising the guardian raises respiration" has no support
+> either**, and **no claim that mouse tumours reproduce the human configuration
+> survives**.
+>
+> **No human number in this repo changes.** What is void is what these mouse
+> results were taken to *support*, never what the human data say.
+>
+> The body below is **preserved unaltered** as the record of what was planned and
+> why. Read `docs/2026-09-10_mouse_corrections.md` first; the corrected mouse
+> sources live in `myc_mouse` and are cited there by filename, never copied here.
+
 **2026-09-07. Carry-over note. Written in chat, to be executed in Claude Code.**
 Repo: `myc_mouse`, `experimental-cohorts` branch off `paper-final`. Numbered
 scripts continue `paper-final`'s sequence.
