@@ -44,6 +44,25 @@ already on disk here.
 reason to delete rather than a reason to hesitate. **The authoritative copies are
 cited by repo and filename in section 10 and are not reproduced here.**
 
+**A THIRD copy was then found, and it had drifted further -- in
+INTERPRETATION, not only in numbers.** `docs/2026-09-07_orthotopic_analysis_plan.md`
+declared itself a `myc_mouse` document in its own header (*"Repo: `myc_mouse`,
+`experimental-cohorts` branch off `paper-final`"*), and with each repo's banner
+stripped the two bodies were **byte-identical -- 170 lines, md5
+`8b6b0c1f…`**. A copy, beyond argument.
+
+**And the local copy had become actively misleading.** The banner written on it
+here on 2026-09-10 said **fully void**. The tracked `myc_mouse` original, banner
+from commit **`02d3acb`**, says **partially void** -- **C3's verdict, the
+composition gate with its positive control, R3 demoted and R5 all stand.** The
+copy would have voided four standing results that the source does not.
+
+> **This is the failure mode one level worse than a stale number.** Two copies
+> drifted in a figure and could in principle have been spotted by arithmetic. The
+> third drifted in **what a result means**, and nothing inside this repo could
+> have caught it. **Deleted 2026-09-10** with `git rm`, since unlike the other
+> two it was tracked here. It is now cited by repo and filename only.
+
 ---
 
 ## 1. V4 is ANSWERED, and it FAILED
@@ -76,9 +95,12 @@ designed perturbation would is a separate question and nothing here answers it.
 
 ## 2. The orthotopic corroboration is VOID, everywhere it appears
 
-**Searched, and it appears in exactly one tracked file:**
-`docs/2026-09-07_orthotopic_analysis_plan.md`, in three places. No other
-document or script in this repo mentions the orthotopic series.
+**Searched, and it appeared in exactly one tracked file, which has since been
+deleted as a copy** (section 0): the orthotopic analysis plan, in three places.
+No other document or script in this repo mentions the orthotopic series. **The
+authoritative document is `myc_mouse` `docs/2026-09-07_orthotopic_analysis_plan.md`,
+which is VOID-bannered there** -- *partially* void, per that repo's own more
+accurate banner.
 
 | where | the void claim |
 |---|---|
@@ -87,8 +109,10 @@ document or script in this repo mentions the orthotopic series.
 | §1(c) | the abstract sentence, and the gland/human comparison on the guardian pair |
 
 **All void.** The arm labelled as the respiratory manipulation alone was not
-alone. That file now carries a VOID banner; its body is preserved as the record
-of what was planned and why, and is not to be quoted.
+alone. **The document is not in this repo** -- it was a copy and was deleted --
+and the `myc_mouse` original carries the banner and preserves the body as the
+record of what was planned and why. **Nothing in this repo may quote any of the
+three claims above.**
 
 **The reverse direction is void too, and this is the sharper half.** In the same
 cohort, an anti-apoptotic construct moved **no respiratory ruler**:
@@ -346,11 +370,37 @@ recorded so the audit session knows where to begin, not to pre-judge the outcome
 | 1 | juxtaposition | synthesis 3.11 | gland **+0.351** and human **-0.31/-0.46** in one breath |
 | 4 | juxtaposition | `docs/2026-09-04_e19_subtype.md` §3 | the per-gene `bX_wt` / `bX_myc` / `bMX` table beside human partial rhos |
 | 6 | juxtaposition | `docs/2026-09-04_handoff.md` §5 item 0c, ~241 | `Bbc3`'s `bX_wt` listed as a thing to fetch from the mouse |
-| 5 | **dormant** | `docs/2026-09-07_orthotopic_analysis_plan.md` §1(c) | **+0.351** against **-0.31 to -0.46**. Behind a VOID banner, so it cannot be quoted; fix it only if the file survives the decision in section 10 |
+| ~~5~~ | **NOT IN THIS REPO** | `myc_mouse` `docs/2026-09-07_orthotopic_analysis_plan.md` §1(c) | **+0.351** against **-0.31 to -0.46**. The file was a copy and was deleted here; the original **lives in `myc_mouse`, VOID-bannered there**. **Off this audit's surface entirely** -- if it is ever fixed, it is fixed in the repo the document belongs to |
 
 **Synthesis 8.4 trap 3 already forbids cross-species magnitude comparison, and
 trap 13 now adds that sometimes the SIGN is not comparable either.** The audit is
 whether they were obeyed, not whether the rules exist.
+
+### The live surface is smaller than a six-item list looks, and it is four files
+
+With item 5 gone from this repo, **the audit has five live items, not six.**
+Two corrections to the obvious reading of that, both worth knowing before the
+audit session scopes itself:
+
+- **It is not "synthesis and handoff".** **Item 4 sits in a DATED NOTE** --
+  `docs/2026-09-04_e19_subtype.md` §3 -- which is neither. Dated notes are the
+  record of what a script found, so an edit there is a different kind of act
+  from an edit to the standing synthesis, and the audit should decide its policy
+  on that before it starts.
+- **Item 6 appears in BOTH handoffs**, not one: `docs/2026-09-04_handoff.md`
+  (~241 and §5 item 0c) **and** `docs/2026-09-08_handoff.md` (~183), where it was
+  carried forward into the current entry point.
+
+| file | items | kind |
+|---|---|---|
+| `docs/2026-09-03_human_arm_for_mouse_reconciliation.md` | **1, 2, 3** | the standing synthesis -- and it holds **both ARGUMENTS** |
+| `docs/2026-09-04_e19_subtype.md` | 4 | a dated note |
+| `docs/2026-09-04_handoff.md` | 6 | the consolidation handoff |
+| `docs/2026-09-08_handoff.md` | 6 (carried forward) | the current entry point |
+
+**So: five items, four files, and the two that can break an argument are both in
+the synthesis.** An audit that read the synthesis alone would reach everything
+that matters and two thirds of the instances.
 
 ---
 
@@ -378,6 +428,6 @@ prediction, a different estimand entirely.
 |---|---|
 | this note | `docs/2026-09-10_mouse_corrections.md` |
 | edited in place | synthesis 5.5 and the section 9 table (V4); synthesis 8.4 (BBC3 estimand); synthesis 10 (CDKN2A); `docs/2026-09-08_handoff.md` §3 (ox_rel, phenotype axes) |
-| VOID-bannered | `docs/2026-09-07_orthotopic_analysis_plan.md` |
+| deleted as a copy, cited not held | `myc_mouse` `docs/2026-09-07_orthotopic_analysis_plan.md`, VOID-bannered there |
 | the mouse sources, cited never copied | `myc_mouse` `docs/2026-09-09_orthotopic_identity_correction.md`, `docs/2026-09-09_reprioritisation_narrative_v3.md`, `results/mitopps_scores.rds` |
 | audit objects read | `data/from_validation/tcga_brca_mito_scores.rds`, `results/scanb_scores.rds`, `functions/mitopps.R`, `scripts/E02_score_cohorts.R` |
