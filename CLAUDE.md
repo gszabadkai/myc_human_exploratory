@@ -75,7 +75,11 @@ Completed: **Phase 1, the correlation atlas** (`E00`–`E05`, aim doc
 (`E24`–`E26`), then **`E27`**, a companion presentation of Phase 2 on the native
 MitoCarta level-1 partition with an internal null. `E27` re-reads `E25` and
 changes nothing in the conclusion; see
-`docs/2026-09-11_e27_category_readouts.md`.
+`docs/2026-09-11_e27_category_readouts.md`. Then **`E28`**, a post-hoc gap
+readout that **did not survive its own tests** and carries nothing on the human
+side; it changes nothing in the conclusion either, and
+`docs/2026-09-11_e28_gap_readout.md` section 8 says exactly what it may and may
+not be used for.
 
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 (the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
