@@ -181,5 +181,6 @@ reprioritisation shared between mouse and human is MYC's, not development's.**
 | `E24` | `scripts/E24_mitopps_rank_comparison.R`, `docs/2026-09-10_e24_mitopps_rank_comparison.md` - **superseded in part**, banner names the sections |
 | `E25` | `scripts/E25_group_ranking_comparison.R`, `docs/2026-09-11_e25_group_ranking_comparison.md` - **the result** |
 | `E26` | `scripts/E26_purity_and_composition.R`, `docs/2026-09-11_e26_purity_and_composition.md` - **the composition check** |
+| `E27` | `scripts/E27_category_readouts.R`, `docs/2026-09-11_e27_category_readouts.md` - **a companion presentation on the native MitoCarta level-1 partition.** It changes nothing above: it re-reads E25's orderings with eleven readouts instead of one, reproduces them exactly, and adds an internal null. Its own note says which manuscript sentence it carries and which it does not |
 | inputs | `data/from_myc_mouse/` (read-only artefact, md5 pinned), `data/from_validation/`, `results/scanb_scores.rds`, `results/new_set_scores.rds`, `data/mitocarta_human/` |
 | standing | mouse repo never written to, working tree and HEAD `129b0c0` as found; ortholog tripwire clean; rank only across the species boundary; TCGA and SCAN-B never averaged |

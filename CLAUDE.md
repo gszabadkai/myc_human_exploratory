@@ -72,7 +72,10 @@ is currently open.**
 Completed: **Phase 1, the correlation atlas** (`E00`–`E05`, aim doc
 `docs/2026-08-31_aim.md`, plan approved 2026-08-31), then the exploratory
 `E06`–`E23` line, then **Phase 2, the cross-species mitoPPS rank comparison**
-(`E24`–`E26`).
+(`E24`–`E26`), then **`E27`**, a companion presentation of Phase 2 on the native
+MitoCarta level-1 partition with an internal null. `E27` re-reads `E25` and
+changes nothing in the conclusion; see
+`docs/2026-09-11_e27_category_readouts.md`.
 
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 (the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
