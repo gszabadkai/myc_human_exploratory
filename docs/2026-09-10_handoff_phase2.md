@@ -9,6 +9,7 @@ state: main clean at 5dcd0b6, three commits unpushed. Phase 1 CLOSED. Phase 2
        script written.
 plan: /Users/gs/.claude/plans/witty-snuggling-dewdrop.md - the E24 design, held
       outside the repo because the session that wrote it never left Plan Mode.
+superseded_by: docs/2026-09-11_handoff.md
 supersedes: nothing. docs/2026-09-08_handoff.md remains the entry point for
        everything OUTSIDE Phase 2, and section 4 of docs/2026-09-04_handoff.md is
        still the live consolidation list.
