@@ -1011,7 +1011,12 @@ if (FALSE) {
   ## the primary readout: where OXPHOS subunits sits in all eight orderings
   subset(x$positions, panel == "shared (142)" & pathway == "OXPHOS subunits") |>
     as.data.frame()
-  subset(x$positions, panel == "level-3 leaves" & pathway == "OXPHOS subunits") |>
+  subset(x$positions, panel == "disjoint (antichain)" & pathway == "OXPHOS subunits") |>
+    as.data.frame()
+
+  ## which readouts exist in which panel - check before querying one
+  x$readout_membership |>
+    tidyr::pivot_wider(names_from = panel, values_from = present) |>
     as.data.frame()
 
   ## which mouse ordering is each human ordering nearest, and is it separated?

@@ -1,5 +1,37 @@
 # E24 - where OXPHOS sits in the mitochondrial panel, in mouse gland and in human tumours
 
+> **SUPERSEDED IN PART, 2026-09-11, by
+> `docs/2026-09-11_e25_group_ranking_comparison.md`.**
+>
+> **What stands.** Section 1's panel reconciliation, reused unchanged by E25 and
+> re-asserted by it. Section 3's size gate, which E25 strengthens: the
+> within-sample percentile really is size-structural in the human cohorts.
+>
+> **What is withdrawn: sections 4 and 5, which are G3, R1 and R2.** Two reasons,
+> in order of weight. First, the estimand was the wrong one: the mouse figures
+> rank PATHWAYS by a GROUP CONTRAST, while this note ranked ONE PATHWAY inside
+> each SAMPLE, and the size bias of those two statistics differs by a factor of
+> three between the species (+0.165 mouse against +0.54 and +0.57 human), so the
+> comparison put two differently biased statistics side by side. Second, the
+> human cohorts were pooled over MYC status, and E25 shows the two MYC halves
+> match two DIFFERENT mouse groups, so the pooled position was an average of two
+> real positions and read as nothing in particular.
+>
+> **Section 6, the apoptosis readout, is built on the same estimand** and its
+> cross-species half inherits the same objection. Its within-species reading -
+> that the split does not separate, because both mouse Myc+ arms collapse on the
+> pro-death and pro-survival halves together - does not depend on the
+> cross-species comparison and stands.
+>
+> **One thing this note could not have known.** The mouse time axis is
+> batch-confounded, batch equals timepoint, which was found after this note was
+> written. G3 was built on precisely that axis. The author has since ruled the
+> timeline comparisons stay in, with the confounder stated rather than used to
+> withdraw a number, and E25 reports them in full on the corrected estimand.
+>
+> **Section 7's named next test - the TCGA purity re-read - still stands** and is
+> still the next thing to do.
+
 **Run 2026-09-10 23:42; note written 2026-09-11. EXPLORATORY, POST-HOC,
 DESCRIPTIVE. Nothing here is pre-registered and nothing here is a hypothesis
 test.** Both R1 outcomes were
