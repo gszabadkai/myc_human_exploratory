@@ -63,13 +63,28 @@ found nothing supported. It is not reopened and it does not go in the paper.
 
 ## Current phase
 
-**Phase 1: the correlation atlas.** Scripts `E00`–`E05`. Aim doc:
-`docs/2026-08-31_aim.md`. Plan as approved 2026-08-31.
+**Phase 2 is CONCLUDED as of 2026-09-11.** Start at
+`docs/2026-09-11_phase2_conclusion.md` — it states the finding, what is not
+settled, and four falsifiers, and it names the three scripts behind it (`E24`
+superseded in part, `E25` the result, `E26` the composition check). **No phase
+is currently open.**
 
-Out of scope for phase 1, named so they stay decisions rather than drift:
-MCbiclust / forkscale (the Menegollo axis proper — the obvious phase 2),
-survival, treatment, METABRIC, DepMap, causal or mediation modelling, and
-anything that revisits the validation study's hypotheses.
+Completed: **Phase 1, the correlation atlas** (`E00`–`E05`, aim doc
+`docs/2026-08-31_aim.md`, plan approved 2026-08-31), then the exploratory
+`E06`–`E23` line, then **Phase 2, the cross-species mitoPPS rank comparison**
+(`E24`–`E26`).
+
+Named as decisions rather than drift, and still not done: MCbiclust / forkscale
+(the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
+mediation modelling, and anything that revisits the validation study's
+hypotheses.
+
+Two items left open on purpose, recorded in
+`docs/2026-09-11_handoff.md` (spent, kept for this): whether standalone
+mouse-only figure reproductions are wanted — they would be a `myc_mouse` task
+and cannot be built from here — and whether `data/from_myc_mouse/` should be
+tracked rather than gitignored, since it is 511 KB and the convention it copied
+exists for a 560 MB directory.
 
 ## Section 2 — the traps
 
