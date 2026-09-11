@@ -79,7 +79,11 @@ changes nothing in the conclusion; see
 readout that **did not survive its own tests** and carries nothing on the human
 side; it changes nothing in the conclusion either, and
 `docs/2026-09-11_e28_gap_readout.md` section 8 says exactly what it may and may
-not be used for.
+not be used for. Then **`E29`**, a **map and explicitly not a readout**: it found
+position matches between groups to be coincidental and established no opposing
+programme, and it records that **mitoPPS is not a closed composition** (the
+per-sample sum ranges, so the standard compositional objection does not apply).
+See `docs/2026-09-12_e29_oxphos_neighbourhood.md`.
 
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 (the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
