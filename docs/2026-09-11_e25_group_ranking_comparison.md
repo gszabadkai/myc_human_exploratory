@@ -267,6 +267,19 @@ and 8.8).
 
 ## 7. What this does not address, and what would falsify it
 
+> **ANSWERED 2026-09-11 by `docs/2026-09-11_e26_purity_and_composition.md`.**
+> The purity question below was run and **the separation survives**. The gate
+> that licenses saying so: proliferation keeps 96 per cent of its MYC difference
+> under adjustment while the adjusters explain 8.8 per cent of its variance, so
+> the adjustment is not over-correcting. The separation goes 44.4 unadjusted to
+> 43.0 and 47.2 adjusted, the respiratory chain attenuates to the 41st
+> percentile of the panel's own attenuation distribution, and the cross-species
+> agreement holds under every model. **E26 also found that the exposure is
+> adipose rather than purity** - the MYC groups differ by 0.058 in purity and
+> 0.743 standard units in an adipocyte marker score - and the pre-declared
+> tracer rule promoted the adipose-adjusted models accordingly. **SCAN-B still
+> cannot be checked** and that paragraph below stands unchanged.
+
 **Purity is not addressed and every human number above is unadjusted.** That is
 the next script's subject and **trap 15 governs it**: the mouse fat-pad result
 put `Mki67` at tau +0.313 before adjustment and -0.096 after, while the adjusters
