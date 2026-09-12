@@ -83,7 +83,11 @@ not be used for. Then **`E29`**, a **map and explicitly not a readout**: it foun
 position matches between groups to be coincidental and established no opposing
 programme, and it records that **mitoPPS is not a closed composition** (the
 per-sample sum ranges, so the standard compositional objection does not apply).
-See `docs/2026-09-12_e29_oxphos_neighbourhood.md`.
+See `docs/2026-09-12_e29_oxphos_neighbourhood.md`. Then **`E30`**, a second
+comparator for `E28`'s gap which **failed the estimator ladder identically** -
+two comparators, same numerator, 2 of 4 estimators each - demonstrating that the
+failure belongs to the rank-gap statistic rather than the comparator. See
+`docs/2026-09-12_e30_mitoribosome_and_nadh.md`.
 
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 (the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
