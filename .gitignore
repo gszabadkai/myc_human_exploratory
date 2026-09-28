@@ -14,6 +14,15 @@ data/from_validation/*
 data/from_myc_mouse/*
 !data/from_myc_mouse/README.md
 
+# data/raw/gdsc holds the GDSC release 8.5 drug-response files and the Cell
+# Model Passports annotation used by the BH3-mimetic analysis (E31) - about
+# 63 MB, plus 72 MB unzipped. Ignored to match data/raw/depmap. E31 and its
+# provenance README are on the UNMERGED branch bh3-mimetic-oxphos, not on main;
+# the README carries the curl commands, byte sizes and SHA-256 of every file:
+#   git show origin/bh3-mimetic-oxphos:data/raw/gdsc_README.md
+data/raw/gdsc
+!data/raw/gdsc_README.md
+
 # data/raw/depmap is a SYMLINK into myc_human_validation/data/raw/depmap.
 # Ignored because git would otherwise track it as a link object that resolves
 # only on this machine, and because the ~1.2 GB it points at is gitignored
