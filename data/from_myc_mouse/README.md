@@ -14,8 +14,14 @@ source path, md5 and producing commit pinned below.
 
 ## Provenance
 
-- **Source path:**
+- **Source path at copy (2026-09-10):**
   `/Users/gs/G/data/MK_myc_2022/myc_mouse/results/mitopps_scores.rds`
+- **Source path now:** `/Users/gs/code/myc_mouse/results/mitopps_scores.rds`.
+  The repo moved there by 2026-09-28 and the old directory is renamed
+  `myc_mouse_OLD_do_not_use` - **do not use it**. It is the same repository
+  (same root commit; the old HEAD is an ancestor of the new one), `129b0c0`
+  still resolves, and the artefact's md5 at the new path is unchanged -
+  verified 2026-09-28.
 - **md5:** `b8a125af4bc0d5909ad03f6e126e2890` (source and destination verified
   identical at copy)
 - **Size:** 511,169 bytes
@@ -107,12 +113,12 @@ One line. Run from the repo root; **`CURRENT` means the snapshot still matches
 its source, `DRIFTED` means re-read this README before using the file.**
 
 ```sh
-[ "$(md5 -q /Users/gs/G/data/MK_myc_2022/myc_mouse/results/mitopps_scores.rds)" \
+[ "$(md5 -q /Users/gs/code/myc_mouse/results/mitopps_scores.rds)" \
   = "$(md5 -q data/from_myc_mouse/mitopps_scores.rds)" ] && echo CURRENT || echo DRIFTED
 ```
 
 If it reports `DRIFTED`, do **not** silently re-copy: check
-`git -C /Users/gs/G/data/MK_myc_2022/myc_mouse log --oneline -- scripts/08_mitoPPS_analysis.R`
+`git -C /Users/gs/code/myc_mouse log --oneline -- scripts/08_mitoPPS_analysis.R`
 first, because a changed artefact with an unchanged producing script means
 something happened that this README cannot account for.
 

@@ -690,7 +690,8 @@ if (!.link_ok || !file.exists(PATH_MODEL) || !file.exists(PATH_EXPR)) {
 # 9. THE MOUSE PER-GENE SLOPES. TRANSCRIBED, read-only, from the pinned ref.
 # =============================================================================
 # SOURCE, and how to re-read it without writing to that repo:
-#   git -C /Users/gs/G/data/MK_myc_2022/myc_mouse show \
+#   (path updated 2026-09-28: the repo moved; e348dd8 still resolves there)
+#   git -C /Users/gs/code/myc_mouse show \
 #       e348dd8:docs/2026-09-02_myc_oxphos_priming_gate_model.md
 #
 # WHAT IS AND IS NOT AVAILABLE AT THAT REF, checked 2026-09-04:

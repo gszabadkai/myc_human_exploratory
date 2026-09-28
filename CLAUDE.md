@@ -46,8 +46,11 @@ found nothing supported. It is not reopened and it does not go in the paper.
 ## THIS IS A HUMAN REPO
 
 - Human MitoCarta 3.0, human gene symbols, human-native gene sets only.
-- The mouse repo (`/Users/gs/G/data/MK_myc_2022/myc_mouse`) is **not** attached.
-  Read it read-only via `git -C ... show <ref>:<path>` if ever needed.
+- The mouse repo (`/Users/gs/code/myc_mouse`) is **not** attached.
+  Read it read-only via `git -C ... show <ref>:<path>` if ever needed. It moved
+  there from `/Users/gs/G/data/MK_myc_2022/myc_mouse`, which is now renamed
+  `myc_mouse_OLD_do_not_use`; **never point anything at an `_OLD_` copy.**
+  Dated notes before 2026-09-28 still give the old path, as written.
 - **No ortholog function is called anywhere in this repo**, in either direction.
   The check is for *calls*, not for the word — comments asserting the rule are
   the reason it must be narrowed to a `(`, or the tripwire always fires:

@@ -26,6 +26,14 @@ differ by 11 bytes of Excel metadata and have different MD5s, but their parsed c
 are identical: same 1,136 symbols, same 154 MitoPathway rows, identical pathway gene
 strings (verified 2026-08-28).
 
+**Update 2026-09-28.** That checkout is now renamed `myc_mouse_main_OLD_do_not_use`
+and must not be used. The live mouse repo, `/Users/gs/code/myc_mouse`, carries its
+own copy at `data/Human_MitoCarta3_0.xls` with a third MD5
+(`d09cdc872550f0e2db18c192c3ad76ec`). Its parsed contents were re-checked against
+this snapshot and are identical: same 1,136 symbols, same 149 non-blank MitoPathway
+rows (154 with sheet 4's five blank padding rows), identical pathway gene strings.
+Nothing in this repo reads it.
+
 The Downloads copy was taken because it is the original Broad download and sits outside
 the mouse repo, so this human input has no cross-repo dependency at all.
 

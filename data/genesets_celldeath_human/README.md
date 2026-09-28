@@ -27,7 +27,10 @@ took the `mouse_symbol` column from the same table; this study takes
 
 ## Source A - `cell_death_genes_consolidated.csv`
 
-- Upstream: `/Users/gs/G/data/MK_myc_2022/myc_mouse`
+- Upstream: `/Users/gs/code/myc_mouse`. Snapshotted from
+  `/Users/gs/G/data/MK_myc_2022/myc_mouse`, which is now renamed
+  `myc_mouse_OLD_do_not_use`; the pinned commit and blob below were re-verified
+  at the new location on 2026-09-28.
 - Pinned commit: **`6a9c7dd513800a2a433934314a87d161ce98caa2`** (branch
   `paper-final`, 2026-08-18)
 - Blob: `270d459115bcc2993344fc65d5691a1693173620`
