@@ -1,19 +1,21 @@
 ---
 date: 2026-09-28
-status: RESULT. The declared PRIMARY estimand is NULL for navitoclax on every
-        readout, both GDSC screens and PRISM. The analysis is not merged and
-        is not carried into the manuscript.
+status: RESULT, RUN AND VERIFIED. The declared PRIMARY estimand is NULL for
+        navitoclax on every readout, both GDSC screens and PRISM, and the
+        verdict is unchanged under all four rulers (s.6). The analysis is not
+        merged and is not carried into the manuscript.
 posture: EXPLORATORY AND POST-HOC. Nothing here is pre-registered. The estimand
          hierarchy was fixed in docs/2026-09-28_bh3_mimetic_declaration.md and
          COMMITTED AT 552ba4f, before the script was written and before any
          model was fitted.
 branch: bh3-mimetic-oxphos. NOT merged. Left in place deliberately - see s.11.
 script: scripts/E31_bh3_mimetic_oxphos.R, committed unrun at 1d9a75b, fixed at
-        df79eba. THE NUMBERS BELOW ARE FROM A DRY RUN with output paths
-        redirected to the scratchpad; the repo was left untouched and
-        results/bh3_oxphos_gdsc.rds is NOT yet on disk. The dry-run caveat is
-        discharged when the author sources the script and the run reproduces
-        this note object by object.
+        df79eba. SOURCED BY THE AUTHOR 2026-09-28 at 14:50, and
+        results/bh3_oxphos_gdsc.rds plus the two CSVs and the figure are on
+        disk. The numbers below were written from a dry run beforehand; the
+        real run reproduces ALL 10 non-timestamp saved objects identically, so
+        every number here is now read from a saved object and THE DRY-RUN
+        CAVEAT IS DISCHARGED.
 relates-to:
   - docs/2026-09-28_bh3_mimetic_declaration.md (the declaration - read first)
   - docs/2026-09-04_b4_addendum.md (E18 - why a null here is uninformative)
@@ -37,12 +39,13 @@ clone. This note will.
 
 ---
 
-## 0. The answer in six lines
+## 0. The answer in seven lines
 
 | | |
 |---|---|
 | **The PRIMARY estimand** | **NULL.** The OXPHOS coefficient at fixed MYC for navitoclax includes zero in **all 5** screen-by-readout cells: GDSC2 `LN_IC50` **-0.008 [-0.094, +0.077]**, GDSC2 `AUC` **+0.017 [-0.067, +0.102]**, GDSC1 `LN_IC50` **+0.023**, GDSC1 `AUC` **+0.016**, PRISM **-0.059 [-0.176, +0.057]** |
 | **and the specificity control** | **Venetoclax is null too**, so the control cannot discriminate - there is nothing for it to discriminate between |
+| **Is it ruler-dependent?** | **The coefficients are; the verdict is not.** `ox_lvl` and `ox_ppd` each give navitoclax a significant negative coefficient - but **in different screens**, and each is null where the other fires. Applying the declaration's rule as written, **all four rulers read NOT SHOWN**, each for a different declared reason (s.6) |
 | **Is it a power failure?** | **No, not on the GDSC readouts.** The same cohort, the same models and the same endpoints detect **RB1 loss on navitoclax at -0.894 [-1.130, -0.658], p = 4e-13**, replicating Varkaris et al. in all four GDSC cells. The pipeline finds a real navitoclax sensitiser and finds nothing for OXPHOS |
 | **Is it therefore evidence against the model?** | **NO, and this is the whole point.** `E18` established that the BCL2L1-OXPHOS configuration **is absent from cell lines**. A system that does not carry the exposure cannot be asked to carry the dependency |
 | **The cleanest BCL-XL probe** | **`WEHI-539` runs the WRONG WAY** - **+0.066** and **+0.074**, null but positive on both readouts, i.e. OXPHOS-high lines nominally *less* sensitive |
@@ -255,34 +258,131 @@ is reported, not read.
 
 ---
 
-## 6. The ruler sensitivity - and it is a textbook trap 5
+## 6. The ruler sensitivity - the coefficients are ruler-dependent, the verdict is not
 
 CLAUDE.md trap 5: the four instruments disagree by a lot, so a result that
-lives on one of them is a **ruler result**. The primary model on all four:
+lives on one of them is a **ruler result**. This section runs the counterfactual
+properly - not "does another ruler give a bigger number", but **"would another
+ruler have changed the verdict"** - because the first question is a menu and
+only the second is a sensitivity.
+
+### 6.1 What the four rulers are, and why they can disagree
+
+All four score the **same 89 genes on the same 579 lines**. They differ only in
+what they normalise against.
+
+| ruler | construction | asks |
+|---|---|---|
+| **`ox_gsva`** *(declared)* | GSVA on `log2(TPM+1)`, Gaussian kcdf, z-scored | where do the 89 genes sit in **this sample's own transcriptome-wide ranking**? |
+| `ox_lvl` | mean per-gene z across the panel, log matrix | is OXPHOS **high in absolute terms**? |
+| `ox_rel` | `ox_lvl(OXPHOS subunits)` minus `ox_lvl(rest of MitoCarta)` | is OXPHOS high **relative to the rest of the mitochondrial proteome**? |
+| `ox_ppd` | mitoPPS, all-pairwise pathway ratios on **linear** TPM | is OXPHOS **prioritised within mitochondria** - level-blind by design |
+
+Two axes: **level against share**, and **referenced to the transcriptome against
+referenced to mitochondria**. Spearman agreement on these 579 lines, computed
+from `x$covariates`:
+
+| | `ox_gsva` | `ox_ppd` | `ox_lvl` | `ox_rel` |
+|---|---|---|---|---|
+| `ox_gsva` | 1.000 | **0.646** | 0.871 | 0.883 |
+| `ox_ppd` | **0.646** | 1.000 | **0.647** | 0.801 |
+
+**mitoPPS shares only about 42% of its variance with GSVA** (`0.646^2`), which
+is inside the 0.24-0.94 range CLAUDE.md gives for GSVA-vs-mitoPPS across arms.
+**These are not four measurements of one quantity.**
+
+They are also entangled with the covariates by very different amounts:
+
+| ruler | vs `PROLIF` | vs `M_a` |
+|---|---|---|
+| **`ox_lvl`** | **+0.335** | +0.277 |
+| `ox_gsva` | +0.179 | +0.304 |
+| `ox_rel` | +0.073 | +0.068 |
+| `ox_ppd` | +0.071 | **-0.031** |
+
+**`ox_lvl` is the most proliferation-contaminated of the four**, and it is one
+of the two that fires. That is worth knowing before reading it as an effect.
+
+### 6.2 What they say
+
+`*` = 95% CI excludes zero. Negative = more sensitive.
 
 | drug | cell | `ox_gsva` | `ox_ppd` | `ox_lvl` | `ox_rel` |
 |---|---|---|---|---|---|
 | navitoclax | GDSC2 `LN_IC50` | -0.008 | -0.063 | **-0.099** * | -0.006 |
-| navitoclax | GDSC2 `AUC` | +0.017 | -0.063 | -0.079 | +0.011 |
+| navitoclax | GDSC2 `AUC` | +0.017 | -0.063 | -0.079 *(p=0.068)* | +0.011 |
 | navitoclax | GDSC1 `LN_IC50` | +0.023 | **-0.096** * | -0.028 | -0.001 |
 | navitoclax | GDSC1 `AUC` | +0.016 | **-0.105** * | -0.042 | -0.008 |
 | navitoclax | PRISM `LFC` | -0.059 | +0.025 | -0.058 | -0.025 |
-| venetoclax | GDSC1 `LN_IC50` | -0.007 | **-0.089** * | -0.076 | +0.006 |
+| **venetoclax** | **GDSC1 `LN_IC50`** | -0.007 | **-0.089** * | -0.076 | +0.006 |
+| **venetoclax** | **GDSC1 `AUC`** | -0.014 | **-0.098** * | -0.064 | -0.006 |
 | wehi-539 | GDSC2 `LN_IC50` | +0.066 | +0.013 | +0.043 | +0.019 |
+| wehi-539 | GDSC2 `AUC` | +0.074 | +0.011 | +0.044 | +0.016 |
 
-`*` = 95% CI excludes zero.
+**The two rulers that fire do so in different screens, on largely the same cell
+lines, for the same drug.** `ox_lvl` fires in GDSC2 and is a third the size in
+GDSC1; `ox_ppd` fires in both GDSC1 readouts and is null in both GDSC2 ones,
+then reverses sign on PRISM. **Each is null exactly where the other fires.**
+`ox_rel` is flat everywhere (-0.008 to +0.011) and the declared `ox_gsva` fires
+nowhere and flips sign between screens.
 
-**Read this as a warning, not as support.** Navitoclax clears zero on
-**`ox_lvl` in GDSC2 and on `ox_ppd` in GDSC1** - **different rulers in different
-screens**, with the primary ruler firing in neither, and `ox_rel` firing
-nowhere. **That is the signature of a ruler artefact, not of an effect.** And
-`ox_ppd` fires for **venetoclax** in the same screen, which on the declaration's
-own logic would say the effect is not BCL-XL anyway.
+If OXPHOS-high lines really were more navitoclax-sensitive, the ruler that
+detects it should be **the same ruler in both screens**. A ruler-by-screen
+interaction with no stable main effect is what an artefact looks like.
 
-Had the declaration named `ox_lvl`, this note would have opened with a
-significant negative navitoclax coefficient. **It named `ox_gsva`, before the
-data, which is the entire reason the ruler panel is a sensitivity here and not
-a menu.**
+### 6.3 The counterfactual, run against the declaration's actual rule
+
+The declaration's **SUPPORTED** definition (s.12) required **four** things:
+primary negative on **both** `LN_IC50` and `AUC`; venetoclax null; survives the
+proliferation companion; larger in the MYC-high tertile. Take each alternative
+ruler and apply that rule as written.
+
+**Had `ox_lvl` been declared.** GDSC2 `LN_IC50` is **-0.099 [-0.185, -0.014]**,
+which clears zero. But GDSC2 `AUC` is **-0.079 [-0.165, +0.006]**, which does
+not. **It fails the two-readout bar at the first condition.** In GDSC1 it
+reaches only -0.028 and -0.042, neither clearing zero.
+**Verdict under `ox_lvl`: NOT SHOWN.**
+
+**Had `ox_ppd` been declared.** GDSC1 clears zero on **both** readouts,
+**-0.096 [-0.182, -0.011]** and **-0.105 [-0.189, -0.020]** - the only
+ruler-by-screen combination anywhere in the grid that passes the primary bar.
+It is then killed by the control declared for exactly this purpose:
+
+| GDSC1, `ox_ppd` | `LN_IC50` | `AUC` |
+|---|---|---|
+| navitoclax | **-0.096** * | **-0.105** * |
+| **venetoclax** | **-0.089** * | **-0.098** * |
+
+**The BCL-2-selective control moves with the primary, essentially one for one.**
+On the declaration's own logic that says the effect is not BCL-XL - and
+venetoclax is the drug whose target navitoclax shares *apart from* BCL-XL.
+Whatever `ox_ppd` is tracking in GDSC1, it is not BCL-XL dependency.
+**Verdict under `ox_ppd`: NOT SHOWN.**
+
+**Had `ox_rel` been declared.** Nothing anywhere.
+**Verdict under `ox_rel`: NOT SHOWN.**
+
+**So all four rulers land on NOT SHOWN, each for a different declared reason.**
+The individual coefficients are ruler-dependent; **the verdict is not.** That is
+a stronger statement than "the declared ruler happened to be the null one", and
+it is the one the numbers support.
+
+### 6.4 The one thing no ruler changes
+
+**`WEHI-539` - the only cleanly BCL-XL-selective compound in the release - is
+positive in all 8 of its cells**, 4 rulers x 2 readouts, ranging +0.011 to
++0.074 and never once negative.
+
+The contrast is instructive. The two **triple** inhibitors are ruler-sensitive:
+navitoclax as above, and `ABT-737` sits at ~0.00 on `ox_gsva` but clears zero
+negatively on `ox_lvl` in all three of its cells (-0.086, -0.096, -0.120).
+**The selective probe is ruler-independent, and it points the wrong way.** A
+BCL-XL dependency gradient should be clearest in the BCL-XL-selective compound,
+and it is the compound in which there is no hint of one under any instrument.
+
+**This is the entire reason the ruler panel is a sensitivity here and not a
+menu.** `ox_gsva` was named in the declaration, before the data, at `552ba4f`.
+Had it been chosen afterwards from this table it would carry nothing.
 
 ---
 
@@ -454,8 +554,11 @@ estimates themselves.** Filter `x$coefficients` on `model`, `drug`, `screen`,
 **Releases:** GDSC **8.5 (fitted 27Oct23)**, DepMap **26Q1**, PRISM Repurposing
 **24Q2**, GSVA **2.6.2**.
 
-**THE DRY-RUN CAVEAT.** Every number above comes from a dry run with output
-paths redirected to the scratchpad. **`results/bh3_oxphos_gdsc.rds` is not yet
-on disk and `outputs/` was not written.** The caveat is discharged when the
-author sources `scripts/E31_bh3_mimetic_oxphos.R` in Positron and the run
-reproduces this note object by object, as `E16` through `E30` each did.
+**THE DRY-RUN CAVEAT IS DISCHARGED.** The note was written from a dry run
+redirected to the scratchpad. **The author sourced
+`scripts/E31_bh3_mimetic_oxphos.R` in Positron on 2026-09-28 at 14:50 and the
+run reproduces the dry run in ALL 10 non-timestamp saved objects** -
+`coefficients`, `estimands`, `coverage`, `drug_map`, `covariates`,
+`myc_estimator_cor`, `tertile_n`, `verdict`, `lines` and `spec`, each
+`all.equal` to 1e-12. Every number above is therefore read from a saved object,
+as `E16` through `E30` each were.
