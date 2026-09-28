@@ -3,11 +3,12 @@ date: 2026-09-28
 status: >
   RESULT, RUN AND VERIFIED. VERDICT = MB2-ALIGNED, on the rule fixed at
   a71e19d before any number was computed. It survives the proliferation
-  companion. The analysis is not merged.
+  companion. Merged into main on 2026-09-28 at the author's explicit request.
 posture: EXPLORATORY. Nothing pre-registered. The direction came from
          Menegollo's published description, not from our data; the verdict rule
          was committed ALONE at a71e19d BEFORE forkscale_models.rds was opened.
-branch: mb2-forkscale. NOT merged, NOT deleted.
+branch: mb2-forkscale. MERGED into main 2026-09-28 by fast-forward, at the
+        author's request, after the run was verified. Branch kept, NOT deleted.
 script: scripts/E32_mb2_forkscale_alignment.R, committed unrun at 7312ed4,
         fixed at 6e9df6f. SOURCED BY THE AUTHOR 2026-09-28 at 16:47, and
         results/mb2_forkscale_alignment.rds, the CSV and the figure are on
@@ -376,8 +377,19 @@ this paragraph does not say "object by object".
 
 ## 11. The branch
 
-**`mb2-forkscale` is NOT merged and NOT deleted**, whatever the verdict. The
-commit sequence is the audit trail and it is the point of doing it this way:
+**`mb2-forkscale` was kept unmerged until the verdict had been run and
+verified, and was then merged into `main` on 2026-09-28 at the author's
+explicit request.** It was a **fast-forward**: `main` had not moved since the
+branch was cut, so the commits below sit on `main` exactly as they were made,
+in this order, with no merge commit reordering or squashing them. The branch
+itself is kept on origin and was not deleted.
+
+`docs/2026-09-28_mb2_forkscale_data.md` still says "NOT to be merged". That
+was the rule when it was written, and a dated input record is not rewritten
+after the fact; this section is where the current status lives.
+
+The commit sequence is the audit trail and it is the point of doing it this
+way:
 
 | commit | what |
 |---|---|
@@ -386,4 +398,5 @@ commit sequence is the audit trail and it is the point of doing it this way:
 | `7312ed4` | the script, **before it had been run** |
 | `6e9df6f` | two dry-run defects fixed |
 | `b633dd4` | the result note and the figure |
-| this one | the dry-run caveat discharged against the author's run |
+| `4d0b330` | the dry-run caveat discharged against the author's run |
+| this one | status updated after the fast-forward merge into `main` |
