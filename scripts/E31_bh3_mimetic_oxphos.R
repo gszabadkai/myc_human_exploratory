@@ -73,6 +73,13 @@ PATH_E31     <- file.path(DIR_RESULTS, "bh3_oxphos_gdsc.rds")
 PATH_E31_CO  <- file.path(DIR_TABLES,  "E31_bh3_coefficients.csv")
 PATH_E31_COV <- file.path(DIR_TABLES,  "E31_bh3_coverage.csv")
 PATH_E31_FIG <- file.path(DIR_FIGURES, "E31_bh3_forest.png")
+# The figure is written TWICE, and the second path is deliberate. outputs/ is
+# gitignored, so a figure written only there does not survive a fresh clone -
+# and this analysis runs on a branch whose raw data and results object are also
+# gitignored, which leaves the note and the figure as the only durable record.
+# Writing the tracked copy from the SCRIPT rather than copying it by hand means
+# the author's run regenerates it and git shows any difference.
+PATH_E31_FIG_DOC <- here::here("docs", "figures", "2026-09-28_E31_bh3_forest.png")
 
 # =============================================================================
 # 0. THE GUARDS. Before any read.
@@ -266,7 +273,8 @@ ESTIMANDS <- tibble::tribble(
   "contrast",      "contrast",    "MY + lineage",                "MY",
   "companion",     "comp_prolif", "OX + MY + PROLIF + lineage",  "OX",
   "companion",     "comp_rb1",    "OX + MY + RB1 + lineage",     "OX",
-  "mediation only","mediation",   "OX + MY + z(BCL2L1) + lineage","OX")
+  "mediation only","mediation",   "OX + MY + z(BCL2L1) + lineage","OX",
+  "positive control","rb1_control","OX + MY + RB1 + lineage",    "RB1")
 
 # A NULL ON THE PRODUCT TERM ALONE MEANS NOTHING. That estimand has already
 # failed in Block C, Block B, Block G, H4 and N2. A sixth null is not a finding
@@ -493,7 +501,13 @@ if (max(EXPR, na.rm = TRUE) > 40) {
 }
 
 # --- THE ANALYSIS COHORT. Fixed here, and every score below is relative to it.
-xw <- xw %>% dplyr::filter(SangerModelID %in% solid_ids, ModelID %in% rownames(EXPR))
+# ATTRITION IS REPORTED, NOT ABSORBED. The GDSC panel is largely Sanger lines
+# and DepMap expression does not cover all of them, so requiring expression
+# costs real lines. The count is printed and saved so a reader can see what the
+# cohort is a cohort OF, rather than meeting only the surviving number.
+n_solid_joined <- length(solid_ids)
+xw <- xw %>% dplyr::filter(SangerModelID %in% solid_ids,
+                           ModelID %in% rownames(EXPR))
 # Two DepMap models can carry the same SangerModelID. Keep one, deterministically
 # by sorted ModelID, rather than letting the join multiply rows silently.
 dup_sanger <- xw$SangerModelID[duplicated(xw$SangerModelID)]
@@ -503,6 +517,13 @@ if (length(dup_sanger)) {
   xw <- xw %>% dplyr::arrange(SangerModelID, ModelID) %>%
     dplyr::distinct(SangerModelID, .keep_all = TRUE)
 }
+# De-duplication happens AFTER the expression filter deliberately: where a
+# Sanger line carries two DepMap models, the one with expression is the one
+# worth keeping.
+n_with_expr <- nrow(xw)
+message("   of ", n_solid_joined, " solid joined lines, ", n_with_expr,
+        " carry DepMap ", DEPMAP_RELEASE, " expression (lost ",
+        n_solid_joined - n_with_expr, ")")
 # Lineage as a factor: levels with fewer than MIN_LINEAGE lines are DROPPED
 # from the cohort, as B4's pan-cancer fit did, rather than collapsed into an
 # "Other" bucket that mixes unrelated tissues behind one coefficient.
@@ -510,8 +531,14 @@ lin_n  <- table(xw$lineage)
 keep_l <- names(lin_n)[lin_n >= MIN_LINEAGE]
 dropped_lineages <- sort(setdiff(names(lin_n), keep_l))
 xw <- xw %>% dplyr::filter(lineage %in% keep_l)
+# COHORT and sid are PARALLEL and both UNNAMED: COHORT indexes the DepMap
+# matrices (ACH ids) and sid indexes GDSC and Cell Model Passports (SIDM ids).
+# Keeping them as two aligned vectors rather than one named vector means the
+# identity checks below compare values and not attributes.
 COHORT <- xw$ModelID
-names(COHORT) <- xw$SangerModelID
+sid    <- xw$SangerModelID
+stopifnot(length(COHORT) == length(sid), !anyDuplicated(COHORT),
+          !anyDuplicated(sid))
 message("   ANALYSIS COHORT: ", length(COHORT), " solid lines with expression ",
         "and a GDSC screen, in ", length(keep_l), " lineages of >= ",
         MIN_LINEAGE)
@@ -669,7 +696,6 @@ cn_myc <- CNV %>% dplyr::filter(symbol == "MYC") %>% .one_per_model()
 cn_rb1 <- CNV %>% dplyr::filter(symbol == "RB1") %>% .one_per_model()
 rm(CNV)
 
-sid <- names(COHORT)
 myc_cn_raw <- cn_myc$total_copy_number[match(sid, cn_myc$model_id)]
 myc_cn8q24 <- .z(log2(pmax(myc_cn_raw, 0.5)))   # 0.5 floor: log2(0) is -Inf
 names(myc_cn8q24) <- COHORT
@@ -895,7 +921,20 @@ MODELS <- list(
   contrast    = list(rhs = "MY + lineage",                 read = "MY",    strata = NA),
   comp_prolif = list(rhs = "OX + MY + PROLIF + lineage",   read = "OX",    strata = NA),
   comp_rb1    = list(rhs = "OX + MY + RB1 + lineage",      read = "OX",    strata = NA),
-  mediation   = list(rhs = "OX + MY + BCL2L1 + lineage",   read = "OX",    strata = NA))
+  mediation   = list(rhs = "OX + MY + BCL2L1 + lineage",   read = "OX",    strata = NA),
+  # THE POSITIVE CONTROL. Same fit as comp_rb1; the RB1 term is read instead of
+  # the OX term. Added after the first dry run showed the primary to be null,
+  # and it changes no estimand: it reads a coefficient that comp_rb1 already
+  # computed, and it is about RB1, not about OXPHOS.
+  #
+  # It exists because a null is worth much more when the pipeline can be shown
+  # to detect a real association of the expected kind. Varkaris et al. found
+  # RB1 alteration to be the strongest sensitiser to navitoclax in GDSC. If
+  # RB1 lands NEGATIVE here, this cohort, these models and these endpoints can
+  # find a genuine navitoclax sensitiser - and the OXPHOS null is then a
+  # statement about OXPHOS. If RB1 is ALSO null, the null is a statement about
+  # the analysis and must be written as one.
+  rb1_control = list(rhs = "OX + MY + RB1 + lineage",      read = "RB1",   strata = NA))
 stopifnot(setequal(names(MODELS), ESTIMANDS$model))
 
 cells <- ENDPOINTS %>% dplyr::distinct(screen, drug, readout)
@@ -1022,6 +1061,18 @@ if (nrow(COEF_FOCUS)) {
   COEF <- dplyr::bind_rows(COEF, COEF_FOCUS)
 }
 
+message("\n   THE POSITIVE CONTROL - RB1 loss on ", DRUG_PRIMARY,
+        ". Varkaris et al. 2025 say this is the\n   strongest navitoclax ",
+        "sensitiser in GDSC. NEGATIVE = RB1-null lines more sensitive.")
+COEF %>%
+  dplyr::filter(model == "rb1_control", ruler == RULER_PRIMARY,
+                myc_estimator == MYC_PRIMARY) %>%
+  dplyr::transmute(drug, screen, readout, n, estimate = round(estimate, 3),
+                   ci_lo = round(ci_lo, 3), ci_hi = round(ci_hi, 3),
+                   p = signif(p, 2), ci_excludes_0) %>%
+  dplyr::arrange(drug, screen, readout) %>%
+  as.data.frame() %>% print(row.names = FALSE)
+
 # =============================================================================
 # 8. THE READING, on the rules fixed in the declaration
 # =============================================================================
@@ -1100,18 +1151,24 @@ message("\n   NOTE ON 'TWO READOUTS': LN_IC50 and AUC are two summaries of ",
 # =============================================================================
 message("\n9. figure")
 
+# GDSC1 is kept as its OWN column rather than dropped. It is an independent
+# screen of navitoclax and venetoclax on the same lines, and hiding it would
+# make a two-column figure look like two platforms when LN_IC50 and AUC are
+# two summaries of one curve.
 FIG <- COEF %>%
   dplyr::filter(myc_estimator == MYC_PRIMARY, ruler == RULER_PRIMARY,
-                model %in% c("primary", "secondary"), !is.na(estimate),
-                screen %in% c("GDSC2", "PRISM")) %>%
+                model %in% c("primary", "secondary"), !is.na(estimate)) %>%
   dplyr::mutate(
+    readout = paste(screen, sub("PRISM_", "", readout)),
     panel = dplyr::case_when(
       model == "primary"   ~ "all solid lines",
       stratum == "T1_low"  ~ "MYC tertile 1 (low)",
       stratum == "T3_high" ~ "MYC tertile 3 (high)"),
     panel = factor(panel, levels = c("all solid lines", "MYC tertile 1 (low)",
                                      "MYC tertile 3 (high)")),
-    readout = factor(readout, levels = c("LN_IC50", "AUC", "PRISM_LFC")),
+    readout = factor(readout, levels = c("GDSC2 LN_IC50", "GDSC2 AUC",
+                                         "GDSC1 LN_IC50", "GDSC1 AUC",
+                                         "PRISM LFC")),
     drug = factor(drug, levels = rev(c(DRUG_PRIMARY, DRUG_CONTROL,
                                        setdiff(sort(unique(drug)),
                                                c(DRUG_PRIMARY, DRUG_CONTROL))))),
@@ -1121,8 +1178,8 @@ FIG <- COEF %>%
 p <- ggplot2::ggplot(FIG, ggplot2::aes(x = estimate, y = drug,
                                        colour = is_key)) +
   ggplot2::geom_vline(xintercept = 0, linewidth = 0.4, colour = "grey40") +
-  ggplot2::geom_errorbarh(ggplot2::aes(xmin = ci_lo, xmax = ci_hi),
-                          height = 0, linewidth = 0.5) +
+  ggplot2::geom_errorbar(ggplot2::aes(xmin = ci_lo, xmax = ci_hi),
+                         orientation = "y", width = 0, linewidth = 0.5) +
   ggplot2::geom_point(size = 1.7) +
   ggplot2::facet_grid(panel ~ readout, scales = "free_x") +
   ggplot2::scale_colour_manual(values = c(`TRUE` = "#b2182b",
@@ -1147,8 +1204,11 @@ p <- ggplot2::ggplot(FIG, ggplot2::aes(x = estimate, y = drug,
                  strip.background = ggplot2::element_rect(fill = "grey93"),
                  panel.grid.minor = ggplot2::element_blank())
 
-ggplot2::ggsave(PATH_E31_FIG, p, width = 10, height = 7, dpi = 200)
+ggplot2::ggsave(PATH_E31_FIG, p, width = 13, height = 7.5, dpi = 200)
+.ensure_dir(dirname(PATH_E31_FIG_DOC))
+ggplot2::ggsave(PATH_E31_FIG_DOC, p, width = 13, height = 7.5, dpi = 200)
 message("   ", PATH_E31_FIG)
+message("   ", PATH_E31_FIG_DOC, "  (tracked - outputs/ is gitignored)")
 
 # =============================================================================
 # 10. Save
@@ -1168,7 +1228,8 @@ out <- list(
   lines = list(
     gdsc_lines       = length(gdsc_lines),
     join_rate        = join_rate,
-    solid_joined     = length(solid_ids),
+    solid_joined     = n_solid_joined,
+    with_expression  = n_with_expr,
     analysis_cohort  = length(COHORT),
     focus_stratum    = n_focus,
     n_lineages       = length(keep_l),
