@@ -89,10 +89,31 @@ two comparators, same numerator, 2 of 4 estimators each - demonstrating that the
 failure belongs to the rank-gap statistic rather than the comparator. See
 `docs/2026-09-12_e30_mitoribosome_and_nadh.md`.
 
+Then **`E32`** (2026-09-28), outside any phase: which Menegollo bicluster this
+arm's MYC-high, OXPHOS-high state corresponds to. The direction came from
+Menegollo's published text, and the rule was committed before
+`forkscale_models.rds` was opened. **Verdict MB2-ALIGNED**:
+`rho(M_a, MB2 | MB1) = +0.688`, `rho(M_a, MB1 | MB2) = -0.195`, so conditioning
+on MB2 *reverses* MB1's apparent MYC association. It survives proliferation
+(+0.653 on `FELSHER__PROLIFSTRIP`, halved to +0.375 with `PROLIF_DISJOINT` as a
+covariate). **It licenses one manuscript sentence and nothing about outcome.**
+The sentence and the three qualifications that travel with it are in section 8
+of `docs/2026-09-28_mb2_forkscale_result.md`. Note that the *marginals* already
+existed in `forkscale_models.rds`; what `E32` adds is the partials.
+
+**`E31` is not on `main`, and the gap is deliberate.** It is a BH3-mimetic
+pharmacogenomics analysis (GDSC 8.5, PRISM 24Q2) on the unmerged branch
+`bh3-mimetic-oxphos`, kept on origin so that nobody re-runs it without knowing
+it has been done. Its declared primary is a precise null (an RB1 positive
+control fires at p = 4e-13 in the same models) and is uninformative about the
+manuscript, because `E18` found the BCL2L1-OXPHOS configuration absent from
+cell lines. Read it with
+`git show origin/bh3-mimetic-oxphos:docs/2026-09-28_bh3_mimetic_result.md`.
+
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
-(the Menegollo axis proper), survival, treatment, METABRIC, DepMap, causal or
-mediation modelling, and anything that revisits the validation study's
-hypotheses.
+beyond `E32`'s single alignment check (the Menegollo axis proper), survival,
+treatment, METABRIC, DepMap, causal or mediation modelling, and anything that
+revisits the validation study's hypotheses.
 
 Two items left open on purpose, recorded in
 `docs/2026-09-11_handoff.md` (spent, kept for this): whether standalone
@@ -222,13 +243,19 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/    numbered R pipeline, E00-E05
-docs/       the aim, the plan, dated notes
-data/       snapshots, each with a provenance README
-functions/  shared utilities
-results/    intermediate .rds (gitignored, generated at runtime)
-outputs/    figures and tables (gitignored, generated at runtime)
+scripts/       numbered R pipeline, E00-E32 (E31 lives on an unmerged branch)
+docs/          the aim, the plan, dated notes
+docs/figures/  tracked copies of the figures a note relies on
+data/          snapshots, each with a provenance README
+functions/     shared utilities
+results/       intermediate .rds (gitignored, generated at runtime)
+outputs/       figures and tables (gitignored, generated at runtime)
 ```
+
+From `E31` on, a script writes its key figure twice: to `outputs/figures/` as
+usual, and to `docs/figures/`, which is tracked. `outputs/` does not survive a
+fresh clone, so the tracked copy and the numbers written into the note are the
+durable record.
 
 `results/` and `outputs/` are regenerable. `data/from_validation/` is
 regenerable by re-copying from the validation repo at the pinned SHA.
