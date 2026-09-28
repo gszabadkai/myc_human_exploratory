@@ -1,19 +1,20 @@
 ---
 date: 2026-09-28
 status: >
-  RESULT. VERDICT = MB2-ALIGNED, on the rule fixed at a71e19d before any
-  number was computed. It survives the proliferation companion. The analysis
-  is not merged.
+  RESULT, RUN AND VERIFIED. VERDICT = MB2-ALIGNED, on the rule fixed at
+  a71e19d before any number was computed. It survives the proliferation
+  companion. The analysis is not merged.
 posture: EXPLORATORY. Nothing pre-registered. The direction came from
          Menegollo's published description, not from our data; the verdict rule
          was committed ALONE at a71e19d BEFORE forkscale_models.rds was opened.
 branch: mb2-forkscale. NOT merged, NOT deleted.
 script: scripts/E32_mb2_forkscale_alignment.R, committed unrun at 7312ed4,
-        fixed at 6e9df6f. NUMBERS BELOW ARE FROM A DRY RUN with output paths
-        redirected to the scratchpad; the repo was left untouched and
-        results/mb2_forkscale_alignment.rds is NOT yet on disk. The caveat is
-        discharged when the author sources the script and the run reproduces
-        this note object by object.
+        fixed at 6e9df6f. SOURCED BY THE AUTHOR 2026-09-28 at 16:47, and
+        results/mb2_forkscale_alignment.rds, the CSV and the figure are on
+        disk. The numbers below were written from a dry run beforehand; every
+        one of them is now checked against the saved object and THE DRY-RUN
+        CAVEAT IS DISCHARGED - see section 10 for exactly how, because the
+        check differs from E31's.
 relates-to:
   - docs/2026-09-28_mb2_forkscale_declaration.md (the declaration - read first)
   - docs/2026-09-28_mb2_forkscale_data.md (the inputs, and what F3-pre held)
@@ -345,11 +346,31 @@ explains the ER-negative skew of the buffered cell without special pleading.
 **Because the object is gitignored, sections 3 to 7 carry the estimates
 themselves.**
 
-**THE DRY-RUN CAVEAT.** Every number above comes from a dry run with output
-paths redirected to the scratchpad. **`results/mb2_forkscale_alignment.rds` is
-not yet on disk and `outputs/` was not written.** The caveat is discharged when
-the author sources `scripts/E32_mb2_forkscale_alignment.R` in Positron and the
-run reproduces this note object by object, as `E16` through `E31` each did.
+**THE DRY-RUN CAVEAT IS DISCHARGED - by a different check from E31's, stated
+so it is not mistaken for the stronger one.** The author sourced
+`scripts/E32_mb2_forkscale_alignment.R` in Positron on 2026-09-28 at 16:47.
+
+**The object-by-object comparison E16 to E31 each received was not possible
+here**: the dry-run object lived in a session scratchpad that no longer exists,
+so there is no second object to compare against. Two checks were run instead:
+
+1. **Every number this note quotes was checked against the saved object.** All
+   **26** quoted correlations match on n, rho and both interval bounds to three
+   decimals; so do the four OXPHOS marginals, the verdict, the non-overlap flag,
+   the paired difference, `rho(MB1, MB2)`, both cross-check maxima, all six
+   counts, and every row of both ER tables.
+2. **The tracked figure came back byte-identical** to the one committed at
+   `b633dd4`. It embeds every plotted point for 1,037 patients and prints the
+   verdict and both primary intervals in its subtitle, so this is an
+   independent check on the data the dry run plotted, not only on the numbers
+   the note happens to quote.
+
+The bootstrap is seeded (`PROJECT_SEED`), so identical intervals are the
+expected outcome, not a coincidence. **What this cannot rule out** is a
+difference in an element of the saved object that this note does not quote and
+the figure does not draw. That is a smaller gap than it sounds - the note
+quotes every declared and companion quantity - but it is a gap, and it is why
+this paragraph does not say "object by object".
 
 ---
 
@@ -364,4 +385,5 @@ commit sequence is the audit trail and it is the point of doing it this way:
 | `fb98f33` | the inputs, and what opening that object revealed |
 | `7312ed4` | the script, **before it had been run** |
 | `6e9df6f` | two dry-run defects fixed |
-| this one | the result note and the figure |
+| `b633dd4` | the result note and the figure |
+| this one | the dry-run caveat discharged against the author's run |
