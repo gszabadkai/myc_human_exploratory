@@ -369,13 +369,19 @@ BOOT_IX <- replicate(N_BOOT, sample.int(nrow(D), replace = TRUE), simplify = FAL
     .partial_spearman(x[ix], y[ix], Zi)
   }, numeric(1))
   ci <- .ci(bs)
+  # EVERYTHING IS COMPUTED BEFORE THE TIBBLE. Inside tibble() the new columns
+  # `x` and `y` would shadow these vectors - data masking evaluates arguments
+  # in order against the columns already created - and the helpers would then
+  # silently receive the column NAMES instead of the data. The columns are also
+  # named x_var / y_var so the shadowing cannot come back.
+  n_cc <- .n_complete(x, y, Z)
+  r_p  <- suppressWarnings(stats::cor(x, y, use = "complete.obs"))
   tibble::tibble(
-    kind = kind, label = label, x = x_col, y = y_col,
+    kind = kind, label = label, x_var = x_col, y_var = y_col,
     adjusted_for = if (length(z_cols)) paste(z_cols, collapse = " + ") else "-",
-    n = .n_complete(x, y, Z), rho = est, ci_lo = ci[1], ci_hi = ci[2],
+    n = n_cc, rho = est, ci_lo = ci[1], ci_hi = ci[2],
     ci_excludes_0 = isTRUE(ci[1] > 0) || isTRUE(ci[2] < 0),
-    r_pearson = suppressWarnings(stats::cor(
-      x, y, use = "complete.obs")))
+    r_pearson = r_p)
 }
 
 SPEC <- list()
@@ -667,14 +673,24 @@ p_rank <- .base(ggplot2::ggplot(
                                   "MB2) = ", round(rho_forks, 3), ")"),
                 x = "MB1 forkscale, rank", y = "MB2 forkscale, rank")
 
+# The raw values plotted raw are unreadable: pc1 / index with index near 1
+# puts almost every sample on top of the origin and a handful of low-index
+# samples at the edges. A signed log DISPLAY TRANSFORM keeps the sign and the
+# skew visible without crushing the middle. It changes no statistic - every
+# number in this script is rank-based - and the untransformed ranges are in
+# the caption.
+.slog <- function(v) sign(v) * log10(1 + abs(v))
+PD$MB1_slog <- .slog(PD$MB1_forkscale)
+PD$MB2_slog <- .slog(PD$MB2_forkscale)
 p_raw <- .base(ggplot2::ggplot(
-  PD, ggplot2::aes(MB1_forkscale, MB2_forkscale, colour = myc_tertile,
+  PD, ggplot2::aes(MB1_slog, MB2_slog, colour = myc_tertile,
                    shape = ER_shape)) +
     ggplot2::geom_point(size = 1.1, alpha = 0.75)) +
-  ggplot2::labs(subtitle = paste0("raw forkscale = pc1 / index - severely ",
-                                  "skewed BY CONSTRUCTION,\nwhich is why ",
-                                  "Spearman is used throughout"),
-                x = "MB1 forkscale", y = "MB2 forkscale")
+  ggplot2::labs(subtitle = paste0("raw forkscale = pc1 / index, on a signed ",
+                                  "log display scale -\nseverely skewed BY ",
+                                  "CONSTRUCTION, which is why Spearman is used"),
+                x = "MB1 forkscale, sign(x) * log10(1 + |x|)",
+                y = "MB2 forkscale, sign(x) * log10(1 + |x|)")
 
 p <- patchwork::wrap_plots(p_rank, p_raw, nrow = 1, guides = "collect") +
   patchwork::plot_annotation(
@@ -689,7 +705,10 @@ p <- patchwork::wrap_plots(p_rank, p_raw, nrow = 1, guides = "collect") +
     caption = paste0(
       "Forkscale recomputed as pc1 / index from the pinned Menegollo snapshot ",
       "(upstream 8fdbb34). Partial Spearman, ", format(N_BOOT, big.mark = ","),
-      " bootstrap resamples, ranking inside every resample.\n",
+      " bootstrap resamples, ranking inside every resample. Raw ranges: MB1 [",
+      paste(round(range(PD$MB1_forkscale), 1), collapse = ", "), "], MB2 [",
+      paste(round(range(PD$MB2_forkscale), 1), collapse = ", "),
+      "]; the right panel's signed log is a DISPLAY transform only.\n",
       "OXPHOS against either forkscale was declared UNINFORMATIVE in advance ",
       "and is not shown here. No outcome variable enters this analysis."),
     theme = ggplot2::theme(
