@@ -702,9 +702,12 @@ PF <- GROUPS %>%
                     levels = c("OXPHOS low", "OXPHOS high")),
     panel = factor(unname(FIG_READ[readout_col]), levels = unname(FIG_READ)),
     coh   = factor(unname(COH_LAB[cohort]), levels = unname(COH_LAB)))
-y_lo <- min(PF$lo, na.rm = TRUE) - 0.20
-y_hi <- max(PF$hi, na.rm = TRUE) + 0.34
-PF$y_n <- y_lo + 0.05
+y_lo <- min(PF$lo, na.rm = TRUE) - 0.24
+y_hi <- max(PF$hi, na.rm = TRUE) + 0.52    # headroom for the contrast block
+# Cell n under each point. STAGGERED VERTICALLY by OXPHOS as well as dodged:
+# at this figure size the dodge separation is narrower than the label, so
+# dodging alone drew the two labels of a pair on top of each other.
+PF$y_n <- y_lo + ifelse(PF$OXPHOS == "OXPHOS low", 0.17, 0.05)
 
 # The three contrasts the figure is about, printed into each panel. The full
 # table is in the note; these are the ones the reading rule turns on.
@@ -732,20 +735,44 @@ ANN <- CONTRASTS %>%
                 coh   = factor(unname(COH_LAB[cohort]),
                                levels = unname(COH_LAB)))
 
-DODGE <- ggplot2::position_dodge(width = 0.55)
+# A FRESH position_dodge PER LAYER. Sharing one ggproto Position object across
+# layers silently failed to dodge the n labels in the first dry run - they were
+# drawn on top of each other - while the points and bars dodged correctly.
+# The caption is WRAPPED PROGRAMMATICALLY. Hand-placed newlines overflowed the
+# right edge twice in the dry runs, and each fix moved the overflow to another
+# line; strwrap makes the width a property of the code rather than of my
+# counting.
+CAPTION <- paste(strwrap(paste0(
+  "Standardised means from m1: readout ~ quadrant + PAM50 + purity + ",
+  "leukocyte fraction; the small coloured number under each point is that ",
+  "quadrant cell's n. SCAN-B HAS NO PURITY OR LEUKOCYTE ESTIMATE, so there m1 ",
+  "is quadrant + PAM50. Quadrant from the frozen STATE constructor's own MYC ",
+  "and OXPHOS (GSVA) calls, each cohort on its own medians. NO PRODUCT TERM is ",
+  "fitted, which is why no line joins the pairs. Composite and arms are E33's ",
+  "signed mean-z on log2(linear + 1). The two OXPHOS contrasts are ",
+  "near-guaranteed: the configuration's genes and signs were chosen on OXPHOS ",
+  "in these same cohorts, so the MYC contrasts are the informative ones. ",
+  "Values are cohort-relative and are NEVER compared numerically between ",
+  "cohorts. NOTHING HERE LICENSES A TREATMENT-SELECTION CLAIM: no cohort ",
+  "available carries an OXPHOS-directed or BH3-directed intervention."),
+  width = 175), collapse = "\n")
+
+DODGE_W <- 0.55
 OXCOL <- c("OXPHOS low" = "#0072B2", "OXPHOS high" = "#D55E00")
 fig <- ggplot2::ggplot(PF, ggplot2::aes(x = MYC, y = est, colour = OXPHOS)) +
   ggplot2::geom_hline(yintercept = 0, colour = "grey75", linewidth = 0.3) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin = lo, ymax = hi), width = 0.16,
-                         linewidth = 0.55, position = DODGE) +
-  ggplot2::geom_point(size = 2.4, position = DODGE) +
-  ggplot2::geom_text(ggplot2::aes(y = y_n, label = paste0("n = ", n_cell)),
-                     position = DODGE, size = 2.1, colour = "grey35",
-                     show.legend = FALSE) +
+                         linewidth = 0.55,
+                         position = ggplot2::position_dodge(width = DODGE_W)) +
+  ggplot2::geom_point(size = 2.4,
+                      position = ggplot2::position_dodge(width = DODGE_W)) +
+  ggplot2::geom_text(ggplot2::aes(y = y_n, label = n_cell),
+                     position = ggplot2::position_dodge(width = DODGE_W),
+                     size = 2.1, show.legend = FALSE) +
   ggplot2::geom_text(data = ANN,
                      ggplot2::aes(x = 0.42, y = y_hi, label = txt),
-                     inherit.aes = FALSE, hjust = 0, vjust = 1, size = 2.0,
-                     family = "mono", colour = "grey25", lineheight = 1.0) +
+                     inherit.aes = FALSE, hjust = 0, vjust = 1, size = 2.05,
+                     family = "mono", colour = "grey25", lineheight = 1.05) +
   ggplot2::facet_grid(panel ~ coh, switch = "y") +
   ggplot2::scale_colour_manual(values = OXCOL, name = NULL) +
   ggplot2::scale_y_continuous(limits = c(y_lo, y_hi),
@@ -758,18 +785,7 @@ fig <- ggplot2::ggplot(PF, ggplot2::aes(x = MYC, y = est, colour = OXPHOS)) +
       "Verdict on the rule fixed at 688539d before any readout: ", verdict,
       if (identical(verdict, V_OX)) " - confirms E11 in a group-level form" else "",
       "\nEXPLORATORY; not pre-registered. No outcome variable enters."),
-    caption = paste0(
-      "Standardised means from m1: readout ~ quadrant + PAM50 + purity + ",
-      "leukocyte fraction. SCAN-B HAS NO PURITY OR LEUKOCYTE ESTIMATE, so ",
-      "there m1 is quadrant + PAM50.\nQuadrant from the frozen STATE ",
-      "constructor's own MYC and OXPHOS (GSVA) calls, each cohort on its own ",
-      "medians. NO PRODUCT TERM is fitted, which is why no line joins the ",
-      "pairs.\nComposite and arms are E33's signed mean-z on log2(linear + 1). ",
-      "The two OXPHOS contrasts are near-guaranteed: the configuration's genes ",
-      "and signs were chosen on OXPHOS in these cohorts.\nValues are ",
-      "cohort-relative and are NEVER compared numerically between cohorts. ",
-      "NOTHING HERE LICENSES A TREATMENT-SELECTION CLAIM: no cohort available ",
-      "carries an OXPHOS- or BH3-directed intervention."),
+    caption = CAPTION,
     colour = NULL) +
   ggplot2::theme_bw(base_size = 9) +
   ggplot2::theme(
