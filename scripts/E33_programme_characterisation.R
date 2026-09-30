@@ -637,16 +637,24 @@ D$fs_quad <- factor(paste0(ifelse(D$MB1_forkscale > MED_MB1, "MB1 high",
 
 # --- 5.2 MYC activity by forkscale quadrant ----------------------------------
 # Median and IQR, every cell size stated. `med_pct` is the median patient's
-# percentile within the FULL TCGA cohort (1,095) on that estimator - GSVA is
-# cohort-relative, so "MYC-low" can only mean low against this cohort, and this
-# is the number that says whether a cell is.
+# mid-rank percentile within the FULL TCGA cohort (1,095) on that estimator.
+# GSVA is cohort-relative, so "MYC-low" can only mean low against this cohort,
+# and this is the number that says whether a cell is.
 MYC_VARS <- c(M_a = "M_a", M_b = "M_b", M_c = "M_c",
               FELSHER__PROLIFSTRIP = "M_a_ps")
+# MID-RANK percentile: the share of the cohort below, plus half the share tied.
+# Fixed after the dry run. ecdf() returns the TOP of a tie block, which for
+# M_c - a four-level GISTIC call - put a median call of 1 at the "78.5th
+# percentile". For the three continuous scores the two agree to within
+# 0.05 points.
+.midrank_pct <- function(val, ref) {
+  vapply(val, function(u) {
+    if (is.na(u)) NA_real_ else 100 * (mean(ref < u) + 0.5 * mean(ref == u))
+  }, numeric(1))
+}
 for (v in MYC_VARS) {
   ref <- TC[[v]][!is.na(TC[[v]])]
-  F_v <- stats::ecdf(ref)
-  val <- D[[v]]
-  D[[paste0(v, "_pct")]] <- ifelse(is.na(val), NA_real_, 100 * F_v(val))
+  D[[paste0(v, "_pct")]] <- .midrank_pct(D[[v]], ref)
 }
 
 .myc_by <- function(dat, grp) {
@@ -1171,7 +1179,7 @@ p1a <- ggplot2::ggplot(PD1, ggplot2::aes(MB1_rank, MB2_rank)) +
   ggplot2::geom_hline(yintercept = cut2, linetype = "dashed", colour = "grey30") +
   ggplot2::geom_label(data = ann, ggplot2::aes(x = x, y = y, label = txt,
                                                 hjust = hj, vjust = vj),
-                      size = 2.3, label.size = 0.2, alpha = 0.9,
+                      size = 2.3, linewidth = 0.2, alpha = 0.9,
                       inherit.aes = FALSE) +
   ggplot2::scale_colour_gradient2(low = "#2166AC", mid = "#E6E6E6",
                                   high = "#B2182B", midpoint = 50,
@@ -1216,7 +1224,7 @@ f1 <- patchwork::wrap_plots(p1a, p1b, nrow = 1) +
     subtitle = paste0(
       "LIMBS 1 AND 2 - DESCRIPTIVE, NO VERDICT. rho(M_a, MB1 | PROLIF) = ",
       sprintf("%+.3f", .get("M_a ~ MB1 | PROLIF")$rho), "; rho(M_a, MB1 | MB2) = ",
-      sprintf("%+.3f", .get("M_a ~ MB1 | MB2")$rho), "; marginals MB1 ",
+      sprintf("%+.3f", .get("M_a ~ MB1 | MB2")$rho), ";\nmarginals MB1 ",
       sprintf("%+.3f", .get("M_a ~ MB1 marginal")$rho), ", MB2 ",
       sprintf("%+.3f", .get("M_a ~ MB2 marginal")$rho),
       ". A gradient, not two states.",
@@ -1319,10 +1327,10 @@ f2 <- f2 + ggplot2::labs(
                     "every readout."),
   caption = paste0(
     "Arms: E16's mean-z recipe on log2(linear + 1), each gene signed by its ",
-    "direction in the configuration (MCL1 -1). Genes shown UNSIGNED. The verdict ",
-    "turns on the two ARM rows only.\nNo outcome variable enters. NOTHING HERE ",
-    "LICENSES A TREATMENT-SELECTION CLAIM: no OXPHOS-directed or BH3-directed ",
-    "intervention exists in any cohort available."))
+    "direction in the configuration (MCL1 -1).\nGenes are shown UNSIGNED. The ",
+    "verdict turns on the two ARM rows only. No outcome variable enters.\n",
+    "NOTHING HERE LICENSES A TREATMENT-SELECTION CLAIM: no OXPHOS-directed or ",
+    "BH3-directed intervention exists in any cohort available."))
 
 ggplot2::ggsave(PATH_E33_FIG2, f2, width = 8.5, height = 7.2, dpi = 200)
 ggplot2::ggsave(PATH_E33_FIG2_DOC, f2, width = 8.5, height = 7.2, dpi = 200)
