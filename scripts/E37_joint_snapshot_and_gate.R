@@ -616,8 +616,11 @@ if (file.exists(PATH_E34_OBJ)) {
                                       as.character(new[ok])))
   }))
   # Cross-check the transcribed comparator against E34's own object.
+  # E34 names this column `subtype`, not `subset`. `subset` is also a base R
+  # function, so the wrong name compares a closure to a string and errors
+  # rather than returning nothing - which is how the dry run caught it.
   e34_ref_check <- e34$contrasts %>%
-    dplyr::filter(readout_col == "config_comp", subset == "all",
+    dplyr::filter(readout_col == "config_comp", subtype == "all",
                   model %in% c("m1", "m3"), cohort == "TCGA") %>%
     dplyr::transmute(instrument, model, contrast, obj = round(est, 3)) %>%
     dplyr::left_join(E34_REF, by = c("instrument", "model", "contrast")) %>%
