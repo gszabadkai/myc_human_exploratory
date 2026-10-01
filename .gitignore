@@ -43,3 +43,11 @@ outputs/*
 
 # Stray device output from headless Rscript runs
 Rplots.pdf
+
+# Claude Code conversation exports (`/export`), which land in the repo root as
+# YYYY-MM-DD-HHMMSS-<slug>.txt. They are session transcripts, not repo content:
+# whatever they record that matters belongs in a dated note under docs/. The
+# pattern is anchored to the root with a leading slash so it cannot catch a .txt
+# data file deeper in the tree - there are none tracked today, and this keeps it
+# that way by accident rather than by vigilance.
+/20??-??-??-??????-*.txt
