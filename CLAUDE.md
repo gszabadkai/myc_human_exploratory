@@ -155,13 +155,15 @@ overlap 879) `E32`'s partials move by less than 0.01 and **its verdict and its
 manuscript sentence stand** — but any future forkscale join should use the
 aliquot.
 
-**`E35`, `E36` and `E37` are on `e35-burden-coupling` and
-`e36-normal-comparison`, both unmerged.** **The next free script number is
-`E38`.** They continue the same line: E34 asked where the configuration sits,
-E35 whether that depends on burden, and E36 whether it exists below the tumour
-range at all.
+**`E35` is on `main`**, merged 2026-10-01 once complete and verified, its
+branch kept. **`E36` and `E37` are on `e36-normal-comparison`, unmerged**, and
+**`E36` has not run.** **The next free script number is `E38`.**
 
-- **`E35`**, branch `e35-burden-coupling`, **complete and verified**. Is the
+The three continue one line of questioning: `E34` asked where the configuration
+sits, `E35` whether that depends on genomic burden, and `E36` whether it exists
+below the tumour range at all.
+
+- **`E35`**, merged from `e35-burden-coupling`, **complete and verified**. Is the
   OXPHOS-to-configuration coupling graded by genomic burden? **Reading
   SATURATED** — the declared expected outcome. On `Aneuploidy.Score`, m1, GSVA:
   `Q2 - Q1` +1.073 / +0.651 / +1.144 and `Q4 - Q3` +0.929 / +0.853 / +0.745
@@ -349,8 +351,8 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E37. E31, E35, E36 and E37 live on
-               unmerged branches, so this tree ends at E34. Next free is E38
+scripts/       numbered R pipeline, E00-E37. E31, E36 and E37 live on unmerged
+               branches, so this tree ends at E35. Next free is E38
 docs/          the aim, the plan, dated notes
 docs/figures/  tracked copies of the figures a note relies on
 data/          snapshots, each with a provenance README
