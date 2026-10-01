@@ -155,6 +155,47 @@ overlap 879) `E32`'s partials move by less than 0.01 and **its verdict and its
 manuscript sentence stand** — but any future forkscale join should use the
 aliquot.
 
+**`E35`, `E36` and `E37` are on `e35-burden-coupling` and
+`e36-normal-comparison`, both unmerged.** **The next free script number is
+`E38`.** They continue the same line: E34 asked where the configuration sits,
+E35 whether that depends on burden, and E36 whether it exists below the tumour
+range at all.
+
+- **`E35`**, branch `e35-burden-coupling`, **complete and verified**. Is the
+  OXPHOS-to-configuration coupling graded by genomic burden? **Reading
+  SATURATED** — the declared expected outcome. On `Aneuploidy.Score`, m1, GSVA:
+  `Q2 - Q1` +1.073 / +0.651 / +1.144 and `Q4 - Q3` +0.929 / +0.853 / +0.745
+  across tertiles, all six intervals excluding zero and the lowest and highest
+  overlapping. **11 of 12 readable blocks agree.** Adding `PROLIF_DISJOINT`
+  moves it by at most 0.054, so it is not proliferation under a burden label.
+  **It licenses one clause and reinstates no stratifier**, and it cannot
+  demonstrate the mouse's condition — a cohort of tumours has no sample below
+  the threshold. `docs/2026-10-01_e35_result.md`.
+- **`E36`**, branch `e36-normal-comparison`, **DECLARED AND STOPPED. No fit was
+  run.** Is the coupling present in normal breast — the human analogue of the
+  mouse wild-type gland, and **the only analysis in the queue that can come back
+  against the model**. It stopped because **there are no solid-tissue-normal
+  samples in any saved object here**: all 1,095 are sample type `01`. The 113
+  exist in the cached Xena source in the frozen repo and were dropped upstream
+  for a documented reason that does not apply — *"so the expression and
+  copy-number analyses stay aligned"*. **All 113 are matched to patients already
+  in the tumour set**, so the comparison is paired, and the declaration was
+  amended pre-data to make Q2 a within-patient contrast.
+  `docs/2026-10-01_e36_data.md` and the amendment beside it.
+- **`E37`**, same branch, the snapshot rebuild E36 waits on, **with its gate
+  PASS on a dry run and NOT YET SOURCED BY THE AUTHOR**. It rebuilds the
+  expression layer over tumours **and** normals jointly, because DESeq2 size
+  factors over 1,208 samples are not size factors over 1,095 and including
+  normals moves every tumour value. Its gate re-derives E34 on the rebuilt
+  snapshot, tumours only: **quadrant agreement 97.1% / 98.1%, all sixteen
+  contrasts within 0.10 (largest 0.047), E34's four pooled labels unchanged.**
+  **So E34 is robust to a renormalisation that moves every input value.**
+  `docs/2026-10-01_e37_result.md`.
+
+**`results/joint_tcga_*.rds` does not exist until `E37` is sourced.** The dry
+run wrote it to a session scratchpad that is gone. **E36 cannot start until it
+has been run** — see `docs/2026-10-01_handoff.md`, section 2.
+
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 beyond `E32`'s single alignment check (the Menegollo axis proper), survival,
 treatment, METABRIC, DepMap, causal or mediation modelling, and anything that
@@ -233,6 +274,26 @@ in a comment at the top of every scoring block.
 - **mitoPPS baseline is composition-dependent.** It reports the *shape* of the
   mitochondrial programme, not its level.
 
+### Two normalisations of TCGA-BRCA now exist. Say which one you read.
+
+From `E37` there are **two** normalised TCGA expression layers in this repo, and
+**a value from one is not comparable with a value from the other** — the DESeq2
+size factors and the low-count gene filter are both computed over a different
+sample set, so every value differs.
+
+| snapshot | what | read by |
+|---|---|---|
+| `data/from_validation/` | 1,095 tumours, 18,115 genes | `E11`, `E33`, `E34`, `E35` and everything before them |
+| `results/joint_tcga_*.rds` | 1,208 samples (1,095 tumour + 113 normal), 18,142 genes | **`E36` and nothing else unless separately declared** |
+
+- **Every script states which snapshot it reads**, in a comment at the top of
+  its scoring block, exactly as the scale rule above already requires.
+- **No figure, table or sentence combines a quantity from one with a quantity
+  from the other.** `E37`'s gate is the sole exception: it is a deliberate
+  like-for-like comparison of the *same* quantities and is labelled as such.
+- **Neither replaces the other.** Replacing `data/from_validation/` would
+  invalidate `E11`, `E33`, `E34` and `E35` at a stroke.
+
 ## Gene sets — consume the snapshots, do not rebuild
 
 Each directory under `data/` carries its own provenance README with a pinned
@@ -288,8 +349,8 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E34 (E31 lives on an unmerged branch,
-               so it is the one gap in this tree)
+scripts/       numbered R pipeline, E00-E37. E31, E35, E36 and E37 live on
+               unmerged branches, so this tree ends at E34. Next free is E38
 docs/          the aim, the plan, dated notes
 docs/figures/  tracked copies of the figures a note relies on
 data/          snapshots, each with a provenance README
