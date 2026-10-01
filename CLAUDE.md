@@ -113,6 +113,50 @@ manuscript, because `E18` found the BCL2L1-OXPHOS configuration absent from
 cell lines. Read it with
 `git show origin/bh3-mimetic-oxphos:docs/2026-09-28_bh3_mimetic_result.md`.
 
+**`E33` and `E34` are not on `main` either, for the same reason as `E31`.** Both
+are complete: declared alone before any data was opened, scripted, run by the
+author, and verified object by object against digests recorded *before* that
+run. **The next free script number is `E35`** — `ls scripts/` on `main` ends at
+`E32` only because `E31`, `E33` and `E34` each sit on their own unmerged branch.
+Each branch carries its own declaration, data note and result note, and
+`git show origin/e34-quadrant-configuration:docs/2026-09-30_handoff.md` covers
+both.
+
+- **`E33`**, branch `e33-programme-specificity`. Is the BCL2-family death
+  configuration specific to the MYC-coupled bicluster? **Verdict NEITHER
+  SEPARATES.** Trigger arm `rho(arm, MB2 | MB1) = -0.140 [-0.200, -0.078]`
+  against `rho(arm, MB1 | MB2) = +0.250`; guardian arm -0.350 against +0.517;
+  unchanged on Block C, on the patient join and under the stricter reading. **It
+  licenses no new sentence and WITHDRAWS one implication**: the manuscript may
+  not state or imply that the standing pro-apoptotic configuration is confined
+  to tumours whose respiration is MYC-coupled. A post-hoc observation that the
+  configuration leans **MB1** is recorded with its own falsifier list and is not
+  a finding. **Do not chain `E32` to `E33`**: the *state* is MB2-aligned, the
+  *configuration* is not, and a property of the state is not a property of
+  everything it correlates with. Read it with
+  `git show origin/e33-programme-specificity:docs/2026-09-30_e33_result.md`.
+- **`E34`**, branch `e34-quadrant-configuration`. The same configuration across
+  the four MYC x OXPHOS quadrants, both cohorts, both instruments. **Verdict
+  MIXED** — the rule demanded all 18 reading cells agree and 16 did; both
+  dissents are mitoPPS within a subtype. What is new is the **Q2 cell**, MYC-low
+  and OXPHOS-high, which `STATE` collapses into its level 1: it is large and
+  carries the configuration with Q4 rather than Q1 (adjusted means +0.41 against
+  +0.40 in TCGA, +0.24 against +0.37 in SCAN-B). **The MYC contrast is small but
+  not zero**, and **proliferation adjustment enlarges it** by a uniform +0.12.
+  Neither pre-written reading is licensed; the four-group description is.
+  **The two OXPHOS contrasts are near-guaranteed by construction** — the
+  configuration's genes and signs were read off OXPHOS in these same cohorts —
+  so only the MYC contrasts carry information. Read it with
+  `git show origin/e34-quadrant-configuration:docs/2026-10-01_e34_result.md`.
+
+**One `E33` input finding qualifies `E32`, which is on `main`.** The Menegollo
+forkscale should be joined on the **aliquot** barcode, not the patient barcode:
+six TCGA patients were profiled from a different vial, so `E32`'s patient-key
+join paired those six across vials. On the aliquot join (n = 1,031; Block C
+overlap 879) `E32`'s partials move by less than 0.01 and **its verdict and its
+manuscript sentence stand** — but any future forkscale join should use the
+aliquot.
+
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
 beyond `E32`'s single alignment check (the Menegollo axis proper), survival,
 treatment, METABRIC, DepMap, causal or mediation modelling, and anything that
@@ -246,7 +290,8 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E32 (E31 lives on an unmerged branch)
+scripts/       numbered R pipeline, E00-E34; E31, E33 and E34 each live on
+               their own unmerged branch, so this tree ends at E32
 docs/          the aim, the plan, dated notes
 docs/figures/  tracked copies of the figures a note relies on
 data/          snapshots, each with a provenance README
