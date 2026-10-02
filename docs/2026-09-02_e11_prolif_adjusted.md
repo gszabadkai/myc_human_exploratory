@@ -55,6 +55,14 @@ supersedes: the interpretation of R1 in docs/2026-09-02_e10_machinery_and_primin
 > together in `9ad61a2` — and E11 predates the declare-before-scripting
 > discipline that begins at `E31`/`E32`.
 >
+> **Both of this note's own outstanding actions were closed on 2026-10-02** in
+> `docs/2026-10-02_e11_outstanding_actions.md`: of the two restatements the
+> verdict calls for, **P4 was applied** (to the E10 note and to the draft) and
+> **P3 was not** — it appears here and nowhere else. That note also reconciles
+> `$boot_ci` with the limitation that calls the compartment effect a rank
+> argument: **they are different estimands**, and `$boot_ci` carries no
+> composition null.
+>
 > **One scope fact a reader of this note should carry**, since the note does not
 > say it in these words: **E11 covers the 44-gene apoptotic machinery only.** It
 > builds no composite, and `BIK` is not in the 44 — so 5 of the 6 genes of the
