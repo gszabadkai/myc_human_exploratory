@@ -427,35 +427,72 @@ message("\n   ", paste(strwrap(RMST_NOTE, width = 74), collapse = "\n   "))
 # OMITTED explicitly. NO ER x OX interaction is fitted: it is declared out.
 message("\n8. F. ER stratification (descriptive), DRFS")
 
-.fit_stratum <- function(d, er_var, level, set_label) {
+# subtype2 is OMITTED in BOTH stratifications, for two DIFFERENT reasons
+# (declaration 7.1, added after this script's first run stopped here):
+#   er_primary    it is a relabelling of er_status_ihc, so it is CONSTANT
+#                 inside the stratum and the omission is forced. Asserted.
+#   er_sensitive  the two ER calls disagree on 54 patients, so subtype2
+#                 genuinely VARIES inside the esr1 strata. It is omitted BY
+#                 DECISION, so the sensitivity is the same model as the primary
+#                 stratification and the two differ only in how patients are
+#                 assigned. Asserting constancy here would assert something
+#                 false, so the composition is REPORTED instead.
+.fit_stratum <- function(d, er_var, level, set_label, assert_constant) {
   dd <- d[d[[er_var]] == level, ]
-  .stop_if(dplyr::n_distinct(dd$subtype2[!is.na(dd$subtype2)]) <= 1L,
-           "subtype2 is NOT constant inside ", er_var, " == ", level,
-           "; declaration 5.2 says it is")
+  n_lev <- dplyr::n_distinct(dd$subtype2[!is.na(dd$subtype2)])
+  if (assert_constant) {
+    .stop_if(n_lev <= 1L,
+             "subtype2 is NOT constant inside ", er_var, " == ", level,
+             "; declaration 5.2 says it is for er_primary")
+  }
   dplyr::bind_rows(lapply(RUNGS, function(rg) {
-    rhs <- c("OX", RUNG_ADDS[[rg]])   # subtype2 omitted: constant here
+    rhs <- c("OX", RUNG_ADDS[[rg]])   # subtype2 omitted - see the note above
     f <- stats::reformulate(rhs,
            response = "survival::Surv(drfs_time, drfs_event)")
     fit <- survival::coxph(f, data = dd)
     .tidy_ox(fit, PRIMARY, rg, "DRFS", set_label, n = fit$n,
              events = fit$nevent) %>%
-      dplyr::mutate(er_variable = er_var, er_level = level)
+      dplyr::mutate(er_variable = er_var, er_level = level,
+                    subtype2_levels_in_stratum = n_lev,
+                    subtype2_omitted_because =
+                      if (assert_constant) "constant (forced)" else
+                        "decision (declaration 7.1); it VARIES here")
   }))
 }
 
 dm <- D25[D25$in_model, ]
 ER_STRAT <- dplyr::bind_rows(
-  .fit_stratum(dm, "er_primary",   "P", "ER-positive (er_status_ihc)"),
-  .fit_stratum(dm, "er_primary",   "N", "ER-negative (er_status_ihc)"),
-  .fit_stratum(dm, "er_sensitive", "P", "ER-positive (esr1_status)"),
-  .fit_stratum(dm, "er_sensitive", "N", "ER-negative (esr1_status)"))
+  .fit_stratum(dm, "er_primary",   "P", "ER-positive (er_status_ihc)", TRUE),
+  .fit_stratum(dm, "er_primary",   "N", "ER-negative (er_status_ihc)", TRUE),
+  .fit_stratum(dm, "er_sensitive", "P", "ER-positive (esr1_status)",   FALSE),
+  .fit_stratum(dm, "er_sensitive", "N", "ER-negative (esr1_status)",   FALSE))
 ER_STRAT %>% dplyr::transmute(set, rung, n, events,
     OX = round(estimate, 4), HR = round(exp(estimate), 4),
     ci = paste0("[", round(exp(ci_lo), 3), ", ", round(exp(ci_hi), 3), "]"),
     p = signif(p, 3), vif_ox = round(vif_ox, 3)) %>%
   as.data.frame() %>% print(row.names = FALSE)
-message("   subtype2 OMITTED inside every stratum (constant there, 5.2)")
+message("   subtype2 OMITTED inside every stratum, for two different reasons:")
+message("     er_primary   : CONSTANT there (5.2). Asserted.")
+message("     er_sensitive : it VARIES there. Omitted BY DECISION (7.1) so the")
+message("                    sensitivity is the same model as the primary.")
 message("   NO ER x OX interaction was fitted. It is declared out (section 7).")
+
+# What the esr1 omission costs, reported where it is read (declaration 7.1).
+ESR1_COST <- dm %>%
+  dplyr::group_by(er_sensitive) %>%
+  dplyr::summarise(n = dplyr::n(), events = sum(drfs_event),
+                   n_HRpos_HER2neg = sum(subtype2 == "HRpos_HER2neg"),
+                   n_TNBC = sum(subtype2 == "TNBC"), .groups = "drop")
+DISCORDANT <- dm %>% dplyr::filter(er_primary != er_sensitive)
+message("\n   WHAT THE esr1 OMISSION COSTS - subtype2 composition inside each",
+        " esr1 stratum:")
+ESR1_COST %>% as.data.frame() %>% print(row.names = FALSE)
+message("   the two ER calls disagree on ", nrow(DISCORDANT), " of ", nrow(dm),
+        " patients, carrying ", sum(DISCORDANT$drfs_event), " events")
+message("   (declaration 7's 'roughly ten' is the NET MARGIN, corrected at ",
+        "29aa4d6)")
+DISCORDANT %>% dplyr::count(er_primary, er_sensitive, subtype2, name = "n") %>%
+  as.data.frame() %>% print(row.names = FALSE)
 
 # The declaration's own words, attached to the ER-positive output.
 ER_POS_WORDS <- paste0(
@@ -524,6 +561,8 @@ saveRDS(list(
   ph_ox_fails   = PH_OX_FAILS,
   rmst_note     = RMST_NOTE,
   er_stratified = ER_STRAT,
+  esr1_cost     = ESR1_COST,
+  discordant    = DISCORDANT,
   er_pos_words  = ER_POS_WORDS,
   sign_pair     = SIGN_PAIR,
   reading_table = READING_TABLE,
@@ -558,6 +597,14 @@ saveRDS(list(
                   "< 0.60, so declaration section 3 licenses the ladder as ",
                   "specified in all three cohorts."),
     er_interaction = "NOT fitted. Declared out (section 7).",
+    subtype2_in_strata = paste0(
+      "subtype2 is omitted in BOTH stratifications for DIFFERENT reasons ",
+      "(declaration 7.1). In the er_primary strata it is constant and the ",
+      "omission is forced; asserted. In the esr1 strata it VARIES - the two ",
+      "ER calls disagree on 54 of 465 patients carrying 11 events - and is ",
+      "omitted BY DECISION so the sensitivity is the same model as the ",
+      "primary. The esr1 estimates are therefore UNADJUSTED for subtype and ",
+      "the reclassified patients carry their subtype imbalance into them."),
     rmst = RMST_NOTE,
     frozen = "Nothing written to myc_human_validation (d3ac60e)."),
   built = Sys.time()), PATH_E40)
@@ -599,8 +646,14 @@ if (FALSE) {
   # F. ER strata. Read the ER-positive rows with x$er_pos_words in front of them.
   x$er_stratified %>% dplyr::transmute(set, rung, n, events,
       HR = round(exp(estimate), 4), lo = round(exp(ci_lo), 3),
-      hi = round(exp(ci_hi), 3), p = signif(p, 3)) %>% as.data.frame()
+      hi = round(exp(ci_hi), 3), p = signif(p, 3),
+      subtype2_omitted_because) %>% as.data.frame()
   cat(x$er_pos_words, "\n")
+
+  # What the esr1 omission costs: subtype2 varies there, and by how much.
+  x$esr1_cost %>% as.data.frame()
+  x$discordant %>% dplyr::count(er_primary, er_sensitive, subtype2,
+                                name = "n") %>% as.data.frame()
 
   # G. the sign pair, unclassified.
   x$sign_pair %>% as.data.frame()
