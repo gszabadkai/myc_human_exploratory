@@ -20,7 +20,13 @@
 # Checked for presence, attached by the scripts that need them. GSVA is slow to
 # attach and only E02 uses it; ggrepel is called as ggrepel:: by E08, E10 and
 # E11; patchwork composes the E11 paper figure and the E14 falsifier panel.
-.pkg_analysis <- c("GSVA", "decoupleR", "msigdbr", "ggrepel", "patchwork")
+# survival is the FIRST survival dependency in this arm - coxph|survfit|Surv(
+# returned zero hits across every branch of all three repos before E39. It ships
+# with R, so the entry is not about installing it: it is so that a missing or
+# broken installation fails here, with a named package, rather than at E40's
+# first coxph() call. E39 fits nothing and does not attach it; E40 will.
+.pkg_analysis <- c("GSVA", "decoupleR", "msigdbr", "ggrepel", "patchwork",
+                   "survival")
 
 .check_packages <- function(pkgs, tier) {
   have <- vapply(pkgs, function(p) requireNamespace(p, quietly = TRUE), logical(1))
