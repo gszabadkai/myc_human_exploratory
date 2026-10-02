@@ -2,12 +2,65 @@
 date: 2026-09-02
 script: scripts/E11_prolif_adjusted_machinery.R
 status: WRITTEN AND VERIFIED, NOT YET RUN BY THE AUTHOR
+status-caveat: >
+  THE status LINE ABOVE IS STALE AND WAS NEVER UPDATED. The object it describes
+  exists on disk and was built AFTER this note was last edited. The note's
+  numbers and the saved object agree where checked. See the banner below.
 posture: EXPLORATORY - nothing here is pre-registered
 supersedes: the interpretation of R1 in docs/2026-09-02_e10_machinery_and_priming.md
 ---
 
 # E11 - after proliferation, does OXPHOS still organise the apoptotic
 # machinery, and does MYC?
+
+> ## BANNER added 2026-10-02 — the status line above is stale
+>
+> **The front matter says `NOT YET RUN BY THE AUTHOR`, and the body says
+> "nothing is written into the repo until the script is sourced". Both were true
+> when they were written and neither is true now.**
+> `results/prolif_adjusted_machinery.rds` exists and carries
+> `$built = 2026-09-02 16:27:12`.
+>
+> **The sequence, from git and from the object:**
+>
+> | | |
+> |---|---|
+> | note created, status line written | `9ad61a2`, 2026-09-02 **01:03** |
+> | note last edited | `afe7b7a`, 2026-09-02 **10:36** |
+> | **object built** | **2026-09-02 16:27:12** — 5 h 51 min after the last edit |
+> | status line revised since | **never** — it has one value across both commits |
+>
+> So the staleness is not a contradiction, it is an omission: nobody came back
+> to the note after the script was sourced.
+>
+> **The reader's actual question — are the numbers below the dry run or the
+> saved object? — does not need resolving, because they are the same numbers.**
+> Checked 2026-10-02, read-only, against the object on disk:
+>
+> | what was checked | where in the object | result |
+> |---|---|---|
+> | P1's table, all **12** values (raw SD, adjusted SD, frac \|rho\| > 0.2, 2 cohorts x 2 axes) | `$spread$sd_all`, `$spread$frac_above_0.2` | **exact match** |
+> | the localisation ordering, **4** values (OXPHOS 0.460 -> 0.492 TCGA; 0.539 -> 0.535 SCAN-B) | `$s6_adj$vs_mitocarta`, raw and `adj. PROLIF_DISJOINT` | **exact match** |
+> | the purity check's **n = 1,007** | `$purity_tab$n`, `adj. prolif + purity + leuko` | **exact match** |
+>
+> **17 values across three independent tables, all exact.** That is a sample,
+> not an audit of every number in the note: sections not listed above were not
+> individually re-checked, and the note was never revised after the run, so
+> nothing in it reflects anything the run might have shown that the dry run did
+> not.
+>
+> **What this banner does NOT establish.** Who sourced the script. And it changes
+> nothing about the note's standing: `posture` is `EXPLORATORY`, **no reading
+> rule was declared before E11 ran** — the script and this note were committed
+> together in `9ad61a2` — and E11 predates the declare-before-scripting
+> discipline that begins at `E31`/`E32`.
+>
+> **One scope fact a reader of this note should carry**, since the note does not
+> say it in these words: **E11 covers the 44-gene apoptotic machinery only.** It
+> builds no composite, and `BIK` is not in the 44 — so 5 of the 6 genes of the
+> `E33`/`E34` signed configuration and 10 of `E10`'s twelve are present, and the
+> 12-gene configuration composite is not an object in this analysis.
+
 
 The question, as put on 2026-09-02: *"after correcting to proliferation, OXPHOS
 correlates with the apoptotic machinery, while MYC does not."*
