@@ -2,6 +2,10 @@
 date: 2026-10-02
 status: >
   CLOSES TWO ACTIONS against E11, by reading objects and committed text only.
+  SECTION C, added 2026-10-02, records that the current draft and its
+  limitation list are in no repository. One further item - the limitation-6
+  sentence - is HELD, because the correction beside P3 that it cites was
+  stopped before being written. See section C's last block.
   NOTHING WAS FITTED, RUN OR REFITTED, and no estimate here is new. (A) one of
   E11's two restatements was applied and one was not. (B) limitation 7 and
   E11's `$boot_ci` are DIFFERENT ESTIMANDS; the boot_ci result does not bear on
@@ -149,3 +153,56 @@ tumours, matched on expression and sub-compartment, and ask whether the
 OXPHOS-minus-MYC gap survives. **That object does not exist**, in E11 or
 anywhere else in this repo. Until it does, the ten-of-ten result cannot be read
 as evidence against composition.
+
+---
+
+## C. Two live documents sit outside version control
+
+**Recorded 2026-10-02. Stated, not acted on.**
+
+Two documents that the current work cites are **in no repository**:
+
+| document | status |
+|---|---|
+| `2026-10-02_human_arm_handoff.md` | holds the limitation list, including **limitation 6** and **limitation 7** |
+| `2026-10-02_section4_narrative_v2.md` | holds the current section-4 draft |
+
+**Both exist only in the chat Project knowledge.** Verified 2026-10-02 across
+`myc_human_exploratory`, `myc_human_validation` and `myc_mouse`:
+
+- **not in any branch's tree** - all seven exploratory branches and both
+  single-branch repos;
+- **never added in any history** - `git log --all --diff-filter=A --name-only`
+  returns nothing for either name, so they were not committed and later removed;
+- **not on disk anywhere under `~/code`**, tracked or untracked.
+
+### What follows from that, as fact
+
+1. **The current draft and its limitation list are outside version control.**
+   They have no commit history, no diff, and no provenance record. A number
+   quoted from them cannot be traced to a version the way every number in
+   `docs/` can.
+2. **This is why the 2026-10-02 audit could not find "limitation 7".** That
+   audit searched every tracked file in all three repos and reported the phrase
+   absent. It was absent because the list is not in a repo - not because the
+   limitation does not exist. Section B.0 above records the failed search; this
+   section records the reason.
+3. **It cuts against this arm's own convention.** `CLAUDE.md` places the aim,
+   the plan, the dated notes and the tracked figures under `docs/`, on the
+   stated ground that `outputs/` does not survive a fresh clone and that the
+   durable record is the committed note. Every declaration, data note and result
+   note in this arm - `E32` through `E38` - was committed before or alongside
+   the work it governs, in the repo the work is about. **The draft and the
+   limitation list are the exception.**
+
+### What is NOT recorded here
+
+- **No action is taken and none is proposed.** Where those two documents should
+  live, and whether they should be committed, is not decided in this note.
+- **The limitation-6 sentence is NOT filed here.** It was to read that `P3`, in
+  its corrected magnitude form, answers limitation 6's objection to
+  `M_b__PROLIFSTRIP`. **It is held** because the correction beside `P3` was
+  stopped before being written: the step-1 read showed that `z_mean_signed`
+  reverses the axis ordering - OXPHOS above MYC on `z_mean_abs` in 6 of 6 cells,
+  MYC above OXPHOS on `z_mean_signed` in 6 of 6 - and that question is open.
+  **Until P3's corrected form is settled, nothing may be filed that cites it.**
