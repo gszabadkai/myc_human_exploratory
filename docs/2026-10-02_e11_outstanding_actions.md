@@ -3,9 +3,10 @@ date: 2026-10-02
 status: >
   CLOSES TWO ACTIONS against E11, by reading objects and committed text only.
   SECTION C, added 2026-10-02, records that the current draft and its
-  limitation list are in no repository. One further item - the limitation-6
-  sentence - is HELD, because the correction beside P3 that it cites was
-  stopped before being written. See section C's last block.
+  limitation list are in no repository. SECTION D settles that P3 SHOULD NOT BE
+  CITED - both its statistics sit near zero and they run in opposite directions
+  - so the drafted correction beside P3 is cancelled, the E11 note is untouched,
+  and the limitation-6 sentence that would have cited P3 is DROPPED.
   NOTHING WAS FITTED, RUN OR REFITTED, and no estimate here is new. (A) one of
   E11's two restatements was applied and one was not. (B) limitation 7 and
   E11's `$boot_ci` are DIFFERENT ESTIMANDS; the boot_ci result does not bear on
@@ -199,10 +200,40 @@ Two documents that the current work cites are **in no repository**:
 
 - **No action is taken and none is proposed.** Where those two documents should
   live, and whether they should be committed, is not decided in this note.
-- **The limitation-6 sentence is NOT filed here.** It was to read that `P3`, in
-  its corrected magnitude form, answers limitation 6's objection to
-  `M_b__PROLIFSTRIP`. **It is held** because the correction beside `P3` was
-  stopped before being written: the step-1 read showed that `z_mean_signed`
-  reverses the axis ordering - OXPHOS above MYC on `z_mean_abs` in 6 of 6 cells,
-  MYC above OXPHOS on `z_mean_signed` in 6 of 6 - and that question is open.
-  **Until P3's corrected form is settled, nothing may be filed that cites it.**
+- **The limitation-6 sentence is NOT filed here, and is now DROPPED** rather
+  than held. It was to read that `P3`, in a corrected magnitude form, answers
+  limitation 6's objection to `M_b__PROLIFSTRIP`. **Section D settles that P3
+  cannot be cited at all**, so the sentence has nothing to rest on. Superseded
+  by section D; recorded here so the gap is not read as an oversight.
+
+
+---
+
+## D. P3 should not be cited
+
+**Recorded 2026-10-02.** This supersedes the held item in section C and closes
+the matter. **A correction beside `P3` was drafted and is cancelled as
+over-built. Nothing is added to `docs/2026-09-02_e11_prolif_adjusted.md`, and
+P3's own text is unchanged.**
+
+`P3` reads **`z_mean_abs` only**. On the same rows of the same object,
+**`z_mean_signed` runs the other way**, with OXPHOS **below** MYC in all six
+paired cells:
+
+| cohort | adjustment | `z_mean_abs` MYC / OXPHOS | `z_mean_signed` MYC / OXPHOS |
+|---|---|---|---|
+| TCGA | raw | -0.950 / **1.064** | **1.558** / 0.781 |
+| TCGA | adj. PROLIF_DISJOINT | 0.672 / **1.460** | **1.510** / 0.709 |
+| TCGA | adj. PROLIF_STD | 0.694 / **1.458** | **1.471** / 0.701 |
+| SCAN-B | raw | -0.812 / **0.042** | **2.314** / 1.403 |
+| SCAN-B | adj. PROLIF_DISJOINT | 0.135 / **1.298** | **1.375** / 0.785 |
+| SCAN-B | adj. PROLIF_STD | 0.043 / **1.289** | **1.288** / 0.761 |
+
+**Both statistics sit near zero for the 44-gene set.** The largest absolute
+value anywhere in the block is **2.31**, against the comparator sets at **5.3 to
+18.3** on the same two statistics. **So neither supports a claim in either
+direction, and `P3` should not be cited.**
+
+Source: `results/prolif_adjusted_machinery.rds$null_tests`, `set == "apoptotic
+machinery (44)"` for the block above; `set %in% c("mitoribosome arm (83)",
+"OXPHOS subunits arm (89)")` for the comparator range.
