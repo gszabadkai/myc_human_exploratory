@@ -369,8 +369,17 @@ ratio, not instead of it.
 40 and 64 events. `subtype` in the H4 frames is built from it, so this keeps the
 stratification consistent with the rest of the arm.
 
-The array call `esr1_status` disagrees on roughly ten patients (269 / 201 in the
-470, 37 / 67 events) and is the **declared sensitivity**.
+The array call `esr1_status` is the **declared sensitivity**, giving 269 / 201
+with 37 / 67 events in the 470.
+
+> **CORRECTED 2026-10-02, after E40's first run.** This section previously said
+> `esr1_status` *"disagrees on roughly ten patients"*. **Ten is the NET MARGIN
+> SHIFT, not the discordance.** In the 465-patient primary frame the two calls
+> disagree on **54 patients carrying 11 events** - **22** IHC-negative and
+> array-positive, **32** IHC-positive and array-negative - which nets to the 10
+> the margins show. **A sensitivity analysis that swaps the ER definition
+> reclassifies 54 patients, not 10**, and the sensitivity must be read with that
+> figure.
 
 Full counts, recorded before the fit:
 
@@ -385,6 +394,33 @@ in the 470.
 
 The 4 indeterminate and 2 missing all fall outside the 470, so the model set is
 cleanly P/N.
+
+### 7.1 `subtype2` is omitted in BOTH stratifications, for two different reasons
+
+**Decided 2026-10-02, after E40's first run stopped on an assertion that
+exposed the asymmetry.**
+
+Section 5.2 establishes that `subtype2` is a relabelling of `er_status_ihc`, so
+inside an `er_primary` stratum it is **constant** and omitting it is forced.
+**That does not carry over to `esr1_status`**: the two calls disagree on 54
+patients, so `subtype2` genuinely varies inside the esr1 strata -
+
+| `esr1_status` | n | events | HRpos_HER2neg | TNBC |
+|---|---|---|---|---|
+| P | 268 | 37 | 246 | **22** |
+| N | 197 | 66 | **32** | 165 |
+
+**`subtype2` is omitted there as well, by decision rather than by constancy**, so
+that the sensitivity is the same model as the primary stratification and the two
+differ only in how patients are assigned to strata. Fitting it in one and not
+the other would confound a change of stratifier with a change of adjustment.
+
+**The cost is recorded rather than hidden**: in the esr1 strata the estimates are
+**unadjusted for subtype**, and the 22 and 32 reclassified patients carry their
+subtype imbalance into them. **The script asserts constancy only for
+`er_primary`** - asserting it for `esr1_status` would be asserting something
+false - and reports the composition above beside the esr1 output so the omission
+is visible where it is read.
 
 **ER-stratified estimates are reported as descriptive, not as a test.** A formal
 `ER x OX` interaction is NOT declared and will not be fitted: at 104 events it is
