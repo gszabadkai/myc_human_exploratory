@@ -25,8 +25,12 @@
 # with R, so the entry is not about installing it: it is so that a missing or
 # broken installation fails here, with a named package, rather than at E40's
 # first coxph() call. E39 fits nothing and does not attach it; E40 will.
+# car is used by E40 for the generalised variance inflation factor that
+# declaration 5.3 requires beside every OX coefficient. GVIF is Fox and
+# Monette's; implementing it by hand here would be a needless reimplementation
+# of a standard measure.
 .pkg_analysis <- c("GSVA", "decoupleR", "msigdbr", "ggrepel", "patchwork",
-                   "survival")
+                   "survival", "car")
 
 .check_packages <- function(pkgs, tier) {
   have <- vapply(pkgs, function(p) requireNamespace(p, quietly = TRUE), logical(1))
