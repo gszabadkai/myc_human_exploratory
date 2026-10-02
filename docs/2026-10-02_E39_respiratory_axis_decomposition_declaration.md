@@ -100,6 +100,43 @@ where another is not, and the consequence then applies to that cohort alone.
 This gate is descriptive and stops nothing else in the arm. It is a
 **stop-and-check**: the gate output is read before any outcome model is fitted.
 
+### 3.1 Gate result, recorded 2026-10-02
+
+E39 ran the gate (`results/e39_prepare_and_gate.rds`; declaration at `536c29f`).
+
+| cohort | n | rho(OX, PROLIF_DISJOINT) | band |
+|---|---|---|---|
+| GSE25066 | 508 | **0.358** | < 0.60, ladder as specified |
+| GSE194040 | 988 | **0.381** | < 0.60, ladder as specified |
+| GSE164458 | 482 | **0.493** | < 0.60, ladder as specified |
+
+**The ladder is identifiable in all three cohorts.** Respiration and
+proliferation share **13%, 15% and 24% of RANK variance** respectively (Spearman
+rho squared; these are rank statistics, not Pearson r squared, and the phrase is
+written that way deliberately). They are substantially separate axes in these
+tumours. **This had not previously been measured in this arm and is reportable in
+its own right.**
+
+### 3.2 What the gate found that it was not looking for
+
+`rho(MYC, PROLIF_DISJOINT)` is **0.780, 0.785 and 0.824**. GSE164458 is in the
+`>= 0.80` band; the other two are in the `0.60-0.80` band.
+
+**The gate table above bands only `rho(OXPHOS, PROLIF_DISJOINT)`.** The bands are
+applied to this pair for description; no declared consequence attaches to them
+here, and the consequence that does attach is specified in 5.3.
+
+This is **D7's problem in a form D7 did not address.** D7 removed the nine genes
+shared between the stripped Felsher estimator and the proliferation covariate,
+which fixed overlapping *measurement*. It could not fix the underlying
+*correlation*, because MYC drives proliferation and G1 measured that enrichment
+at **8.6-fold**. `PROLIF_DISJOINT` is **disjoint by construction and
+near-collinear by biology.**
+
+`rho(OX, MYC)` is **0.358, 0.358 and 0.506**, so OX is only moderately correlated
+with either, and **the OX coefficient should remain estimable at every rung.**
+The consequence is for **attribution, not estimation**, and is specified in 5.3.
+
 ## 4. Exposure, scoring and scale
 
 - **OXPHOS** is `OXPHOS subunits`, GSVA, **reused from the H4 frames rather than
@@ -136,6 +173,24 @@ This gate is descriptive and stops nothing else in the arm. It is a
   TFDP1, UCK2` - are all in M-a, and `PROLIF_DISJOINT` intersects M-a in **0**
   genes.
 
+### 4.1 Coverage caveat, declared here
+
+GSE25066 carries **57 of 89 OXPHOS subunits (64.0%)** - the coverage figure that
+excluded it from H4's specificity arm. The exposure is measured on two thirds of
+the gene set, on a GPL96 array, while every TCGA and SCAN-B number in the
+manuscript uses the full set.
+
+**No coefficient from GSE25066 may be compared numerically with a TCGA or SCAN-B
+coefficient**, and no claim may rest on the GSE25066 exposure being the same
+instrument as the one used elsewhere in the arm.
+
+### 4.2 Scale
+
+GSVA scores are cohort-relative. Every exposure is standardised to **within-cohort
+SD** before fitting, so coefficients read per within-cohort SD and never as raw
+values across cohorts. This is a condition for the meta-analysis in section 9 to
+mean anything.
+
 ### 4.3 OX arrives already standardised, and is NOT re-standardised
 
 `script 13` applies `.z()` when it builds the H4 frames, so `OX` arrives with
@@ -168,23 +223,11 @@ log2 input; universe pinned with `.PIN_A` / `.PIN_B`; **a silently dropped set i
 a hard stop**. `.impute()` is a verified no-op in GSE25066 (0 NA) but is called
 anyway - it may not be one in the other two cohorts.
 
-### 4.1 Coverage caveat, declared here
-
-GSE25066 carries **57 of 89 OXPHOS subunits (64.0%)** - the coverage figure that
-excluded it from H4's specificity arm. The exposure is measured on two thirds of
-the gene set, on a GPL96 array, while every TCGA and SCAN-B number in the
-manuscript uses the full set.
-
-**No coefficient from GSE25066 may be compared numerically with a TCGA or SCAN-B
-coefficient**, and no claim may rest on the GSE25066 exposure being the same
-instrument as the one used elsewhere in the arm.
-
-### 4.2 Scale
-
-GSVA scores are cohort-relative. Every exposure is standardised to **within-cohort
-SD** before fitting, so coefficients read per within-cohort SD and never as raw
-values across cohorts. This is a condition for the meta-analysis in section 9 to
-mean anything.
+**It was not.** E39's run found that in **GSE194040 one gene exceeded the 5% NA
+threshold and was dropped, and 2,773 values were imputed at the gene median.**
+Had PROLIF been scored on the raw `$expr`, it would have come from a different
+matrix than the `OX` beside it in that cohort. **Record this in the result
+note.**
 
 ## 5. The ladder
 
@@ -223,15 +266,62 @@ the exposure regardless of whether the composite names a real construct. **No
 result from m3 may be described as being about "buffering capacity."** It is
 about adjustment for two anti-apoptotic transcripts.
 
-### 5.2 The spine is cohort-specific
+### 5.2 The spine is cohort-specific, by audit rather than by assumption
 
-`treatment` is **constant in GSE25066** (taxane-anthracycline, all 508) and is
-omitted there explicitly rather than left to drop silently.
+**Before fitting, each cohort's spine terms are audited for constancy and any
+constant term is omitted explicitly, never left for R to drop silently.** Known
+cases:
+
+- `treatment` is **constant in GSE25066** (taxane-anthracycline, all 508).
+- `subtype` is **constant in GSE164458** (BrighTNess is TNBC-only; 482 of 482).
+  Asserted and reported rather than assumed.
+- `treatment` carries **13 levels in GSE194040** and **3 in GSE164458**, both
+  fitted.
 
 `subtype` in GSE25066 is **collapsed to two levels**, `HRpos_HER2neg` against
-`TNBC`, declared here in advance. In the 470 the HER2-positive cells hold 4 and 1
-patients, and a factor level of n = 1 is not fittable at 104 events. **The 5
-HER2-positive patients are dropped, not pooled**, and the drop is reported.
+`TNBC`, and the **5 HER2-positive patients are dropped, not pooled**
+(`HRneg_HER2pos` n = 4, `HRpos_HER2pos` n = 1). A factor level of n = 1 is not
+fittable at this event count.
+
+After the drop, **`subtype2` and `er_primary` partition GSE25066 identically**,
+278 / 187 on both. **This is an identity by construction, not a coincidence**:
+`scripts/12_fetch_neoadjuvant_cohorts.R` builds `subtype` from `er_status_ihc`
+and `her2_status` **only** - `pr_status_ihc` never enters - so once the
+HER2-positive patients are dropped, `subtype2` is a relabelling of
+`er_status_ihc`.
+
+It is **asserted in the script anyway**, because the assertion guards the two
+things that could still break it: a change in the upstream subtype definition,
+and the NA path (`is.na(er_status_ihc) | is.na(her2_status)` maps to NA, so a
+patient could in principle be callable on one and not the other). Where the
+assertion holds, **the two are one variable**: `subtype2` is redundant in the
+pooled model and constant inside each ER stratum, and is omitted there
+explicitly.
+
+### 5.3 MYC and proliferation are near-collinear: what m2 and m3 can be read as
+
+At `rho(MYC, PROLIF_DISJOINT)` of **0.78 to 0.82**, MYC is largely a second
+measurement of proliferation in these cohorts.
+
+**The m1 -> m2 step therefore does not decompose by variable.** The question it
+answers is restated here, before the fit:
+
+- **Declared OUT**: *"whether what remains after proliferation is MYC"*. **That
+  attribution is not available at this collinearity and must not be written.**
+- **Declared IN**: whether the OX coefficient is **robust to the addition of a
+  covariate strongly correlated with the one already in the model.**
+
+The same applies to **m2 -> m3**, with `BUFFER_c` added to an already
+near-collinear pair.
+
+**Variance inflation factors for the OX term are reported at every rung, in every
+cohort, alongside the coefficient.** Where the spine carries factors the
+generalised form is used, and the measure reported is named in the output. **A
+VIF above 5 for OX at any rung is reported in the result note as a caveat on that
+rung's interpretability; it does not stop the rung being reported.**
+
+**Nothing here licenses dropping MYC or PROLIF from the ladder.** Both stay, and
+the limitation is recorded rather than engineered away.
 
 ## 6. Endpoints and analysis sets
 
@@ -240,20 +330,26 @@ HER2-positive patients are dropped, not pooled**, and the drop is reported.
 | pCR | GSE194040 / GSE164458 / GSE25066 | 988 / 482 / 470 | logistic |
 | DRFS | GSE25066 only | 470 primary | Cox |
 
-### 6.1 The DRFS set is the pCR set
+### 6.1 The DRFS set is the pCR model set, after the HER2 drop
 
-**Primary DRFS set is the 470 that entered the pCR models, carrying 104 events.**
-Both endpoints then run on the same patients and the sign pair in section 9 is
-interpretable. The 38 patients outside the pCR set carry 7 events (111 - 104).
+**Primary analysis frame is 465 patients carrying 103 events.** This is the 470
+complete cases less the 5 HER2-positive patients dropped under 5.2, which costs
+**1 event**. Both endpoints run on these same 465 patients, so the sign pair in
+9.1 is interpretable.
 
-Declared sensitivities:
+| set | n | events |
+|---|---|---|
+| all GSE25066 | 508 | 111 |
+| pCR complete cases (the 470) | 470 | 104 |
+| **primary, after the HER2 drop** | **465** | **103** |
+
+Declared sensitivities, unchanged:
 
 - **490**, the 508 less the 18 without a callable subtype.
-- **508**, 111 events, reachable only by a model without `subtype`, reported as
-  such if at all.
+- **508**, reachable only by a model without `subtype`.
 
-The 470 is a strict subset: DRFS is complete for all 508, so the intersection of
-the two endpoint sets is exactly the pCR model set.
+**DRFS is complete for all 508**, so the primary frame is a strict subset and the
+**43 excluded patients carry 8 events.**
 
 ### 6.2 Follow-up
 
@@ -278,13 +374,14 @@ The array call `esr1_status` disagrees on roughly ten patients (269 / 201 in the
 
 Full counts, recorded before the fit:
 
-| stratum | 508: n | events | 470: n | events |
+| stratum | 470: n | events | **465 (primary): n** | **events** |
 |---|---|---|---|---|
-| ER-positive (IHC) | 297 | 42 | 279 | 40 |
-| ER-negative (IHC) | 205 | 68 | 191 | 64 |
-| indeterminate | 4 | 1 | - | - |
-| missing | 2 | 0 | - | - |
-| **total** | **508** | **111** | **470** | **104** |
+| ER-positive (IHC) | 279 | 40 | **278** | **40** |
+| ER-negative (IHC) | 191 | 64 | **187** | **63** |
+| **total** | **470** | **104** | **465** | **103** |
+
+`esr1_status`, the declared sensitivity, gives **269 / 201 with 37 / 67 events**
+in the 470.
 
 The 4 indeterminate and 2 missing all fall outside the 470, so the model set is
 cleanly P/N.
@@ -305,9 +402,11 @@ For a standardised continuous exposure at 80% power, alpha 0.05:
 
 | stratum | events | detectable HR per SD | with adjustment inflating variance twofold |
 |---|---|---|---|
-| all, 470 | 104 | 1.32 | 1.47 |
-| ER-negative | 64 | 1.42 | 1.64 |
+| **all, 465** | **103** | 1.32 | 1.47 |
+| ER-negative | **63** | **1.43** | 1.64 |
 | ER-positive | 40 | 1.56 | 1.87 |
+
+**The conclusion is unchanged by the HER2 drop.**
 
 **GSE25066 answers the ER-negative half and cannot answer the ER-positive half.**
 The ER-positive stratum detects nothing below HR 1.6 to 1.9, and its follow-up is
