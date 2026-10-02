@@ -154,3 +154,65 @@ Drive. Either that file, or the compile script's own output
 `METABRIC_data_w_forkscales`), closes the gap. See `docs/2026-08-29_G3_result_forkscale_availability.md`.
 
 TCGA needs nothing further.
+
+---
+
+## ADDENDUM, 2026-10-02 - the METABRIC gap is closed, by two UNTRACKED files
+
+**The section above is now out of date in its conclusion but not in its
+reasoning.** Both files it names as closing the gap are present in this
+directory as of 2026-10-02, **copied in by the author** from outside the pinned
+snapshot.
+
+**They are NOT part of the snapshot and they are NOT tracked.** The file table
+further up pins six files to commit `8fdbb34` with verified blob SHAs; these two
+are not among them, came from a different source, and are ignored by name in
+`.gitignore`. **Everything recorded about them is in this section** - there is no
+upstream blob SHA to match, because neither is in the upstream repository.
+
+| file | bytes | md5 | mtime |
+|---|---|---|---|
+| `METABRIC_starting_data_final_corr_groups.Rdata` | 735,646,872 | `6b64b2b396ec4d6af6ad506501db5fa0` | 2024-02-26 00:26 |
+| `METABRIC_DATA.RData` | 331,447,619 | `1d1069ef983b6609e5c9037d1f584a2d` | 2017-07-21 10:49 |
+
+### Where each came from
+
+- **`METABRIC_starting_data_final_corr_groups.Rdata`** - md5-identical to
+  `~/G/data/CCLE and BRCA project from 2013/paper all figures March 2016/Cell Resource Paper 2020/Fig1_gene_expression/METABRIC/Data compilation/METABRIC_starting_data_final_corr_groups.Rdata`.
+  This is `G3` section 5's **first-choice** file, the compile script's own output.
+
+  > **TRAP, and it is a real one. There are TWO different files of this name
+  > under `~/G`, and they are not the same file.** The sibling at
+  > `.../METABRIC/Data visualisation/` is **742,181,050** bytes, md5
+  > `faba17e5c5ea60242fab422d5ddaa068`, dated 2021-11-23 - a different size, a
+  > different hash and two years older. **The copy here is the 2024-02-26 one
+  > from `Data compilation/`.** Anyone re-copying must match the md5 above, not
+  > the filename.
+
+- **`METABRIC_DATA.RData`** - the raw input, `G3` section 5's third choice.
+  **Its source is NOT recorded.** No copy of this name exists anywhere under
+  `~/code` or `~/G`, so it did not come from either tree; `G3` notes the upstream
+  README links this file on Google Drive. **If it is ever re-fetched, the md5
+  above is the only check available** - please write the actual source in here.
+
+### What is NOT established
+
+- **Neither file's contents have been opened or verified.** What `G3` says
+  option 1 contains - `all.clinical.df` carrying `sample` plus
+  `MB{1,2,3}.forkscale` and the fork calls - **has not been confirmed in this
+  repo.** Confirming it means loading 735 MB, and that is a deliberate step, not
+  a side effect of a provenance check.
+- **No analysis reads either file.** Nothing in `scripts/` opens them as of
+  2026-10-02, and METABRIC remains on `CLAUDE.md`'s list of things named as
+  decisions rather than drift and still not done.
+
+### Why untracked rather than tracked
+
+1.07 GB together. This matches how the repo already treats large inputs -
+`data/from_validation/` (~563 MB), `data/raw/gdsc` (~63 MB) and
+`data/raw/depmap` are all ignored with their READMEs tracked. **The `.gitignore`
+entries name these two files individually rather than using a directory rule,
+so that the six pinned snapshot files in this directory stay tracked.** Note
+that `.gitignore`'s `.RData` line is a literal filename and not a glob, so it
+does not cover them; without the two explicit lines a `git add -A` would stage
+1.07 GB.

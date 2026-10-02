@@ -30,6 +30,17 @@ data/raw/gdsc
 data/raw/depmap
 !data/raw/depmap_README.md
 
+# data/menegollo_biclusters/ is TRACKED - its six pinned snapshot files are in
+# git and must stay there. These two are the exception and are named one by one
+# rather than with a directory rule, precisely so the six keep being tracked.
+# They are the METABRIC identifier inputs G3 went looking for (1.07 GB together),
+# copied in by the author on 2026-10-02 from outside the pinned snapshot. Their
+# sizes, md5s and sources are in that directory's README, section "Addendum".
+# NOTE: the `.RData` line further down is a literal filename, not a glob, so it
+# does NOT cover these - without these two lines a `git add -A` stages 1.07 GB.
+data/menegollo_biclusters/METABRIC_starting_data_final_corr_groups.Rdata
+data/menegollo_biclusters/METABRIC_DATA.RData
+
 results/*
 !results/.gitkeep
 outputs/*
