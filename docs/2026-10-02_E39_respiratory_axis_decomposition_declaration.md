@@ -1002,6 +1002,23 @@ non-overlapping intervals rather than one stratum being significant and another
 not. Differing p values across strata of differing size are not evidence of a
 differing effect.
 
+> **DATED POINTER 2026-10-03, added after E42 ran. THE RULE ABOVE IS
+> UNCHANGED - no row was added, no threshold moved.** E42's run reached none of
+> the three rows cleanly: row 3 was not met (no pair of subtype summaries has
+> opposite signs or non-overlapping CIs, so the claim stands unqualified), but
+> **the table has no row for a subtype that is well powered AND internally
+> heterogeneous**, which is what TNBC turned out to be - 441 events, the best
+> powered stratum in the study, at I2 62.1% with its three cohorts' signs
+> disagreeing. Row 2's "null but underpowered" does not describe it and row 1's
+> "consistent across subtypes" does not either, the inconsistency being inside
+> a subtype rather than between them.
+>
+> **Adding a row now would be writing a reading rule to fit an outcome**, which
+> is what the declare-then-run sequence exists to prevent. The gap is therefore
+> **recorded and not repaired**: see section 5.2 of
+> `docs/2026-10-03_e42_result.md`. **Any future analysis wanting a rule for
+> within-subtype heterogeneity declares one first.**
+
 ### 13.7 One ancillary check, and what it CANNOT settle
 
 `rho(OX, subtype2)` in GSE25066, Spearman, with n.
