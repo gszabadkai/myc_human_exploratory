@@ -1160,6 +1160,15 @@ readr::write_csv(PH,          file.path(DIR_TABLES, "E41_proportional_hazards.cs
 readr::write_csv(FORK_RHO,    file.path(DIR_TABLES, "E41_forkscale_rho.csv"))
 
 saveRDS(list(
+  # The per-patient ANALYSIS FRAME, added 2026-10-03 for X01's use. It was
+  # missing from the first version of this save block, which made X01
+  # impossible to write without reloading METABRIC_DATA.RData and rescoring -
+  # work this object already did. ADDING IT CHANGES NO NUMBER AND NO OTHER
+  # ELEMENT: the 26 non-timestamp digests recorded in 750af99 and verified
+  # against the author's run are unaffected, and this is the 27th element.
+  # It carries scores, survival, covariates and forkscale for all 1,981
+  # patients, so X01 can stratify without recomputing anything.
+  frame         = DM,
   recovery      = RECOVERY,
   excluded      = EXCLUDED_TAB,
   dropped_levels = if (length(DROPPED_LEVELS))
