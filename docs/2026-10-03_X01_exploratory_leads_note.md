@@ -23,6 +23,19 @@ relates-to:
 
 # X01 - where might a predictive marker around OXPHOS be?
 
+> **SURVEY RUN 2026-10-04. Result: `docs/2026-10-04_X01_result.md`.**
+> **Nothing cleared the bar this note set** - no subtype meets more than one of
+> section 3's three criteria. Two of this note's own expectations failed and are
+> corrected there: **section 3 item 1's prediction** (LumA, as the most
+> differentiated and oxidative) is wrong, the association sitting in **LumB**;
+> and **section 3 item 3 is the wrong criterion for a biomarker purpose**,
+> because it selects for the absence of an unadjusted association, which is the
+> thing a marker needs. **Section 4's treatment reversal is present in the
+> data** - HR 1.348 in the one fittable chemotherapy group against 0.828 to
+> 0.880 elsewhere - **and confounding by indication is its leading explanation,
+> which cannot be tested from disk.** Sections 2 and 5 stand unchanged and
+> still govern.
+
 ## 1. What prompted this, and what it is not
 
 Two marginal results point at the same stratum.
