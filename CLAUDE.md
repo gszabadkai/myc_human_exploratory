@@ -488,6 +488,17 @@ Full file: `docs/R_CODING_INSTRUCTIONS.md`. These three cause the most damage.
    data.frame, so `n` is read as `na.print`. Use `head(X) %>% print()`.
 2. **Always `dplyr::count()`**, never bare `count()` — namespace conflicts.
 3. **ASCII-only strings in scripts.**
+4. **Save the analysis frame**, not only the summary tables — one row per
+   analysis unit, with the join key, every exposure and covariate that entered
+   a model, every outcome and time variable, every stratifier used or audited,
+   **and the covariates a downstream question might plausibly need.** `E41`
+   saved 26 tables and no frame; `X01` was then unable to stratify METABRIC at
+   all until `51465b6` added it, and separately unable to weigh confounding by
+   indication because `grade`, `size`, `lymph_nodes_positive` and
+   `age_at_diagnosis` had not been carried across. **Not** the expression
+   matrix — the analysis-unit table, which is trivial on disk. Appending a
+   frame to an already-verified object changes no existing element, so recorded
+   digests still hold; say so and say that a re-source is needed.
 
 No `renv`; packages are installed system-wide.
 
