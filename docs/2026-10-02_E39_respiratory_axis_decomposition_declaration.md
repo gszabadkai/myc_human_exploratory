@@ -229,6 +229,69 @@ Had PROLIF been scored on the raw `$expr`, it would have come from a different
 matrix than the `OX` beside it in that cohort. **Record this in the result
 note.**
 
+### 4.5 METABRIC - scoring, and three gene-recovery figures
+
+Expression and clinical come from `data/menegollo_biclusters/METABRIC_DATA.RData`,
+on disk and **untracked**.
+
+**Provenance, recorded on the author's authority.** The source is **Synapse
+`syn1757063`, collection `syn1688369`**, per the Methods of Menegollo et al.
+2024. This supersedes the `data/menegollo_biclusters/README.md` addendum's
+record, which attributed the file to a Google Drive link noted by `G3`; that
+sentence is kept there as superseded rather than deleted, and the README is
+corrected in the same commit as this section.
+
+**Nothing inside the file names Synapse.** There is no README object, no date
+stamp, no identifier and no checksum. The three clinical tables each carry a
+readr `col_spec`, which means they were read from delimited text rather than
+deserialised from a download object; that is **consistent with** a
+delimited-text distribution and **is not evidence** of one. **The md5 recorded
+in the README remains the only check available**, and the attribution rests on
+the author's reading of the paper, not on anything in the file.
+
+This is the matrix the published biclusters were derived from, so the exposure
+and the forkscale rungs in 10.2 share one gene universe and one normalisation.
+That property is the reason this file is used rather than a cBioPortal fetch.
+
+Preparation, mechanical only:
+
+- Already symbol-keyed, 23,043 unique symbols, zero duplicates. **No probe
+  collapse.**
+- Already log-scale. **No log transform.**
+- Per-gene median-centred. **Not undone**: GSVA's per-gene ECDF is invariant to
+  a per-gene location shift.
+- `external_gene_name` moves into rownames.
+- Sample columns convert `MB.0000` to `MB-0000`, recovering **1,981 of 1,981**
+  against `all.clinical.df`.
+- Time is in **days**, max 9,218. Converted to years for comparability with
+  GSE25066.
+
+**Gene recovery after harmonisation.** Three sets are scored or read, and each
+needs the symbol work described in 10.3a. The alias step is **part of the
+recovery, not a fallback**, and the one alias it contributes is named:
+
+| set | direct | via `symbol_map` | via alias | **total** |
+|---|---|---|---|---|
+| **OXPHOS subunits** | 51 | +18 | 0 | **69 of 89 (77.5%)** |
+| **PROLIF_DISJOINT** | 287 | +5 | +1, `PRP4K` -> `PRPF4B` | **293 of 318 (92.1%)** |
+| **Felsher M-a** (MYC) | 56 | +3 | 0 | **59 of 61 (96.7%)** |
+
+`PROLIF_DISJOINT`'s 293 **matches GSE25066's 293 of 318 exactly**. M-a's two
+absentees are `CTPS1` and `POLR1B`. `BUFFER_c`'s two genes, `MCL1` and
+`BCL2L1`, are both present, so every rung of the ladder is buildable.
+
+**`BBC3` is ABSENT from METABRIC, and that blocks something else.** It costs
+this ladder nothing - the configuration composite is not fitted anywhere in E39,
+E40 or E41. But `BBC3` is the trigger limb that transferred intact across
+species and the gene the guardian-switch finding is built around, so **any
+future METABRIC analysis touching the 6-gene signed configuration is blocked on
+it** and must not proceed by quietly dropping it to five. Recorded here so the
+next reader does not rediscover it halfway through.
+
+**The METABRIC spine is NOT GSE25066's spine** (10.1a). The two cohorts' `m0`
+are therefore **not the same model**, and the two arms must be written beside
+each other with that said, not as one analysis repeated.
+
 ## 5. The ladder
 
 Same spine at every rung, each rung adding one term:
@@ -500,23 +563,104 @@ carries the ER-positive half.
 
 ### 10.1 Specification
 
-- Expression and clinical from the **cBioPortal datahub GitHub-LFS mirror**, with
-  a provenance README in the house pattern. The S3 datahub returns 403.
+- Expression and clinical from `data/menegollo_biclusters/METABRIC_DATA.RData`,
+  on disk and untracked. **Its provenance, preparation and gene recovery are in
+  section 4.5.** The **cBioPortal datahub GitHub-LFS fetch this bullet
+  previously specified was NEVER PERFORMED**, and nothing in the repo depends on
+  it; the file the author had already placed on disk is the matrix the published
+  biclusters were derived from, which the mirror would not have been.
 - **Breast-cancer-specific survival is primary**; OS is a sensitivity, because
   twenty years of follow-up in an older cohort loads OS with non-cancer death.
 - Same ladder, same within-cohort standardisation, same reading rules.
 - Proliferation scored the same way, from the same 318-gene set.
 
-### 10.2 Forkscale rung - SECONDARY, and it is NOT F3
+### 10.1a Covariates, the spine, and the two ER calls
 
-MB1 forkscale enters as an additional rung, asking whether the respiratory axis
-adds anything over the published fork axis. F3-pre left this **INTERMEDIATE** at
-Spearman 0.529 (GSVA) and 0.418 (mitoPPS) - above the independence line and below
-the redundancy line on both instruments.
+Fixed before any METABRIC model is fitted.
 
-**This is NOT F3.** F3 was specified in `myc_human_validation`, which is frozen at
-`d3ac60e`. This is a separate exploratory analysis and must be named as one in
-every sentence that mentions it.
+**The spine's `subtype` term is PAM50**, `NOT_IN_OSLOVAL_Pam50Subtype`, complete
+at 1,981: LumA 719, LumB 490, Basal 328, Her2 238, Normal 200, **NC 6**. The
+**6 `NC` patients are kept as their own factor level**; no patient is dropped
+for subtype, so the drop is not made silently and is not made at all.
+
+**Why not the arm's two-level construct.** `subtype2` is `HRpos_HER2neg` against
+`TNBC`, which in METABRIC would have to be built from `ER_IHC_status` and
+`Her2.Expr`, since `HER2_IHC_status` carries only 821 non-missing of 1,981. That
+construct would then be **near-constant inside each ER stratum**, exactly the
+collapse 7.1 documents for GSE25066, and would force the same omission. PAM50
+survives ER stratification and is complete. **The two-level analogue is
+cross-tabbed and reported, and is NOT fitted.**
+
+**The consequence is stated rather than buried: the METABRIC spine differs from
+GSE25066's, so the two cohorts' `m0` are NOT the same model.** Section 4.2
+already forbids comparing any coefficient across cohorts as a raw value; this is
+a second and independent reason, and it governs how the two arms are written
+beside each other in prose.
+
+**`treatment`** is `Treatment`, complete at 1,981, 8 levels: HT/RT 609, HT 419,
+NONE 304, RT 231, CT/RT 170, CT/HT/RT 165, CT 52, CT/HT 31.
+
+**The two ER calls, and the discordance, recorded before the sensitivity is
+read.**
+
+| call | positive | negative | missing |
+|---|---|---|---|
+| **`ER_IHC_status`, PRIMARY** | 1,505 | 435 | **41** |
+| `ER.Expr`, the declared sensitivity | 1,512 | 469 | 0 |
+
+**They disagree on 127 of the 1,940 callable patients** - **54** IHC-negative
+and array-positive, **73** IHC-positive and array-negative. This is the
+METABRIC analogue of the 54-of-465 that section 7's correction turned on, and it
+is **more than twice the rate**: 6.5% here against 11.6% there, but 127 patients
+against 54. The sensitivity must be read with that figure in front of it.
+
+**What the 41 missing do.** They **fall out of the primary ER stratification
+entirely**, exactly as GSE25066's 4 indeterminate and 2 missing did, so the two
+primary strata are cleanly P/N and sum to 1,940 rather than 1,981. They do
+**not** fall out of the pooled ladder, which does not condition on ER.
+**So the pooled model set and the sum of the two primary strata differ by 41
+patients, and both counts are reported.** Under `ER.Expr` nothing falls out, so
+the sensitivity's two strata sum to 1,981 - a 41-patient difference in the
+analysis set that travels with the change of definition and must not be read as
+an effect of the definition.
+
+### 10.2 Forkscale rungs - SECONDARY and DESCRIPTIVE, and neither is F3
+
+**`+ MB1_forkscale`, declared SECONDARY.** Asks whether the respiratory axis
+adds anything over the published fork axis. F3-pre left this INTERMEDIATE at
+Spearman 0.529 (GSVA) and 0.418 (mitoPPS) - above the independence line and
+below the redundancy line on both instruments.
+
+**`+ MB2_forkscale`, declared DESCRIPTIVE.** Menegollo's Figure 7 survival
+panels E-L are the MB1 switch only, all restricted to ER-positive/HER2-negative
+tumours. MB2 survival is unreported. This is therefore a first report, and it is
+carried as a ride-along on an analysis already running, not as a result the arm
+rests on.
+
+> **The two statements above about Figure 7 and Figure 3C are AUTHOR-SOURCED and
+> unverified in this repo.** The Menegollo PDF is in the chat project knowledge
+> and in no repository, so no script and no session here can check them. The
+> author will re-read Figure 7's panel labels and Figure 3C **before this
+> section is cited in the manuscript.** Until then they are recorded as the
+> author's reading, not as verified fact.
+
+Two limits on the MB2 rung, both recorded before it runs:
+
+- **MB2 is the axis this manuscript dissociated from its own object.** E32 placed
+  MYC activity on MB2 at +0.688; E33 placed the configuration on MB1. So an MB2
+  result contributes to the companion paper's framework, not to this one's
+  argument.
+- **The MB2 fork contrast is confounded with ER by construction.** Their
+  Figure 3C labels MB2_UF the Myc/miRNA ER-negative state and the lower fork
+  ER-positive, so upper-versus-lower is largely ER-negative-versus-positive.
+  **Any MB2 fork contrast is reported within ER strata only**, never pooled.
+
+**Neither rung is F3.** F3 was specified in `myc_human_validation`, frozen at
+`d3ac60e`. These are separate exploratory analyses and must be named as such in
+every sentence that mentions them.
+
+MB3 is not used. The unverified question of whether
+`MB3.forkscale == MB3.pc1.rev / MB3.index` therefore stays open, per 10.3.
 
 ### 10.3 Forkscale traps, verified 2026-10-02
 
@@ -542,6 +686,143 @@ Three traps, carried forward:
 Not verified, because it is not on the critical path: whether
 `MB3.forkscale == MB3.pc1.rev / MB3.index`. MB3 is not used by the secondary
 rung. Verify before any use of MB3.
+
+### 10.3a Three traps that fail silently
+
+**1. The survival objects are named counterintuitively.** `Overall_Survival` is
+the **888-event all-cause** endpoint.
+`Complete_METABRIC_Clinical_Survival_Data_from_METABRIC` is the **623-event
+cause-specific** one, and 623 matches METABRIC's published disease-specific
+death count. Section 10.1 makes breast-cancer-specific survival primary, so
+**the object with the generic-sounding name is the primary one**. The two share
+one `time` vector, identical to the value, and differ only in `status`. The
+script asserts the event count on both before fitting and stops if either
+differs.
+
+**2. Symbol harmonisation is directional, and an alias is not automatically
+safe.** The SCAN-B `symbol_map` (`scanb_pheno.rds$symbol_map`, 468 entries) is
+applied **current -> legacy** and the result checked against the matrix.
+**Never reversed.** None of the 19 ATP-synthase genes is present under its
+current name, which confirms the matrix is on a pre-2018 build throughout.
+
+**The rule for an alias, fixed here: an alias is REJECTED if its target is the
+HGNC-approved symbol of a different gene.** Applied to the three sets of 4.5 it
+rejects two mappings that a naive alias lookup accepts, and each would have put
+an unrelated transcript into a score under the right label:
+
+| mapping | the target is | verdict |
+|---|---|---|
+| `COX7A2L` -> `SCAF1` | the approved symbol of **SR-related CTD associated factor 1**, Entrez 58506 (`COX7A2L` is 9167) | **REJECTED** |
+| `POLR1B` -> `RPA2` | the approved symbol of **replication protein A2**, Entrez 6118 (`POLR1B` is 84172) | **REJECTED** |
+| `PRP4K` -> `PRPF4B` | one gene, Entrez 8899, org.Hs.eg.db lagging HGNC | accepted |
+
+All 26 `symbol_map` hits the three sets need were tested the same way and all 26
+resolve to one Entrez ID, `EEF1AKNMT` -> `METTL13` (51603) included.
+
+Three gene-level decisions, recorded rather than left to a lookup:
+
+- **`ATP5F1E` is EXCLUDED.** Absent under its current name, under `ATP5E`, and
+  under every HGNC alias. The only `^ATP5E` string in the matrix is `ATP5EP2`, a
+  pseudogene, which **must not be substituted** - array pseudogene probes carry
+  cross-hybridisation noise.
+- **`COX7A2L` is EXCLUDED**, by the rule above. It is the reason OXPHOS subunits
+  recover **69 of 89 and not 70**.
+- **`POLR1B` is EXCLUDED**, by the same rule, from M-a.
+
+**3. `COX8C` is present in METABRIC and absent from TCGA and SCAN-B.** So
+METABRIC's gene set is **not** a strict subset of the others. Report actual
+counts, not nominal ones: **full89 resolves to 88 genes in both TCGA and
+SCAN-B**, and the 69-gene restriction to 68 in both.
+
+### 10.4 The 69-gene restriction is cosmetic, measured rather than assumed
+
+METABRIC recovers 69 of 89 OXPHOS subunits. The 20 absent are **not scattered
+across the gene set**: **12 are complex I** (`NDUFA2`, `NDUFA3`, `NDUFA6`,
+`NDUFA13`, `NDUFB3`, `NDUFB7`, `NDUFB9`, `NDUFC1`, `NDUFS4`, `NDUFS6`,
+`NDUFV1`, `NDUFV2`), **3 complex IV** (`COX5A`, `COX7A2`, `COX8A`), **2 complex
+III** (`UQCRC1`, `UQCRC2`), **1 complex V** (`ATP5F1E`), plus **cytochrome c**
+(`CYCS`) and `COX7A2L`. That raised the possibility of a systematically
+different exposure - complex I thinned far more than the rest - rather than a
+thinner one. It was tested before any METABRIC score was computed.
+
+The 69-gene subset was scored against the full set in TCGA and SCAN-B, in one
+GSVA call per cohort with shared kcdf and universe pinning.
+
+| cohort | n | Spearman | Pearson |
+|---|---|---|---|
+| TCGA | 1,095 | **0.9960** | 0.9960 |
+| SCAN-B | 3,207 | **0.9954** | 0.9953 |
+
+Movement in the manuscript's own readings, largest four of ten:
+
+| readout | full | mb69 | difference |
+|---|---|---|---|
+| TCGA, partial Spearman vs signed composite, adj. PROLIF | 0.5921 | 0.5746 | **-0.0174** |
+| SCAN-B, partial Spearman vs signed composite, adj. PROLIF | 0.4532 | 0.4360 | -0.0172 |
+| TCGA, 44-gene compartment split | 0.4136 | 0.4069 | -0.0068 |
+| SCAN-B, 44-gene compartment split | 0.3415 | 0.3368 | -0.0047 |
+
+> **Which composite.** "The signed composite" here is the **6-gene signed
+> configuration composite** - `BBC3`, `BID`, `BIK`, `BAD`, `BCL2L1` positive and
+> `MCL1` negative - which is what E34 and E36 compute. **E10's twelve is a
+> separate, unsigned object** and is not what these rows report. It was computed
+> alongside and moves by -0.0120 and -0.0140 on the same comparison. Neither
+> composite is fitted anywhere in E39, E40 or E41; both appear here only because
+> the instrument check is read against the manuscript's existing quantities.
+
+**The restriction is treated as cosmetic.** METABRIC coefficients are read on
+the same footing as the others, subject to the standing rule in 4.2 that no
+coefficient is compared across cohorts as a raw value.
+
+One directional note: **8 of the 10 movements are toward zero**, in both
+cohorts. The two exceptions are the **MitoCarta half of the 44-gene
+comparator**, which moves away from zero by **+0.0002** in TCGA and **+0.0021**
+in SCAN-B - both far smaller than any of the four above. So the restriction
+attenuates marginally rather than scattering, and a METABRIC estimate is
+conservative rather than unpredictably biased.
+
+> **An earlier version of this section reported a 70-gene set** at Spearman
+> 0.9962 / 0.9957 and a largest movement of -0.0223, and stated that **every**
+> movement was toward zero. That set accepted `COX7A2L` -> `SCAF1`, which
+> 10.3a's rule rejects. The check was re-run on the 69-gene set actually used.
+> **The conclusion is unchanged and marginally stronger**; the directional claim
+> held for 70 and does not for 69, and is corrected above.
+
+### 10.5 METABRIC does not replicate E40 and must not be written as doing so
+
+E40 measured **response to neoadjuvant chemotherapy**. METABRIC measures
+**prognosis under mixed, largely historical care**, and the treatment
+distribution makes that concrete rather than rhetorical: of the **1,505
+ER-positive patients, 1,111 (73.8%) received endocrine therapy and 147 (9.8%)
+chemotherapy**; of the 435 ER-negative, **270 (62.1%) received chemotherapy**.
+**So the stratum METABRIC is here for is overwhelmingly a non-chemotherapy
+stratum**, and E40's endpoint does not exist in it.
+
+These are different questions. Chemoresistance and prognosis diverge routinely
+in breast cancer. **No sentence may say the pCR finding was replicated,
+confirmed or extended in METABRIC**, whatever the sign. The two arms sit beside
+each other as separate statements - and per 10.1a they do not even share a
+spine, so their `m0` are not the same model.
+
+METABRIC is also an array, so **mitoPPS is unavailable** and this arm remains
+single-instrument throughout, as GSE25066 is.
+
+### 10.6 What METABRIC is for, after E40
+
+Section 10 declared METABRIC in on the ground that GSE25066 could not answer the
+ER-positive stratum. E40 confirmed it: 40 events, every rung straddling 1.
+
+E40's signal is on pCR, which METABRIC does not carry. So METABRIC extends the
+**distant-outcome** arm only, and three things justify it:
+
+1. **The ER-positive stratum.** Roughly three quarters of 1,981 patients, with
+   up to 25 years of follow-up. This is where the published ER-positive result
+   lives and where no proliferation-adjusted version exists.
+2. **It converts a declared-underpowered null into a readable one.** The DRFS
+   arm currently reports no detected association in a cohort not powered to
+   exclude a modest one.
+3. **The forkscale question**, open since F3-pre left it INTERMEDIATE at
+   Spearman 0.529 (GSVA) and 0.418 (mitoPPS).
 
 ## 11. What this cannot license
 

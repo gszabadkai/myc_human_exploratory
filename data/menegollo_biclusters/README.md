@@ -190,21 +190,48 @@ upstream blob SHA to match, because neither is in the upstream repository.
   > the filename.
 
 - **`METABRIC_DATA.RData`** - the raw input, `G3` section 5's third choice.
-  **Its source is NOT recorded.** No copy of this name exists anywhere under
-  `~/code` or `~/G`, so it did not come from either tree; `G3` notes the upstream
-  README links this file on Google Drive. **If it is ever re-fetched, the md5
-  above is the only check available** - please write the actual source in here.
+
+  **SOURCE RECORDED 2026-10-03, on the author's authority: Synapse
+  `syn1757063`, collection `syn1688369`**, per the Methods of Menegollo et al.
+  2024.
+
+  **Superseded, kept rather than deleted.** This entry previously read *"Its
+  source is NOT recorded"* and noted that `G3` records the upstream README as
+  linking this file **on Google Drive**. That sentence is retained here as the
+  earlier attribution, now superseded by the Synapse IDs above. No copy of this
+  name exists anywhere under `~/code` or `~/G`, so it did not come from either
+  tree.
+
+  **The attribution is NOT verified from inside the file.** Nothing in it names
+  Synapse: no README object, no date stamp, no identifier, no checksum. The
+  three clinical tables each carry a readr `col_spec`, which means they were
+  read from delimited text rather than deserialised from a download object -
+  **consistent with** a delimited-text distribution and **not evidence** of one.
+  **The md5 above remains the only check available**, and the attribution rests
+  on the author's reading of the paper.
+
+  Consumed from 2026-10-03 by `E41`; its preparation and gene recovery are in
+  section 4.5 of
+  `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md`.
 
 ### What is NOT established
 
-- **Neither file's contents have been opened or verified.** What `G3` says
-  option 1 contains - `all.clinical.df` carrying `sample` plus
-  `MB{1,2,3}.forkscale` and the fork calls - **has not been confirmed in this
-  repo.** Confirming it means loading 735 MB, and that is a deliberate step, not
-  a side effect of a provenance check.
-- **No analysis reads either file.** Nothing in `scripts/` opens them as of
-  2026-10-02, and METABRIC remains on `CLAUDE.md`'s list of things named as
-  decisions rather than drift and still not done.
+**Both bullets below were superseded on 2026-10-02, and are rewritten rather
+than deleted so the sequence survives.** They previously said neither file had
+been opened and that no analysis read either one.
+
+- **Both files have now been opened and their contents recorded.** `G3`'s
+  option-1 claim is **confirmed**: `all.clinical.df` is 1,981 x 58 and carries
+  `sample` plus `MB{1,2,3}.forkscale` and the fork calls, with three traps
+  recorded in section 10.3 of
+  `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` - one
+  `Inf` per `.log` column, `MB3.pc1` **not** negated in this object, and
+  forkscale severely skewed. `METABRIC_DATA.RData`'s four objects, two survival
+  endpoints and symbol column are recorded in sections 4.5, 10.1a and 10.3a of
+  the same note.
+- **`E41` reads both.** It is the first script to do so. Until it was written,
+  nothing in `scripts/` opened them, and that is why the two files sat here
+  described but unused for a day.
 
 ### Why untracked rather than tracked
 
