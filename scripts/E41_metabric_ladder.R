@@ -847,9 +847,19 @@ DROPPED_LEVELS <- list()
 
 # se is in the saved object and the csv; it is left out of the printed view so
 # the table fits a terminal without wrapping onto a second block.
+#
+# THE CI IS PRINTED TO 4 dp AND `excl_0` IS COMPUTED, NOT EYEBALLED. At 3 dp
+# the ER-positive m1 bound prints as 1.000 while the value is 0.99963, so a
+# reader applying declaration 9's "CI excludes zero" rule to the rounded
+# number would get the opposite answer. The rule is applied here to the
+# LOG-SCALE bounds, which is the scale it is written on, and the result is a
+# column rather than something the reader infers from a rounded HR.
+# This function only PRINTS. Every saved tibble and csv carries the exact
+# unrounded bounds, so nothing here can change a reported value.
 .show <- function(tb) .pr(tb %>% dplyr::transmute(set, rung, n, events,
     logHR = round(estimate, 4), HR = round(HR, 4),
-    ci_HR = paste0("[", round(hr_lo, 3), ", ", round(hr_hi, 3), "]"),
+    ci_HR = paste0("[", sprintf("%.4f", hr_lo), ", ", sprintf("%.4f", hr_hi), "]"),
+    excl_0 = ci_lo > 0 | ci_hi < 0,
     p = signif(p, 3), vif = round(vif_ox, 3)))
 
 # =============================================================================
