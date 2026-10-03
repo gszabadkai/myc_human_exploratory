@@ -871,3 +871,173 @@ itself fits nothing and does not need it attached, and only `E40` will.
 `survival` ships with R and is not a new install; the entry exists so that a
 missing or broken installation fails at `E00` with a named package rather than
 at the first `coxph()` call.
+
+## 13. E42 - does the pCR finding hold across subtypes?
+
+### 13.1 Why this is run
+
+E40's three-cohort `m1` is the arm's primary finding: the respiratory axis
+predicts poorer response to neoadjuvant chemotherapy once proliferation is in
+the model, pooled log-odds **-0.162 [-0.281, -0.042]**, I2 = 0.0%, signs
+agreeing in all three cohorts.
+
+That estimate is **pooled within each cohort across subtypes**. Subtype entered
+as a covariate at every rung and its coefficient was never extracted, so the
+model assumes one common OX effect inside every subtype. **That assumption has
+never been tested.**
+
+The draft sentence reads as a general statement about breast cancer. If the
+effect is carried by one subtype, the sentence needs qualifying. **Checking the
+scope of a claim already being made is not subgroup searching**, and this note
+fixes in advance that the check cannot change the claim's status.
+
+### 13.2 What E42 cannot do
+
+- **It cannot promote or demote the primary finding.** E40's three-cohort `m1`
+  stands as the primary result whatever the strata show. E42 bounds its scope.
+- **No subtype result becomes a finding in its own right.** A strong stratum is
+  reported as a stratum of a pooled estimate, never as a separate discovery.
+- **No interaction term and no formal effect-modification test.** Declared out,
+  as in section 7, at these event counts.
+- **It does not touch METABRIC.** The PAM50 split there is a separate activity
+  with a separate posture (`X01`) and is not part of the declared line.
+
+### 13.3 Specification
+
+**`m1` only**, in all three pCR cohorts, stratified by subtype:
+
+```
+m1: pcr ~ OX + PROLIF + treatment     [fitted within each subtype stratum]
+```
+
+`subtype` is omitted inside each stratum, where it is constant by construction.
+`treatment` is retained where it varies and omitted explicitly where it does
+not, by the audit rule in 5.2.
+
+Only `m1` is fitted. The ladder's purpose was decomposition and that work is
+complete; this asks a different question of one rung.
+
+**Meta-analysis is WITHIN subtype ACROSS cohorts**, not within cohort across
+subtypes, so the TNBC estimate draws on all three cohorts. Fixed and random
+effects, Q, I2, and sign agreement across contributing cohorts, exactly as
+section 9 requires. **Two of the four subtypes appear in one cohort only and
+cannot be pooled at all** (13.5); their single estimate is reported as single.
+
+### 13.4 What is already known, before the fit
+
+Two strata are already answered and are reported as such rather than refitted
+as if new:
+
+- **GSE164458 is TNBC-only.** Its subtype term dropped as constant in E40, so
+  its `m1` of **-0.205 [-0.423, 0.012]** **is already a TNBC-only estimate**.
+- **In GSE25066, `subtype2` and ER partition the cohort identically**, 278 /
+  187 **within the 465-patient model set**, asserted in **E40** - not in E39,
+  and not on the 470, where `subtype` still has four levels (278 / 187 / 4 / 1)
+  and the identity does not yet hold. See 5.2, which states this correctly and
+  which this section does not contradict. So that cohort's subtype split and
+  its ER split are the same split.
+
+> **Corrected before this section was committed.** The draft of 13.4 attributed
+> the assertion to `E39` and did not say which analysis set the 278 / 187 holds
+> on. `E39` reports `subtype_470` and the ER counts; the partition identity is
+> asserted in `E40`'s script, on the 465.
+
+### 13.5 Detectable effect, declared before the fit - and which stratum is actually at risk
+
+pCR rates differ sharply by subtype, so the strata are **not equally powered and
+were never going to be.** The counts were read before this section was
+committed and are declared here rather than discovered later:
+
+| cohort | subtype | n | pCR events | non-events | rate | treatment levels | parameters | minority class | events per parameter |
+|---|---|---|---|---|---|---|---|---|---|
+| GSE194040 | HRneg_HER2pos | 89 | 56 | 33 | 0.629 | 6 | 7 | **33** | **4.7** |
+| GSE194040 | HRpos_HER2neg | 379 | 64 | 315 | 0.169 | 8 | 9 | 64 | 7.1 |
+| GSE25066 | HRpos_HER2neg | 278 | 30 | 248 | 0.108 | **1** | 2 | 30 | 15.0 |
+| GSE194040 | HRpos_HER2pos | 156 | 57 | 99 | 0.365 | 6 | 7 | 57 | 8.1 |
+| GSE164458 | TNBC | 482 | 236 | 246 | 0.490 | 3 | 4 | 236 | 59.0 |
+| GSE194040 | TNBC | 364 | 142 | 222 | 0.390 | 8 | 9 | 142 | 15.8 |
+| GSE25066 | TNBC | 187 | 63 | 124 | 0.337 | **1** | 2 | 63 | 31.5 |
+
+Pooled by subtype: **TNBC in all three cohorts** (n 1,033, 441 events);
+**HRpos_HER2neg in two** (n 657, 94 events); **HRneg_HER2pos and HRpos_HER2pos
+in GSE194040 ALONE**, so neither can be pooled and neither has a second cohort
+to agree or disagree with it.
+
+> **Corrected before this section was committed, and the correction matters for
+> how the result is read.** The draft of 13.5 expected the
+> **HR-positive/HER2-negative** stratum to be the one too thin to read, at
+> roughly 10% pCR. **It is not.** It carries 30 events in GSE25066 and 64 in
+> GSE194040 - 94 pooled - and in GSE25066 `treatment` is constant across the
+> whole cohort, so the model there spends only two parameters and reaches 15
+> events per parameter. **The stratum actually at risk is GSE194040's
+> HRneg_HER2pos**, whose minority class is 33 against 7 parameters: 4.7 events
+> per parameter. **It is also single-cohort**, so it was never going to carry a
+> scope statement either way.
+
+**Events per parameter is computed on the MINORITY class**, not on pCR events,
+because a logistic fit is limited by whichever outcome is rarer -
+`HRneg_HER2pos` has 56 events and only 33 non-events.
+
+**The threshold the script applies, named here rather than chosen at the
+keyboard**: a stratum is fitted where the minority class is at least 5 and
+events per parameter is at least 5, and the fit is additionally checked for
+separation. **Strata below 10 events per parameter are flagged in the output**,
+following Peduzzi's rule of thumb while not treating it as a cliff
+(Vittinghoff and McCulloch 2007 find 5 to 9 often acceptable). **A null in a
+low-event stratum is reported as uninformative, not as absence**, in the words
+section 8 uses.
+
+### 13.6 Reading rule
+
+The three outcomes and what each licenses:
+
+| outcome | what the draft sentence becomes |
+|---|---|
+| consistent across subtypes, CIs overlapping | unchanged; the scope statement is simply reported |
+| carried by one subtype, others null but underpowered | unchanged, with the stratum estimates reported beside it and the power limitation stated |
+| opposite signs with non-overlapping CIs | the claim is qualified to the subtype where it holds |
+
+**The third row is the only one that changes the claim**, and it requires
+non-overlapping intervals rather than one stratum being significant and another
+not. Differing p values across strata of differing size are not evidence of a
+differing effect.
+
+### 13.7 One ancillary check, and what it CANNOT settle
+
+`rho(OX, subtype2)` in GSE25066, Spearman, with n.
+
+**The question it speaks to.** That cohort's DRFS `m1` moves from HR
+**0.856 [0.687, 1.067]** with subtype in the model to **0.776 [0.631, 0.955]**
+without it. The proposed explanation is that luminal tumours are more oxidative
+while TNBC relapses more, so the unadjusted coefficient absorbs a
+between-subtype difference. **The explanation is currently plausible and
+untested.**
+
+> **Corrected before this section was committed, and this is the substantive one.
+> The draft of 13.7 said this correlation "settles the s508 divergence". IT
+> CANNOT, because the divergence has TWO causes and the correlation addresses
+> only one of them.**
+>
+> **`s508` differs from the primary set in two ways at once**: it omits the
+> subtype term **and** it adds **18 patients who have no callable subtype**,
+> carrying **2 DRFS events**. The third set rules out a third possibility:
+> **`s490` keeps subtype on 490 patients and gives `m1` = 0.8557
+> [0.6893, 1.0622]**, all but identical to the primary's 0.8563, so the 25
+> patients between 490 and 465 are immaterial. **The live comparison is `s490`
+> against `s508`**, and it is confounded between the dropped term and the 18
+> added patients.
+>
+> **The 18 have no `subtype2` value at all**, so they are not in this
+> correlation and cannot be.
+>
+> **What would settle it is one further fit that is NOT authorised here**: `m1`
+> on the **490 WITHOUT the subtype term**. Landing near 0.776 would make the
+> divergence the subtype term; landing near 0.856 would make it the 18 patients.
+> **E42 does not fit it**, and no sentence may claim the divergence is explained
+> until something does.
+
+**So this check is necessary and not sufficient.** A substantial correlation is
+consistent with the proposed explanation and does not demonstrate it; a
+near-zero correlation **refutes** it, which is the one direction in which a
+single number here is decisive. It is reported with that asymmetry stated and is
+not interpreted further.
