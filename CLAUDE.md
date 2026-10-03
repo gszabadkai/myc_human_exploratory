@@ -164,11 +164,11 @@ configuration sits, `E35` whether that depends on genomic burden, `E36` whether
 it exists below the tumour range at all, and `E38` diagnosed why `E36` could not
 answer. **The normal-tissue line is closed.**
 
-**`E39`, `E40` and `E41` are on `main`**, committed straight to the trunk rather
-than merged from branches, each verified object by object against digests
-recorded *before* the author's run — **26 of 26 for `E41`**. **The next free
-script number is `E42`, and `E31` is the only analysis still off `main`. No
-phase is open.**
+**`E39`, `E40`, `E41` and `E42` are on `main`**, committed straight to the trunk
+rather than merged from branches, each verified object by object against digests
+recorded *before* the author's run — **26 of 26 for `E41`, 16 of 16 for `E42`**.
+**The next free script number is `E43`, and `E31` is the only analysis still off
+`main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -203,6 +203,24 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
   two instruments in two cohorts all sit inside the INTERMEDIATE band and
   **INTERMEDIATE is a property, not an instrument artefact**. `F3` was specified
   in `myc_human_validation`; **these rungs are NOT F3.**
+- **`E42`**, the subtype scope check on `E40`'s primary finding. **It cannot
+  promote or demote it** (13.2) and did neither. **The draft sentence stands
+  UNQUALIFIED**: 13.6's third row is the only claim-changing one and it needs
+  opposite signs *and* non-overlapping CIs — all three subtype summaries are
+  negative and all three intervals overlap. **But 13.6 had no row for what
+  happened.** The subtype whose pooled estimate excludes zero is
+  **HR-positive/HER2-negative** (-0.2759 [-0.5299, -0.0219], I2 3.9%), not TNBC,
+  which is **heterogeneous rather than underpowered** — 441 events, the best
+  powered stratum in the study, at I2 62.1% with its three cohorts' signs
+  disagreeing. **13.6 was NOT amended**: writing a row after seeing the result
+  would be fitting a rule to an outcome, so the gap is recorded in section 5.2
+  of `docs/2026-10-03_e42_result.md` and 13.6 carries a dated pointer with its
+  content unchanged. `E42` also **refuted the `s508` explanation**:
+  `rho(OX, subtype2) = -0.054`, and near zero was the one decisive direction,
+  so **that divergence now has no explanation.** And **one of four subtypes was
+  never fitted** (`HRneg_HER2pos`, minority class 33 against 7 parameters), so
+  **the clause's generality over HER2-positive disease rests on nothing
+  measured.**
 
 **Three things from this line that must travel with any sentence about it.**
 
@@ -249,6 +267,52 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
 are `car::vif`'s "No intercept: vifs may not be sensible", spurious for a model
 that has no intercept by design, at 40 fits times a double call. **No `E40`
 number is affected.**
+
+### `X01` is OFF the E-numbering, and that is the point
+
+**`X01` is grant-preparatory and MANUSCRIPT-EXCLUDED.** It is deliberately not
+an `E` number so the file listing itself shows the difference: the E-line is
+manuscript-bound and reports whatever it shows under a declaration committed
+before it ran, and `X01` is neither. Its governing note is
+`docs/2026-10-03_X01_exploratory_leads_note.md` and its result is
+`docs/2026-10-04_X01_result.md`.
+
+**NO result from `X01` may enter any manuscript document, figure, legend or
+supplementary file without its own declaration written and committed first**,
+and **`E42` 13.2's prohibition on a subtype result becoming a finding is NOT
+relaxed by it.** The vocabulary there is *suggests*, *is consistent with*,
+*would be worth testing*.
+
+**It surveyed METABRIC's ER-positive stratum by PAM50 and nothing cleared the
+bar its own note set** — no subtype meets more than one of three criteria. Four
+things it established, all negative or cautionary and all useful:
+
+1. **`LumB` carries the ER-positive association and `LumA` does not** (LumB m1
+   0.7532 [0.634, 0.895], the only interval excluding 1; LumA flat at both
+   rungs). `Her2` scores three of three on the false-lead signature named in
+   advance and is not a lead.
+2. **The mechanism its own note predicted failed.** It named `LumA` as most
+   differentiated and most oxidative; the association sits in the *more*
+   proliferative luminal subtype. **This is the second mechanism this arm has
+   proposed and had refused** — `E42`'s `rho(OX, subtype2) = -0.054` was the
+   first — and **the pattern is worth more than either refutation.** No
+   replacement mechanism was offered, deliberately.
+3. **A criterion imported from the E-line inverted.** "m0 null and m1
+   protective shows the adjustment doing work" is right for the E-line's
+   mechanistic question and wrong for a biomarker one, where an unadjusted
+   association is the deliverable and adjustment-survival is evidence of
+   *incremental* value over grade and Ki67. On the reversed pair `LumB` ranks
+   first where the criterion ranked it last. **Which criterion to apply
+   changed; what the estimate is worth did not.**
+4. **The predictive-marker hypothesis cannot be surveyed in METABRIC.** The one
+   fittable chemotherapy group reverses sign (HR 1.348 [0.848, 2.142]) against
+   0.828 to 0.880 elsewhere, but **confounding by indication is the leading
+   explanation** — that group is the most proliferative (mean `PROLIF` -0.048
+   against -0.147 to -0.383, *which is the indication*), has 5.08 y follow-up
+   against up to 11.63 y where PH already fails for OX, and is depleted of
+   `LumB`. **It cannot be tested from disk**: `grade`, `size`,
+   `lymph_nodes_positive` and `age_at_diagnosis` were never carried into
+   `E41`'s frame. That gap is one of the two blocks behind R rule 4.
 
 - **`E35`**, merged from `e35-burden-coupling`, **complete and verified**. Is the
   OXPHOS-to-configuration coupling graded by genomic burden? **Reading
@@ -516,8 +580,9 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E41. `E31` lives on an unmerged
-               branch, so it is the one gap in this tree
+scripts/       numbered R pipeline, E00-E42. `E31` lives on an unmerged
+               branch, so it is the one gap in this tree. `X01_*` is OFF the
+               numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
 docs/figures/  tracked copies of the figures a note relies on
 data/          snapshots, each with a provenance README

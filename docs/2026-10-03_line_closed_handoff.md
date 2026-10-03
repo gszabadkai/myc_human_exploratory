@@ -29,6 +29,13 @@ next-action: >
 
 # Handoff - the respiratory-axis line is closed, and the live item is on the manuscript
 
+> **SPENT. SUPERSEDED by `docs/2026-10-04_handoff.md`.** Its section 2
+> obligation - replacing the draft sentence *"respiration did not itself predict
+> response"* - **STANDS**, but now carries a fourth qualification from `E42`:
+> the subtype scope was checked and the clause stands unqualified, with
+> `HRneg_HER2pos` never fitted. **Sections 3 to 7 here are still good as
+> written.** Two things postdate this note entirely: `E42` and `X01`.
+
 **Option A throughout: Claude Code wrote the scripts, the author sourced them.**
 Nothing was written to `myc_human_validation`, frozen at `d3ac60e`, or to
 `myc_mouse`.
