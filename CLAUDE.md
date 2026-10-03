@@ -482,7 +482,7 @@ the sheet, not the repository.**
 
 ## R coding rules
 
-Full file: `docs/R_CODING_INSTRUCTIONS.md`. These three cause the most damage.
+Full file: `docs/R_CODING_INSTRUCTIONS.md`. These four cause the most damage.
 
 1. **Never `print(n = X)` after `head()`.** `head()` may coerce a tibble to a
    data.frame, so `n` is read as `na.print`. Use `head(X) %>% print()`.
