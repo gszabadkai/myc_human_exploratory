@@ -157,13 +157,98 @@ aliquot.
 **`E35`, `E36`, `E37` and `E38` are all on `main`**, each merged once complete,
 run by the author and verified object by object against digests recorded
 *before* that run — 25 of 25 for `E36`, 15 of 15 for `E37`, 30 of 30 for `E38`.
-Branches kept undeleted on origin. **The next free script number is `E39`, and
-`E31` is the only analysis still off `main`.**
+Branches kept undeleted on origin.
 
 They continue one line of questioning and they finish it: `E34` asked where the
 configuration sits, `E35` whether that depends on genomic burden, `E36` whether
 it exists below the tumour range at all, and `E38` diagnosed why `E36` could not
-answer. **The normal-tissue line is closed; no phase is open.**
+answer. **The normal-tissue line is closed.**
+
+**`E39`, `E40` and `E41` are on `main`**, committed straight to the trunk rather
+than merged from branches, each verified object by object against digests
+recorded *before* the author's run — **26 of 26 for `E41`**. **The next free
+script number is `E42`, and `E31` is the only analysis still off `main`. No
+phase is open.**
+
+They are **one analysis under one declaration**,
+`docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
+METABRIC at `ccadfa5` and `82659ff`), with a division of labour fixed in its
+section 10: GSE25066 carries the ER-negative sign pair, METABRIC the
+ER-positive half. **One result note covers all three**:
+`docs/2026-10-03_e39_e40_e41_result.md`. It exists because the draft sentence
+*"respiration did not itself predict response"* had **no fitted quantity behind
+it** — only three numbers printed once in an `if (FALSE)` sandbox.
+
+- **`E39`**, the identifiability gate. It **fits nothing**.
+  `rho(OX, PROLIF_DISJOINT)` = 0.3575 / 0.3812 / 0.4934, all below 0.60, so the
+  ladder is licensed in all three cohorts. **But it found something it was not
+  looking for**: `rho(MYC, PROLIF_DISJOINT)` = 0.7797 / 0.7851 / **0.8236**, and
+  the last is inside the declaration's own `>= 0.80 NOT IDENTIFIABLE` band. **In
+  GSE164458 the MYC and proliferation terms are not separately identifiable**,
+  so 5.3's prohibition on reading `m1 -> m2` as "what remains after
+  proliferation is MYC" is **mandatory, not cautious**.
+- **`E40`**, the ladder on pCR and DRFS, three neoadjuvant cohorts.
+  **ONE QUANTITY MEETS THE DECLARED READING RULE**: the pooled pCR coefficient
+  at `m1`, **-0.1616 [-0.281, -0.042]**, negative in all three cohorts, I2 = 0
+  (and `m2`, `m3` likewise). **`m0` fails both conditions** — signs `+ - +`,
+  pooled CI including zero, the only cohort-level `m0` excluding zero being the
+  smallest cohort disagreeing in sign with the largest. **So the draft sentence
+  refers to a quantity that is not readable in either direction and must be
+  replaced or dropped.** Every VIF for OX is 1.00 to 1.43, so the
+  MYC-proliferation collinearity **never reached the exposure**.
+- **`E41`**, the METABRIC prognosis ladder — **1,505 ER-positive patients
+  carrying 431 cause-specific events, against GSE25066's 40**. Nothing meets the
+  rule. It licenses the **forkscale** statement: `rho(OX, MB1_forkscale)` = 0.416
+  here against F3-pre's 0.529 (GSVA) and 0.418 (mitoPPS), so three readings on
+  two instruments in two cohorts all sit inside the INTERMEDIATE band and
+  **INTERMEDIATE is a property, not an instrument artefact**. `F3` was specified
+  in `myc_human_validation`; **these rungs are NOT F3.**
+
+**Three things from this line that must travel with any sentence about it.**
+
+1. **ON DISTANT OUTCOME NOTHING MEETS THE RULE**, in either cohort family, and
+   **two near-misses are traps rather than results.** The only GSE25066 DRFS
+   cells excluding zero are in **`s508`, the set with NO SUBTYPE TERM** — the
+   pre-specified 465 and the 490 have none — so the coefficient crosses the line
+   exactly when subtype adjustment is removed. **Those cells may not be cited.**
+   And METABRIC's ER-positive `m1` excludes zero by **3.7e-04**, its own declared
+   sensitivity **does not reproduce it** (p 0.186, and the 127 reclassified
+   patients are 28 Basal and 32 Her2 leaving the stratum), and `m2` and `m3`
+   include zero. **One boundary cell of thirty is not a finding**, and section
+   9's ban on calling a p value a near miss cuts **both ways** around it.
+2. **METABRIC DOES NOT REPLICATE `E40`, and no sentence may say it does** —
+   declaration 10.5, whatever the sign. Different estimand: of 1,505 ER-positive
+   patients **1,111 (73.8%) had endocrine therapy and 147 (9.8%) chemotherapy**,
+   so that stratum is overwhelmingly a non-chemotherapy one and E40's endpoint
+   does not exist in it. **The two spines also differ** (10.1a) — PAM50 there, a
+   two-level ER/HER2 collapse in GSE25066 — so the two `m0` are not the same
+   model.
+3. **SINGLE-INSTRUMENT throughout.** mitoPPS exists in none of the four cohorts;
+   three are arrays or panels and METABRIC is an array. **This line has not
+   cleared the arm's two-instrument bar and must never be written as though it
+   had.**
+
+**Two traps this line added to the repo's stock, both measured.**
+
+- **An alias is not automatically safe, and the guard belongs on the ROUTE, not
+  the symbol.** Harmonising to METABRIC's pre-2018 build, `COX7A2L -> SCAF1` and
+  `POLR1B -> RPA2` both send a gene to the **HGNC-approved symbol of a different
+  gene** (58506 and 6118); taking the first would have put a splicing factor
+  inside the OXPHOS exposure. Both are rejected, which is why OXPHOS subunits
+  recover **69 of 89 and not 70**. **But a blanket ban on those symbols is also
+  wrong**: `RPA2` is a legitimate *direct* member of `PROLIF_DISJOINT`, and
+  banning it would have silently altered the proliferation score in every model.
+  Declaration 10.3a carries the two-part rule.
+- **`BBC3` is ABSENT from METABRIC.** It costs this ladder nothing, since the
+  configuration is not fitted there — but `BBC3` is the trigger limb the
+  guardian-switch finding is built around, so **any future METABRIC analysis
+  touching the 6-gene signed configuration is blocked on it** and a five-gene
+  stand-in is forbidden.
+
+**`E40`'s 46 unexplained warnings are identified and the item is closed**: they
+are `car::vif`'s "No intercept: vifs may not be sensible", spurious for a model
+that has no intercept by design, at 40 fits times a double call. **No `E40`
+number is affected.**
 
 - **`E35`**, merged from `e35-burden-coupling`, **complete and verified**. Is the
   OXPHOS-to-configuration coupling graded by genomic burden? **Reading
@@ -254,9 +339,18 @@ matched arbitrary genes with matched signs, which would separate "signed" from
 "apoptotic".
 
 Named as decisions rather than drift, and still not done: MCbiclust / forkscale
-beyond `E32`'s single alignment check (the Menegollo axis proper), survival,
-treatment, METABRIC, DepMap, causal or mediation modelling, and anything that
-revisits the validation study's hypotheses.
+beyond `E32`'s alignment check and `E41`'s two rungs (the Menegollo axis
+proper), treatment as anything but a spine term, DepMap, causal or mediation
+modelling, and anything that revisits the validation study's hypotheses.
+
+**Two of these came off the list with the `E39`-`E41` line and the change is
+narrow.** **Survival** is no longer undone, but only as `E41` fitted it —
+METABRIC breast-cancer-specific and overall survival, on one instrument;
+SCAN-B carries no endpoint and TCGA survival is still forbidden by plan
+section 3. **METABRIC** is no longer undone, but only for that ladder and the
+two forkscale rungs; its expression layer is untracked and its provenance rests
+on the author's authority (Synapse `syn1757063`, nothing inside the file naming
+it, md5 the only check).
 
 Two items left open on purpose, recorded in
 `docs/2026-09-11_handoff.md` (spent, kept for this): whether standalone
@@ -411,7 +505,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E38. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E41. `E31` lives on an unmerged
                branch, so it is the one gap in this tree
 docs/          the aim, the plan, dated notes
 docs/figures/  tracked copies of the figures a note relies on
