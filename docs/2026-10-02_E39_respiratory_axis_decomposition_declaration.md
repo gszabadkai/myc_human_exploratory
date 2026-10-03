@@ -719,6 +719,24 @@ an unrelated transcript into a score under the right label:
 All 26 `symbol_map` hits the three sets need were tested the same way and all 26
 resolve to one Entrez ID, `EEF1AKNMT` -> `METTL13` (51603) included.
 
+**The guard is on the ROUTE, not on the symbol - established by a dry run that
+stopped on it.** A first version of the `E41` script forbade `SCAF1`, `RPA2` and
+`ATP5EP2` from entering any resolved set at all, and it **stopped immediately**:
+**`RPA2` is a legitimate direct member of `PROLIF_DISJOINT`**, because
+replication protein A2 is a proliferation gene. A global ban on the symbol would
+have removed a real member of the 318 and **changed the proliferation score in
+every rung of every model**, silently, under the appearance of extra rigour.
+
+So the rule has two halves and the script carries per-row provenance to tell
+them apart:
+
+- a **rejected gene** must not be resolved by any non-direct route, and
+- a **forbidden substitute** must not arrive **as a substitute**. It may arrive
+  **directly**, because then it is the gene the set actually names.
+
+The script reports every symbol to which this applies, by set, so the
+distinction is visible where it is read rather than buried in a rule.
+
 Three gene-level decisions, recorded rather than left to a lookup:
 
 - **`ATP5F1E` is EXCLUDED.** Absent under its current name, under `ATP5E`, and
