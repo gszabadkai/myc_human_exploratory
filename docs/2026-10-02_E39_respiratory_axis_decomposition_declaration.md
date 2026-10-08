@@ -1058,3 +1058,82 @@ consistent with the proposed explanation and does not demonstrate it; a
 near-zero correlation **refutes** it, which is the one direction in which a
 single number here is decisive. It is reported with that asymmetry stated and is
 not interpreted further.
+
+## 14. E43 - retrieving the proliferation coefficient
+
+### 14.1 What was discarded
+
+E40 and E41 carried PROLIF_DISJOINT in every rung from m1 onward and extracted
+only the OX row of each coefficient matrix, through a helper taking `co["OX", ]`.
+The proliferation coefficient, its SE, interval, p and VIF were computed and
+discarded at extraction. The `terms` column records the formula as a string, so
+the term is documented as having been fitted while its estimate exists nowhere
+on disk. Neither object carries the fitted models; both held them in a local
+list for `cox.zph` and did not save it.
+
+### 14.2 Posture - a retrieval, not a new analysis
+
+This is the Block C situation again. `2026-08-29_escape_reading_declaration.md`
+fixed that the discarded main effects were "relevant to a constraint reading,
+and retrieving them is a one-line change," and that "when retrieved they inform
+E2's interpretation without redefining it." The same holds here: the model is
+unchanged, the term was declared, and only the extraction is new.
+
+**But the reading it supports is post-hoc and must be written as such.** Section
+9.1's sign-pair table anticipated better/worse, no-effect/worse and
+better/better. The observed worse-pCR-with-better-survival combination is not in
+it. That gap is recorded here rather than repaired retrospectively.
+
+### 14.3 Specification
+
+**m1 only.** `pcr ~ OX + PROLIF + subtype + treatment` for the three pCR
+cohorts, `Surv(time, event) ~ OX + PROLIF + subtype + treatment` for METABRIC
+pooled and both ER strata, with each cohort's constant terms omitted as before.
+
+Refit from the saved frames - `e39_prepare_and_gate.rds$frame` plus the frozen
+`h4_outcome_models.rds$frames` for E40, `e41_metabric_ladder.rds$frame` for E41.
+**Nothing is rescored.**
+
+**Reproduction check, and it is a stop condition.** The refit must reproduce the
+stored OX coefficients to at least six decimal places in every cell. Any
+discrepancy means the refit is not the original model and the PROLIF estimate
+cannot be read.
+
+Report the full coefficient matrix and the full VIF vector this time, not one
+row.
+
+### 14.4 Why m1 is the interpretable rung
+
+MYC is absent from m1, so `rho(MYC, PROLIF_DISJOINT)` of 0.78 / 0.79 / 0.82 in
+the pCR cohorts and 0.71 in METABRIC does not bear on this coefficient. It is
+governed by `rho(OX, PROLIF)` of 0.36 to 0.49, inside the declaration's own
+separable band. m2 and m3 are not retrieved.
+
+### 14.5 Expected attenuation, stated before the fit
+
+Subtype is in the spine, and subtype is substantially a proliferation
+classification - PAM50 LumA against LumB in METABRIC, hormone-receptor status in
+the neoadjuvant cohorts. Much of proliferation's prognostic and predictive signal
+is therefore absorbed before the PROLIF term is reached.
+
+**An attenuated or null PROLIF coefficient is expected and does not refute the
+published pattern.** It would say that proliferation adds little within subtype,
+not that the relationship is absent.
+
+### 14.6 Reading rule, fixed before the fit
+
+| outcome | what may be written |
+|---|---|
+| PROLIF positive on pCR and above unity on survival, both intervals excluding the null | the sign pair is present in these models; the Results may state the inversion as an internal observation |
+| the directions hold but one or both intervals include the null | report the point estimates and directions; cite the published pattern for the relationship itself; do not claim the pair is demonstrated here |
+| a direction contradicts the published pattern | report it, and withdraw the inversion framing from the Results |
+
+**The third row may not be rescued by reporting only the endpoint that
+cooperated.** Both are retrieved and both are reported.
+
+### 14.7 Standing fix, from here on
+
+Every script in this arm saves the **full** coefficient matrix and the **full**
+VIF vector, not a selected row, and saves the fitted model objects alongside.
+This is the third retrieval forced by selective extraction and it is cheap to
+prevent.
