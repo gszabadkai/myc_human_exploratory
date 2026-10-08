@@ -85,3 +85,48 @@
 # byte-identical and the author's re-run matched them, so a digest check finds
 # 26 matching plus one new. Any such amendment states that explicitly and the
 # re-source requirement with it.
+
+## 4. SAVE THE FULL COEFFICIENT MATRIX, THE FULL VIF VECTOR AND THE FITTED
+##    MODEL OBJECTS. Never a selected row.
+
+# Added 2026-10-08, from the third block of this class. Declaration section 14.7
+# fixes it for the respiratory-axis line; it applies to the arm.
+#
+# WHAT HAPPENED. `E40` and `E41` carried `PROLIF_DISJOINT` in every rung from m1
+# onward and extracted coefficients through a helper taking `co["OX", ]`. Every
+# other term's estimate, SE, interval, p and VIF was computed and thrown away.
+# The saved tables are one row per cohort-by-rung, so the `terms` column records
+# the formula as a string while the coefficients it names exist nowhere. Neither
+# object saved its fitted models either. `E43` had to refit all eight models to
+# recover one term that had already been estimated twice.
+#
+# THE RULE. Every script that fits anything saves:
+#
+#   - the FULL coefficient matrix, every term, as a tidy table - set, term,
+#     estimate, SE, statistic, p, and the interval;
+#   - the FULL VIF vector, every term, with its Df and the measure named;
+#   - the FITTED MODEL OBJECTS themselves.
+#
+# WHY A SELECTED ROW IS NEVER ENOUGH. The coefficient you did not keep is the
+# one the next question needs. That has now happened three times: script 09's
+# discarded Block C main effects, script 13's F1 main effect printed once in an
+# `if (FALSE)` sandbox, and `E40`/`E41`'s PROLIF row. Each cost a refit and one
+# of them cost a declaration amendment.
+#
+# ONE CAVEAT FOR VERIFICATION, found by `E43`'s dry runs. A FITTED MODEL IS NOT
+# DIGEST-STABLE ACROSS RUNS. `coxph` and `glm` objects carry `terms`, `formula`,
+# `model` and `family`, each holding an ENVIRONMENT whose address differs
+# between sessions, so `identical()` on two runs' fits returns FALSE even when
+# every number agrees. Verified on `E43`: coefficients and variance matrices
+# identical in every fit, only those four carriers differing.
+#
+#   SO: save a `fit_digests` table - one row per fit, with digests of `coef()`
+#   and `vcov()` - and EXCLUDE the fitted objects from any digest comparison.
+#   Say so in the script and in the commit, or a verification pass reads a
+#   cosmetic difference as a failure.
+#
+# AND READ A MULTI-DF GVIF ON THE RIGHT SCALE. A generalised VIF for a term with
+# Df > 1 is not comparable to a 1-df VIF threshold. Compare `GVIF^(1/(2*Df))`
+# against the SQUARE ROOT of the 1-df threshold (Fox and Monette). `E43`'s first
+# version compared a raw multi-df GVIF of 7.979 against a threshold of 5 and
+# flagged a caveat that does not exist: adjusted, that term is 1.414 on 3 df.

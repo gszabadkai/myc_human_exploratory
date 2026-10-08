@@ -164,11 +164,11 @@ configuration sits, `E35` whether that depends on genomic burden, `E36` whether
 it exists below the tumour range at all, and `E38` diagnosed why `E36` could not
 answer. **The normal-tissue line is closed.**
 
-**`E39`, `E40`, `E41` and `E42` are on `main`**, committed straight to the trunk
-rather than merged from branches, each verified object by object against digests
-recorded *before* the author's run — **26 of 26 for `E41`, 16 of 16 for `E42`**.
-**The next free script number is `E43`, and `E31` is the only analysis still off
-`main`. No phase is open.**
+**`E39`, `E40`, `E41`, `E42` and `E43` are on `main`**, committed straight to
+the trunk rather than merged from branches, each verified object by object
+against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
+16 for `E42`, 14 of 14 for `E43`**. **The next free script number is `E44`, and
+`E31` is the only analysis still off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -221,10 +221,39 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
   never fitted** (`HRneg_HER2pos`, minority class 33 against 7 parameters), so
   **the clause's generality over HER2-positive disease rests on nothing
   measured.**
+- **`E43`**, a **RETRIEVAL and not a new analysis** (14.2). `E40` and `E41`
+  carried `PROLIF_DISJOINT` in every rung from m1 and extracted **only the OX
+  row** of each coefficient matrix, so the proliferation coefficient was
+  computed and discarded. `E43` refits m1 from the saved frames — **the gate
+  reproduced every stored OX coefficient and SE with a discrepancy of exactly
+  0**, so these are the same models — and retrieves it. **Declaration 14.6 lands
+  on row 1**: PROLIF is **positive on pCR in all three cohorts**, every interval
+  excluding zero (pooled random **+0.5422 [0.307, 0.778]**, I2 66.9), and
+  **above unity on survival** with intervals excluding the null in the pooled
+  ladder (**HR 1.1336**) and both ER-positive strata. `docs/2026-10-08_e43_result.md`.
+
+  **The gain is INFERENTIAL, and it is the reason to care.** PROLIF reproduces
+  the canonical proliferation paradox — better pCR, worse survival — which is
+  **exactly row 1 of section 9.1's sign-pair table**, inside the same models in
+  which OX runs the other way. **So the models CAN detect a known sign pair in
+  these data**, and OX's failure to show the canonical pattern is not a failure
+  of the models, the spine, the cohorts or the endpoints. **It functions as a
+  positive control; it was NOT designed as one** and no sentence may imply it
+  was. **The asymmetry travels with it**: PROLIF's two halves are both solid and
+  **OX's are not** — its survival limb is still `E42`'s boundary cell, and `E43`
+  does not change that by one decimal.
+
+  **`14.5`'s pre-stated expectation was WRONG IN THE CONSERVATIVE DIRECTION**
+  and is recorded as such: it prepared for an attenuated or null coefficient,
+  and the coefficient survives subtype adjustment in both arms.
 
 **Three things from this line that must travel with any sentence about it.**
 
-1. **ON DISTANT OUTCOME NOTHING MEETS THE RULE**, in either cohort family, and
+1. **ON DISTANT OUTCOME NOTHING MEETS THE RULE — FOR THE OXPHOS EXPOSURE.**
+   **Say which exposure**, because since `E43` the sentence is ambiguous without
+   it: `PROLIF_DISJOINT` in those same models IS above unity with intervals
+   excluding the null in the pooled METABRIC ladder and both ER-positive strata.
+   What follows is about **OX**, in either cohort family, and
    **two near-misses are traps rather than results.** The only GSE25066 DRFS
    cells excluding zero are in **`s508`, the set with NO SUBTYPE TERM** — the
    pre-specified 465 and the 490 have none — so the coefficient crosses the line
@@ -257,6 +286,17 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
   wrong**: `RPA2` is a legitimate *direct* member of `PROLIF_DISJOINT`, and
   banning it would have silently altered the proliferation score in every model.
   Declaration 10.3a carries the two-part rule.
+- **A MULTI-DF GVIF IS NOT ON THE SAME SCALE AS A 1-DF VIF, and section 5.3's
+  threshold of 5 was set for OX, which is 1 df.** Comparing a raw multi-df GVIF
+  against 5 overstates it. Fox and Monette's prescription is to compare
+  **`GVIF^(1/(2*Df))`** against the **square root** of the 1-df threshold.
+  `E43` flagged GSE194040's subtype GVIF 7.979 and treatment GVIF 7.269 as
+  breaching the caveat; adjusted they are **1.414** (3 df) and **1.086** (12
+  df), **no term in any model of the line exceeds `sqrt(5)` = 2.236**, and the
+  maximum anywhere is 1.463. **So the line carries NO collinearity caveat**, and
+  the raw figures concern the **spine** — I-SPY2's arm assignment by receptor
+  status — rather than either exposure. The error was only visible because
+  `14.7` required the full VIF vector.
 - **`BBC3` is ABSENT from METABRIC.** It costs this ladder nothing, since the
   configuration is not fitted there — but `BBC3` is the trigger limb the
   guardian-switch finding is built around, so **any future METABRIC analysis
@@ -546,7 +586,7 @@ the sheet, not the repository.**
 
 ## R coding rules
 
-Full file: `docs/R_CODING_INSTRUCTIONS.md`. These four cause the most damage.
+Full file: `docs/R_CODING_INSTRUCTIONS.md`. These five cause the most damage.
 
 1. **Never `print(n = X)` after `head()`.** `head()` may coerce a tibble to a
    data.frame, so `n` is read as `na.print`. Use `head(X) %>% print()`.
@@ -563,6 +603,16 @@ Full file: `docs/R_CODING_INSTRUCTIONS.md`. These four cause the most damage.
    matrix — the analysis-unit table, which is trivial on disk. Appending a
    frame to an already-verified object changes no existing element, so recorded
    digests still hold; say so and say that a re-source is needed.
+5. **Save the FULL coefficient matrix, the FULL VIF vector and the FITTED MODEL
+   OBJECTS** — never a selected row. Declaration `14.7`. `E40` and `E41`
+   extracted only `co["OX", ]`, which discarded every other term's estimate and
+   forced `E43` to refit to recover one. **This is the third retrieval forced by
+   selective extraction** and it is cheap to prevent. **`E43` is the first
+   script in the arm to comply.** One caveat for verification: a fitted model is
+   **not digest-stable** across runs — `coxph` and `glm` carry `terms`,
+   `formula`, `model` and `family`, each holding an environment — so save a
+   `fit_digests` table of `coef()` and `vcov()` per fit and exclude the fits
+   themselves from any digest comparison.
 
 No `renv`; packages are installed system-wide.
 
@@ -580,7 +630,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E42. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E43. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
