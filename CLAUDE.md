@@ -167,8 +167,9 @@ answer. **The normal-tissue line is closed.**
 **`E39`, `E40`, `E41`, `E42` and `E43` are on `main`**, committed straight to
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
-16 for `E42`, 14 of 14 for `E43`**. **The next free script number is `E44`, and
-`E31` is the only analysis still off `main`. No phase is open.**
+16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
+number is `E45`, and `E31` is the only analysis still off `main`. No phase is
+open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -246,6 +247,28 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
   **`14.5`'s pre-stated expectation was WRONG IN THE CONSERVATIVE DIRECTION**
   and is recorded as such: it prepared for an attenuated or null coefficient,
   and the coefficient survives subtype adjustment in both arms.
+- **`E44`**, the contrast between them, **TESTED rather than eyeballed** and
+  computed with **NO REFIT** from `E43`'s saved fits. `delta = beta(PROLIF) -
+  beta(OX)` from the same m1 fit, with `Var(delta) = Var(bP) + Var(bO) -
+  2*Cov(bP, bO)`. **15.6 lands on row 1**: delta excludes zero on both
+  endpoints with signs agreeing in all three pCR cohorts - pooled **+0.6577
+  [0.4446, 0.8709]** at I2 0, a ratio of odds ratios of 1.930, and **+0.3160
+  [0.1180, 0.5140]** in METABRIC's ER-positive IHC stratum. **So the two
+  coefficients DIFFER, tested, on both endpoints.**
+  `docs/2026-10-08_e44_result.md`.
+
+  **IT REPLACES THE BASIS OF THE CLAIM, NOT THE CLAIM.** 15.7 measured before
+  the computation that the eyeball non-overlap **fails** in the pooled ladder
+  and in the declared `ER.Expr` sensitivity; the tested contrast **holds** in
+  both. **So "the two intervals are again disjoint" MUST NOT be written on
+  distant outcome** - it is true of the ER-positive IHC stratum and nothing
+  else there - and the tested difference goes in its place.
+
+  **AND 15.3 GOVERNS IT ABSOLUTELY. A significant contrast does not make either
+  coefficient a finding.** The OX coefficient remains exactly as weak as the
+  E39/E40/E41 result note's 7.2 records it, and **nothing in `E44` may be cited
+  in support of a distant-outcome claim for respiration.** What it licenses is
+  that the two DIFFER, not that either is established.
 
 **Three things from this line that must travel with any sentence about it.**
 
@@ -286,6 +309,19 @@ it** — only three numbers printed once in an `if (FALSE)` sandbox.
   wrong**: `RPA2` is a legitimate *direct* member of `PROLIF_DISJOINT`, and
   banning it would have silently altered the proliferation score in every model.
   Declaration 10.3a carries the two-part rule.
+- **NEVER DIFFERENCE TWO COEFFICIENTS FROM ONE MODEL WITHOUT THE COVARIANCE.**
+  `Var(bP - bO)` is `Var(bP) + Var(bO) - 2*Cov(bP, bO)`, and the naive sum of
+  squared SEs assumes the covariance is zero. In `E44`'s eight fits
+  `Cov(bP, bO)` is **negative in all eight** (coefficient correlations -0.512
+  to -0.312), so the correct SE is **14.3% to 22.9% LARGER** and **the naive
+  version is ANTI-CONSERVATIVE, not merely wrong**: it would have given p
+  0.000352 instead of 0.00176 in the primary stratum and 0.0196 instead of
+  0.0434 in the pooled ladder. **Use a general linear contrast** - `L %*% beta`
+  with `Var = L V L'` - so the covariance sign comes from the algebra. And
+  **the difference of two separately POOLED estimates is not the pooled
+  difference and has NO valid standard error**, because the pooled estimates
+  come from overlapping patients; `E44` landed 0.6566 against the correct
+  0.6577, which is luck rather than licence.
 - **A MULTI-DF GVIF IS NOT ON THE SAME SCALE AS A 1-DF VIF, and section 5.3's
   threshold of 5 was set for OX, which is 1 df.** Comparing a raw multi-df GVIF
   against 5 overstates it. Fox and Monette's prescription is to compare
@@ -630,7 +666,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E43. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E44. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
