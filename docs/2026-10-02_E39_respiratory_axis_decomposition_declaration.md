@@ -1137,3 +1137,129 @@ Every script in this arm saves the **full** coefficient matrix and the **full**
 VIF vector, not a selected row, and saves the fitted model objects alongside.
 This is the third retrieval forced by selective extraction and it is cheap to
 prevent.
+
+## 15. E44 - testing the respiration-proliferation contrast
+
+### 15.1 What this computes, and why
+
+Section 4's draft states that the respiration and proliferation coefficients
+have non-overlapping intervals on both endpoints. That is an eyeball comparison
+of two intervals, not a test of the difference between them. E44 replaces it
+with the computed quantity.
+
+The estimand is the within-model linear contrast
+
+    delta = beta(PROLIF) - beta(OX)
+
+taken from the SAME m1 fit, so its variance is
+
+    Var(delta) = Var(bP) + Var(bO) - 2 * Cov(bP, bO)
+
+with the covariance read from that model's variance matrix. The naive sum of
+squared standard errors is WRONG here: OX and PROLIF correlate at Spearman 0.36
+to 0.49, so their coefficient estimates are correlated and the covariance term
+is not zero.
+
+This is computable without a refit only because section 14.7 required E43 to
+save the fitted objects; `$fits` holds all eight m1 models.
+
+### 15.2 Posture
+
+EXPLORATORY, POST-HOC and DESCRIPTIVE. A derived quantity from models already
+declared and already reported, computed to replace a descriptive statement the
+Results would otherwise make loosely. It is not a hypothesis and carries no
+falsification criterion.
+
+### 15.3 WHAT A SIGNIFICANT CONTRAST DOES NOT DO
+
+**It does not make either coefficient a finding.** The contrast can exclude zero
+while the OX coefficient alone remains exactly as weak as E39/E40/E41 section
+7.2 records it - one boundary cell of thirty, unreproduced by its own
+sensitivity, with the adjacent rungs including the null.
+
+**In particular, nothing in E44 may be cited in support of a distant-outcome
+claim for respiration.** That prohibition is unchanged and is not relaxed by a
+contrast against a different term. What E44 can license is a statement that the
+two coefficients DIFFER, not that either is established.
+
+### 15.4 Specification
+
+**pCR, three cohorts.** Compute delta within each cohort from its own m1 fit and
+variance matrix, then meta-analyse the three by the same DerSimonian-Laird
+estimator used throughout, reporting fixed and random effects, Q, Q p, tau2, I2
+and sign agreement. **The difference of two separately pooled estimates is NOT
+the pooled difference and must not be computed that way.**
+
+**Distant outcome, METABRIC.** Compute delta directly from the ER-positive (IHC)
+m1 fit, with the pooled ladder and the ER.Expr sensitivity reported beside it.
+The ER-negative strata are reported and are uninformative in both terms.
+
+**GSE25066 DRFS is excluded, and the exclusion is declared here rather than left
+silent.** Its m1 is not among E43's saved fits, nothing in that cohort met the
+reading rule at 103 events, and a contrast there would be uninformative. If it
+is ever computed it is reported whatever it shows.
+
+**Scale.** pCR deltas are on the log-odds scale and METABRIC deltas on the
+log-hazard scale. **They are not combined, pooled or compared as values** (4.2).
+Exponentiated values are labelled as a ratio of odds ratios or of hazard ratios
+and never set side by side.
+
+### 15.5 Reported alongside, because they make the number readable
+
+- The **correlation between the two coefficient estimates** in each fit, which is
+  what makes the naive calculation wrong.
+- The **naive standard error** beside the correct one, so the size of the
+  covariance correction is visible rather than asserted.
+- The two component coefficients and intervals in the same row.
+
+### 15.6 Reading rule, fixed before the computation
+
+| outcome | what the Results may say |
+|---|---|
+| delta excludes zero on both endpoints, signs agreeing across the pCR cohorts | the two coefficients differ, tested, on both endpoints |
+| delta excludes zero on pCR only | the opposition is tested on treatment response and remains a described direction on distant outcome |
+| delta includes zero on an endpoint | the non-overlap statement is withdrawn for that endpoint; the two intervals are reported and nothing is claimed about their difference |
+
+At I2 >= 50 the random-effects summary is the one read, with the fixed effect
+beside it (section 9). No p value is described as a near miss.
+
+### 15.7 The eyeball claim 15.1 replaces is NOT universally true, measured before E44 ran
+
+Read from `e43_proliferation_coefficient.rds` before this section was committed,
+because section 4's draft sentence depends on it. **The two intervals are
+disjoint in 4 of the 8 saved m1 fits:**
+
+| fit | OX interval | PROLIF interval | disjoint | gap |
+|---|---|---|---|---|
+| GSE25066 (pCR) | [-0.338, 0.236] | [0.506, 1.144] | **yes** | 0.270 |
+| GSE194040 (pCR) | [-0.339, -0.008] | [0.185, 0.550] | **yes** | 0.193 |
+| GSE164458 (pCR) | [-0.423, 0.012] | [0.303, 0.745] | **yes** | 0.291 |
+| **METABRIC ER-pos (IHC)** | [-0.219, -0.000] | [0.072, 0.341] | **yes** | **0.072** |
+| METABRIC pooled | [-0.137, 0.040] | [0.009, 0.242] | **NO** | -0.031 |
+| **METABRIC ER-pos (`ER.Expr`)** | [-0.182, 0.036] | [0.029, 0.304] | **NO** | **-0.006** |
+| METABRIC ER-neg (IHC) | [-0.095, 0.225] | [-0.267, 0.192] | NO | -0.288 |
+| METABRIC ER-neg (`ER.Expr`) | [-0.148, 0.167] | [-0.160, 0.259] | NO | -0.328 |
+
+**So the draft's "the two intervals are again disjoint" is true of the
+ER-positive IHC stratum and of nothing else on that endpoint.** It fails in both
+comparators 15.4 requires beside it: the pooled ladder overlaps by 0.031, and
+**the declared `ER.Expr` sensitivity overlaps by 0.006.** That is the same shape
+E42 found for OX alone - the primary cell holds and its own sensitivity does
+not - and **section 4 may not write "again disjoint" without naming the
+stratum.**
+
+**But interval overlap and a contrast test are DIFFERENT criteria, and
+non-overlap is the stricter one.** Two intervals can overlap while their
+difference still excludes zero, so E44 may support a difference in cells where
+the eyeball comparison cannot. **The direction in which E44 corrects the draft
+is therefore not known in advance** - it may license more than the eyeball
+claim in some cells and less in others - which is a reason to compute it rather
+than argue about it.
+
+**One expectation about the covariance, recorded so the script's output is read
+and not assumed.** For two positively correlated predictors the coefficient
+estimates are usually NEGATIVELY correlated, which makes `-2*Cov(bP, bO)`
+positive and the correct `Var(delta)` LARGER than the naive sum. If so the naive
+standard error is **anti-conservative**, not merely wrong. 15.5 requires both to
+be reported, so the direction will be visible per fit rather than taken on
+trust.
