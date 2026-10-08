@@ -437,15 +437,36 @@ message("\n   the same rows on the exponentiated scale, labelled by family:")
                 sprintf("%.4f", effect_hi_PROLIF), "]"),
     OX_effect = round(exp(estimate_OX), 4)))
 
-VIF_HI <- VIFS %>% dplyr::filter(!is.na(vif), vif > VIF_CAVEAT)
+# A MULTI-DF GVIF IS NOT ON THE SAME SCALE AS A 1-DF VIF, and section 5.3's
+# threshold of 5 was set for OX, which is 1 df. Fox and Monette's prescription
+# is to compare GVIF^(1/(2*Df)) against the square root of the 1-df threshold.
+# Comparing a raw multi-df GVIF against 5 overstates it: GSE194040's subtype
+# term is 7.98 on 3 df, which is 1.414 adjusted, and its treatment term 7.27 on
+# 12 df, which is 1.086.
+# gvif_adj is NOT added to the saved $vif_vectors, so that table's digest is
+# unchanged; it is a deterministic function of the two columns that are saved,
+# vif and vif_df, and is recomputable as vif^(1/(2*vif_df)).
+VIFS_ADJ <- VIFS %>%
+  dplyr::mutate(gvif_adj = vif^(1 / (2 * vif_df)))
+VIF_HI <- VIFS_ADJ %>%
+  dplyr::filter(!is.na(gvif_adj), gvif_adj > sqrt(VIF_CAVEAT))
+message("\n   collinearity, read on the df-ADJUSTED scale GVIF^(1/(2*Df)) ",
+        "against sqrt(", VIF_CAVEAT, ") = ", round(sqrt(VIF_CAVEAT), 3), ":")
 if (nrow(VIF_HI)) {
-  message("\n   VIF above the section 5.3 caveat threshold of ", VIF_CAVEAT,
-          ":")
-  .pr(VIF_HI %>% dplyr::transmute(set, term, vif = round(vif, 3)))
+  .pr(VIF_HI %>% dplyr::transmute(set, term, gvif = round(vif, 3),
+                                  df = vif_df, gvif_adj = round(gvif_adj, 3)))
 } else {
-  message("\n   NO term in any model has a VIF above ", VIF_CAVEAT,
-          " (section 5.3's caveat threshold). Highest is ",
-          signif(max(VIFS$vif, na.rm = TRUE), 3), ".")
+  message("   NO term in any model exceeds it. The highest adjusted value ",
+          "anywhere is ", signif(max(VIFS_ADJ$gvif_adj, na.rm = TRUE), 4),
+          ", and the highest among the OX and PROLIF terms - both 1 df, so ",
+          "GVIF == VIF - is ",
+          signif(max(VIFS_ADJ$vif[VIFS_ADJ$term %in% c("OX", "PROLIF")]), 4),
+          ".")
+  message("   ", .sub(paste0(
+    "The two largest RAW GVIFs are GSE194040's spine terms - subtype 7.98 on ",
+    "3 df and treatment 7.27 on 12 df - which adjust to 1.414 and 1.086. ",
+    "That is I-SPY2's arm assignment by receptor status, it concerns the ",
+    "spine and not the exposures, and on the comparable scale it is modest.")))
 }
 message("   ", .sub(paste0(
   "14.4: MYC is absent from m1, so rho(MYC, PROLIF_DISJOINT) of 0.78 to 0.82 ",
