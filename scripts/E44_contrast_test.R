@@ -203,12 +203,27 @@ message("   ", .sub(paste0(
 
 CONTRASTS <- dplyr::bind_rows(lapply(names(FITS), function(k)
   .linear_contrast(FITS[[k]], c(TERM_A, TERM_B), matrix(c(1, -1), nrow = 1), k)))
-CONTRASTS$family <- e43$model_info$family[
-  match(CONTRASTS$set, e43$model_info$set)]
 CONTRASTS <- CONTRASTS %>%
   dplyr::left_join(e43$model_info[c("set", "n", "events")], by = "set") %>%
   dplyr::mutate(scale = ifelse(set %in% PCR_COHORTS, "log odds ratio",
                                "log hazard ratio"))
+
+# `scale` is assigned from the set name, which is a hard-coded assumption about
+# which cohorts are logistic. ASSERTED against the fitted objects' CLASSES,
+# which are authoritative, so the labelling cannot drift from the models.
+# (An earlier version read a `family` column from e43$model_info, which has no
+# such column; the assignment was a no-op that only emitted a warning.)
+SCALE_CHK <- tibble::tibble(
+  set = CONTRASTS$set, scale = CONTRASTS$scale,
+  fit_class = vapply(CONTRASTS$set, function(k) class(FITS[[k]])[1],
+                     character(1))) %>%
+  dplyr::mutate(agrees = (fit_class == "glm"   & scale == "log odds ratio") |
+                         (fit_class == "coxph" & scale == "log hazard ratio"))
+.stop_if(all(SCALE_CHK$agrees),
+         "the scale label disagrees with the fitted model class in: ",
+         paste(SCALE_CHK$set[!SCALE_CHK$agrees], collapse = ", "),
+         ". A log-odds delta would be reported as a log-hazard one or the ",
+         "reverse. STOP.")
 
 # =============================================================================
 # 3. B. VERIFY against E43 before reporting any contrast - HARD STOP
@@ -428,6 +443,7 @@ readr::write_csv(MB,           file.path(DIR_TABLES, "E44_contrast_metabric.csv"
 readr::write_csv(META,         file.path(DIR_TABLES, "E44_contrast_pcr_meta.csv"))
 readr::write_csv(VER,          file.path(DIR_TABLES, "E44_component_check.csv"))
 readr::write_csv(PRE,          file.path(DIR_TABLES, "E44_fit_preconditions.csv"))
+readr::write_csv(SCALE_CHK,    file.path(DIR_TABLES, "E44_scale_check.csv"))
 
 saveRDS(list(
   contrasts        = CONTRASTS,
@@ -436,6 +452,7 @@ saveRDS(list(
   meta             = META,
   component_check  = VER,
   preconditions    = PRE,
+  scale_check      = SCALE_CHK,
   reading_rule     = READING_RULE,
   diff_of_pooled_forbidden = list(
     value = diff_of_pooled_fe,
@@ -510,7 +527,7 @@ saveRDS(list(
   built = Sys.time()), PATH_E44)
 
 message("   ", PATH_E44)
-message("   6 tables in ", DIR_TABLES)
+message("   7 tables in ", DIR_TABLES)
 message("\nE44 done. Numbers only; nothing here is interpreted or classified.")
 message("A SIGNIFICANT CONTRAST DOES NOT MAKE EITHER COEFFICIENT A FINDING. ",
         "15.3.\n", strrep("=", 78))
