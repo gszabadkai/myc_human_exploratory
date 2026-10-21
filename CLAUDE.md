@@ -66,6 +66,12 @@ found nothing supported. It is not reopened and it does not go in the paper.
 
 ## Current phase
 
+**Entry point: `docs/handoff-2026-10-21.md`**, the consolidated handoff. It
+holds the whole chain, the decisions, every analysis in one line, the
+pre-declaration record and the open items. Its predecessor
+`docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
+panels may assert (its section 2).
+
 **Phase 2 is CONCLUDED as of 2026-09-11.** Start at
 `docs/2026-09-11_phase2_conclusion.md` — it states the finding, what is not
 settled, and four falsifiers, and it names the three scripts behind it (`E24`
