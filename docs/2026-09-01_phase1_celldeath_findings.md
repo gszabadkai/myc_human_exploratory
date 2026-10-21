@@ -123,6 +123,13 @@ cohorts, but small. A GSVA score is a relative-rank enrichment and amplifies;
 > (0.225, opposite to D1). See S6 in
 > `docs/2026-09-01_phase2_estimator_findings.md`.
 
+> **FALSIFIER 2 WAS RUN - recorded 2026-10-21 in
+> `docs/2026-10-21_d1_falsifier_result.md`.** The list below says expression
+> has not been matched; `E05b` matched it on 2026-09-01 and its verdict sat
+> unrecorded in `results/d1_falsifier.rds`. **FALSIFIED** for the OXPHOS
+> contrast on both GSVA and mitoPPS after proliferation adjustment; the
+> unadjusted contrast survives. The text below is left as written.
+
 **What would falsify D1**
 1. A better proliferation control removing the OXPHOS contrast too - it already
    removes the MYC one.
