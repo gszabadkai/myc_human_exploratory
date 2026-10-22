@@ -656,3 +656,20 @@ the author's run.**
 | `legend_draft` | `d48bc5d8d514ab223da6b1e1d131f6fe` |
 | `figure_files` | `24f2b96d6e876b1cfd5bbcfa200eec49` (unchanged) |
 | `spec` | `9f575268ff0d7c500eb3fcab8b16acd3` |
+
+### 8.5 The author's run of E46: VERIFIED, 10 of 10
+
+**The author sourced E46 on 2026-10-22, `built` 23:32:31. All 19 assertions
+passed, and the saved object matches all 10 of section 8.4's digests.** Those
+digests were committed at `d91e156`, BEFORE the run, so **git shows the order**.
+That closes the gap E45 had (7.6).
+
+**Byte-identical to the dry run:**
+- the tracked PNG;
+- all four tables in `outputs/tables/`.
+
+**Fig. 4g is BUILT.** The tracked figure is
+`docs/figures/2026-10-22_E46_quadrant_configuration.{png,pdf}`.
+
+**Its fate in the paper waits on E47's verdict**, as E47 declaration section 10
+fixes.
