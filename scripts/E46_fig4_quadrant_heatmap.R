@@ -21,7 +21,7 @@
 #   1. ROWS ARE BLOCKED BY FUNCTION: pro-apoptotic, then anti-apoptotic. v5's
 #      MitoCarta / cytosolic split cannot be drawn - 11 of the 12 genes are in
 #      Human MitoCarta 3.0; only BMF is not. The order is FIXED, not
-#      data-driven: composite members first in each block.
+#      data-driven: signature genes first in each block.
 #   2. BOTH INSTRUMENTS GO IN THE MAIN FIGURE, side by side: the OXPHOS split
 #      by GSVA and by mitoPPS. MYC activity (M_a) is the same in both; only the
 #      OXPHOS call differs. The two assign the same quadrant to 85.0% of TCGA
@@ -37,7 +37,7 @@
 # =============================================================================
 # WHAT THE PANEL MAY AND MAY NOT ASSERT (E34 result note section 9)
 # =============================================================================
-#   - THE OXPHOS SEPARATION IS NEAR-GUARANTEED BY CONSTRUCTION: the composite's
+#   - THE OXPHOS SEPARATION IS NEAR-GUARANTEED BY CONSTRUCTION: the signature's
 #     genes and signs were read off OXPHOS correlations in these same two
 #     cohorts (E34 1.2). The informative contrasts are the MYC ones, which is
 #     why the MYC pairs sit side by side within each respiratory level.
@@ -54,7 +54,7 @@
 # =============================================================================
 #   - It fits nothing. Cells are E34's $groups, subtype "all", m1; the strip
 #     adds m3. The only computation on per-sample data is section 3's CHECK of
-#     the composite's signs, and nothing it computes is plotted.
+#     the signature's signs, and nothing it computes is plotted.
 #   - It does not draw E34's m2 (within subtype) or the arms; those are E34's
 #     own figure and ED material.
 #   - It does not interpret. The legend draft is DESCRIPTIVE ONLY.
@@ -96,7 +96,7 @@ X_COL <- list(TCGA     = c(Q1 = 1.00, Q3 = 2.00, Q2 = 3.25, Q4 = 4.25),
               `SCAN-B` = c(Q1 = 5.85, Q3 = 6.85, Q2 = 8.10, Q4 = 9.10))
 X_LIM <- c(0.45, 9.65)
 
-# Rows, blocked by function. Composite members first in each block, then the
+# Rows, blocked by function. Signature genes first in each block, then the
 # rest in E10's order. FIXED: nothing here is ordered on the data.
 PRO  <- c("BAD", "BIK", "BBC3", "BID", "BCL2L11", "BMF", "PMAIP1")
 ANTI <- c("BCL2L1", "MCL1", "BCL2", "BCL2L2", "BCL2A1")
@@ -106,10 +106,15 @@ Y_OXLEV  <- 13.55
 Y_COHORT <- 14.35
 Y_LIM    <- c(0.45, 14.85)
 
-# E33's composite, verbatim from E34 (scripts/E34_quadrant_configuration.R:141):
+# The BCL-2-family signature (S6), verbatim from E34
+# (scripts/E34_quadrant_configuration.R:141), where it is called the
+# "configuration composite" and stored as config_comp. Renamed "the signature"
+# by the author on 2026-10-22, with "signature sign" for its +1/-1; see
+# docs/2026-10-22_E47_mutual_adjustment_declaration.md 4a. Its score is the
 # mean z of BBC3, BID, BIK, BAD, BCL2L1 and minus MCL1. Section 3 CHECKS these
-# signs against the saved per-sample composite rather than trusting the copy.
-COMPOSITE_SIGN <- c(BBC3 = 1, BID = 1, BIK = 1, BAD = 1, BCL2L1 = 1, MCL1 = -1)
+# signature signs against the saved per-sample score rather than trusting the
+# copy.
+SIGNATURE_SIGN <- c(BBC3 = 1, BID = 1, BIK = 1, BAD = 1, BCL2L1 = 1, MCL1 = -1)
 
 # The diverging scale. White at 0, symmetric. ColorBrewer RdBu's end points,
 # which ColorBrewer marks colour-blind safe; blue below the cohort mean, red
@@ -161,8 +166,8 @@ genes_in <- sub("^g_", "", unique(G$readout_col[grepl("^g_", G$readout_col)]))
 .assert("E34 carries exactly the twelve genes the rows name",
         setequal(genes_in, c(PRO, ANTI)) && length(genes_in) == 12L,
         n = length(genes_in), detail = paste(sort(genes_in), collapse = ", "))
-.assert("every composite member is one of the twelve",
-        all(names(COMPOSITE_SIGN) %in% c(PRO, ANTI)), n = 6L)
+.assert("every signature gene is one of the twelve",
+        all(names(SIGNATURE_SIGN) %in% c(PRO, ANTI)), n = 6L)
 
 # One row per cohort x instrument x model x quadrant x readout, no gaps.
 cover <- G %>%
@@ -194,9 +199,9 @@ CELLS <- G %>%
   dplyr::filter(model == "m1", grepl("^g_", readout_col)) %>%
   dplyr::mutate(gene = sub("^g_", "", readout_col),
                 block = ifelse(gene %in% PRO, "pro-apoptotic", "anti-apoptotic"),
-                composite_sign = unname(COMPOSITE_SIGN[gene]),
+                signature_sign = unname(SIGNATURE_SIGN[gene]),
                 x = unname(.xpos(cohort, q)), y = unname(Y_GENE[gene])) %>%
-  dplyr::select(instrument, cohort, q, quadrant, gene, block, composite_sign,
+  dplyr::select(instrument, cohort, q, quadrant, gene, block, signature_sign,
                 n_cell, est, se, lo, hi, x, y) %>%
   dplyr::arrange(instrument, cohort, -y, x)
 .assert("no heatmap cell lies outside the colour limits (nothing squished)",
@@ -245,35 +250,35 @@ pt <- PROPOSAL_TAB %>%
         n = nrow(pt), max_dev = .dev(pt$est, pt$printed))
 
 # =============================================================================
-# 3. CHECK the composite's signs against the saved per-sample composite
+# 3. CHECK the signature's signs against the saved per-sample signature
 # =============================================================================
 # The +/- column is printed on the panel, so it is checked, not copied. E34's
-# composite is Blom(mean of sign x z(log expression)); the frames hold the
-# Blom-scored genes, so the composite is NOT reconstructed exactly. The check is
+# signature is Blom(mean of sign x z(log expression)); the frames hold the
+# Blom-scored genes, so the signature is NOT reconstructed exactly. The check is
 # discriminating instead: the declared sign vector must correlate with the
-# saved composite better than every vector with one sign flipped. Nothing
+# saved signature better than every vector with one sign flipped. Nothing
 # computed here is plotted.
-message("\n3. the composite's signs, checked against the saved composite")
+message("\n3. the signature's signs, checked against the saved signature")
 
 SIGN_CHECK <- dplyr::bind_rows(lapply(COHORTS, function(coh) {
   f  <- e34$analysis_frames[[coh]]
-  cc <- stats::complete.cases(f[c("config_comp", paste0("g_", names(COMPOSITE_SIGN)))])
-  M  <- as.matrix(f[cc, paste0("g_", names(COMPOSITE_SIGN))])
+  cc <- stats::complete.cases(f[c("config_comp", paste0("g_", names(SIGNATURE_SIGN)))])
+  M  <- as.matrix(f[cc, paste0("g_", names(SIGNATURE_SIGN))])
   .rho <- function(s) stats::cor(f$config_comp[cc],
                                  as.numeric(M %*% s) / length(s),
                                  method = "spearman")
-  flips <- vapply(seq_along(COMPOSITE_SIGN), function(i) {
-    s <- COMPOSITE_SIGN; s[i] <- -s[i]; .rho(s)
+  flips <- vapply(seq_along(SIGNATURE_SIGN), function(i) {
+    s <- SIGNATURE_SIGN; s[i] <- -s[i]; .rho(s)
   }, numeric(1))
   tibble::tibble(cohort = coh, n = sum(cc),
-                 rho_declared = .rho(COMPOSITE_SIGN),
+                 rho_declared = .rho(SIGNATURE_SIGN),
                  best_single_flip = max(flips),
-                 flip_gene = names(COMPOSITE_SIGN)[which.max(flips)])
+                 flip_gene = names(SIGNATURE_SIGN)[which.max(flips)])
 }))
 .pr(SIGN_CHECK %>% dplyr::mutate(dplyr::across(dplyr::starts_with("rho"),
                                                ~ round(.x, 4)),
                                  best_single_flip = round(best_single_flip, 4)))
-.assert("the declared signs fit the saved composite better than any single flip",
+.assert("the declared signs fit the saved signature better than any single flip",
         all(SIGN_CHECK$rho_declared > SIGN_CHECK$best_single_flip) &&
           all(SIGN_CHECK$rho_declared > 0.95), n = nrow(SIGN_CHECK),
         detail = paste(sprintf("%s %.4f vs %.4f", SIGN_CHECK$cohort,
@@ -364,15 +369,15 @@ message("\n5. figure")
                         stroke = 0.45) +
     ggplot2::scale_shape_manual(
       values = c(m1 = 16, m3 = 21),
-      labels = c(m1 = "Composite, m1",
-                 m3 = "Composite, m1 + proliferation (m3)"),
+      labels = c(m1 = "Signature, m1",
+                 m3 = "Signature, m1 + proliferation (m3)"),
       name = NULL) +
     ggplot2::scale_x_continuous(limits = X_LIM, expand = c(0, 0),
                                 breaks = unname(brk),
                                 labels = rep(c("MYC\nlow", "MYC\nhigh"), 4)) +
     ggplot2::scale_y_continuous(limits = STRIP_LIM, expand = c(0, 0),
                                 breaks = c(-0.6, -0.3, 0, 0.3, 0.6)) +
-    ggplot2::labs(x = NULL, y = if (show_y) "Composite\n(SD)" else NULL) +
+    ggplot2::labs(x = NULL, y = if (show_y) "Signature\n(SD)" else NULL) +
     ggplot2::theme_classic(base_size = BASE_PT) +
     ggplot2::theme(
       axis.line.x = ggplot2::element_blank(),
@@ -391,12 +396,12 @@ message("\n5. figure")
   p
 }
 
-# The gene labels, the function blocks and the composite's sign column.
+# The gene labels, the function blocks and the signature's sign column.
 .labels <- function() {
   g <- tibble::tibble(gene = names(Y_GENE), y = unname(Y_GENE)) %>%
     dplyr::mutate(sign = dplyr::case_when(
-      gene %in% names(COMPOSITE_SIGN) & COMPOSITE_SIGN[gene] > 0 ~ "+",
-      gene %in% names(COMPOSITE_SIGN) & COMPOSITE_SIGN[gene] < 0 ~ "-",
+      gene %in% names(SIGNATURE_SIGN) & SIGNATURE_SIGN[gene] > 0 ~ "+",
+      gene %in% names(SIGNATURE_SIGN) & SIGNATURE_SIGN[gene] < 0 ~ "-",
       TRUE ~ ""))
   blocks <- tibble::tibble(
     label = c("Pro-apoptotic", "Anti-apoptotic"),
@@ -413,8 +418,11 @@ message("\n5. figure")
                        hjust = 0, size = TXT_MM, fontface = "italic") +
     ggplot2::geom_text(ggplot2::aes(x = 0.9, y = y, label = sign),
                        size = TXT_MM, fontface = "bold") +
-    ggplot2::annotate("text", x = 0.9, y = Y_OXLEV, label = "sign",
-                      size = SUB_MM, colour = "grey25") +
+    # right-aligned to the column's edge: centred over the signs, "signature"
+    # ran past the panel and was clipped in the first render
+    ggplot2::annotate("text", x = 0.995, y = Y_OXLEV + 0.3, hjust = 1,
+                      label = "signature\nsign", size = SUB_MM,
+                      colour = "grey25", lineheight = 0.9) +
     ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
     ggplot2::scale_y_continuous(limits = Y_LIM, expand = c(0, 0)) +
     ggplot2::theme_void(base_size = BASE_PT)
@@ -531,9 +539,9 @@ rng <- stats::setNames(sprintf("%s to %s", .fmt_n(rng$lo), .fmt_n(rng$hi)),
 agr <- stats::setNames(sprintf("%.1f%%", 100 * AGREE$agreement), AGREE$cohort)
 
 LEGEND <- paste0(
-  "Expression of twelve BCL-2-family genes (rows) and of a six-gene signed ",
-  "composite (strip) across four groups of tumours defined by the cohort ",
-  "medians of MYC activity (M_a signature, GSVA) and of the OXPHOS subunit ",
+  "Expression of twelve BCL-2-family genes (rows) and of the six-gene ",
+  "BCL-2-family signature (strip) across four groups of tumours defined by ",
+  "the cohort medians of MYC activity (M_a, GSVA) and of the OXPHOS subunit ",
   "score, in TCGA-BRCA (n = ", .fmt_n(N_COH[["TCGA"]]), ") and SCAN-B (n = ",
   .fmt_n(N_COH[["SCAN-B"]]), "). Left, the OXPHOS score by GSVA; right, by ",
   "mitoPPS; MYC activity is the same in both. The two instruments assign the ",
@@ -544,13 +552,17 @@ LEGEND <- paste0(
   "of Blom-transformed expression in within-cohort standard deviations, from ",
   "a linear model with group, PAM50 subtype, tumour purity and leukocyte ",
   "fraction in TCGA, and group and PAM50 subtype in SCAN-B, which has no ",
-  "purity or leukocyte estimate (m1). Strip, the composite (mean z of BBC3, ",
-  "BID, BIK, BAD and BCL2L1, and of MCL1 with its sign reversed; signs at ",
-  "left): filled, m1; open, m1 with the proliferation score added (m3); ",
-  "bars, 95% confidence intervals. The composite's genes and signs were ",
-  "selected by their association with OXPHOS in these cohorts (Methods). ",
-  "Rows are ordered by function, composite members first, and not by the ",
-  "data.")
+  "purity or leukocyte estimate (m1). Strip, the signature score: the mean ",
+  "of the six genes' z-scores, each multiplied by its signature sign (+1 for ",
+  "BBC3, BID, BIK, BAD and BCL2L1, -1 for MCL1; shown at left), ",
+  "rank-normalised within each cohort; filled, m1; open, m1 with the ",
+  "proliferation score added (m3); bars, 95% confidence intervals. The ",
+  "signature sign records the direction in which a gene moves with OXPHOS, ",
+  "not its pro- or anti-apoptotic function. The signature's genes and signs ",
+  "were selected by their association with OXPHOS in these cohorts ",
+  "(Methods), so its separation by OXPHOS is expected by construction. Gene ",
+  "rows show each gene's own level, unsigned. Rows are ordered by function, ",
+  "signature genes first, and not by the data.")
 message("   ", .sub(LEGEND))
 
 # =============================================================================
@@ -590,12 +602,14 @@ saveRDS(list(
       "Nothing is fitted."),
     decisions = paste0(
       "Author, 2026-10-22: rows blocked by function (pro-, then ",
-      "anti-apoptotic; composite members first), and BOTH instruments in the ",
-      "main figure, side by side. Proposal section 8."),
+      "anti-apoptotic; signature genes first), and BOTH instruments in the ",
+      "main figure, side by side. Proposal section 8. Also 2026-10-22: the ",
+      "'configuration composite' is renamed 'the signature', with 'signature ",
+      "sign' for its +1/-1 (E47 declaration 4a)."),
     snapshot = paste0(
       "data/from_validation/, through E34. The joint snapshot is not read."),
     circularity = paste0(
-      "The composite's genes and signs were read off OXPHOS in these cohorts, ",
+      "The signature's genes and signs were read off OXPHOS in these cohorts, ",
       "so the OXPHOS separation is near-guaranteed (E34 1.2). The informative ",
       "contrasts are the MYC ones, which sit side by side."),
     no_product = paste0(
@@ -606,9 +620,10 @@ saveRDS(list(
       "85.0% of TCGA and 82.7% of SCAN-B tumours, so a column is not the same ",
       "tumours in both panels."),
     sign_check = paste0(
-      "The composite's printed signs are CHECKED against E34's saved ",
-      "per-sample composite: the declared vector must correlate better than ",
-      "any single flip. A check, not an estimate; nothing from it is plotted."),
+      "The printed signature signs are CHECKED against E34's saved ",
+      "per-sample signature score: the declared vector must correlate better ",
+      "than any single flip. A check, not an estimate; nothing from it is ",
+      "plotted."),
     frozen = "Nothing written to myc_human_validation (d3ac60e) or myc_mouse."),
   built = Sys.time()), PATH_E46)
 
@@ -628,7 +643,7 @@ if (FALSE) {
   # every check, with how much it compared
   x$assertions %>% as.data.frame()
 
-  # the composite's signs, checked against the saved per-sample composite
+  # the signature's signs, checked against the saved per-sample signature
   x$sign_check %>% as.data.frame()
 
   # what the MYC pairs show, as E34 estimated it - for the text

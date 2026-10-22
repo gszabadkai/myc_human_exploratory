@@ -207,6 +207,12 @@ explicitly.
 
 ## 6. When the author runs E46: verification
 
+> **SUPERSEDED THE SAME DAY. DO NOT USE THE DIGESTS BELOW.** E46 was revised
+> before its first run to adopt "signature" and "signature sign" (E47
+> declaration `dcb58a7`, 4a). **Verify against proposal section 8.4**, whose
+> table replaces 8.3's. Four elements changed; no plotted value did. The
+> snippet's method still applies, with 8.4's values substituted.
+
 Source `scripts/E46_fig4_quadrant_heatmap.R` in Positron. Then compare every
 element except `built` against proposal 8.3:
 

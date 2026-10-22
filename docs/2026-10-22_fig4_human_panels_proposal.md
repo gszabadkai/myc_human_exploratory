@@ -613,3 +613,46 @@ and produced no warnings. **Digests, recorded before the author's run:**
 | `legend_draft` | `09e563930a25476928525b78e64ccf70` |
 | `figure_files` | `24f2b96d6e876b1cfd5bbcfa200eec49` |
 | `spec` | `4f47e6400aff77ff37472bd2b9ac6ed1` |
+
+### 8.4 E46 revised before its first run: "signature" and "signature sign"
+
+*Added 2026-10-22.* **The author has not yet run E46**, so it was revised in
+place rather than versioned.
+
+The author renamed "the configuration composite" as **"the signature"**, with
+**"signature sign"** for its +1/-1. The definitions are in the E47
+declaration (`dcb58a7`), section 4a.
+
+**What changed:**
+- **The strip's labels**: "Signature (SD)", and "Signature, m1" / "Signature,
+  m1 + proliferation (m3)".
+- **The sign column's header**: "signature sign", right-aligned. Centred, it
+  clipped.
+- **The legend draft.** It now defines the signature sign, says the sign
+  records direction and not function, says the OXPHOS separation is expected
+  by construction, and says gene rows are unsigned.
+- **One column name**: `composite_sign` is now `signature_sign`.
+- **Code identifiers** (`SIGNATURE_SIGN`) **and comments.**
+
+**No plotted value changed.** `strip`, `contrasts_e34`, `agreement_e34`,
+`sign_check` and `analysis_n` are byte-identical to section 8.3's digests.
+Only the four elements the rename touches differ.
+
+**Dry runs:** two, redirected. They agree on 10 of 10 elements, with 19 of 19
+assertions and no warnings.
+
+**THESE DIGESTS SUPERSEDE 8.3's. The 8.3 digests must not be used to verify
+the author's run.**
+
+| element | digest |
+|---|---|
+| `heatmap_cells` | `326f8533bb96fa2214f141f2f471dad9` |
+| `strip` | `a65aacc6636ededef218ee137062dde4` (unchanged) |
+| `contrasts_e34` | `950c6e26c84d262bab136e538b88c82a` (unchanged) |
+| `agreement_e34` | `7609a32fc8b58d09bb3d66ba61fc5616` (unchanged) |
+| `sign_check` | `d0cc6384f4301602f1a4e8655d422fd1` (unchanged) |
+| `analysis_n` | `ed776bc0b02f02ceb57ed48dcb1ae647` (unchanged) |
+| `assertions` | `4991fca2abd67cd186fddfa45380a568` |
+| `legend_draft` | `d48bc5d8d514ab223da6b1e1d131f6fe` |
+| `figure_files` | `24f2b96d6e876b1cfd5bbcfa200eec49` (unchanged) |
+| `spec` | `9f575268ff0d7c500eb3fcab8b16acd3` |

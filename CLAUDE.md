@@ -102,10 +102,32 @@ for this work.
   quadrant configuration on BOTH instruments, side by side, in the main
   figure: the OXPHOS split by GSVA and by mitoPPS, with `M_a` the same in
   both. The author decided this on 2026-10-22. Rows are blocked by function.
-  **Its digests were committed BEFORE the run**, at `e12e94f`; verify the run
-  with the snippet in the evening handoff, section 6. **On mitoPPS, Q2 sits
-  well below Q4**, so "comparable OXPHOS-high groups" holds in one block of
-  four.
+  **It was revised before its first run for the rename below. Verify against
+  proposal section 8.4's digests**, committed before the run. The `e12e94f`
+  digests (8.3) and the values in the evening handoff's snippet are
+  SUPERSEDED. **On mitoPPS, Q2 sits well below Q4**, so "comparable
+  OXPHOS-high groups" holds in one block of four.
+- **`E47` is DECLARED; its script is not yet written.** The declaration is
+  `docs/2026-10-22_E47_mutual_adjustment_declaration.md`, committed alone at
+  `dcb58a7`. It asks whether MYC tracks the BCL-2-family signature with
+  OXPHOS held fixed, and OXPHOS with MYC held fixed. It does so continuously,
+  on 4g's own scores, analysis sets and covariates, with:
+  - four MYC estimators;
+  - two rule-based variants: S5 without `BID`, S7 with `BMF`;
+  - `BCL2L1` against `BBC3` by paired bootstrap.
+
+  **Its verdict reads `beta_MYC|OX` only**, because `beta_OX|MYC` is
+  near-guaranteed by construction. **4g's fate waits on that verdict.**
+- **TERMINOLOGY, from 2026-10-22 (the author's decision):**
+  - "the configuration composite" is now **"the signature"**: the
+    BCL-2-family signature, S6;
+  - its +1/-1 are **"signature signs"**: the direction a gene moves with
+    OXPHOS, NOT its function.
+
+  Earlier notes and code (`config_comp`) keep the old name. In new text, call
+  a MYC activity score an **estimator**, never a "signature". **The provenance
+  of every gene choice, including that no numeric rule chose S6, is in the
+  E47 declaration, section 4a.**
 - **The Doc's 4h is NOT built and cannot be built from this repo.** It is
   validation-study material, so it waits on decision 5: CLAUDE.md says the
   validation study "does not go in the paper".
@@ -222,8 +244,9 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E47`** — `E45` and `E46` are the Fig. 4 display scripts (4i/4j and
-4g) — **and `E31` is the only analysis still off `main`. No phase is open.**
+number is `E48`.** `E45` and `E46` are the Fig. 4 display scripts (4i/4j and
+4g), and `E47` is declared and unwritten. **`E31` is the only analysis still
+off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
