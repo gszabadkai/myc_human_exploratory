@@ -23,9 +23,13 @@ approval: >
   4. DECIDED to add both rule-based variants (4a.6), and to rename "the
      configuration composite" as "the signature", with "signature sign" for
      its signs.
+  5. After dcb58a7, BEFORE any script: KEPT BID in S6 (the provenance note's
+     open item 3). Addendum 4a.7 records that decision, S6's exact rule (which
+     does not use MYC), and S5's bias against MYC. It changes no model, rule
+     or display.
 next-action: >
-  Commit ALONE. Then the script, unrun; redirected dry runs; digests committed
-  BEFORE the author's run; the author's run; the result note.
+  The script, unrun; redirected dry runs; digests committed BEFORE the
+  author's run; the author's run; the result note.
 ---
 
 # E47 — MYC and OXPHOS on the BCL-2-family signature, each with the other held fixed
@@ -403,6 +407,109 @@ whether the answer to section 0 depends on it.
   coefficients had been seen. They test the selection; they are not new
   signatures to prefer. **S6 remains the primary and its verdict is the
   verdict.**
+
+### 4a.7 ADDENDUM, 2026-10-22, after `dcb58a7` and before any script: S6 is kept, with its exact rule; S5 is biased against MYC
+
+*Added after this declaration was committed and BEFORE any E47 code existed.*
+**It changes no model, readout, rule or display.** It records:
+- one decision by the author;
+- one exact description of the selection;
+- one property of S5 that bears on how its result may be read.
+
+**1. The author's provenance note** is
+`docs/2026-10-22_six_gene_composite_provenance.md` (`ceb06c9`). It
+reconstructs why each gene is in or out. **Three of its facts were checked
+against their sources, and all three hold:**
+- `BMF` is the only one of the twelve not in Human MitoCarta 3.0; the other
+  eleven are all annotated to the outer membrane;
+- the validation plan at `d3ac60e` lists `BID/BCL2L1` among its endpoint
+  negatives (lines 204-205);
+- the same plan's section 9 restricts primary BCL-family measures to
+  `BCL2L1` and `MCL1`, because `BCL2` is estrogen-responsive.
+
+**Its other exclusion reasons are reconstructions written on 2026-10-22**,
+not reasons recorded at selection time. 4a.2's "no numeric selection rule was
+ever written down" remains true of the record.
+
+**2. S6 HAS AN EXACT RULE, AND IT NEVER USES MYC.** The rule, applied to the
+4a.2 table:
+- among the twelve, take every gene that is in Human MitoCarta 3.0;
+- keep those whose mean proliferation-adjusted correlation with OXPHOS is at
+  least 0.20 in absolute value;
+- give each the sign of that mean.
+
+**It selects exactly the six, with exactly their signature signs.** The
+margins:
+
+| gene | mean `rho(OXPHOS)` | in MitoCarta | rule |
+|---|---|---|---|
+| `BAD`, `BCL2L1`, `BIK`, `BBC3`, `MCL1` | +0.503 to -0.266, all `\|rho\| >= 0.266` | yes | **in** |
+| **`BID`** | **+0.210** | yes | **in, by 0.010** |
+| **`BMF`** | **-0.212** | **no** | **out, on MitoCarta alone** |
+| `BCL2L11` | -0.170 | yes | out; the nearest below |
+| `BCL2`, `PMAIP1`, `BCL2L2`, `BCL2A1` | -0.117 to -0.056 | yes | out |
+
+**This rule is a RECONSTRUCTION** (2026-10-22). It describes the selection
+exactly; it was not the stated criterion in 2026-09. **S7 is the same rule
+without the MitoCarta restriction**, so S6 and S7 differ only by that
+restriction.
+
+**3. S5'S RULE USES MYC, SO S5 IS BIASED AGAINST MYC BY CONSTRUCTION.** It
+keeps a gene only if that gene's OXPHOS correlation exceeds its MYC
+correlation by at least 0.20. So S5 is selected **against** MYC association,
+and its `beta_MYC|OX` is pushed towards zero by the selection itself.
+- **S5 cannot be the primary readout for a question about MYC.**
+- **An S5-S6 disagreement means "MYC's contribution is carried by `BID`".**
+  It does NOT mean MYC's contribution is spurious, and it is reported in those
+  words, under section 7's clause.
+- **S5 is kept** because it answers the reader who asks what happens without
+  `BID`. Its label is printed with this caveat attached.
+
+**4. THE AUTHOR'S DECISION, 2026-10-22, on the provenance note's open item 3:
+`BID` STAYS IN S6.**
+- **The reason:** removing a gene *because* it tracks MYC would decide this
+  analysis's question in advance.
+- **Disclosed in Methods:**
+  - `BID`'s thin margin, 0.210 against the 0.20 threshold;
+  - its stronger correlation with MYC, +0.300;
+  - its cohort disagreement, +0.329 / +0.091.
+- **`BID`'s pre-declared role in the validation plan concerns a different
+  estimand.** It was the numerator of the negative-control ratio `BID/BCL2L1`,
+  for a MYC x OXPHOS interaction on priming. **Whether the paper mentions that
+  role depends on decision 5.**
+
+**5. Methods text, revised. This SUPERSEDES the paragraph in 4a.5.**
+
+> **BCL-2-family genes and signature.** We examined twelve BCL-2-family genes
+> that set the threshold for mitochondrial apoptosis: seven BH3-only proteins
+> (BCL2L11/BIM, BID, BBC3/PUMA, BAD, BIK, BMF and PMAIP1/NOXA) and five
+> anti-apoptotic proteins (BCL2, BCL2L1/BCL-xL, MCL1, BCL2L2/BCL-w and
+> BCL2A1/BFL-1). For each gene we computed the Spearman correlation of its
+> expression with the OXPHOS subunit score (GSVA), partial on a proliferation
+> score, in TCGA-BRCA and SCAN-B, and averaged the two cohorts. The signature
+> comprised every gene that is a mitochondrial protein (Human MitoCarta 3.0:
+> eleven of the twelve, all outer-membrane; BMF is not listed) and whose mean
+> correlation with OXPHOS was at least 0.20 in absolute value: BAD, BCL2L1,
+> BIK, BBC3 and BID, which rise with OXPHOS (mean rho 0.21 to 0.50), and MCL1,
+> which falls (mean rho -0.27). Selection did not use correlation with MYC
+> activity. BID qualified narrowly (0.21) and is the one member more strongly
+> correlated with MYC activity (0.30) than with OXPHOS. Each gene was assigned
+> a signature sign, +1 if it rises with OXPHOS and -1 if it falls, recording
+> direction, not pro- or anti-apoptotic function. A tumour's signature score
+> was the mean of the six signed z-scores (log2-normalised expression,
+> standardised across the cohort), rank-normalised within each cohort. Because
+> genes and signs were chosen by their association with OXPHOS in the same
+> cohorts, the signature's association with OXPHOS is expected by
+> construction; the informative quantity is its association with MYC activity
+> at fixed OXPHOS. All analyses were repeated with two rule-based variants: the
+> same rule without the mitochondrial restriction (adding BMF, sign -1); and
+> the five genes whose correlation with OXPHOS exceeded their correlation with
+> MYC by at least 0.20 in at least one cohort (omitting BID). The second
+> variant is selected against association with MYC and is reported for
+> transparency, not as an independent test. All twelve genes are also reported
+> individually.
+
+**As before, the construction sentence may not be dropped.**
 
 ## 5. The MYC estimator ladder, which N9 makes mandatory
 
