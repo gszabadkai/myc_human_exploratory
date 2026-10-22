@@ -72,10 +72,41 @@ pre-declaration record and the open items. Its predecessor
 `docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
 panels may assert (its section 2).
 
-**For Fig. 4 panel work, start at `docs/2026-10-22_handoff.md`.** Fig. 4g, 4h
-and 4i are specified in `docs/2026-10-22_fig4_human_panels_proposal.md` and are
-NOT built. The work is waiting on five author decisions. `E45` is reserved for
-the display script that will build them.
+**For Fig. 4 panel work, start at `docs/2026-10-22_handoff.md`, then section 7
+of `docs/2026-10-22_fig4_human_panels_proposal.md`**, which records what the
+author decided after the handoff was written.
+
+- **THE NARRATIVE OF RECORD IS THE AUTHOR'S GOOGLE DOC** "11.8.26_MK_Myc_Paper"
+  (Nat Metab version), from 2026-10-22. It supersedes v5 in `docs/`, **and its
+  panel letters are not v5's**:
+  - Doc 4g is the configuration by quadrant;
+  - Doc **4h is MYC / BCL2L1 / MCL1 co-amplification**, which v5 placed in ED
+    Fig. 9;
+  - Doc 4i is the pCR forest (v5's 4h);
+  - Doc 4j is the METABRIC forest (v5's 4i).
+
+  Read the Doc through the Drive connector. It is not in the repo. Name figure
+  files by content, never by letter.
+- **Fig. 4i and 4j are BUILT** by **`E45`**, a display-only script that fits
+  nothing. Ratios are on a log axis. In place of the proposal's bracket, a
+  contrast column runs on every row (7.2). **VERIFIED: 9 of 9 digests, 27 of 27
+  assertions**, and the output is byte-identical to the dry run. **Caveat: those
+  digests were committed AFTER the author's run**, so git cannot show they came
+  first (7.6). The tracked figure is
+  `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
+- **Fig. 4g is NOT built.** It waits on proposal decisions 1 (row blocks) and 2
+  (instrument).
+- **The Doc's 4h is NOT built and cannot be built from this repo.** It is
+  validation-study material, so it waits on decision 5: CLAUDE.md says the
+  validation study "does not go in the paper".
+- **Four Doc sentences clash with the data or with this file's rules**, listed
+  in 7.4:
+  - "comparable" OXPHOS-high groups;
+  - purity and leukocyte adjustment claimed for SCAN-B;
+  - "MYC expression" where MYC activity is meant (trap 4);
+  - "BCL2L1 more steeply than BBC3", which is still unrecorded in any note.
+
+  **They were reported to the author, and the Doc was not edited.**
 
 **Phase 2 is CONCLUDED as of 2026-09-11.** Start at
 `docs/2026-09-11_phase2_conclusion.md` — it states the finding, what is not
@@ -179,8 +210,8 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E45`, and `E31` is the only analysis still off `main`. No phase is
-open.**
+number is `E46`** — `E45` is the Fig. 4i/4j display script — **and `E31` is the
+only analysis still off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -677,7 +708,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E44. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E45. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes

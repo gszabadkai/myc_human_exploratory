@@ -406,3 +406,131 @@ Not contradicted by the panels, but worth a second look:
   - the panels, to `outputs/figures/` and to tracked `docs/figures/`;
   - the plotting frame, per R rule 4;
   - a digest table, written before the author's run.
+
+---
+
+## 7. Decisions taken, 2026-10-22, and what part 1 of E45 implements
+
+*Added the same day, after the author's answers. Sections 0-6 are unchanged.*
+
+### 7.1 The author's decisions
+
+1. **The narrative of record is the author's Google Doc** "11.8.26_MK_Myc_Paper"
+   (Nat Metab version), which supersedes v5 in `docs/`. **Its lettering is not
+   v5's**:
+
+   | Doc | v5 | content | state |
+   |---|---|---|---|
+   | 4g | 4g | configuration by quadrant | E45 part 2, waiting on decisions 1 and 2 |
+   | 4h | ED Fig. 9 | MYC / BCL2L1 / MCL1 co-amplification | validation-study material, so it is blocked on decision 5 and cannot be built from this repo |
+   | 4i | 4h | OXPHOS and proliferation on pCR | **E45 part 1** |
+   | 4j | 4i | the same on METABRIC BCSS | **E45 part 1** |
+
+   E45 names its files by content, not by letter.
+2. **Decision 3, the axis: ratios on a log axis with 1 marked**, as proposed.
+
+**Decision 4 follows from the Doc and is adopted as proposed.** The Doc examines
+long-term outcome in METABRIC alone, so 4j has four rows and no GSE25066 DRFS
+row. No declaration is needed.
+
+### 7.2 One departure from section 3.2: no bracket
+
+**The pooled pCR contrast goes in the right-hand column, not on a bracket.**
+
+- A bracket between the pooled OXPHOS and proliferation markers spans their
+  distance on the axis: **2.02**, from random-effects proliferation against
+  fixed-effect OXPHOS.
+- Its label would read **1.93**, the meta-analysis of the per-cohort
+  contrasts.
+- The first is the difference of two separately pooled estimates, which 15.4
+  forbids.
+- The column carries the contrast on every row. Within one model, the contrast
+  equals the ratio of the two markers' ratios, and E45 asserts this for all
+  seven single-model rows.
+
+### 7.3 Two corrections to this note and to `2026-10-22_handoff.md`
+
+1. **`rho(OX, PROLIF)` in METABRIC IS recorded.** It is 0.3809, held in
+   `e41_metabric_ladder.rds$exposure_corr`, and it is written at
+   `2026-10-03_e41_handoff.md:106`. So section 4.2 item 6 here and handoff
+   section 4 item 4 ("in no note or table") are wrong. E45 reads the stored
+   value; it does not recompute it.
+2. **The METABRIC model is not "PAM50 spine plus `PROLIF_DISJOINT`"** (section
+   3.3's legend). **E43's formula is `OX + subtype_term + treatment + PROLIF`**,
+   so treatment group is in it. E45's legend draft reads the formulas from E43
+   rather than typing them.
+
+### 7.4 Four sentences in the Doc that clash with the data or the rules
+
+**The Doc was read, not edited.** These are carried to the author:
+
+1. "The two OXPHOS-high groups showed comparable apoptotic signatures". In
+   SCAN-B, `Q4 - Q2` is +0.134 [0.037, 0.231] (section 4.1 item 1).
+2. "Remained invariant after controlling for ... tumour purity, and immune cell
+   infiltration". SCAN-B has neither (section 4.1 item 2).
+3. The abstract's "after adjustment for subtypes and MYC expression". It should
+   say MYC *activity*: MYC mRNA has no relationship with OXPHOS (CLAUDE.md
+   trap 4).
+4. "BCL2L1 more steeply than BBC3", now in the abstract and paragraph 3. v5's
+   pre-submission list requires it to be filed in a note first.
+
+The Doc already resolves section 4.1 items 3-5 and section 4.2 item 6.
+
+### 7.5 E45 part 1, as written
+
+**Display only.** It reads E39 `$gate`, E40 `$pcr` and `$meta`, E41
+`$exposure_corr`, E43 `$prolif_focused` and `$meta`, and E44 `$pcr`,
+`$metabric` and `$meta`. It never reads E40 `$drfs`.
+
+**27 assertions, each recorded with how much it compared**, including:
+
+- what ggplot draws, read back from `ggplot_build()` after the log transform,
+  equals the stored values (maximum deviation 1.1e-16);
+- E40's and E43's OXPHOS m1 agree exactly;
+- E44's components equal E43's exactly;
+- every pooled summary type follows section 9's rule;
+- METABRIC carries exactly the four rows;
+- no interval is clipped by an axis.
+
+**Colours:** OXPHOS is Okabe-Ito bluish green `#009E73` and proliferation is
+vermillion `#D55E00`. The palette checker passes every check, and shape
+encodes the term as well.
+
+**Size:** 178 x 62 mm, with no text below 5.5 pt.
+
+**Dry runs:** four, every output redirected to the session scratchpad, and
+nothing written inside the repo. The final version ran twice and agreed on **9
+of 9** saved elements, excluding `built`. **Digests, recorded before the
+author's run:**
+
+| element | digest |
+|---|---|
+| `plot_frame` | `c571093f601b47b2ac4aae3f27a8c468` |
+| `contrast_column` | `1eecec69b3d3fc480296ee010f515bdc` |
+| `rows` | `bd0aaba03ffb1ceebd3a7fe6ccbdf6ea` |
+| `exposure_rho` | `96bac221214e44d7aa0ed39722a49213` |
+| `bracket_check` | `0a41f4e75a7c65fa7e51b747f293df4b` |
+| `assertions` | `047181c1dc163720a244ee04dae65b01` |
+| `legend_draft` | `615da6d3195c62b9b1120204a41c8d47` |
+| `figure_files` | `236459c821713cded426f919717c9675` |
+| `spec` | `820983d149360f996cc458f5c8c6a172` |
+
+**`figure_files` holds file names, not paths**, so it digests the same
+wherever the outputs go. **The figures themselves are not digested**, because a
+PDF carries its creation time.
+
+### 7.6 The author's run: VERIFIED, 9 of 9
+
+**The author sourced E45 on 2026-10-22, `built` 16:46:06. All 27 assertions
+passed, and the saved object matches all 9 digests above.**
+
+**Byte-identical to the dry run:**
+- both PNGs, combined and per-panel;
+- all four tables in `outputs/tables/`.
+
+The tracked figure is `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
+
+**The order is not provable from git.** The digests were written into this
+file before the author's run, but **not committed until after it**. So git
+cannot show that they came first, as it does for E41 to E44. Only the session
+record shows it.
