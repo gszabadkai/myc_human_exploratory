@@ -72,9 +72,13 @@ pre-declaration record and the open items. Its predecessor
 `docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
 panels may assert (its section 2).
 
-**For Fig. 4 panel work, start at `docs/2026-10-22_handoff.md`, then section 7
-of `docs/2026-10-22_fig4_human_panels_proposal.md`**, which records what the
-author decided after the handoff was written.
+**For Fig. 4 panel work and the narrative rewrite, start at
+`docs/2026-10-22_handoff_evening.md`.** It supersedes `2026-10-22_handoff.md`
+for this work.
+- **Its section 5 is the input to the rewrite.** It lists every Doc sentence
+  the built panels contradict, or that has no fitted quantity behind it.
+- Sections 7 and 8 of `docs/2026-10-22_fig4_human_panels_proposal.md` hold
+  the decisions and the digests.
 
 - **THE NARRATIVE OF RECORD IS THE AUTHOR'S GOOGLE DOC** "11.8.26_MK_Myc_Paper"
   (Nat Metab version), from 2026-10-22. It supersedes v5 in `docs/`, **and its
@@ -94,19 +98,27 @@ author decided after the handoff was written.
   digests were committed AFTER the author's run**, so git cannot show they came
   first (7.6). The tracked figure is
   `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
-- **Fig. 4g is NOT built.** It waits on proposal decisions 1 (row blocks) and 2
-  (instrument).
+- **Fig. 4g is WRITTEN as `E46` and NOT yet run by the author.** It shows the
+  quadrant configuration on BOTH instruments, side by side, in the main
+  figure: the OXPHOS split by GSVA and by mitoPPS, with `M_a` the same in
+  both. The author decided this on 2026-10-22. Rows are blocked by function.
+  **Its digests were committed BEFORE the run**, at `e12e94f`; verify the run
+  with the snippet in the evening handoff, section 6. **On mitoPPS, Q2 sits
+  well below Q4**, so "comparable OXPHOS-high groups" holds in one block of
+  four.
 - **The Doc's 4h is NOT built and cannot be built from this repo.** It is
   validation-study material, so it waits on decision 5: CLAUDE.md says the
   validation study "does not go in the paper".
-- **Four Doc sentences clash with the data or with this file's rules**, listed
-  in 7.4:
+- **Doc sentences that clash with the data or with this file's rules** are
+  listed in section 5 of the evening handoff. The weightiest:
   - "comparable" OXPHOS-high groups;
-  - purity and leukocyte adjustment claimed for SCAN-B;
   - "MYC expression" where MYC activity is meant (trap 4);
-  - "BCL2L1 more steeply than BBC3", which is still unrecorded in any note.
+  - "BCL2L1 more steeply than BBC3", which is unrecorded in any note;
+  - **"or BCL2L1 expression"** as an adjustment. **E40 has no `BCL2L1`-only
+    rung.** Its `m3` adds `BUFFER_c`, the mean z of `MCL1` and `BCL2L1`, on top
+    of MYC.
 
-  **They were reported to the author, and the Doc was not edited.**
+  **The Doc is the author's. It was read, never edited.**
 
 **Phase 2 is CONCLUDED as of 2026-09-11.** Start at
 `docs/2026-09-11_phase2_conclusion.md` — it states the finding, what is not
@@ -210,8 +222,8 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E46`** — `E45` is the Fig. 4i/4j display script — **and `E31` is the
-only analysis still off `main`. No phase is open.**
+number is `E47`** — `E45` and `E46` are the Fig. 4 display scripts (4i/4j and
+4g) — **and `E31` is the only analysis still off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -708,7 +720,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E45. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E46. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
