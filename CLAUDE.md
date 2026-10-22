@@ -105,28 +105,50 @@ for this work.
   in both. Rows are blocked by function. The tracked figure is
   `docs/figures/2026-10-22_E46_quadrant_configuration.{png,pdf}`. **On
   mitoPPS, Q2 sits well below Q4**, so "comparable OXPHOS-high groups" holds
-  in one block of four. **Its place in the paper waits on E47's verdict.**
+  in one block of four. **E47's verdict is in (MIXED). 4g's place in the
+  paper is the author's call**: see E47 result note 9.3.
 - **The provenance of the six signature genes** is the author's note
   `docs/2026-10-22_six_gene_composite_provenance.md` (`ceb06c9`). Three of
   its facts are verified against their sources. Most of its exclusion
   reasons are reconstructions written on 2026-10-22; the `BCL2` ER rule and
   `BID`'s negative-control role were written beforehand. **Its open item 3,
   whether `BID` stays, is a decision for the author BEFORE E47 runs.**
-- **`E47` is WRITTEN and NOT YET RUN by the author.** Its digests are in
-  `docs/2026-10-23_e47_prerun_digests.md`, committed with the script BEFORE
-  the run. The declaration is
-  `docs/2026-10-22_E47_mutual_adjustment_declaration.md`, committed alone at
-  `dcb58a7`, with addendum 4a.7 at `3b5e221`. The addendum keeps `BID` in S6,
-  records S6's exact rule (which never uses MYC), and records that S5 is
-  biased against MYC by construction. It asks whether MYC tracks the BCL-2-family signature with
-  OXPHOS held fixed, and OXPHOS with MYC held fixed. It does so continuously,
-  on 4g's own scores, analysis sets and covariates, with:
-  - four MYC estimators;
-  - two rule-based variants: S5 without `BID`, S7 with `BMF`;
-  - `BCL2L1` against `BBC3` by paired bootstrap.
-
-  **Its verdict reads `beta_MYC|OX` only**, because `beta_OX|MYC` is
-  near-guaranteed by construction. **4g's fate waits on that verdict.**
+- **`E47` is RUN and VERIFIED**: 22 of 22 digests, committed before the run
+  at `9251355`. **Verdict MIXED.** The result note is
+  `docs/2026-10-23_e47_result.md`; read its section 9 before writing any
+  sentence about MYC and the signature. The declaration is
+  `docs/2026-10-22_E47_mutual_adjustment_declaration.md` (`dcb58a7`, addendum
+  4a.7 at `3b5e221`). It fits `readout ~ OX + MYC + spine` on 4g's own
+  scores, sets and covariates.
+  - **The verdict reads `beta_MYC|OX` on the signature (S6, `M_a`).** Its CI
+    is above zero in 4 of 8 primary cells and below zero in TCGA/GSVA `m1`.
+    S5 and S7 are also MIXED, and order S5 < S6 < S7 in all eight cells.
+  - **Behind MIXED, one structure.**
+    - Proliferation adjustment raises `beta_MYC|OX` in every block; with it,
+      MYC adds in 3 of 4 blocks.
+    - **On the MYC estimator least entangled with proliferation, MYC adds in
+      all 8 cells (+0.15 to +0.42).**
+    - mitoPPS exceeds GSVA in every comparison.
+    - RETRIEVED, not declared: `PROLIF`'s own coefficient is negative,
+      -0.22 to -0.38. That is the mechanism of N9's sign flips, and it is NOT
+      licensed for the manuscript.
+  - **The arms.** At fixed OXPHOS, MYC goes with the trigger arm (`BBC3` and
+    `BID` positive at `m3` in all four blocks), not the guardian arm
+    (`BCL2L1` not consistent).
+  - **D1.** On GSVA, 4g's MYC step is mostly or entirely leftover OXPHOS; on
+    mitoPPS, mostly not.
+  - **Section 9 is LICENSED**: at fixed MYC activity, OXPHOS tracks `BCL2L1`
+    more steeply than `BBC3` in all four cells. The differences are +0.08 to
+    +0.19; TCGA's lower bounds are 0.014 and 0.015.
+  - **NOT licensed:**
+    - "MYC adds";
+    - "OXPHOS only";
+    - **the Doc's "MYC association lost after adjustment for OXPHOS"**, which
+      must be withdrawn.
+  - **Five falsifiers** for the emerging trigger-arm hypothesis are in
+    section 10 of the result note.
+  - **4g's placement is the author's call** (result note 9.3). Display A
+    answers the question directly.
 - **TERMINOLOGY, from 2026-10-22 (the author's decision):**
   - "the configuration composite" is now **"the signature"**: the
     BCL-2-family signature, S6;
@@ -144,7 +166,8 @@ for this work.
   listed in section 5 of the evening handoff. The weightiest:
   - "comparable" OXPHOS-high groups;
   - "MYC expression" where MYC activity is meant (trap 4);
-  - "BCL2L1 more steeply than BBC3", which is unrecorded in any note;
+  - "BCL2L1 more steeply than BBC3". **Now LICENSED by E47 section 9**, at
+    fixed MYC activity;
   - **"or BCL2L1 expression"** as an adjustment. **E40 has no `BCL2L1`-only
     rung.** Its `m3` adds `BUFFER_c`, the mean z of `MCL1` and `BCL2L1`, on top
     of MYC.
@@ -254,7 +277,7 @@ the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
 number is `E48`.** `E45` and `E46` are the Fig. 4 display scripts (4i/4j and
-4g), and `E47` is declared and unwritten. **`E31` is the only analysis still
+4g), and `E47` is run and verified (MIXED). **`E31` is the only analysis still
 off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
