@@ -112,9 +112,13 @@ for this work.
   reasons are reconstructions written on 2026-10-22; the `BCL2` ER rule and
   `BID`'s negative-control role were written beforehand. **Its open item 3,
   whether `BID` stays, is a decision for the author BEFORE E47 runs.**
-- **`E47` is DECLARED; its script is not yet written.** The declaration is
+- **`E47` is WRITTEN and NOT YET RUN by the author.** Its digests are in
+  `docs/2026-10-23_e47_prerun_digests.md`, committed with the script BEFORE
+  the run. The declaration is
   `docs/2026-10-22_E47_mutual_adjustment_declaration.md`, committed alone at
-  `dcb58a7`. It asks whether MYC tracks the BCL-2-family signature with
+  `dcb58a7`, with addendum 4a.7 at `3b5e221`. The addendum keeps `BID` in S6,
+  records S6's exact rule (which never uses MYC), and records that S5 is
+  biased against MYC by construction. It asks whether MYC tracks the BCL-2-family signature with
   OXPHOS held fixed, and OXPHOS with MYC held fixed. It does so continuously,
   on 4g's own scores, analysis sets and covariates, with:
   - four MYC estimators;
@@ -748,7 +752,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E46. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E47. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
