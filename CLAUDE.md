@@ -98,15 +98,20 @@ for this work.
   digests were committed AFTER the author's run**, so git cannot show they came
   first (7.6). The tracked figure is
   `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
-- **Fig. 4g is WRITTEN as `E46` and NOT yet run by the author.** It shows the
-  quadrant configuration on BOTH instruments, side by side, in the main
-  figure: the OXPHOS split by GSVA and by mitoPPS, with `M_a` the same in
-  both. The author decided this on 2026-10-22. Rows are blocked by function.
-  **It was revised before its first run for the rename below. Verify against
-  proposal section 8.4's digests**, committed before the run. The `e12e94f`
-  digests (8.3) and the values in the evening handoff's snippet are
-  SUPERSEDED. **On mitoPPS, Q2 sits well below Q4**, so "comparable
-  OXPHOS-high groups" holds in one block of four.
+- **Fig. 4g is BUILT by `E46`, run by the author and VERIFIED**: 10 of 10
+  digests, committed before the run at `d91e156` (proposal 8.4, 8.5). It
+  shows the quadrant configuration on BOTH instruments, side by side, in the
+  main figure: the OXPHOS split by GSVA and by mitoPPS, with `M_a` the same
+  in both. Rows are blocked by function. The tracked figure is
+  `docs/figures/2026-10-22_E46_quadrant_configuration.{png,pdf}`. **On
+  mitoPPS, Q2 sits well below Q4**, so "comparable OXPHOS-high groups" holds
+  in one block of four. **Its place in the paper waits on E47's verdict.**
+- **The provenance of the six signature genes** is the author's note
+  `docs/2026-10-22_six_gene_composite_provenance.md` (`ceb06c9`). Three of
+  its facts are verified against their sources. Most of its exclusion
+  reasons are reconstructions written on 2026-10-22; the `BCL2` ER rule and
+  `BID`'s negative-control role were written beforehand. **Its open item 3,
+  whether `BID` stays, is a decision for the author BEFORE E47 runs.**
 - **`E47` is DECLARED; its script is not yet written.** The declaration is
   `docs/2026-10-22_E47_mutual_adjustment_declaration.md`, committed alone at
   `dcb58a7`. It asks whether MYC tracks the BCL-2-family signature with
