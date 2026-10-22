@@ -73,12 +73,19 @@ pre-declaration record and the open items. Its predecessor
 panels may assert (its section 2).
 
 **For Fig. 4 panel work and the narrative rewrite, start at
-`docs/2026-10-22_handoff_evening.md`.** It supersedes `2026-10-22_handoff.md`
+`docs/2026-10-23_handoff.md`.** It supersedes `2026-10-22_handoff_evening.md`
 for this work.
 - **Its section 5 is the input to the rewrite.** It lists every Doc sentence
-  the built panels contradict, or that has no fitted quantity behind it.
-- Sections 7 and 8 of `docs/2026-10-22_fig4_human_panels_proposal.md` hold
-  the decisions and the digests.
+  that must change, updated by E47.
+- **Its section 6 points to the text that is ready to use.**
+- **Its section 7 lists the open decisions.**
+- **The E47 result is `docs/2026-10-23_e47_result.md`.**
+- **The figure map:**
+  - Fig. 4g (`E46`) is MAIN;
+  - 4i and 4j (`E45`) are MAIN;
+  - **E47 Display A is EXTENDED DATA** (the author, 2026-10-23);
+  - Displays B and C are not yet placed;
+  - the Doc's 4h is blocked on decision 5.
 
 - **THE NARRATIVE OF RECORD IS THE AUTHOR'S GOOGLE DOC** "11.8.26_MK_Myc_Paper"
   (Nat Metab version), from 2026-10-22. It supersedes v5 in `docs/`, **and its
