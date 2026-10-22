@@ -534,3 +534,82 @@ The tracked figure is `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
 file before the author's run, but **not committed until after it**. So git
 cannot show that they came first, as it does for E41 to E44. Only the session
 record shows it.
+
+---
+
+## 8. Fig. 4g: the author's decisions, and E46
+
+*Added 2026-10-22, after E45. Sections 0-7 are unchanged.*
+
+### 8.1 Decisions
+
+1. **Decision 1: rows are blocked by function**, as proposed.
+   - Pro-apoptotic: `BAD`, `BIK`, `BBC3`, `BID`, then `BCL2L11`, `BMF`,
+     `PMAIP1`.
+   - Anti-apoptotic: `BCL2L1`, `MCL1`, then `BCL2`, `BCL2L2`, `BCL2A1`.
+   - The order is fixed, with composite members first.
+2. **Decision 2: both instruments go in the main figure**, side by side. This
+   replaces the proposal's "GSVA main, mitoPPS in ED Fig. 7".
+   - **MYC activity (`M_a`) is the same in both panels. Only the OXPHOS split
+     differs.**
+   - The two instruments assign the same quadrant to **85.0% of TCGA and
+     82.7% of SCAN-B** tumours (E34 8.1), so a column does not hold the same
+     tumours in both panels. The legend says so.
+
+**Lettering is the author's call.** The Doc's single 4g is now two panels side
+by side. If each takes its own letter, the Doc's later letters shift.
+
+### 8.2 What both instruments on the page make visible
+
+This bears directly on section 7.4 item 1. E34's licensed description (9.2)
+quotes **GSVA numbers only**: "+0.41 against +0.40 in TCGA, +0.24 against +0.37
+in SCAN-B". With mitoPPS beside them, the reader also sees the `m1` composite:
+
+| | Q2, MYC-low OXPHOS-high | Q4, MYC-high OXPHOS-high | `Q4 - Q2` |
+|---|---|---|---|
+| TCGA, mitoPPS | +0.21 | +0.40 | +0.185 [0.012, 0.358] |
+| SCAN-B, mitoPPS | +0.09 | +0.32 | +0.232 [0.134, 0.331] |
+
+**The Doc's "the two OXPHOS-high groups showed comparable apoptotic signatures"
+holds in one of the four cohort-by-instrument blocks: TCGA on GSVA.** E34's
+licence is "much smaller", not "none", and on mitoPPS "much smaller" is the
+most it supports. **Any sentence quoting the means must now quote both
+instruments.**
+
+### 8.3 E46, as written
+
+**Display only.** It reads E34's `$groups` (subtype `all`, `m1` cells, and the
+`m1` and `m3` strip), plus `$contrasts`, `$quadrant` and `$analysis_frames`.
+**No line joins two quadrants**, and the built strip is asserted to contain
+none. The snapshot is `data/from_validation/` through E34.
+
+**19 assertions.** They include:
+
+- every tile's drawn colour is the scale's colour for its stored value;
+- the strip's drawn values equal the stored means and intervals exactly;
+- section 2's printed table is reproduced to 2 dp;
+- no cell lies outside the colour limits of ±0.6.
+
+**The `+`/`-` sign column is CHECKED, not copied.** Against E34's saved
+per-sample composite, the declared signs correlate at Spearman 0.9974 (TCGA)
+and 0.9908 (SCAN-B). Flipping any single sign gives at most 0.83. This is a
+check, and nothing from it is plotted.
+
+**Size:** 177 x 88 mm.
+
+**Dry runs:** three, every output redirected to the session scratchpad. The
+final version ran twice, agreed on **10 of 10** elements excluding `built`,
+and produced no warnings. **Digests, recorded before the author's run:**
+
+| element | digest |
+|---|---|
+| `heatmap_cells` | `98bad28c4bcf5fdd9362969cdf6fa32d` |
+| `strip` | `a65aacc6636ededef218ee137062dde4` |
+| `contrasts_e34` | `950c6e26c84d262bab136e538b88c82a` |
+| `agreement_e34` | `7609a32fc8b58d09bb3d66ba61fc5616` |
+| `sign_check` | `d0cc6384f4301602f1a4e8655d422fd1` |
+| `analysis_n` | `ed776bc0b02f02ceb57ed48dcb1ae647` |
+| `assertions` | `419a73c7e4fb2c4e899d789a3eaa2561` |
+| `legend_draft` | `09e563930a25476928525b78e64ccf70` |
+| `figure_files` | `24f2b96d6e876b1cfd5bbcfa200eec49` |
+| `spec` | `4f47e6400aff77ff37472bd2b9ac6ed1` |
