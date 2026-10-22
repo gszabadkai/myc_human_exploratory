@@ -72,6 +72,11 @@ pre-declaration record and the open items. Its predecessor
 `docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
 panels may assert (its section 2).
 
+**For Fig. 4 panel work, start at `docs/2026-10-22_handoff.md`.** Fig. 4g, 4h
+and 4i are specified in `docs/2026-10-22_fig4_human_panels_proposal.md` and are
+NOT built. The work is waiting on five author decisions. `E45` is reserved for
+the display script that will build them.
+
 **Phase 2 is CONCLUDED as of 2026-09-11.** Start at
 `docs/2026-09-11_phase2_conclusion.md` — it states the finding, what is not
 settled, and four falsifiers, and it names the three scripts behind it (`E24`
