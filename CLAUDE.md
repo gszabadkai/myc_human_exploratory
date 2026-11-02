@@ -79,6 +79,15 @@ for this work.
   that must change, updated by E47.
 - **Its section 6 points to the text that is ready to use.**
 - **Its section 7 lists the open decisions.**
+- **THEN READ `docs/2026-11-02_human_section_reconciliation_proposal.md`**,
+  which updates the handoff's sections 5 and 7. It is a proposal, and its
+  recommendations are the author's to accept.
+  - It retires "tracks OXPHOS but not MYC" and gives text to paste into the
+    Doc.
+  - It recommends E47 Display C as main 4g, which would reverse the E46-main
+    entry in the figure map below.
+  - It records that "trigger arm, not guardian" holds on `M_a` only: on the
+    clean estimator `BCL2L1` also rises with MYC (its section 8).
 - **The E47 result is `docs/2026-10-23_e47_result.md`.**
 - **The figure map:**
   - Fig. 4g (`E46`) is MAIN;
