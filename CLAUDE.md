@@ -72,6 +72,24 @@ pre-declaration record and the open items. Its predecessor
 `docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
 panels may assert (its section 2).
 
+**NEWEST, 2026-11-02: the author's decision record and E48 brief,
+`docs/2026-11-02_separation_line_brief.md`. Read it FIRST for any Fig. 4
+human-panel or narrative work.**
+- **It sets the separation line.** Modelled together, OXPHOS and
+  proliferation run in opposite directions. MYC activity's association
+  depends on how much proliferation its score carries.
+- **It approves `E48`**, not yet declared.
+- **It makes 4g the separation panel.**
+- **It takes decision 5 for G2 co-amplification only.**
+
+**Where it conflicts with anything below, the brief wins.** It supersedes:
+- the reconciliation proposal's line and figure plan, whose corrections it
+  adopts;
+- the figure map's "Fig. 4g (`E46`) is MAIN";
+- the 2026-10-23 handoff's section 2 for 4g, and its section 7 item 1.
+
+The full CLAUDE.md update comes at E48's stage 3.
+
 **For Fig. 4 panel work and the narrative rewrite, start at
 `docs/2026-10-23_handoff.md`.** It supersedes `2026-10-22_handoff_evening.md`
 for this work.
