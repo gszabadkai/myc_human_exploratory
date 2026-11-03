@@ -1,0 +1,8 @@
+gene,binds_BCL2L1,binds_MCL1,source,verified_by
+BBC3,TRUE,TRUE,"Chen L et al. Mol Cell 2005;17:393-403 (PMID 15694340; doi:10.1016/j.molcel.2004.12.030). Abstract: Bim and Puma potently engaged all the prosurvival proteins comparably.","The author, from the PubMed abstract, 2026-11-03 (brief 6.6). Re-checked against the same abstract by Claude Code, 2026-11-03."
+BCL2L11,TRUE,TRUE,"Chen L et al. Mol Cell 2005;17:393-403 (PMID 15694340; doi:10.1016/j.molcel.2004.12.030). Abstract: Bim and Puma potently engaged all the prosurvival proteins comparably.","The author, from the PubMed abstract, 2026-11-03 (brief 6.6). Re-checked against the same abstract by Claude Code, 2026-11-03."
+BAD,TRUE,FALSE,"Chen L et al. Mol Cell 2005;17:393-403 (PMID 15694340; doi:10.1016/j.molcel.2004.12.030). Abstract: Bad bound tightly to Bcl-2, Bcl-xL and Bcl-w but only weakly to A1 and not to Mcl-1.","The author, from the PubMed abstract, 2026-11-03 (brief 6.6). Re-checked against the same abstract by Claude Code, 2026-11-03."
+PMAIP1,FALSE,TRUE,"Chen L et al. Mol Cell 2005;17:393-403 (PMID 15694340; doi:10.1016/j.molcel.2004.12.030). Abstract: Noxa bound only Mcl-1 and A1.","The author, from the PubMed abstract, 2026-11-03 (brief 6.6). Re-checked against the same abstract by Claude Code, 2026-11-03."
+BID,,,,
+BIK,,,,
+BMF,,,,
