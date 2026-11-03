@@ -55,6 +55,13 @@ PARAS = [
  ]),
 ]
 
+# Proposed additions to the 4g legend draft (brief 5.6; result note 4.3). Not in
+# the script's draft: the author accepts, edits or drops them at STOP 3.
+LEGEND_ADDITIONS = ("Proliferation went with higher BAK1 in TCGA-BRCA and lower BAK1 in SCAN-B, "
+                    "and with higher MCL1 in SCAN-B only. BCL2L11 (BIM) fell with OXPHOS more steeply "
+                    "in TCGA-BRCA than in SCAN-B. PMAIP1 (NOXA) and BCL2L11 went with higher "
+                    "proliferation in both cohorts.")
+
 CITE_RE = re.compile(r"\((?:Fig\.|Extended Data Fig\.)[^)]*\)")
 SEMI_RE = re.compile(r";\s*(?:Fig\.|Extended Data Fig\.)[^)]*(?=\))")
 REF_RE = re.compile(r"\[[^\]]*\]")
