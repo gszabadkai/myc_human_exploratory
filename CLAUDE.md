@@ -69,12 +69,13 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, evening: the author's STOP 3 rulings are RECORDED and
-APPLIED. Nothing is pending from Claude Code.** The entry point is
-**`docs/2026-11-03_e50_handoff.md`**. Behind it:
+**NEWEST, 2026-11-03, evening: the author's STOP 3 rulings and their addendum
+are RECORDED and APPLIED. Nothing is pending from Claude Code.** The entry
+point is **`docs/2026-11-03_e50_handoff.md`**. Behind it:
 1. **`docs/2026-11-03_stop3_rulings_consolidated.md`** (`cb9b7ce`), the
    rulings, verbatim. They replace every chat version of items 1 to 6 and
-   amendments A to F;
+   amendments A to F. **`docs/2026-11-03_stop3_rulings_addendum.md`**
+   (`3f9ffbe`), verbatim, amends them;
 2. **`docs/2026-11-03_e50_review_pack.pdf`**, 4g at final size, with the
    rulings' text, the edited 4g legend and the nine Extended Data panels;
 3. **`docs/2026-11-03_e49_result.md`, Part 4**, the text for the paper. It
@@ -85,7 +86,8 @@ APPLIED. Nothing is pending from Claude Code.** The entry point is
   - Fig. 1g's source palette;
   - the shared ±0.6 scale;
   - the 1.6 mm gap;
-  - white ink on 9 cells.
+  - white ink on 9 cells;
+  - ED-g's ±0.9 scale (addendum 4).
 - **THE REMAINING DISPLAY CHANGES ARE THE AUTHOR'S, IN ILLUSTRATOR, OUTSIDE
   THE REPO'S SCRIPTS. No new display script.**
   - the group names and the colour bar's title at 6 pt;
@@ -105,23 +107,28 @@ APPLIED. Nothing is pending from Claude Code.** The entry point is
     - MYC activity;
     - the effectors.
   - **The H2 test is NOT declared.** It is the answer if a referee asks.
-- **The text** is the rulings' section 3. **The 4g legend** is E50's draft with
-  the rulings' section 4 edits.
+- **The text** is the rulings' section 3, as the addendum amends it. **The 4g
+  legend** is E50's draft with the rulings' section 4 edits.
+- **The addendum answers the four observations left after `da548bd`:**
+  - R2 gives the search's cohorts, n = 1,095 and 3,207. The model sets stay in
+    the 4g legend;
+  - the brief's rule 5.4 is reworded. `BAD` is explained "in the sentence that
+    sets its rise against BCL-xL's, or the next";
+  - N4 to N6 are dropped. **The Methods definition is E47 4a.7, item 5,
+    verbatim, with two changes:**
+    - the construction sentence now includes proliferation;
+    - the variants sentence cites ED-g;
+  - ED-g keeps its ±0.9 scale.
 
-**How it was applied** (`da548bd`):
+**How it was applied** (`da548bd`, then `8d7cd31`):
 - **The text has one source, `docs/2026-11-03_e49_review_pack_src/pack_text.py`.**
-  It checks every sentence and legend edit against the rulings file.
-- **One sentence was aligned, as the rulings ask: Methods note N4**, to E47
-  4a.7, item 5.
-  - The change: "the BCL-2 family members listed in MitoCarta 3.0" becomes
-    "those of the twelve BH3-only and anti-apoptotic genes listed in
-    MitoCarta 3.0".
-  - The reason: MitoCarta 3.0 also lists `BAX`, `BAK1` and `BOK`.
-- **Four observations are left for the author** (handoff section 0):
-  - R2 attaches the model sets' n to the search;
-  - `BAD`'s explanation comes three sentences after R4 names it;
-  - N4 to N6 sit beside E47 4a.7's paragraph;
-  - ED-g's ±0.9 scale was set by the column being removed.
+  It checks every sentence and legend edit against the rulings, the addendum
+  and E47's declaration: 32 comparisons, all exact. **No sentence is Claude
+  Code's.**
+- **Four sentences of the Methods definition are outside STYLE.md's 12 to 38
+  words,** for the author to revise (handoff section 0):
+  - D3 (58) and D10 (43), to split;
+  - D4 (8) and D12 (7), under the hard floor.
 - **Legend edit 6 waits on the author's `BID`, `BIK` and `BMF`** in
   `data/annotations/bh3_binding_code.csv`. The pack's build stops until
   `BINDING_CLASSES_ENTERED` matches that table.
@@ -227,7 +234,8 @@ Part A re-read E47's saved fits. Part B fitted only the three effectors
      the rising load and MCL1 cannot.
 - **The text reads PUMA against BCL-xL.**
   - **BAD's rise is answered by its phosphorylation** (Zha 1996), in the same
-    sentence or the next.
+    sentence or the next. **The addendum (`3f9ffbe`) rewords the rule:** "in
+    the sentence that sets its rise against BCL-xL's, or the next".
   - **MCL1 is answered without BAD**, from the binding code (Chen 2005).
   - **PUMA relative to BCL-xL FALLS as OXPHOS priority rises** (ED-k). That
     is the reverse of the gland's Fig. 1i, and the text says so.
