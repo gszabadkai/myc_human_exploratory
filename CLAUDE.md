@@ -69,9 +69,94 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, later the same day: the author has changed course on
-Fig. 4g. For any Fig. 4 human-panel or narrative work, read
-`docs/2026-11-03_signature_and_fig4g_brief.md` FIRST.**
+**NEWEST, 2026-11-03, afternoon: `E49` is RUN and VERIFIED, and the session
+stopped at STOP 3 for the author.** The entry point is
+**`docs/2026-11-03_e49_handoff.md`**. Behind it, in this order:
+1. **`docs/2026-11-03_e49_result.md`**, the result note.
+   - Part 4 is the text for the paper.
+   - Its 4.1 lists every change from the brief's drafts, and each "author's
+     call".
+2. **`docs/2026-11-03_e49_review_pack.pdf`**, 4g in two versions, with the text,
+   the legend draft and the Extended Data.
+3. **`docs/2026-11-03_signature_and_fig4g_brief.md`**, the author's brief. Its
+   amendment is recorded in the E49 declaration's section 3, not in the brief.
+
+**`E49` is EXPLORATORY and POST HOC, with no reading rule and no label.** It
+verified at:
+- 24 of 24 digests, committed before the run at `a63ef6c`;
+- 192 of 192 assertions;
+- 33 of 33 PNGs and tables byte-identical to the dry run.
+
+Part A re-read E47's saved fits. Part B fitted only the three effectors
+(96 fits), behind a gate that reproduced E47's `BBC3` fits by digest.
+
+**What now stands:**
+- **THE SIGNATURE (S6) IS RESTORED as Fig. 4g's summary** (brief decision 1),
+  with its membership fixed: `BAD`, `BIK`, `BBC3`, `BID` and `BCL2L1` enter
+  +, `MCL1` enters -.
+  - **Its OXPHOS coefficient is circular.** It is drawn grey and never read,
+    and so is its difference (declaration 8.2).
+  - **Its MYC activity coefficient on 4g's model is positive in all four
+    blocks**, +0.21 to +0.42. The regulon agrees in sign, so the placement
+    rule KEPT the MYC column.
+  - **Its proliferation coefficient is negative in all 24 cells**, -0.22 to
+    -0.38. It is now DECLARED (E49), but read it with the caveat at the end
+    of this list.
+  - Unadjusted, the signature barely correlates with proliferation (-0.09 /
+    -0.04).
+- **THE NEW 4g is a heatmap in Fig. 1g's layout.**
+  - **Rows:** fifteen genes in Fig. 1g's four groups (effectors, activators,
+    sensitisers, anti-apoptotic).
+  - **Left:** the BH3 binding code (`data/annotations/bh3_binding_code.csv`;
+    `BID`, `BIK` and `BMF` are blank until the author supplies them) and the
+    signature signs. § marks `BAD` and `BID`.
+  - **Columns:** three exposure blocks x two cohorts: OXPHOS level, MYC
+    activity on the least-entangled score, proliferation.
+  - **The model:** one `m3` model per row, on the least-entangled score.
+  - **Beneath:** the S6 strip.
+  - **Two versions, the author's choice at STOP 3:** (a) unmarked; (b) with a
+    dot where the CI excludes zero.
+  - **In Extended Data:** OXPHOS priority (ED-e) and the reference model
+    (ED-f, beside E48's ED-c).
+- **The effectors `BAX`, `BAK1` and `BOK` are outside the signature, and never
+  added to it.**
+  - They rise with OXPHOS and MYC activity in both cohorts.
+  - Proliferation goes with lower `BAX` and `BOK`.
+  - **`BAK1`'s proliferation sign splits by cohort.**
+  - **No sentence reads an effector's transcript as its activation.**
+- **THE TWO RETRACTIONS (brief 4.8) are used nowhere, in any document:**
+  1. "Its [BAD's] rise increases reliance on BCL-xL rather than overriding
+     it";
+  2. the BAD-based argument for BCL-xL over MCL1, that BCL-xL can absorb
+     the rising load and MCL1 cannot.
+- **The text reads PUMA against BCL-xL.**
+  - **BAD's rise is answered by its phosphorylation** (Zha 1996), in the same
+    sentence or the next.
+  - **MCL1 is answered without BAD**, from the binding code (Chen 2005).
+  - **PUMA relative to BCL-xL FALLS as OXPHOS priority rises** (ED-k). That
+    is the reverse of the gland's Fig. 1i, and the text says so.
+- **THE H2 CAVEAT, AD HOC and not declared** (result note, Part 2 H2).
+  - **What it is:** part of S6's proliferation coefficient can be inherited
+    from its selection rule, which partialled on proliferation.
+  - **How much:** at the extreme, up to about half of the coefficient on 4g's
+    model in TCGA, and a third in SCAN-B.
+  - **What remains:** negative in every cell, but with no interval.
+  - **MYC activity's coefficient is unaffected.**
+  - **The test, the remainder's interval and a same-rule control signature,
+    would be `E50`. Declaring it is the author's call.**
+
+**Next action: STOP 3.** The author:
+- chooses 4g's version;
+- finalises the text (result note 4.1's "author's call" items, and the
+  legend additions in 4.3);
+- decides whether to declare `E50`;
+- supplies the binding classes for `BID`, `BIK` and `BMF`.
+
+**Nothing is pending from Claude Code until then.**
+
+**Earlier the same day, before E49 ran: the author changed course on Fig. 4g**,
+in `docs/2026-11-03_signature_and_fig4g_brief.md`. What follows is that
+brief's record.
 
 **What the brief decides:**
 - **The six-gene signature (S6) returns as 4g's summary.**
@@ -86,7 +171,7 @@ Fig. 4g. For any Fig. 4 human-panel or narrative work, read
   - MCL1 is answered without BAD.
   - **Two claims from the chat are retracted** (brief 4.8). Neither is used
     anywhere.
-- **It specifies `E49`, which is not yet declared:**
+- **It specifies `E49`**, now declared (`7bd7865`), run and verified:
   - Part A recovers the signature's quantities from E47's saved fits;
   - Part B fits the three effectors, BAX, BAK1 and BOK;
   - then the displays.
@@ -112,8 +197,8 @@ declaration, not in the brief.** It changes three things:
   **That brief's section 4 still governs every word**, with the new brief's
   section 5 added.
 
-**Next action: E49 stage 1** (structure checks and the declaration), then
-STOP 1 for the author.
+**E49's stages 1 and 2 are done**: the declaration and the binding-code table
+(`7bd7865`), then the script and its pre-run digests (`a63ef6c`).
 
 **Earlier the same day: E48 is RUN and VERIFIED, and the session stopped at
 STOP 3 for the author to fix Fig. 4g's final design.** The new brief has
@@ -226,9 +311,11 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
   - It records that "trigger arm, not guardian" holds on `M_a` only: on the
     clean estimator `BCL2L1` also rises with MYC (its section 8).
 - **The E47 result is `docs/2026-10-23_e47_result.md`.**
-- **The figure map, as the brief and E48 left it:**
-  - **Fig. 4g is the separation panel from `E48`.** The author chooses one of
-    three layouts at STOP 3 (brief decision 3);
+- **The figure map, as the brief and E48 left it.** Its 4g entry is
+  SUPERSEDED: 4g is now E49's heatmap (see NEWEST above), and E48's three
+  layouts are retired from the paper. The rest stands:
+  - **Fig. 4g was the separation panel from `E48`.** The author was to choose
+    one of three layouts at STOP 3 (brief decision 3);
   - **the pCR and METABRIC forests (`E45`) are MAIN.**
     - Once co-amplification moves to Extended Data they become 4h and 4i
       (brief 6.1).
@@ -443,11 +530,13 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E49`.**
+number is `E50`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
   4g's three layouts.
+- `E49` is run and verified, 24 of 24. It gives the signature's declared
+  quantities, the effectors, and the new 4g in two versions.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -946,7 +1035,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E48. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E49. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
