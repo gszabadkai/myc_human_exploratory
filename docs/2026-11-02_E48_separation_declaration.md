@@ -471,6 +471,21 @@ run: each read gene is named, with its own label.**
   left unchanged, so the committed digests still hold. **Where the two
   differ, this declaration governs.**
 
+**CORRECTION, 2026-11-03, at the author's request: the commit followed the
+author's run.** "Before the author's run" is true of the author's text, not of
+its commit. All times are UTC:
+
+| time | event |
+|---|---|
+| 01:13:26 | the author's clarification arrived |
+| about 01:13:35 | the author's run began. The dry runs took about 19 s from start to first figure, so this is after the clarification |
+| 01:13:54 to 01:14:04 | the run wrote its outputs |
+| 01:14:19 | this addendum was committed (`258a496`) |
+
+**So git cannot show that the addendum came first.** This is the same lapse as
+E45's digests (proposal 7.6). **It changes nothing the run applied**: the
+addendum concerns wording only, and the script was not changed.
+
 ## 9. Part B: MYC activity on pCR. UNAVAILABLE
 
 **The structure check (brief 5.9.1), 2026-11-02:**
