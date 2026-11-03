@@ -1,6 +1,6 @@
 ---
 date: 2026-11-02
-amended: 2026-11-03, the author's nine amendments (see approval)
+amended: 2026-11-03, the author's amendments and a section 8 addendum (see approval)
 status: >
   DECLARATION, pre-read, APPROVED WITH AMENDMENTS by the author. No E48
   quantity has been computed, printed or plotted: no per-gene proliferation
@@ -37,9 +37,12 @@ approval: >
   10. At the OK: section 8's closing paragraph, nothing is discarded. To
       match it, section 5 extracts the twelve genes on both MYC scores, ED-d
       shows both, and S-1 displays C1 and C4.
+  11. After 1ccf805 and before the author's run: section 8's addendum. Each
+      read gene is named with its own label, and "the BCL-2 family" is never
+      used for them.
 next-action: >
-  Commit this declaration alone, on the author's OK. Then the script, unrun;
-  two redirected dry runs; digests committed BEFORE the author's run.
+  The author sources scripts/E48_separation_and_fig4g.R (1ccf805). The run is
+  verified against docs/2026-11-03_e48_prerun_digests.md, then stage 3.
 ---
 
 # E48: OXPHOS, proliferation and MYC activity on BBC3, BCL2L1 and MCL1, each with the others held fixed; and Fig. 4g
@@ -444,6 +447,29 @@ and may be described in the text whatever its label. The labels decide only
 the words used for the three read genes. Patterns this declaration did not
 anticipate are reported in an exploratory section of the result note, stated
 as hypotheses, and interpreted there against the mouse data.
+
+**ADDENDUM, 2026-11-03 (the author), after `1ccf805` and before the author's
+run: each read gene is named, with its own label.**
+
+> In every row, the abstract and the separation and closing sentences name the
+> read genes, each described by its own label: 'opposite' for a gene labelled
+> OPPOSITE, 'distinct' for one labelled DISTINCT, and one descriptive sentence,
+> with no inference, for a gene NOT SEPARATED. The phrase 'the BCL-2 family' is
+> not used for the three read genes in any row.
+
+- **When it was written.** After the script and its pre-run digests were
+  committed (`1ccf805`), and before the author's run.
+  - The author had seen no E48 output.
+  - Claude Code had looked at the dry-run panels for legibility only. They
+    show the plotted values. No result was reported.
+- **What it changes.** The wording of rows 1 to 3, and nothing else.
+  - **It supersedes "the BCL-2 family" for the three read genes** wherever
+    brief section 8's drafts use it: the abstract and the closing paragraph.
+  - **It changes no label, no part of section 7's rule, no computed quantity
+    and no line of the script.**
+- **The script's saved `spec$outcome_table` predates this addendum.** It is
+  left unchanged, so the committed digests still hold. **Where the two
+  differ, this declaration governs.**
 
 ## 9. Part B: MYC activity on pCR. UNAVAILABLE
 
