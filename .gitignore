@@ -62,3 +62,11 @@ Rplots.pdf
 # data file deeper in the tree - there are none tracked today, and this keeps it
 # that way by accident rather than by vigilance.
 /20??-??-??-??????-*.txt
+
+# Quarto render artefacts. docs/2026-11-03_e48_review_pack.qmd is rendered to a
+# tracked PDF with Positron's bundled Quarto (Typst). Rendering it in place
+# leaves a .quarto/ cache, and possibly a <name>_files/ directory or a .typ
+# file, beside it. None of them is content.
+.quarto/
+docs/*_files/
+docs/*.typ

@@ -32,7 +32,10 @@ The most important rule, and the mirror image of the sibling repo's.
 
 `myc_human_validation` (`/Users/gs/code/myc_human_validation`, frozen at
 `d3ac60e`) is a **completed, pre-registered** study of one narrow hypothesis. It
-found nothing supported. It is not reopened and it does not go in the paper.
+found nothing supported. It is not reopened, and it does not go in the paper
+**except for G2 co-amplification: one ED panel and one main-text sentence**
+(the author's decision 5, 2026-11-02; brief section 9). None of the G2 numbers
+has yet been verified from the validation repo.
 
 - Its `CLAUDE.md` forbids post-hoc hypotheses. That rule is correct *there* and
   **actively wrong here**. Do not import it.
@@ -66,33 +69,98 @@ found nothing supported. It is not reopened and it does not go in the paper.
 
 ## Current phase
 
-**Entry point: `docs/handoff-2026-10-21.md`**, the consolidated handoff. It
-holds the whole chain, the decisions, every analysis in one line, the
-pre-declaration record and the open items. Its predecessor
-`docs/2026-10-04_handoff.md` keeps authority over what the section-4 figure
-panels may assert (its section 2).
+**NEWEST, 2026-11-03: E48 is RUN and VERIFIED, and the session stopped at
+STOP 3 for the author to fix Fig. 4g's final design.**
 
-**NEWEST, 2026-11-02: the author's decision record and E48 brief,
-`docs/2026-11-02_separation_line_brief.md`. Read it FIRST for any Fig. 4
-human-panel or narrative work.**
-- **It sets the separation line.** Modelled together, OXPHOS and
-  proliferation run in opposite directions. MYC activity's association
-  depends on how much proliferation its score carries.
-- **It approves `E48`**, not yet declared.
-- **It makes 4g the separation panel.**
-- **It takes decision 5 for G2 co-amplification only.**
+**The entry point for any Fig. 4 human-panel or narrative work is
+`docs/2026-11-03_handoff.md`.** Behind it, in this order:
+1. **`docs/2026-11-02_separation_line_brief.md`**, the author's decision
+   record.
+   - **Where it conflicts with anything below, the brief wins.**
+   - **Its section 4 governs every word written about results.**
+2. **`docs/2026-11-03_e48_result.md`**, the E48 result. **Its Part 4 is the
+   text for the paper**, finalised against the verified numbers.
+3. **`docs/2026-11-03_e48_review_pack.pdf`**, the three layouts of 4g, each
+   with that text, for the author's choice.
 
-**Where it conflicts with anything below, the brief wins.** It supersedes:
+**For the whole earlier chain**, `docs/handoff-2026-10-21.md` is still the
+consolidated record. Its predecessor `docs/2026-10-04_handoff.md` keeps
+authority over what the section-4 figure panels may assert (its section 2).
+
+**The line, as E48 left it (brief section 0):**
+- in human breast tumours, OXPHOS, MYC activity and proliferation rise
+  together;
+- modelled together, OXPHOS and proliferation run in opposite directions, on
+  `BBC3` and `BCL2L1` and on treatment response;
+- MYC activity's association depends on how much proliferation its score
+  carries.
+
+**`E48` is RUN and VERIFIED**: 33 of 33 digests, committed before the run at
+`1ccf805`, and 175 of 175 assertions. It is EXPLORATORY and POST HOC.
+- **The declared reading, on `M_a` at `m3`:**
+  - `BBC3` OPPOSITE;
+  - `BCL2L1` OPPOSITE;
+  - `MCL1` NOT SEPARATED.
+
+  On the least-entangled score, agreement is 12 of 12. **Outcome row 3
+  applies.**
+- **The words that follow** (declaration section 8 and its addendum):
+  - "opposite" for `BBC3` and `BCL2L1`, each named;
+  - one descriptive sentence for `MCL1`, with no inference: proliferation is
+    lower in TCGA and higher in SCAN-B;
+  - **never "the BCL-2 family" for the three read genes.**
+- **C3 holds at `m3`**, so "more steeply ... with the other two held fixed" is
+  licensed.
+- **C1 (TP53) and C4 (composition) change no label.** **C4's expectation was
+  WRONG**: removing TCGA's purity and leukocyte adjustment moves `MCL1` away
+  from SCAN-B's sign.
+- **Nothing links the three genes to outcome**, and there is no causal,
+  mediation, interaction or "primed" claim.
+- **Part 2 of the result note holds four hypotheses, H1 to H4, each with a
+  falsifier.** None of them is a finding.
+
+**The trigger-arm claim is RETRACTED (brief 1.4) and stays out of the paper.**
+- **The claim:** at fixed OXPHOS, MYC activity goes with the BH3-only
+  (trigger) arm and not with `BCL2L1`.
+- **It holds on `M_a` only.** On the least-entangled score, `BCL2L1` also
+  rises with MYC activity, and `MCL1` falls. That is so at `m1` (E47) and
+  with proliferation held fixed (E48).
+- **E47's "The arms" bullet below is its record, not a licence.**
+
+**Decision 5 is taken, for G2 co-amplification only** (the author,
+2026-11-02).
+- It admits one Extended Data panel and one main-text sentence, and nothing
+  else from the validation study.
+- **None of its numbers is verified from this repo yet.** Brief section 9
+  lists what to check before the panel is built.
+
+**Next action: STOP 3.** The author chooses 4g's layout from the review pack.
+The author also rules on the choices marked "the author's call" in section
+4.1 and section 5 of the result note. After that:
+- the author edits the Doc, which is never edited from here;
+- the co-amplification display task, after brief section 9's verification;
+- brief section 10's open items:
+  - E46 in Extended Data;
+  - signature transparency;
+  - REFEREE_QUESTIONS: R8, R9 and a p53/PUMA entry;
+  - the Fig. 4 title;
+  - the carried-over items.
+
+**`docs/STYLE.md` governs manuscript prose.** It is the author's, at v0.1.
+Read it before drafting any sentence for the paper.
+
+**What the brief superseded**, kept here so that the older entries below read
+correctly:
 - the reconciliation proposal's line and figure plan, whose corrections it
   adopts;
-- the figure map's "Fig. 4g (`E46`) is MAIN";
+- the figure map's "Fig. 4g (`E46`) is MAIN":
+  - **4g is now the separation panel, from E48**;
+  - E46's quadrant map and E47 Display C go to Extended Data;
 - the 2026-10-23 handoff's section 2 for 4g, and its section 7 item 1.
 
-The full CLAUDE.md update comes at E48's stage 3.
-
-**For Fig. 4 panel work and the narrative rewrite, start at
-`docs/2026-10-23_handoff.md`.** It supersedes `2026-10-22_handoff_evening.md`
-for this work.
+**The earlier entry point for Fig. 4 panel work and the narrative rewrite was
+`docs/2026-10-23_handoff.md`.** The 2026-11-03 handoff supersedes it for 4g
+and the human text. It superseded `2026-10-22_handoff_evening.md`.
 - **Its section 5 is the input to the rewrite.** It lists every Doc sentence
   that must change, updated by E47.
 - **Its section 6 points to the text that is ready to use.**
@@ -107,12 +175,21 @@ for this work.
   - It records that "trigger arm, not guardian" holds on `M_a` only: on the
     clean estimator `BCL2L1` also rises with MYC (its section 8).
 - **The E47 result is `docs/2026-10-23_e47_result.md`.**
-- **The figure map:**
-  - Fig. 4g (`E46`) is MAIN;
-  - 4i and 4j (`E45`) are MAIN;
-  - **E47 Display A is EXTENDED DATA** (the author, 2026-10-23);
-  - Displays B and C are not yet placed;
-  - the Doc's 4h is blocked on decision 5.
+- **The figure map, as the brief and E48 left it:**
+  - **Fig. 4g is the separation panel from `E48`.** The author chooses one of
+    three layouts at STOP 3 (brief decision 3);
+  - **the pCR and METABRIC forests (`E45`) are MAIN.**
+    - Once co-amplification moves to Extended Data they become 4h and 4i
+      (brief 6.1).
+    - If layout 3 is chosen, the author decides whether they stay;
+  - **E46's quadrant map goes to Extended Data** (brief open item 1);
+  - **E47 Display C goes to Extended Data as E48's ED-b**, relabelled, with
+    its values unchanged;
+  - **for the paper, E48's ED-c and ED-d replace E47's Displays A and B**
+    (declaration 12.3). E47 Display A had been placed in EXTENDED DATA by the
+    author on 2026-10-23;
+  - the Doc's 4h, co-amplification, becomes one Extended Data panel under
+    decision 5. It is not yet built.
 
 - **THE NARRATIVE OF RECORD IS THE AUTHOR'S GOOGLE DOC** "11.8.26_MK_Myc_Paper"
   (Nat Metab version), from 2026-10-22. It supersedes v5 in `docs/`, **and its
@@ -168,7 +245,9 @@ for this work.
       licensed for the manuscript.
   - **The arms.** At fixed OXPHOS, MYC goes with the trigger arm (`BBC3` and
     `BID` positive at `m3` in all four blocks), not the guardian arm
-    (`BCL2L1` not consistent).
+    (`BCL2L1` not consistent). **RETRACTED for the paper (brief 1.4).** It
+    holds on `M_a` only; see the trigger-arm paragraph at the top of this
+    section.
   - **D1.** On GSVA, 4g's MYC step is mostly or entirely leftover OXPHOS; on
     mitoPPS, mostly not.
   - **Section 9 is LICENSED**: at fixed MYC activity, OXPHOS tracks `BCL2L1`
@@ -180,7 +259,8 @@ for this work.
     - **the Doc's "MYC association lost after adjustment for OXPHOS"**, which
       must be withdrawn.
   - **Five falsifiers** for the emerging trigger-arm hypothesis are in
-    section 10 of the result note.
+    section 10 of the result note. The hypothesis is retracted from the
+    paper.
   - **4g's placement is the author's call** (result note 9.3). Display A
     answers the question directly.
 - **TERMINOLOGY, from 2026-10-22 (the author's decision):**
@@ -193,15 +273,17 @@ for this work.
   a MYC activity score an **estimator**, never a "signature". **The provenance
   of every gene choice, including that no numeric rule chose S6, is in the
   E47 declaration, section 4a.**
-- **The Doc's 4h is NOT built and cannot be built from this repo.** It is
-  validation-study material, so it waits on decision 5: CLAUDE.md says the
-  validation study "does not go in the paper".
+- **The Doc's 4h is NOT built.** It is validation-study material.
+  - **Decision 5 (2026-11-02) admits it**, for G2 co-amplification only: one
+    Extended Data panel and one main-text sentence.
+  - It can be built only after the verification that brief section 9 lists.
 - **Doc sentences that clash with the data or with this file's rules** are
   listed in section 5 of the evening handoff. The weightiest:
   - "comparable" OXPHOS-high groups;
   - "MYC expression" where MYC activity is meant (trap 4);
-  - "BCL2L1 more steeply than BBC3". **Now LICENSED by E47 section 9**, at
-    fixed MYC activity;
+  - "BCL2L1 more steeply than BBC3". **Now LICENSED**:
+    - by E47 section 9, at fixed MYC activity;
+    - by E48's C3, with the other two held fixed;
   - **"or BCL2L1 expression"** as an adjustment. **E40 has no `BCL2L1`-only
     rung.** Its `m3` adds `BUFFER_c`, the mean z of `MCL1` and `BCL2L1`, on top
     of MYC.
@@ -310,9 +392,13 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E48`.** `E45` and `E46` are the Fig. 4 display scripts (4i/4j and
-4g), and `E47` is run and verified (MIXED). **`E31` is the only analysis still
-off `main`. No phase is open.**
+number is `E49`.**
+- `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
+- `E47` is run and verified (MIXED).
+- `E48` is run and verified, 33 of 33. It gives the separation reading and
+  4g's three layouts.
+
+**`E31` is the only analysis still off `main`. No phase is open.**
 
 They are **one analysis under one declaration**,
 `docs/2026-10-02_E39_respiratory_axis_decomposition_declaration.md` (amended for
@@ -809,7 +895,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E47. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E48. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
