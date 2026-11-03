@@ -69,12 +69,64 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, evening: `E50` is RUN and VERIFIED. The text waits on
-the STOP 3 rulings, which are not in the repo.** The entry point is
+**NEWEST, 2026-11-03, evening: the author's STOP 3 rulings are RECORDED and
+APPLIED. Nothing is pending from Claude Code.** The entry point is
 **`docs/2026-11-03_e50_handoff.md`**. Behind it:
-1. **`docs/2026-11-03_e50_result.md`**, E50's result;
-2. **`docs/2026-11-03_e50_review_pack.pdf`**, 4g at final size, with the text
-   (still E49's, unamended), the legend draft and the Extended Data.
+1. **`docs/2026-11-03_stop3_rulings_consolidated.md`** (`cb9b7ce`), the
+   rulings, verbatim. They replace every chat version of items 1 to 6 and
+   amendments A to F;
+2. **`docs/2026-11-03_e50_review_pack.pdf`**, 4g at final size, with the
+   rulings' text, the edited 4g legend and the nine Extended Data panels;
+3. **`docs/2026-11-03_e49_result.md`, Part 4**, the text for the paper. It
+   supersedes the text committed there at `4fd661b`.
+
+**What the rulings decide:**
+- **E50's displays are accepted:**
+  - Fig. 1g's source palette;
+  - the shared ±0.6 scale;
+  - the 1.6 mm gap;
+  - white ink on 9 cells.
+- **THE REMAINING DISPLAY CHANGES ARE THE AUTHOR'S, IN ILLUSTRATOR, OUTSIDE
+  THE REPO'S SCRIPTS. No new display script.**
+  - the group names and the colour bar's title at 6 pt;
+  - 4g's annotations: the binding code, the signature signs, the § marks and
+    any protein names;
+  - ED-g's "Proliferation minus OXPHOS" column, removed. It stays in E49's
+    tables.
+- **Extended Data in the paper: ED-a, ED-b and ED-e to ED-k**, each cited.
+  - ED-c and S-1 stay in the repo, out of the paper.
+  - ED-d stays superseded by ED-i.
+  - The handoff's section 1 maps each panel to its file and its citation.
+- **H2 IS ACCEPTED.**
+  - **The signature's associations with OXPHOS and with proliferation are what
+    its selection intended,** never independent evidence.
+  - **The independent evidence:**
+    - `BBC3` and `BCL2L1`;
+    - MYC activity;
+    - the effectors.
+  - **The H2 test is NOT declared.** It is the answer if a referee asks.
+- **The text** is the rulings' section 3. **The 4g legend** is E50's draft with
+  the rulings' section 4 edits.
+
+**How it was applied** (`da548bd`):
+- **The text has one source, `docs/2026-11-03_e49_review_pack_src/pack_text.py`.**
+  It checks every sentence and legend edit against the rulings file.
+- **One sentence was aligned, as the rulings ask: Methods note N4**, to E47
+  4a.7, item 5.
+  - The change: "the BCL-2 family members listed in MitoCarta 3.0" becomes
+    "those of the twelve BH3-only and anti-apoptotic genes listed in
+    MitoCarta 3.0".
+  - The reason: MitoCarta 3.0 also lists `BAX`, `BAK1` and `BOK`.
+- **Four observations are left for the author** (handoff section 0):
+  - R2 attaches the model sets' n to the search;
+  - `BAD`'s explanation comes three sentences after R4 names it;
+  - N4 to N6 sit beside E47 4a.7's paragraph;
+  - ED-g's ±0.9 scale was set by the column being removed.
+- **Legend edit 6 waits on the author's `BID`, `BIK` and `BMF`** in
+  `data/annotations/bh3_binding_code.csv`. The pack's build stops until
+  `BINDING_CLASSES_ENTERED` matches that table.
+
+**Earlier the same evening: `E50` was RUN and VERIFIED.**
 
 **What E50 is:** a display-only script, `scripts/E50_fig4g_in_fig1g_style.R`.
 - **Its specification** is the author's further amendment to the STOP 3
@@ -107,18 +159,14 @@ the STOP 3 rulings, which are not in the repo.** The entry point is
     previews are darkened. Their PDFs are not;
   - **a `cairo_pdf` between two cairo PNGs moves ggplot's multi-line text.**
 
-**Next action: the author's STOP 3 rulings** (items 1 to 6, amendments A to
-E).
-- **They are NOT IN THE REPO**, and did not reach the sessions that wrote and
-  verified E50.
-- **The amendment says their text stands.** Once they are supplied, the
-  handoff's section 0 says how to apply them.
-- **Until then, nothing is pending from Claude Code.**
+**E50 then waited on the STOP 3 rulings.** They arrived consolidated and are
+applied (see NEWEST above).
 
 **Earlier the same day, in the afternoon: `E49` is RUN and VERIFIED, and the
 session stopped at STOP 3 for the author.** Where this block conflicts with
-E50's amendment (the grey cells, the two versions, the drawn binding-code
-columns, the palette), the amendment wins. The entry point was
+E50's amendment or the STOP 3 rulings, they win. The conflicts are the grey
+cells, the two versions, the drawn binding-code columns, the palette, the
+text and H2. The entry point was
 **`docs/2026-11-03_e49_handoff.md`**. Behind it, in this order:
 1. **`docs/2026-11-03_e49_result.md`**, the result note.
    - Part 4 is the text for the paper.
@@ -191,12 +239,13 @@ Part A re-read E47's saved fits. Part B fitted only the three effectors
   - **What remains:** negative in every cell, but with no interval.
   - **MYC activity's coefficient is unaffected.**
   - **The test is the remainder's interval and a same-rule control
-    signature.** It would need its own number, now `E51` or later. Declaring
-    it is the author's call.
+    signature.** It would need its own number, now `E51` or later.
+  - **The rulings accept H2 and do NOT declare the test** (rulings 2.4).
 
 **STOP 3 was then held.** The author ruled, then amended three rulings; the
-amendment is E50's specification (see NEWEST above). What STOP 3 asked of the
-author:
+amendment is E50's specification. **Everything STOP 3 asked is now settled**
+by the consolidated rulings (`cb9b7ce`; see NEWEST above), except the binding
+classes, which the author enters. What STOP 3 asked of the author:
 - 4g's version, now replaced: there are no dots;
 - the text (result note 4.1's "author's call" items, and the legend additions
   in 4.3);
@@ -589,7 +638,9 @@ number is `E51`.**
   quantities, the effectors, and the new 4g in two versions.
 - `E50` is display-only, run and verified (116 of 116 assertions; 11 of 12
   digests, the twelfth a label's wording). It redraws 4g, ED-e and ED-f in
-  Fig. 1g's style and re-colours ED-g and ED-h.
+  Fig. 1g's style and re-colours ED-g and ED-h. The STOP 3 rulings accept its
+  displays; the rest is the author's Illustrator work, and no display script
+  follows it.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
