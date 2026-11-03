@@ -3,6 +3,26 @@
 This folder generates `docs/2026-11-03_e49_review_pack.qmd`, which renders to
 the PDF beside it. It is not a numbered script: it computes nothing from data.
 
+**2026-11-03, after STOP 3: `pack_text.py` now holds the author's STOP 3
+rulings' text** (`docs/2026-11-03_stop3_rulings_consolidated.md`, `cb9b7ce`).
+- It is the single source for E49's result note, Part 4, and for the E50 review
+  pack (`docs/2026-11-03_e50_review_pack_src/`). Run it directly to check the
+  text against the rulings file and print the metrics.
+- **`make_pack.py` here stays pinned to E49's text**, and stops with a message if
+  run against the new `pack_text.py`.
+- **To rebuild E49's pack as committed,** run this folder from `c117f8f`:
+
+  ```
+  git worktree add ../e49_pack_c117f8f c117f8f
+  cd ../e49_pack_c117f8f
+  python3 -I -B docs/2026-11-03_e49_review_pack_src/make_pack.py docs/2026-11-03_e49_review_pack_src docs/2026-11-03_e49_review_pack.qmd
+  ```
+
+  From `c117f8f`'s files this reproduces the committed `.qmd` byte for byte
+  (checked 2026-11-03). Remove the worktree afterwards with `git worktree remove`.
+
+What follows describes the folder as it was at `c117f8f`.
+
 **The files:**
 - **`pack_text.py`** holds the result note's Part 4 text:
   - each sentence, with its id (S1, S2b, B3 ...);

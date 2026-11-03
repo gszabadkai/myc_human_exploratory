@@ -6,6 +6,11 @@ S, OUT = sys.argv[1], sys.argv[2]
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location("pt", S + "/pack_text.py")
 pt = importlib.util.module_from_spec(spec); spec.loader.exec_module(pt)
+# Added 2026-11-03: pack_text.py now holds the STOP 3 rulings' text (cb9b7ce),
+# and this generator is pinned to E49's text. See README.md to rebuild E49's pack.
+if hasattr(pt, "RESULTS_SHORTS"):
+    raise SystemExit("pack_text.py now holds the STOP 3 rulings' text. E49's pack is rebuilt from "
+                     "c117f8f's pack_text.py (README.md); the current pack is the E50 one.")
 LEG = json.load(open(S + "/legends.json", encoding="utf-8"))
 LEG48 = json.load(open(S + "/../2026-11-03_e48_review_pack_src/legends.json", encoding="utf-8"))
 
