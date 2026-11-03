@@ -69,19 +69,70 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03: E48 is RUN and VERIFIED, and the session stopped at
-STOP 3 for the author to fix Fig. 4g's final design.**
+**NEWEST, 2026-11-03, later the same day: the author has changed course on
+Fig. 4g. For any Fig. 4 human-panel or narrative work, read
+`docs/2026-11-03_signature_and_fig4g_brief.md` FIRST.**
 
-**The entry point for any Fig. 4 human-panel or narrative work is
-`docs/2026-11-03_handoff.md`.** Behind it, in this order:
+**What the brief decides:**
+- **The six-gene signature (S6) returns as 4g's summary.**
+  - Its OXPHOS coefficient is circular. It is drawn grey and never read.
+  - Its proliferation and MYC coefficients carry the message.
+- **4g becomes a heatmap in Fig. 1g's layout**:
+  - the four groups of Fig. 1g as rows;
+  - the BH3 binding code and the signature signs on the left;
+  - a strip for the signature beneath.
+- **The text reads PUMA against BCL-xL.**
+  - BAD's rise is answered by its phosphorylation.
+  - MCL1 is answered without BAD.
+  - **Two claims from the chat are retracted** (brief 4.8). Neither is used
+    anywhere.
+- **It specifies `E49`, which is not yet declared:**
+  - Part A recovers the signature's quantities from E47's saved fits;
+  - Part B fits the three effectors, BAX, BAK1 and BOK;
+  - then the displays.
+
+**An amendment of the same day changes the brief, and is recorded in the E49
+declaration, not in the brief.** It changes three things:
+- 4g's columns: three exposure blocks, from one model per row on the
+  least-entangled MYC score;
+- a placement rule for the MYC column;
+- two sentences of section 8.
+
+**So do not build 4g from the brief's section 7 alone.**
+
+**What the brief supersedes:**
+- **the 2026-11-03 handoff's sections 0 and 3.** E48's layout choice and its
+  text choices are no longer pending;
+- **E48 result Part 4 as the paper's text**;
+- **three parts of the 2026-11-02 brief:**
+  - 1.4's "the signature leaves the main text";
+  - section 6, the 4g design;
+  - section 8, the text drafts.
+
+  **That brief's section 4 still governs every word**, with the new brief's
+  section 5 added.
+
+**Next action: E49 stage 1** (structure checks and the declaration), then
+STOP 1 for the author.
+
+**Earlier the same day: E48 is RUN and VERIFIED, and the session stopped at
+STOP 3 for the author to fix Fig. 4g's final design.** The new brief has
+since replaced that STOP 3. What follows is E48's record.
+
+**The entry point for E48's work was `docs/2026-11-03_handoff.md`.** Behind
+it, in this order:
 1. **`docs/2026-11-02_separation_line_brief.md`**, the author's decision
    record.
    - **Where it conflicts with anything below, the brief wins.**
    - **Its section 4 governs every word written about results.**
-2. **`docs/2026-11-03_e48_result.md`**, the E48 result. **Its Part 4 is the
-   text for the paper**, finalised against the verified numbers.
-3. **`docs/2026-11-03_e48_review_pack.pdf`**, the three layouts of 4g, each
-   with that text, for the author's choice.
+2. **`docs/2026-11-03_e48_result.md`**, the E48 result.
+   - Its Part 2 holds all twelve genes' coefficients, which E49's 4g
+     re-reads.
+   - Its Part 4 was the text for the paper. The new brief's section 8
+     replaces it.
+3. **`docs/2026-11-03_e48_review_pack.pdf`**, the three layouts of 4g.
+   - They are retired from the paper by the new brief.
+   - They remain E48's verified record.
 
 **For the whole earlier chain**, `docs/handoff-2026-10-21.md` is still the
 consolidated record. Its predecessor `docs/2026-10-04_handoff.md` keeps
@@ -134,9 +185,9 @@ authority over what the section-4 figure panels may assert (its section 2).
 - **None of its numbers is verified from this repo yet.** Brief section 9
   lists what to check before the panel is built.
 
-**Next action: STOP 3.** The author chooses 4g's layout from the review pack.
-The author also rules on the choices marked "the author's call" in section
-4.1 and section 5 of the result note. After that:
+**E48's STOP 3 is superseded by the new brief.** It had the author choose
+4g's layout and rule on the text choices in result note 4.1. The open items
+it listed still stand:
 - the author edits the Doc, which is never edited from here;
 - the co-amplification display task, after brief section 9's verification;
 - brief section 10's open items:
