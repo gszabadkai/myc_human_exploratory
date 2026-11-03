@@ -69,34 +69,51 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, evening: `E50` is WRITTEN, its digests are committed,
-and it waits for the author's run.**
-- **What it is:** a display-only script, `scripts/E50_fig4g_in_fig1g_style.R`.
-  Its specification is the author's further amendment to the STOP 3 rulings,
-  verbatim in **`docs/2026-11-03_E50_display_amendment.md`** (`6f5bf4d`).
+**NEWEST, 2026-11-03, evening: `E50` is RUN and VERIFIED. The text waits on
+the STOP 3 rulings, which are not in the repo.** The entry point is
+**`docs/2026-11-03_e50_handoff.md`**. Behind it:
+1. **`docs/2026-11-03_e50_result.md`**, E50's result;
+2. **`docs/2026-11-03_e50_review_pack.pdf`**, 4g at final size, with the text
+   (still E49's, unamended), the legend draft and the Extended Data.
+
+**What E50 is:** a display-only script, `scripts/E50_fig4g_in_fig1g_style.R`.
+- **Its specification** is the author's further amendment to the STOP 3
+  rulings, verbatim in **`docs/2026-11-03_E50_display_amendment.md`**
+  (`6f5bf4d`).
   - The amendment replaces three rulings: the version choice, the grey cells
     and the E50 specification.
-  - **So `E50` is no longer the test of H2.** If that test is declared, it
-    takes the next free number.
-- **What it draws:**
-  - **no grey anywhere;**
-  - **4g, ED-e and ED-f in Fig. 1g's style**, with no annotation columns, as
-    a PDF with live Helvetica, an SVG and a PNG;
+  - **So `E50` is not the test of H2.** If that test is declared, it takes
+    `E51` or the next free number.
+- **It verified** against digests committed before the run (`eae8ef5`):
+  - 116 of 116 assertions;
+  - 11 of 12 saved elements by digest. The twelfth, the assertions table,
+    differs only in one label that names its output folder;
+  - every comparable figure file matches its checksum.
+- **What it draws, from E49's numbers and nothing else:**
+  - **no grey anywhere, and no dots;**
+  - **4g, ED-e and ED-f in Fig. 1g's style,** with no annotation columns, as
+    a PDF with live Helvetica, an SVG and a PNG, at 87.6 x 58.2 mm;
   - **ED-g and ED-h re-coloured.**
+- **The binding code, the signature signs, the § marks and any protein names
+  are the author's, added in Illustrator.**
 - **Its palette is Fig. 1g's source** (`myc_mouse` `2ebf646`,
-  `_style.R` `div_cols`). It is NOT the values the author measured from the
-  PDF; the difference is in the pre-run note, section 3.
-- **Pre-run digests:** **`docs/2026-11-03_e50_prerun_digests.md`**. 116 of 116
-  assertions passed in the dry runs.
-- **Next action:** the author restarts R and sources E50. Then Claude Code:
-  - verifies the run;
-  - commits the tracked figures;
-  - regenerates the review pack with the amended text;
-  - updates this file and the handoff.
-- **THE STOP 3 RULINGS THEMSELVES (items 1 to 6, amendments A to E) ARE NOT IN
-  THE REPO.** They did not reach the session that wrote E50. The amendment
-  says their text stands, and the review pack cannot be regenerated with it
-  until the rulings are supplied.
+  `_style.R` `div_cols`), interpolated in CIELAB as Fig. 1g's scale is. It is
+  NOT the values the author measured from the PDF.
+- **The choices the amendment left open** are in the pre-run note
+  (`docs/2026-11-03_e50_prerun_digests.md`), section 3. Each is the author's
+  to reverse.
+- **Two device findings** (result note, section 4):
+  - **the default quartz PNG device darkens colours,** so E48's and E49's PNG
+    previews are darkened. Their PDFs are not;
+  - **a `cairo_pdf` between two cairo PNGs moves ggplot's multi-line text.**
+
+**Next action: the author's STOP 3 rulings** (items 1 to 6, amendments A to
+E).
+- **They are NOT IN THE REPO**, and did not reach the sessions that wrote and
+  verified E50.
+- **The amendment says their text stands.** Once they are supplied, the
+  handoff's section 0 says how to apply them.
+- **Until then, nothing is pending from Claude Code.**
 
 **Earlier the same day, in the afternoon: `E49` is RUN and VERIFIED, and the
 session stopped at STOP 3 for the author.** Where this block conflicts with
@@ -570,9 +587,9 @@ number is `E51`.**
   4g's three layouts.
 - `E49` is run and verified, 24 of 24. It gives the signature's declared
   quantities, the effectors, and the new 4g in two versions.
-- `E50` is display-only, written, with its digests committed, and NOT YET
-  RUN. It redraws 4g, ED-e and ED-f in Fig. 1g's style and re-colours ED-g and
-  ED-h.
+- `E50` is display-only, run and verified (116 of 116 assertions; 11 of 12
+  digests, the twelfth a label's wording). It redraws 4g, ED-e and ED-f in
+  Fig. 1g's style and re-colours ED-g and ED-h.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
