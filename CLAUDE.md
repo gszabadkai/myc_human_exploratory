@@ -69,8 +69,39 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, afternoon: `E49` is RUN and VERIFIED, and the session
-stopped at STOP 3 for the author.** The entry point is
+**NEWEST, 2026-11-03, evening: `E50` is WRITTEN, its digests are committed,
+and it waits for the author's run.**
+- **What it is:** a display-only script, `scripts/E50_fig4g_in_fig1g_style.R`.
+  Its specification is the author's further amendment to the STOP 3 rulings,
+  verbatim in **`docs/2026-11-03_E50_display_amendment.md`** (`6f5bf4d`).
+  - The amendment replaces three rulings: the version choice, the grey cells
+    and the E50 specification.
+  - **So `E50` is no longer the test of H2.** If that test is declared, it
+    takes the next free number.
+- **What it draws:**
+  - **no grey anywhere;**
+  - **4g, ED-e and ED-f in Fig. 1g's style**, with no annotation columns, as
+    a PDF with live Helvetica, an SVG and a PNG;
+  - **ED-g and ED-h re-coloured.**
+- **Its palette is Fig. 1g's source** (`myc_mouse` `2ebf646`,
+  `_style.R` `div_cols`). It is NOT the values the author measured from the
+  PDF; the difference is in the pre-run note, section 3.
+- **Pre-run digests:** **`docs/2026-11-03_e50_prerun_digests.md`**. 116 of 116
+  assertions passed in the dry runs.
+- **Next action:** the author restarts R and sources E50. Then Claude Code:
+  - verifies the run;
+  - commits the tracked figures;
+  - regenerates the review pack with the amended text;
+  - updates this file and the handoff.
+- **THE STOP 3 RULINGS THEMSELVES (items 1 to 6, amendments A to E) ARE NOT IN
+  THE REPO.** They did not reach the session that wrote E50. The amendment
+  says their text stands, and the review pack cannot be regenerated with it
+  until the rulings are supplied.
+
+**Earlier the same day, in the afternoon: `E49` is RUN and VERIFIED, and the
+session stopped at STOP 3 for the author.** Where this block conflicts with
+E50's amendment (the grey cells, the two versions, the drawn binding-code
+columns, the palette), the amendment wins. The entry point was
 **`docs/2026-11-03_e49_handoff.md`**. Behind it, in this order:
 1. **`docs/2026-11-03_e49_result.md`**, the result note.
    - Part 4 is the text for the paper.
@@ -142,17 +173,19 @@ Part A re-read E47's saved fits. Part B fitted only the three effectors
     model in TCGA, and a third in SCAN-B.
   - **What remains:** negative in every cell, but with no interval.
   - **MYC activity's coefficient is unaffected.**
-  - **The test, the remainder's interval and a same-rule control signature,
-    would be `E50`. Declaring it is the author's call.**
+  - **The test is the remainder's interval and a same-rule control
+    signature.** It would need its own number, now `E51` or later. Declaring
+    it is the author's call.
 
-**Next action: STOP 3.** The author:
-- chooses 4g's version;
-- finalises the text (result note 4.1's "author's call" items, and the
-  legend additions in 4.3);
-- decides whether to declare `E50`;
-- supplies the binding classes for `BID`, `BIK` and `BMF`.
-
-**Nothing is pending from Claude Code until then.**
+**STOP 3 was then held.** The author ruled, then amended three rulings; the
+amendment is E50's specification (see NEWEST above). What STOP 3 asked of the
+author:
+- 4g's version, now replaced: there are no dots;
+- the text (result note 4.1's "author's call" items, and the legend additions
+  in 4.3);
+- whether to declare the H2 test;
+- the binding classes for `BID`, `BIK` and `BMF`. The author fills them in
+  `data/annotations/bh3_binding_code.csv` and draws the code in Illustrator.
 
 **Earlier the same day, before E49 ran: the author changed course on Fig. 4g**,
 in `docs/2026-11-03_signature_and_fig4g_brief.md`. What follows is that
@@ -530,13 +563,16 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E50`.**
+number is `E51`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
   4g's three layouts.
 - `E49` is run and verified, 24 of 24. It gives the signature's declared
   quantities, the effectors, and the new 4g in two versions.
+- `E50` is display-only, written, with its digests committed, and NOT YET
+  RUN. It redraws 4g, ED-e and ED-f in Fig. 1g's style and re-colours ED-g and
+  ED-h.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1035,7 +1071,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E49. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E50. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
