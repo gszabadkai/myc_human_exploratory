@@ -69,8 +69,9 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-03, evening: the author's STOP 3 rulings and their addendum
-are RECORDED and APPLIED. Nothing is pending from Claude Code.** The entry
+**NEWEST, 2026-11-04: the author's STOP 3 rulings, their addendum and the
+binding ruling are RECORDED and APPLIED. Nothing is pending from Claude
+Code.** The entry
 point is **`docs/2026-11-03_e50_handoff.md`**. Behind it:
 1. **`docs/2026-11-03_stop3_rulings_consolidated.md`** (`cb9b7ce`), the
    rulings, verbatim. They replace every chat version of items 1 to 6 and
@@ -129,9 +130,15 @@ point is **`docs/2026-11-03_e50_handoff.md`**. Behind it:
   words,** for the author to revise (handoff section 0):
   - D3 (58) and D10 (43), to split;
   - D4 (8) and D12 (7), under the hard floor.
-- **Legend edit 6 waits on the author's `BID`, `BIK` and `BMF`** in
-  `data/annotations/bh3_binding_code.csv`. The pack's build stops until
-  `BINDING_CLASSES_ENTERED` matches that table.
+- **THE BINDING CLASSES ARE ENTERED** (the author's binding ruling,
+  `docs/2026-11-04_binding_classes_ruling.md`, `66c205a`; applied in
+  `adda767`).
+  - `BID` binds both. `BIK` and `BMF` bind BCL-xL and are coded as not
+    binding MCL1. Their binding is weak, not absent, and the table notes it.
+  - The sources are Ku et al. 2010 and Wang et al. 2023. The 4g legend and N2
+    now cite them beside Chen 2005.
+  - Legend edit 6 applies. E49, which read the table with these rows blank, is
+    not re-run.
 
 **Earlier the same evening: `E50` was RUN and VERIFIED.**
 
@@ -252,8 +259,8 @@ Part A re-read E47's saved fits. Part B fitted only the three effectors
 
 **STOP 3 was then held.** The author ruled, then amended three rulings; the
 amendment is E50's specification. **Everything STOP 3 asked is now settled**
-by the consolidated rulings (`cb9b7ce`; see NEWEST above), except the binding
-classes, which the author enters. What STOP 3 asked of the author:
+by the consolidated rulings (`cb9b7ce`; see NEWEST above), and the binding
+classes by the binding ruling (`66c205a`). What STOP 3 asked of the author:
 - 4g's version, now replaced: there are no dots;
 - the text (result note 4.1's "author's call" items, and the legend additions
   in 4.3);
