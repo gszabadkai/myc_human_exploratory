@@ -4,7 +4,9 @@
 #   - the rulings' section 3 sentences, with R2's sample sizes from addendum 1;
 #   - the Methods definition, E47 declaration 4a.7, item 5, verbatim, with the
 #     addendum's two changes (3a, 3b); N4 to N6 are dropped (addendum 3);
-#   - the rulings' section 4 edits to E50's 4g legend.
+#   - the rulings' section 4 edits to E50's 4g legend;
+#   - the binding ruling (docs/2026-11-04_binding_classes_ruling.md, 66c205a):
+#     legend edit 6 applies, and the legend and N2 cite Ku 2010 and Wang 2023.
 # No sentence is Claude Code's. This supersedes the E49 text that this file held
 # at c117f8f and the version of da548bd. Single source for E49's result note,
 # Part 4, and the E50 review pack. Run directly to check the text against the
@@ -17,6 +19,7 @@ XA, XB, XG, XH, XK = ("Extended Data Fig. Xa", "Extended Data Fig. Xb",
 RULINGS = "2026-11-03_stop3_rulings_consolidated.md"
 ADDENDUM = "2026-11-03_stop3_rulings_addendum.md"
 E47_DECL = "2026-10-22_E47_mutual_adjustment_declaration.md"
+BINDING_RULING = "2026-11-04_binding_classes_ruling.md"
 
 # The Methods definition's run-in heading, from E47 4a.7, item 5.
 METHODS_HEADING = "BCL-2-family genes and signature."
@@ -80,7 +83,7 @@ PARAS = [
  ]),
  ("Methods notes (E49's three, kept)", "Methods notes", [
   ("N1", "The effectors BAX, BAK1 and BOK were fitted for comparison with the groups of Fig. 1g and were not added to the signature.", False),
-  ("N2", "Binding of BCL-xL and MCL1 by each BH3-only protein was taken from published peptide affinities and is shown only where the source states it[Chen].", False),
+  ("N2", "Binding of BCL-xL and MCL1 by each BH3-only protein was taken from published peptide affinities and is shown only where the source states it[Chen,Ku,Wang].", False),
   ("N3", "This analysis was post hoc, and the signature's proliferation coefficient had been seen in an earlier analysis before it was declared; no reading rule was applied, and every coefficient is reported.", False),
  ]),
 ]
@@ -101,6 +104,8 @@ N4_AS_RULED = ("The signature comprised the BCL-2 family members listed in MitoC
 N5_AS_RULED = "Each was entered with the sign of that correlation, and MYC activity played no part in the selection."
 N6_AS_RULED = ("Variants without BID, which met the threshold by the smallest margin, and with BMF, which "
                "met it but is not mitochondrial, gave similar associations (" + XG + ").")
+N2_AS_RULED = ("Binding of BCL-xL and MCL1 by each BH3-only protein was taken from published "
+               "peptide affinities and is shown only where the source states it[Chen].")
 # The brief's rule 5.4, as the addendum (item 2) rewords it.
 RULE_5_4 = ("BAD is reported with its explanation in the sentence that sets its rise against "
             "BCL-xL's, or the next.")
@@ -128,17 +133,20 @@ LEGEND_4G_EDITS = [
   "cohorts; its association with BAK1 differed in sign between cohorts, and MCL1 was higher only "
   "in SCAN-B."),
 ]
-# Item 6 waits on the binding classes (the rulings' section 5). Set this to True
-# once the author has entered BID, BIK and BMF, with verified_by, in
+# Item 6 waited on the binding classes (the rulings' section 5). The author
+# ruled them on 2026-11-04 and they are entered in
 # data/annotations/bh3_binding_code.csv; the E50 pack's make_pack.py stops if
-# the flag and the table disagree.
-BINDING_CLASSES_ENTERED = False
+# this flag and the table disagree.
+BINDING_CLASSES_ENTERED = True
 LEGEND_4G_EDIT_6 = ("6", "delete", "; blank, not yet verified", "")
+# Item 7, from the binding ruling (question 2): the legend cites all three papers.
+LEGEND_4G_EDIT_7 = ("7", "replace", "from Chen et al. (2005):",
+                    "from Chen et al. (2005), Ku et al. (2010) and Wang et al. (2023):")
 
 def legend_4g(draft):
     """E50's 4g legend draft with the rulings' section 4 edits applied."""
     s = draft
-    edits = LEGEND_4G_EDITS + ([LEGEND_4G_EDIT_6] if BINDING_CLASSES_ENTERED else [])
+    edits = LEGEND_4G_EDITS + ([LEGEND_4G_EDIT_6] if BINDING_CLASSES_ENTERED else []) + [LEGEND_4G_EDIT_7]
     for (k, kind, old, new) in edits:
         if kind == "append":
             s = s + " " + new
@@ -257,12 +265,20 @@ def check_against_rulings(docs):
     same(body.count("(omitting BID)."), 1, "the end of E47's variants sentence")
     body = body.replace(old_c[0], new_c[0]).replace("(omitting BID).", "(omitting BID) (" + XG + ").")
     same(body, j(["D" + str(k) for k in range(1, 13)]), "the Methods definition, against E47 4a.7, item 5")
+    # 5. The binding ruling: legend edit 7, N2's citations and the MCL1 call.
+    b = open(f"{docs}/{BINDING_RULING}", encoding="utf-8").read().split("## 3. The author's answers, verbatim", 1)[1]
+    k, kind, old, new = LEGEND_4G_EDIT_7
+    same(f"The legend reads '{new.rstrip(':')}'" in b, True, "legend edit 7, against the binding ruling")
+    same("and N2 cites all three" in b, True, "N2's three citations, against the binding ruling")
+    same(sentence("N2").replace("[Chen,Ku,Wang]", "[Chen]"), N2_AS_RULED, "N2, apart from its citations")
+    same("> Does not bind (open): binds_MCL1 = FALSE for BIK and BMF" in b, True,
+         "the MCL1 call for BIK and BMF, in the binding ruling")
     return n
 
 if __name__ == "__main__":
     here = sys.argv[0].rsplit("/", 1)[0] if "/" in sys.argv[0] else "."
     n = check_against_rulings(here + "/..")
-    print(f"against the rulings, the addendum and E47 4a.7, item 5: {n} comparisons, all exact\n")
+    print(f"against the rulings, the addendum, E47 4a.7, item 5, and the binding ruling: {n} comparisons, all exact\n")
     for short, m in metrics_rows():
         print(f"{short:30s} n={m['sentences']:2d} words={m['words']:3d} mean={m['mean']:.1f} median={m['median']} range={m['min']}-{m['max']} <20={m['under20']} <12={m['under12']} >38={m['over38']} emdash={m['emdash']} each={m['each']}")
     m = metrics(results_sentences())

@@ -6,7 +6,8 @@
 #     rulings, the addendum and E47's declaration;
 #   - this folder's legends.json, E50's $legend_draft verbatim (4g, ED-e to ED-h);
 #   - E49's and E48's legends.json, verbatim (ED-i to ED-k; ED-a and ED-b);
-#   - data/annotations/bh3_binding_code.csv, only to check legend edit 6's flag.
+#   - data/annotations/bh3_binding_code.csv, only to check legend edit 6's flag and
+#     the binding ruling's classes for BID, BIK and BMF.
 import sys, json, csv, re, importlib.util
 S, OUT = sys.argv[1], sys.argv[2]
 sys.dont_write_bytecode = True
@@ -26,6 +27,12 @@ entered = all(rows[g]["binds_BCL2L1"] and rows[g]["binds_MCL1"] and rows[g]["ver
 if entered != pt.BINDING_CLASSES_ENTERED:
     raise SystemExit(f"bh3_binding_code.csv has BID, BIK and BMF {'entered' if entered else 'not entered'}, "
                      f"but pack_text.BINDING_CLASSES_ENTERED is {pt.BINDING_CLASSES_ENTERED}")
+# The binding ruling (2026-11-04): BID binds both; BIK and BMF bind BCL-xL and are
+# coded as not binding MCL1.
+RULED_CLASSES = {"BID": ("TRUE", "TRUE"), "BIK": ("TRUE", "FALSE"), "BMF": ("TRUE", "FALSE")}
+for g, (x, y) in RULED_CLASSES.items():
+    if (rows[g]["binds_BCL2L1"], rows[g]["binds_MCL1"]) != (x, y):
+        raise SystemExit(f"bh3_binding_code.csv: {g} is not as the binding ruling has it")
 LEG4G = pt.legend_4g(LEG50["fig4g"])
 # Addendum 1: the model sets stay in the 4g legend.
 if not ("(n = 938)" in LEG4G and "(n = 3,143)" in LEG4G):
@@ -132,6 +139,7 @@ EDIT_WHAT = {
   "4": "cites ED-e",
   "5": "adds the two sentences on patterns outside the text, replacing E49's proposed additions. The rulings do not place them; they are appended, where those additions stood",
   "6": "deletes \"; blank, not yet verified\" once BID, BIK and BMF are entered",
+  "7": "cites Ku et al. (2010) and Wang et al. (2023) beside Chen et al. (2005), the sources of BID, BIK and BMF (the binding ruling)",
 }
 
 q = []
@@ -152,6 +160,7 @@ format:
 
 - **The rulings:** `docs/2026-11-03_stop3_rulings_consolidated.md` (`cb9b7ce`), committed verbatim and alone.
 - **The addendum:** `docs/2026-11-03_stop3_rulings_addendum.md` (`3f9ffbe`), committed verbatim and alone.
+- **The binding ruling:** `docs/2026-11-04_binding_classes_ruling.md` (`66c205a`), committed verbatim and alone.
 - **Nothing new is computed.** Every number drawn was stored by E49 (`4fd661b`) and drawn by E50, which was verified (`docs/2026-11-03_e50_result.md`).
 
 **The text** (rulings section 3, as the addendum amends it).
@@ -160,8 +169,8 @@ format:
   - The sentences are the rulings' own.
   - R2 carries the search's cohorts, from the addendum.
   - The Methods definition is E47 declaration 4a.7, item 5, verbatim, with the addendum's two changes.
-- **{N_CHECKED} comparisons, made each time this pack is built, found no difference.** They check the text against the rulings, the addendum and E47's declaration.
-- **The 4g legend is E50's draft with the rulings' section 4 edits**, items 1 to 5. Item 6 waits on the binding classes.
+- **{N_CHECKED} comparisons, made each time this pack is built, found no difference.** They check the text against the rulings, the addendum, E47's declaration and the binding ruling.
+- **The 4g legend is E50's draft with the rulings' section 4 edits, items 1 to 6, and the binding ruling's item 7.**
 - **It supersedes E49's result note, Part 4, as committed** (`4fd661b`). The note now carries this text.
 
 **The addendum's answers to the four observations.**
@@ -174,6 +183,12 @@ format:
 
    N1 to N3 stay. N6, as ruled, misdescribed S5, whose rule uses MYC activity; E47's paragraph states it correctly (D10, D11).
 4. **ED-g keeps its ±0.9 scale.** The author deletes the "Proliferation minus OXPHOS" column in Illustrator. No legend edit and no new script follow.
+
+**The binding classes** (the binding ruling, 2026-11-04; `data/annotations/bh3_binding_code.csv`).
+
+- **BID binds both BCL-xL and MCL1.** BIK and BMF bind BCL-xL and, by the author's decision, are coded as not binding MCL1: they strongly favour BCL-xL, and their MCL1 binding is weak, not absent.
+- **The sources are Ku et al. 2010 and Wang et al. 2023**, in place of Chen et al. 2005's full data (rulings section 5). The legend (item 7) and Methods note N2 cite all three.
+- **All seven rows are now filled, so legend edit 6 applies.** The code reaches 4g only through the author's Illustrator annotations. E49, which read the table with these rows blank, is not re-run.
 
 **For the author: the Methods definition, measured** (addendum 3: any sentence outside the range is reported for the author to split).
 
@@ -217,7 +232,7 @@ for (ptitle, short, ss) in pt.PARAS:
 q.append("## The legend: E50's draft, with the rulings' section 4 edits\n")
 q.append(f"*{nwords(LEG4G)} words; the draft has {nwords(LEG50['fig4g'])}.* {LEG4G}\n")
 q.append("| item | the edit | status |\n|:-|:---------------------------|:----------|")
-for (k, kind, old, new) in pt.LEGEND_4G_EDITS + [pt.LEGEND_4G_EDIT_6]:
+for (k, kind, old, new) in pt.LEGEND_4G_EDITS + [pt.LEGEND_4G_EDIT_6, pt.LEGEND_4G_EDIT_7]:
     status = ("applied" if k != "6" or pt.BINDING_CLASSES_ENTERED else
               "waits on the binding classes (rulings section 5)")
     q.append(f"| {k} | {EDIT_WHAT[k]} | {status} |")
@@ -250,4 +265,4 @@ for n, (k, title, figs, leg, note) in enumerate(ED):
     q.append(f"*Legend draft* ({nwords(leg)} words). {leg}\n")
 
 open(OUT, "w", encoding="utf-8").write("\n".join(q))
-print("wrote", OUT, f"({N_CHECKED} comparisons with the rulings, the addendum and E47's declaration, all exact)")
+print("wrote", OUT, f"({N_CHECKED} comparisons with the rulings, the addendum, E47's declaration and the binding ruling, all exact)")

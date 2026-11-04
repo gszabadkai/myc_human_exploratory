@@ -15,6 +15,7 @@ format:
 
 - **The rulings:** `docs/2026-11-03_stop3_rulings_consolidated.md` (`cb9b7ce`), committed verbatim and alone.
 - **The addendum:** `docs/2026-11-03_stop3_rulings_addendum.md` (`3f9ffbe`), committed verbatim and alone.
+- **The binding ruling:** `docs/2026-11-04_binding_classes_ruling.md` (`66c205a`), committed verbatim and alone.
 - **Nothing new is computed.** Every number drawn was stored by E49 (`4fd661b`) and drawn by E50, which was verified (`docs/2026-11-03_e50_result.md`).
 
 **The text** (rulings section 3, as the addendum amends it).
@@ -23,8 +24,8 @@ format:
   - The sentences are the rulings' own.
   - R2 carries the search's cohorts, from the addendum.
   - The Methods definition is E47 declaration 4a.7, item 5, verbatim, with the addendum's two changes.
-- **32 comparisons, made each time this pack is built, found no difference.** They check the text against the rulings, the addendum and E47's declaration.
-- **The 4g legend is E50's draft with the rulings' section 4 edits**, items 1 to 5. Item 6 waits on the binding classes.
+- **36 comparisons, made each time this pack is built, found no difference.** They check the text against the rulings, the addendum, E47's declaration and the binding ruling.
+- **The 4g legend is E50's draft with the rulings' section 4 edits, items 1 to 6, and the binding ruling's item 7.**
 - **It supersedes E49's result note, Part 4, as committed** (`4fd661b`). The note now carries this text.
 
 **The addendum's answers to the four observations.**
@@ -37,6 +38,12 @@ format:
 
    N1 to N3 stay. N6, as ruled, misdescribed S5, whose rule uses MYC activity; E47's paragraph states it correctly (D10, D11).
 4. **ED-g keeps its ±0.9 scale.** The author deletes the "Proliferation minus OXPHOS" column in Illustrator. No legend edit and no new script follow.
+
+**The binding classes** (the binding ruling, 2026-11-04; `data/annotations/bh3_binding_code.csv`).
+
+- **BID binds both BCL-xL and MCL1.** BIK and BMF bind BCL-xL and, by the author's decision, are coded as not binding MCL1: they strongly favour BCL-xL, and their MCL1 binding is weak, not absent.
+- **The sources are Ku et al. 2010 and Wang et al. 2023**, in place of Chen et al. 2005's full data (rulings section 5). The legend (item 7) and Methods note N2 cite all three.
+- **All seven rows are now filled, so legend edit 6 applies.** The code reaches 4g only through the author's Illustrator annotations. E49, which read the table with these rows blank, is not re-run.
 
 **For the author: the Methods definition, measured** (addendum 3: any sentence outside the range is reported for the author to split).
 
@@ -101,11 +108,11 @@ Sentence ids are for reference.
 
 **Methods: the signature's definition (E47 declaration 4a.7, item 5, verbatim, with the addendum's two changes).** *BCL-2-family genes and signature.* **[D1]** We examined twelve BCL-2-family genes that set the threshold for mitochondrial apoptosis: seven BH3-only proteins (BCL2L11/BIM, BID, BBC3/PUMA, BAD, BIK, BMF and PMAIP1/NOXA) and five anti-apoptotic proteins (BCL2, BCL2L1/BCL-xL, MCL1, BCL2L2/BCL-w and BCL2A1/BFL-1). **[D2]** For each gene we computed the Spearman correlation of its expression with the OXPHOS subunit score (GSVA), partial on a proliferation score, in TCGA-BRCA and SCAN-B, and averaged the two cohorts. **[D3]** The signature comprised every gene that is a mitochondrial protein (Human MitoCarta 3.0: eleven of the twelve, all outer-membrane; BMF is not listed) and whose mean correlation with OXPHOS was at least 0.20 in absolute value: BAD, BCL2L1, BIK, BBC3 and BID, which rise with OXPHOS (mean rho 0.21 to 0.50), and MCL1, which falls (mean rho -0.27). **[D4]** Selection did not use correlation with MYC activity. **[D5]** BID qualified narrowly (0.21) and is the one member more strongly correlated with MYC activity (0.30) than with OXPHOS. **[D6]** Each gene was assigned a signature sign, +1 if it rises with OXPHOS and -1 if it falls, recording direction, not pro- or anti-apoptotic function. **[D7]** A tumour's signature score was the mean of the six signed z-scores (log2-normalised expression, standardised across the cohort), rank-normalised within each cohort. **[D8]** Because genes and signs were chosen by their association with OXPHOS at fixed proliferation in the same cohorts, the signature's association with OXPHOS, and in part with proliferation, is expected by construction. **[D9]** The informative quantity is its association with MYC activity at fixed OXPHOS and proliferation. **[D10]** All analyses were repeated with two rule-based variants: the same rule without the mitochondrial restriction (adding BMF, sign -1); and the five genes whose correlation with OXPHOS exceeded their correlation with MYC by at least 0.20 in at least one cohort (omitting BID) (Extended Data Fig. Xg). **[D11]** The second variant is selected against association with MYC and is reported for transparency, not as an independent test. **[D12]** All twelve genes are also reported individually.
 
-**Methods notes (E49's three, kept).** **[N1]** The effectors BAX, BAK1 and BOK were fitted for comparison with the groups of Fig. 1g and were not added to the signature. **[N2]** Binding of BCL-xL and MCL1 by each BH3-only protein was taken from published peptide affinities and is shown only where the source states it[Chen]. **[N3]** This analysis was post hoc, and the signature's proliferation coefficient had been seen in an earlier analysis before it was declared; no reading rule was applied, and every coefficient is reported.
+**Methods notes (E49's three, kept).** **[N1]** The effectors BAX, BAK1 and BOK were fitted for comparison with the groups of Fig. 1g and were not added to the signature. **[N2]** Binding of BCL-xL and MCL1 by each BH3-only protein was taken from published peptide affinities and is shown only where the source states it[Chen,Ku,Wang]. **[N3]** This analysis was post hoc, and the signature's proliferation coefficient had been seen in an earlier analysis before it was declared; no reading rule was applied, and every coefficient is reported.
 
 ## The legend: E50's draft, with the rulings' section 4 edits
 
-*256 words; the draft has 177.* Associations of OXPHOS level, MYC activity and proliferation with the expression of fifteen BCL-2 family genes, in the groups of Fig. 1g, in TCGA-BRCA (n = 938) and SCAN-B (n = 3,143). Each row is one linear model of the gene's expression on OXPHOS, MYC activity and proliferation, with intrinsic subtype, and with tumour purity and leukocyte fraction in TCGA-BRCA; each coefficient is in SD per SD with the other two held fixed, and every variable is rank-normalised within each cohort. Cells give the coefficient, rounded to one decimal; intervals are in Extended Data Fig. Xi. MYC activity is scored on MYC_UP.V1_UP, one of the two MYC activity scores least correlated with proliferation; the reference score is used in Extended Data Fig. Xf, and all four in Extended Data Fig. Xj. Left, binding of BCL-xL and MCL1 by BH3-only proteins, from Chen et al. (2005): filled, binds; open, does not; blank, not yet verified. Signature sign: the direction in which each of the six signature genes enters the signature. § BH3-only proteins whose activity is switched after translation (BAD: off by phosphorylation; BID: on by cleavage to tBID). Bottom, the six-gene signature, selected for its association with OXPHOS at fixed proliferation (Methods). OXPHOS priority is shown in Extended Data Fig. Xe. Outside the signature, BCL2L11, BMF and BCL2 also fell with OXPHOS. At fixed OXPHOS and MYC activity, proliferation went with lower BAX and BOK and higher PMAIP1 and BCL2L11 in both cohorts; its association with BAK1 differed in sign between cohorts, and MCL1 was higher only in SCAN-B.
+*261 words; the draft has 177.* Associations of OXPHOS level, MYC activity and proliferation with the expression of fifteen BCL-2 family genes, in the groups of Fig. 1g, in TCGA-BRCA (n = 938) and SCAN-B (n = 3,143). Each row is one linear model of the gene's expression on OXPHOS, MYC activity and proliferation, with intrinsic subtype, and with tumour purity and leukocyte fraction in TCGA-BRCA; each coefficient is in SD per SD with the other two held fixed, and every variable is rank-normalised within each cohort. Cells give the coefficient, rounded to one decimal; intervals are in Extended Data Fig. Xi. MYC activity is scored on MYC_UP.V1_UP, one of the two MYC activity scores least correlated with proliferation; the reference score is used in Extended Data Fig. Xf, and all four in Extended Data Fig. Xj. Left, binding of BCL-xL and MCL1 by BH3-only proteins, from Chen et al. (2005), Ku et al. (2010) and Wang et al. (2023): filled, binds; open, does not. Signature sign: the direction in which each of the six signature genes enters the signature. § BH3-only proteins whose activity is switched after translation (BAD: off by phosphorylation; BID: on by cleavage to tBID). Bottom, the six-gene signature, selected for its association with OXPHOS at fixed proliferation (Methods). OXPHOS priority is shown in Extended Data Fig. Xe. Outside the signature, BCL2L11, BMF and BCL2 also fell with OXPHOS. At fixed OXPHOS and MYC activity, proliferation went with lower BAX and BOK and higher PMAIP1 and BCL2L11 in both cohorts; its association with BAK1 differed in sign between cohorts, and MCL1 was higher only in SCAN-B.
 
 | item | the edit | status |
 |:-|:---------------------------|:----------|
@@ -114,7 +121,8 @@ Sentence ids are for reference.
 | 3 | the signature sentence names the bottom row ("Bottom, the six-gene signature") | applied |
 | 4 | cites ED-e | applied |
 | 5 | adds the two sentences on patterns outside the text, replacing E49's proposed additions. The rulings do not place them; they are appended, where those additions stood | applied |
-| 6 | deletes "; blank, not yet verified" once BID, BIK and BMF are entered | waits on the binding classes (rulings section 5) |
+| 6 | deletes "; blank, not yet verified" once BID, BIK and BMF are entered | applied |
+| 7 | cites Ku et al. (2010) and Wang et al. (2023) beside Chen et al. (2005), the sources of BID, BIK and BMF (the binding ruling) | applied |
 
 The model sets, n = 938 and 3,143, stay in this legend (addendum 1). STYLE.md does not yet cover legends (its section 9), so only the word count is given.
 

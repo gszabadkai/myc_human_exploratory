@@ -19,7 +19,7 @@ Methods definition, and section 4's edits to the 4g legend. It was first E49's
     - the rulings' edits to the 4g legend, items 1 to 5 applied and item 6
       waiting on the binding classes;
     - `check_against_rulings()`, which compares every sentence and edit with the
-      rulings, the addendum and E47's declaration (4a.7, item 5). `make_pack.py`
+      rulings, the addendum, E47's declaration (4a.7, item 5) and the binding ruling. `make_pack.py`
       runs it first and stops on any difference;
     - `outside_range()`, which lists the sentences outside STYLE.md's 12 to 38
       words. The pack reports them; it does not stop on them;
@@ -46,13 +46,13 @@ python3 -I -B docs/2026-11-03_e50_review_pack_src/make_pack.py docs/2026-11-03_e
 /Applications/Positron.app/Contents/Resources/app/quarto/bin/quarto render docs/2026-11-03_e50_review_pack.qmd --to typst
 ```
 
-- The first line checks the text against the rulings, the addendum and E47's
-  declaration, and prints the metrics.
+- The first line checks the text against the rulings, the addendum, E47's
+  declaration and the binding ruling, and prints the metrics.
 - `-B` keeps Python from writing a `__pycache__` into `docs/`. The render cache
   is gitignored.
 
-**After the author enters `BID`, `BIK` and `BMF`** in the binding-code table:
-1. set `BINDING_CLASSES_ENTERED = True` in `pack_text.py`, which applies legend
-   edit 6;
-2. regenerate the pack;
-3. update the legend in `docs/2026-11-03_e49_result.md`, section 4.3.
+**The binding classes are entered** (`docs/2026-11-04_binding_classes_ruling.md`,
+`66c205a`). `BINDING_CLASSES_ENTERED` is True, so legend edit 6 applies, and the
+binding ruling adds edit 7, which cites Ku et al. 2010 and Wang et al. 2023 beside
+Chen et al. 2005. `make_pack.py` stops if the table's `BID`, `BIK` and `BMF` rows
+differ from the ruling, or if the flag and the table disagree.
