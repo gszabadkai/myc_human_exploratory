@@ -69,9 +69,13 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, evening: `E52` is WRITTEN, and its digests are
-COMMITTED. It waits on the author's run.** The entry point is its pre-run
-note, `docs/2026-11-05_e52_prerun_digests.md`.
+**NEWEST, 2026-11-05, evening: `E52` is RUN and VERIFIED** (8 of 8
+digests, 38 of 38 assertions, every file identical to the dry run;
+`docs/2026-11-05_e52_result.md`). **Its panel replaces E51's for the
+paper.** The tracked figures are
+`docs/figures/2026-11-05_E52_puma_bclxl_against_priority_26mm.{pdf,png}`.
+Its digests were committed before the run
+(`docs/2026-11-05_e52_prerun_digests.md`, `bd0245b`).
 - **What it draws:** E51's panel at the size of Fig. 4's Prism graphs, by
   the author's ruling (`docs/2026-11-05_E52_prism_size_ruling.md`,
   `9c2ca44`):
@@ -81,10 +85,9 @@ note, `docs/2026-11-05_e52_prerun_digests.md`.
   - the axes and ticks still at 0.53 pt.
 - **It fits nothing.** Its slopes, points, lines, *P* values and legend
   draft are E51's, checked by digest.
-- **After the author's run:** verify it against the pre-run note, then
-  commit a result note and the tracked figures. **E52's panel then replaces
-  E51's for the paper.** The Illustrator edit of E51's titles is no longer
-  needed.
+- **The Illustrator edit of E51's titles is no longer needed.** The text
+  still follows, for a later ruling: R6's citation, the panel's letter and
+  the legend.
 
 **Earlier on 2026-11-05: `E51` is RUN and VERIFIED** (8 of 8 digests,
 26 of 26 assertions, every file identical to the dry run;
@@ -714,7 +717,8 @@ number is `E53`.**
   verified: 8 of 8 digests, 26 of 26 assertions.
 - `E52` is a display script. It redraws E51's panel at a 26-mm axis, with
   the *P* labels in a key above the data area and no "adjusted" in the axis
-  titles. Its digests are committed; the author's run is next.
+  titles. It is run and verified: 8 of 8 digests, 38 of 38 assertions. Its
+  panel replaces E51's for the paper.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
