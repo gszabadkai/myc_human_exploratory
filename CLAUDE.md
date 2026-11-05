@@ -69,7 +69,24 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, evening: `E52` is RUN and VERIFIED** (8 of 8
+**NEWEST, 2026-11-05, late evening: `E53` is WRITTEN, and its digests are
+COMMITTED. It waits on the author's run.** The entry point is its pre-run
+note, `docs/2026-11-05_e53_prerun_digests.md`.
+- **What it draws:** E48's ED-a and ED-b, which the author numbers Extended
+  Data Fig. 6a and 6b, at half width (at most 88 mm), by the author's ruling
+  (`docs/2026-11-05_E53_half_width_ed_panels_ruling.md`, `7325ff1`):
+  - **6a:** the two triangles side by side with 4.6-mm cells; the
+    neoadjuvant values in a row of tiles under the colour key;
+  - **6b:** no direction arrows; rows "TCGA: OXPHOS level" and so on; the
+    key "BCL2L1", "BBC3", "Difference", each beside "proliferation
+    adjusted"; x axes from -0.1.
+- **It fits nothing.** Its data are E48's saved display frames, checked by
+  digest. Its legend drafts are E48's, with 6a's "Right" now "Below".
+- **After the author's run:** verify it against the pre-run note, commit a
+  result note and the tracked figures. E53's panels then replace E48's ED-a
+  and ED-b for the paper.
+
+**Earlier on 2026-11-05, evening: `E52` is RUN and VERIFIED** (8 of 8
 digests, 38 of 38 assertions, every file identical to the dry run;
 `docs/2026-11-05_e52_result.md`). **Its panel replaces E51's for the
 paper.** The tracked figures are
@@ -700,7 +717,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E53`.**
+number is `E54`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -719,6 +736,9 @@ number is `E53`.**
   the *P* labels in a key above the data area and no "adjusted" in the axis
   titles. It is run and verified: 8 of 8 digests, 38 of 38 assertions. Its
   panel replaces E51's for the paper.
+- `E53` is a display script. It redraws E48's ED-a and ED-b (Extended Data
+  Fig. 6a and 6b) at half width, with 6b's arrows removed and its labels
+  edited. Its digests are committed; the author's run is next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1217,7 +1237,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E52. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E53. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
