@@ -85,6 +85,9 @@ note, `docs/2026-11-05_e53_prerun_digests.md`.
 - **After the author's run:** verify it against the pre-run note, commit a
   result note and the tracked figures. E53's panels then replace E48's ED-a
   and ED-b for the paper.
+- **At exit on 2026-11-05 the author said "done, it is OK", but no E53
+  output existed in the repo.** The run is not verified; see the handoff's
+  section 0.
 
 **Earlier on 2026-11-05, evening: `E52` is RUN and VERIFIED** (8 of 8
 digests, 38 of 38 assertions, every file identical to the dry run;
