@@ -15,6 +15,11 @@
 # 8fde82a before this script was written. It amends decision 5 of 2026-11-02:
 # the co-amplification result becomes a main panel, Fig. 4x.
 #
+# AMENDED after the first run (verified, ec9b590) by the author's ruling of
+# 2026-11-05, docs/2026-11-05_E54_point_size_ruling.md (6550011): the circles
+# are 1.05 mm across, outline included, in place of 1.6 mm. Nothing else
+# changes.
+#
 # SOURCE IT IN A FRESHLY RESTARTED R SESSION. Its PNG is compared byte for
 # byte with the dry run.
 #
@@ -39,6 +44,9 @@
 #   - The marks are TCGA-BRCA's dark slate (#243642, E51's ruling); the line at
 #     1 is E48's grey. Type is 5 pt, with 6 pt for the gene headers and the
 #     axis title.
+#   - The circles are 1.05 mm across, outline included (the point-size ruling):
+#     size 1.0 with a 0.3 outline, a little heavier than E52's, so that the
+#     open circles still read as open. The PDF read-back measures them.
 #   - The PDF carries live Helvetica, for Illustrator; the PNG is a preview.
 #
 # =============================================================================
@@ -73,6 +81,7 @@ message("Draws G2's saved result and fits nothing. Specification 8fde82a.")
 # --- where it reads and writes: one block, so that a dry run can redirect it --
 PATH_G2         <- here::here("data", "from_validation_g2", "g2_cnv_cooccurrence.rds")
 PATH_RULING     <- here::here("docs", "2026-11-05_E54_coamplification_panel_ruling.md")
+PATH_RULING_SIZE <- here::here("docs", "2026-11-05_E54_point_size_ruling.md")
 PATH_E54        <- file.path(DIR_RESULTS, "e54_myc_coamplification_panel.rds")
 OUT_TABLES      <- DIR_TABLES
 OUT_FIGURES     <- DIR_FIGURES
@@ -124,7 +133,12 @@ CAP_EM   <- 0.718               # Helvetica's capitals above the baseline, in em
 COL_MARK <- "#243642"           # TCGA-BRCA's dark slate (E51's ruling, question 3)
 NULL_COL <- "grey45"; NULL_LW <- 0.3      # E48's reference line
 CI_LW    <- 0.4                           # E48's intervals
-PT_SIZE  <- 1.5; PT_STROKE <- 0.45        # E48's points
+PT_SIZE  <- 1.0; PT_STROKE <- 0.3         # the point-size ruling (6550011)
+# A circle's width, outline included, in mm: R draws pch 21 with a diameter of
+# 0.75 x its font size, which ggplot2 sets at size x .pt + stroke x .stroke / 2,
+# and an outline of stroke x .stroke / 2 line widths, each 0.75 pt.
+CIRCLE_MM <- (0.75 * (PT_SIZE * ggplot2::.pt + PT_STROKE * ggplot2::.stroke / 2) +
+                0.75 * PT_STROKE * ggplot2::.stroke / 2) * 25.4 / 72
 M_EDGE   <- 1                   # mm: the page's margin
 INDENT   <- 1.5                 # mm: a subtype's label under its gene's header
 G_LAB    <- 1.5                 # mm: the longest row label to the data area
@@ -156,6 +170,10 @@ ASSERT <- list()
         file.exists(PATH_RULING) && AXIS_MM == 26 &&
           any(grepl("Main panel, Fig. 4x", readLines(PATH_RULING, warn = FALSE),
                     fixed = TRUE)), n = 1L)
+.assert("the circles are the point-size ruling's, 1.05 mm across, as its own file records",
+        file.exists(PATH_RULING_SIZE) && round(CIRCLE_MM, 2) == 1.05 &&
+          any(grepl("1.05 mm across", readLines(PATH_RULING_SIZE, warn = FALSE),
+                    fixed = TRUE)), n = 1L, detail = sprintf("%.3f mm", CIRCLE_MM))
 
 # =============================================================================
 # 1. The snapshot, checked by its md5
@@ -349,13 +367,13 @@ KEY <- tibble::tibble(covariate = c("aneuploidy", "fga"), text = unname(KEY_TEXT
                       base_mm = KEY_ABOVE + c(1, 0) * KEY_STEP) %>%
   dplyr::mutate(y_text = Y_LIM[2] + .mm_y(base_mm),
                 y_mark = Y_LIM[2] + .mm_y(base_mm + CAP_MM(PT_TXT) / 2),
-                x_mark = .x_at(M_EDGE + PT_SIZE / 2),
-                x_text = .x_at(M_EDGE + PT_SIZE + KEY_GAP),
+                x_mark = .x_at(M_EDGE + CIRCLE_MM / 2),
+                x_text = .x_at(M_EDGE + CIRCLE_MM + KEY_GAP),
                 fill = ifelse(covariate == "aneuploidy", COL_MARK, "white"))
 TOP_MM <- max(KEY$base_mm) + max(M_KEY[, "h"]) + M_EDGE   # the margin kept above the data area
 .assert("the key is on the page and to the left of nothing it could cover",
-        M_EDGE + PT_SIZE + KEY_GAP + max(M_KEY[, "w"]) <= X_DATA + AXIS_MM, n = 2L,
-        detail = sprintf("%.1f mm wide", PT_SIZE + KEY_GAP + max(M_KEY[, "w"])))
+        M_EDGE + CIRCLE_MM + KEY_GAP + max(M_KEY[, "w"]) <= X_DATA + AXIS_MM, n = 2L,
+        detail = sprintf("%.1f mm wide", CIRCLE_MM + KEY_GAP + max(M_KEY[, "w"])))
 
 # The PDF writes the hyphen in "co-occurrence" as a soft hyphen; the PNG as a
 # hyphen (E51 to E53).
@@ -517,9 +535,27 @@ for (f in FILES[c("pdf_outputs", "pdf_docs")]) {
   segments <- matrix(vapply(strsplit(sg, "\\s+"), function(v) as.numeric(v[c(1, 2, 4, 5)]),
                             numeric(4)), ncol = 4L, byrow = TRUE,
                      dimnames = list(NULL, c("x0", "y0", "x1", "y1")))
+  # Every circle (pch 21): a moveto, four Bezier curves and a fill-and-stroke
+  # (B), drawn at the line width (w) last set before it. Its width and height
+  # are its path's; its outline adds one line width.
+  circ_re <- paste0("(-?[0-9.]+) (-?[0-9.]+) m\\s+((?:-?[0-9.]+ -?[0-9.]+ -?[0-9.]+ ",
+                    "-?[0-9.]+ -?[0-9.]+ -?[0-9.]+ c\\s+){4})B")
+  cm <- gregexpr(circ_re, txt, perl = TRUE, useBytes = TRUE)
+  cs <- regmatches(txt, cm)[[1]]
+  c_pos <- as.integer(cm[[1]])
+  wm <- gregexpr("(?<![0-9.])[0-9.]+ w(?=\\s)", txt, perl = TRUE, useBytes = TRUE)
+  w_pos <- as.integer(wm[[1]])
+  w_val <- as.numeric(sub(" w$", "", regmatches(txt, wm)[[1]]))
+  circles <- do.call(rbind, lapply(seq_along(cs), function(i) {
+    v <- as.numeric(regmatches(cs[i], gregexpr("-?[0-9.]+", cs[i]))[[1]])
+    xs <- v[c(TRUE, FALSE)]; ys <- v[c(FALSE, TRUE)]
+    k <- sum(w_pos < c_pos[i])
+    c(d = max(xs) - min(xs), h = max(ys) - min(ys), lw = if (k > 0) w_val[k] else NA_real_)
+  }))
   list(mediabox = mb_num, fonts = fonts,
        font_file = grepl("/FontFile", txt, fixed = TRUE, useBytes = TRUE),
-       placed = placed, n_text_blocks = length(bt), segments = segments)
+       placed = placed, n_text_blocks = length(bt), segments = segments,
+       circles = circles)
 }
 .mm2pt <- function(v) v * 72 / 25.4
 
@@ -600,6 +636,14 @@ dev_k <- abs(c(unname(y_key[["fga"]]) - y_top - .mm2pt(KEY_ABOVE),
 .assert("in the PDF the key lies above the data area: 1.2 mm, then 2.8 mm, baseline to baseline",
         max(dev_k) <= TOL_PT, n = 2L, max_dev = max(dev_k))
 y_sub <- TX_WORDS$y[TX_WORDS$s %in% SUBTYPES]
+CIRC <- RB$circles
+outer_mm <- if (!is.null(CIRC)) (CIRC[, "d"] + CIRC[, "lw"]) * 25.4 / 72 else Inf
+.assert(paste0("in the PDF the 14 circles, 12 marks and the key's 2, are 1.05 mm ",
+               "across, outline included (the point-size ruling)"),
+        !is.null(CIRC) && nrow(CIRC) == 14L && all(abs(outer_mm - CIRCLE_MM) <= 0.01) &&
+          all(round(outer_mm, 2) == 1.05) && all(abs(CIRC[, "d"] - CIRC[, "h"]) <= TOL_PT),
+        n = if (is.null(CIRC)) 0L else nrow(CIRC), max_dev = max(abs(outer_mm - CIRCLE_MM)),
+        detail = sprintf("%.3f to %.3f mm", min(outer_mm), max(outer_mm)))
 .assert("in the PDF the rows run top to bottom: BCL2L1's, then MCL1's",
         all(diff(TX_WORDS$y[TX_WORDS$s %in% c("BCL2L1", "MCL1")]) < 0) &&
           length(y_sub) == 8L, n = 10L)
@@ -651,6 +695,7 @@ SPEC <- list(
   pitch_mm = PITCH, panel_height_mm = PANEL_H, page_pt = PAGE_PT,
   type_pt = c(text = PT_TXT, titles = PT_TITLE), colour = COL_MARK,
   marks = list(null = c(NULL_COL, NULL_LW), interval = CI_LW, point = c(PT_SIZE, PT_STROKE),
+               circle_mm = CIRCLE_MM,
                axes = NM_LINE),
   key = KEY_TEXT, x_title = X_TITLE, title_gap_mm = TITLE_GAP)
 LAYOUT <- list(slots = SLOTS, labels = LABS, key = KEY,

@@ -2,11 +2,15 @@
 date: 2026-11-05
 status: >
   PRE-RUN NOTE for E54, committed with the script BEFORE the author's run.
-  Eight dry runs, with every output redirected to a scratch folder; runs 6, 7
-  and 8 are identical. It gives the digests and checksums the author's run
-  must reproduce.
+  AMENDED for the SECOND run: the author's point-size ruling (6550011) made
+  the circles smaller after the first run, which matched this note's first
+  version (d290bc3) and is verified (ec9b590). Sections 8 and 9 now give the
+  second version's digests and checksums, from dry runs 9, 10 and 11, which
+  are identical.
 relates-to:
   - docs/2026-11-05_E54_coamplification_panel_ruling.md (8fde82a, the specification; it amends decision 5)
+  - docs/2026-11-05_E54_point_size_ruling.md (6550011, the amendment: circles 1.05 mm across)
+  - docs/2026-11-05_e54_result.md (ec9b590, the first run, verified)
   - data/from_validation_g2/README.md (c1dceed, the snapshot E54 draws)
   - scripts/E54_myc_coamplification_panel.R
   - myc_human_validation d3ac60e, docs/2026-08-28_G2_result.md (the committed note E54 checks against; read only)
@@ -76,6 +80,18 @@ relates-to:
 
 **The PDF was previewed with Apple's engine** (`qlmanage -t`).
 
+**Then the first run, and the amendment.**
+- **The author's first run matched this note's first version** in every element and file (`ec9b590`).
+- **Then the author ruled that the circles be smaller** (`6550011`): 1.05 mm across, outline included, in place of 1.6 mm. Point size 1.5 with a 0.45 outline became 1.0 with a 0.3 outline. The key's symbols are now placed by the circle's true width.
+- **Two checks were added:**
+  - the size is the ruling's, as its own file records;
+  - every circle measured in the PDF, path and outline, is 1.05 mm across.
+
+  Tried on the first version's PDF, the reader finds its 14 circles at 1.58 mm, so the check can tell the sizes apart.
+- **Dry runs 9 and 10 are identical, with all 28 checks passing.** The circles measure 1.051 to 1.055 mm.
+- **Dry run 11 sourced the script in one session:** 198 objects, none holding invalid UTF-8. It matched dry runs 9 and 10 in all 13 digests and checksums.
+- **Unchanged from the first version:** every number drawn, the frame, the note checks, the legend draft and the odds-ratio table.
+
 ## 4. What the checks read back from the PDF
 
 - the PDF shows exactly its 21 words: the headers, the row labels, the ticks, the axis title and the key;
@@ -85,7 +101,8 @@ relates-to:
 - every interval's two ends sit where its odds ratios fall on the 26-mm log2 axis, to 0.02 pt;
 - the axis title's two lines are 2.4 mm apart;
 - the key lies 1.2 mm above the data area, its rows 2.8 mm apart;
-- BCL2L1's rows come before MCL1's.
+- BCL2L1's rows come before MCL1's;
+- the 14 circles, 12 marks and the key's 2, are 1.05 mm across, outline included.
 
 ## 5. The choices the ruling leaves open
 
@@ -97,7 +114,8 @@ The script's header and comments give each one with its reason. Each is the auth
 - **A two-line key above the data area** names the two covariates, as E52's key names the cohorts: "adjusted for aneuploidy score" and "adjusted for fraction genome altered".
 - **Each gene's header sits in its own empty row,** at 6 pt with the gene name in italics. It runs into the data area's left side and ends 6.9 mm before the line at 1.
 - **The axis title is Claude Code's wording:** "Odds ratio for co-occurrence" over "with MYC amplification".
-- **The marks are TCGA-BRCA's dark slate** (`#243642`), the colour E52's key gives TCGA-BRCA. The line at 1 is E48's grey. Points, intervals and axes follow E48 and E52.
+- **The marks are TCGA-BRCA's dark slate** (`#243642`), the colour E52's key gives TCGA-BRCA. The line at 1 is E48's grey.
+- **The circles are 1.05 mm across** (the point-size ruling). Intervals and axes follow E48 and E52.
 
 ## 6. What the text ruling must weigh (the ruling, question 4)
 
@@ -119,17 +137,17 @@ The script's header and comments give each one with its reason. Each is the auth
 
 ## 8. The digests the author's run must reproduce
 
-`digest::digest()` of each saved element, from dry runs 6, 7 and 8. `run_info` is excluded.
+**For the second run.** `digest::digest()` of each saved element, from dry runs 9, 10 and 11. `run_info` is excluded.
 
-| element | digest |
-|---|---|
-| `frame` | `5eca0135d88aab31ab1357a02235669a` |
-| `note_checks` | `927d07b3eea27df51d152d7a6a607070` |
-| `layout` | `10cb0152c77833ef3ae7d0c4ecd4e4f4` |
-| `legend_draft` | `11d3e89301706c8aca6526b759687567` |
-| `assertions` | `93afd3cc3a13b80a1c2a527286037f42` |
-| `figure_files` | `e235904da945d2f4dab6ec449cd776b4` |
-| `spec` | `861561e078433d8e43ea93804e997bbd` |
+| element | digest | the same as the first version's |
+|---|---|---|
+| `frame` | `5eca0135d88aab31ab1357a02235669a` | yes |
+| `note_checks` | `927d07b3eea27df51d152d7a6a607070` | yes |
+| `layout` | `9d2ae89d96aac3a3448461ff6ff66f33` | no: the key's symbols moved |
+| `legend_draft` | `11d3e89301706c8aca6526b759687567` | yes |
+| `assertions` | `8ac01a9bcfdd42d0cef23b38d4c4f685` | no: 28 checks, not 26 |
+| `figure_files` | `b1200d88e7686a1a75669560ee6e38d2` | no |
+| `spec` | `91cab01f93747d94991778c018edd0ea` | no: the point size |
 
 **No check's label is built from an output path**, so the dry run's labels are the real run's (handoff lesson 3).
 
@@ -137,17 +155,17 @@ The script's header and comments give each one with its reason. Each is the auth
 
 | file | md5 |
 |---|---|
-| the PNG, in both folders | `fe2e3f7946e887315448610ed63cc702` |
-| the PDF, in both folders, timestamps zeroed | `798142ae979218902ac69f4d450f07ae` |
-| `E54_odds_ratios.csv` | `e7ce3260de106ae539387f1190ee0c1c` |
-| `E54_assertions.csv` | `b5a60dbe406c6cfb2b19d3832ec4bbd9` |
+| the PNG, in both folders | `ddbd6fb1d3436714e881a9b954a43ec9` |
+| the PDF, in both folders, timestamps zeroed | `862b9ef86ad97a5d2876c7b3c9a21623` |
+| `E54_odds_ratios.csv` | `e7ce3260de106ae539387f1190ee0c1c`, unchanged |
+| `E54_assertions.csv` | `5d4ee7c78516b6339b4c1b72e30a6822` |
 
 **The PDF's masked checksum** is E51's: the md5 of the file with NUL bytes removed and the digits after `/CreationDate (D:` and `/ModDate (D:` replaced by a single 0.
 
-## 10. After the author's run
+## 10. After the author's second run
 
 1. **Compare** the seven digests (section 8) and the checksums (section 9).
-2. **Commit** the tracked figure pair with a short result note.
+2. **Commit** the tracked figure pair, and add the second run to the result note.
 3. **Then the text ruling:**
    - the sentence, against section 6;
    - the legend;

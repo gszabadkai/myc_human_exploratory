@@ -73,9 +73,13 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-05, night: `E54` is WRITTEN, and its digests are
-COMMITTED. It waits on the author's run.** The entry point is its pre-run
-note, `docs/2026-11-05_e54_prerun_digests.md`.
+**NEWEST, 2026-11-05, night: `E54`'s first run is VERIFIED** (7 of 7
+digests, 26 of 26 assertions; `docs/2026-11-05_e54_result.md`, `ec9b590`).
+**The author then made its circles smaller** (1.05 mm across, from 1.6 mm;
+`docs/2026-11-05_E54_point_size_ruling.md`, `6550011`). **The second version
+is written and its digests committed; the author's second run is next.** The
+entry point is the amended pre-run note,
+`docs/2026-11-05_e54_prerun_digests.md`.
 - **Decision 5 is amended** (the author's ruling,
   `docs/2026-11-05_E54_coamplification_panel_ruling.md`, `8fde82a`): the
   co-amplification result (validation study G2) becomes a MAIN panel,
@@ -778,8 +782,8 @@ number is `E55`.**
   panels replace E48's ED-a and ED-b for the paper.
 - `E54` is a display script. It draws Fig. 4x, the validation study's G2
   co-amplification odds ratios, from the snapshot in
-  `data/from_validation_g2/`. Its digests are committed; the author's run is
-  next.
+  `data/from_validation_g2/`. Its first run is verified; the author then made
+  its circles smaller, and its second run is next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
