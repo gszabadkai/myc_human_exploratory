@@ -1,0 +1,1432 @@
+{
+  "raw": [
+    {
+      "cohort": "TCGA",
+      "readout": "S6",
+      "exposure": "OX_gsva",
+      "rho": 0.554378904782651
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "S6",
+      "exposure": "MYC_clean",
+      "rho": 0.238379874067812
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "S6",
+      "exposure": "MYC_M_a",
+      "rho": 0.0434586814137637
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "S6",
+      "exposure": "PROLIF",
+      "rho": -0.0925430684816862
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BBC3",
+      "exposure": "OX_gsva",
+      "rho": 0.271379335807893
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BBC3",
+      "exposure": "MYC_clean",
+      "rho": 0.0787402134089309
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BBC3",
+      "exposure": "MYC_M_a",
+      "rho": -0.0880908446238665
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BBC3",
+      "exposure": "PROLIF",
+      "rho": -0.297651250132053
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BCL2L1",
+      "exposure": "OX_gsva",
+      "rho": 0.380456704711519
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BCL2L1",
+      "exposure": "MYC_clean",
+      "rho": 0.039366228080714
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BCL2L1",
+      "exposure": "MYC_M_a",
+      "rho": -0.108260647790945
+    },
+    {
+      "cohort": "TCGA",
+      "readout": "BCL2L1",
+      "exposure": "PROLIF",
+      "rho": -0.126462858208079
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "S6",
+      "exposure": "OX_gsva",
+      "rho": 0.399791165501084
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "S6",
+      "exposure": "MYC_clean",
+      "rho": 0.329201221482142
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "S6",
+      "exposure": "MYC_M_a",
+      "rho": 0.104463134208756
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "S6",
+      "exposure": "PROLIF",
+      "rho": -0.0371136421007191
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BBC3",
+      "exposure": "OX_gsva",
+      "rho": 0.095326591738907
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BBC3",
+      "exposure": "MYC_clean",
+      "rho": 0.128264322269883
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BBC3",
+      "exposure": "MYC_M_a",
+      "rho": -0.00887822406610114
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BBC3",
+      "exposure": "PROLIF",
+      "rho": -0.147718006436173
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BCL2L1",
+      "exposure": "OX_gsva",
+      "rho": 0.30753439031901
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BCL2L1",
+      "exposure": "MYC_clean",
+      "rho": 0.219733170954573
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BCL2L1",
+      "exposure": "MYC_M_a",
+      "rho": 0.00461015572310189
+    },
+    {
+      "cohort": "SCAN-B",
+      "readout": "BCL2L1",
+      "exposure": "PROLIF",
+      "rho": -0.0302320275342114
+    }
+  ],
+  "sig": [
+    {
+      "cohort": "TCGA",
+      "estimator": "clean",
+      "void": false,
+      "b_MYC_m1": 0.145921093338029,
+      "myc_lo_m1": 0.0841927742477226,
+      "myc_hi_m1": 0.207649412428335,
+      "b_MYC_m3": 0.214509692982602,
+      "myc_lo_m3": 0.151780704680323,
+      "myc_hi_m3": 0.277238681284882,
+      "b_PR": -0.279373292914414,
+      "pr_lo": -0.353610484323624,
+      "pr_hi": -0.205136101505204
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "M_a",
+      "void": false,
+      "b_MYC_m1": -0.0762924855255431,
+      "myc_lo_m1": -0.14247574752731,
+      "myc_hi_m1": -0.0101092235237759,
+      "b_MYC_m3": 0.0263389554542573,
+      "myc_lo_m3": -0.0499903744921194,
+      "myc_hi_m3": 0.102668285400634,
+      "b_PR": -0.220792091848829,
+      "pr_lo": -0.305780825808686,
+      "pr_hi": -0.135803357888971
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "entangled",
+      "void": true,
+      "b_MYC_m1": -0.219569819429645,
+      "myc_lo_m1": -0.296329848372682,
+      "myc_hi_m1": -0.142809790486609,
+      "b_MYC_m3": -0.128407362508031,
+      "myc_lo_m3": -0.249350107986001,
+      "myc_hi_m3": -0.00746461703005971,
+      "b_PR": -0.111577915451153,
+      "pr_lo": -0.226079574472105,
+      "pr_hi": 0.00292374356979885
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "regulon",
+      "void": false,
+      "b_MYC_m1": 0.0939998355036982,
+      "myc_lo_m1": 0.0173120047758428,
+      "myc_hi_m1": 0.170687666231554,
+      "b_MYC_m3": 0.243112844308255,
+      "myc_lo_m3": 0.159373963662662,
+      "myc_hi_m3": 0.326851724953848,
+      "b_PR": -0.312614205181078,
+      "pr_lo": -0.393052596358105,
+      "pr_hi": -0.232175814004052
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "clean",
+      "void": false,
+      "b_MYC_m1": 0.32752569875882,
+      "myc_lo_m1": 0.293346725944373,
+      "myc_hi_m1": 0.361704671573266,
+      "b_MYC_m3": 0.376917841591801,
+      "myc_lo_m3": 0.343527503205164,
+      "myc_hi_m3": 0.410308179978438,
+      "b_PR": -0.347143144494297,
+      "pr_lo": -0.389312773242279,
+      "pr_hi": -0.304973515746315
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "M_a",
+      "void": false,
+      "b_MYC_m1": 0.032725796746911,
+      "myc_lo_m1": -0.00624252058097493,
+      "myc_hi_m1": 0.0716941140747969,
+      "b_MYC_m3": 0.164666926181543,
+      "myc_lo_m3": 0.122431020592621,
+      "myc_hi_m3": 0.206902831770466,
+      "b_PR": -0.347005650276704,
+      "pr_lo": -0.396332616933568,
+      "pr_hi": -0.297678683619841
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "entangled",
+      "void": true,
+      "b_MYC_m1": -0.282992430446887,
+      "myc_lo_m1": -0.327514627434385,
+      "myc_hi_m1": -0.23847023345939,
+      "b_MYC_m3": -0.197428056909384,
+      "myc_lo_m3": -0.264412273751269,
+      "myc_hi_m3": -0.130443840067498,
+      "b_PR": -0.114172773693679,
+      "pr_lo": -0.181038069769491,
+      "pr_hi": -0.0473074776178675
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "regulon",
+      "void": false,
+      "b_MYC_m1": 0.0465979599825268,
+      "myc_lo_m1": 0.00786995412108729,
+      "myc_hi_m1": 0.0853259658439663,
+      "b_MYC_m3": 0.105392042502814,
+      "myc_lo_m3": 0.0664737922817241,
+      "myc_hi_m3": 0.144310292723903,
+      "b_PR": -0.290986217612525,
+      "pr_lo": -0.336699777634406,
+      "pr_hi": -0.245272657590643
+    }
+  ],
+  "g3": [
+    {
+      "cohort": "TCGA",
+      "estimator": "clean",
+      "rho_MYC_PROLIF": 0.52151631084153,
+      "rho_OX_PROLIF": 0.239711503385173,
+      "rho_OX_MYC": 0.478688627349529
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "M_a",
+      "rho_MYC_PROLIF": 0.696305243370772,
+      "rho_OX_PROLIF": 0.239711503385173,
+      "rho_OX_MYC": 0.385546389652329
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "entangled",
+      "rho_MYC_PROLIF": 0.821440041903968,
+      "rho_OX_PROLIF": 0.239711503385173,
+      "rho_OX_MYC": 0.563794821923151
+    },
+    {
+      "cohort": "TCGA",
+      "estimator": "regulon",
+      "rho_MYC_PROLIF": 0.521773136076102,
+      "rho_OX_PROLIF": 0.239711503385173,
+      "rho_OX_MYC": 0.247349302362815
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "clean",
+      "rho_MYC_PROLIF": 0.413438284984372,
+      "rho_OX_PROLIF": 0.397642157979674,
+      "rho_OX_MYC": 0.43055672254573
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "M_a",
+      "rho_MYC_PROLIF": 0.614848928913584,
+      "rho_OX_PROLIF": 0.397642157979674,
+      "rho_OX_MYC": 0.428396276978909
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "entangled",
+      "rho_MYC_PROLIF": 0.837549459458783,
+      "rho_OX_PROLIF": 0.397642157979674,
+      "rho_OX_MYC": 0.578095750278291
+    },
+    {
+      "cohort": "SCAN-B",
+      "estimator": "regulon",
+      "rho_MYC_PROLIF": 0.421176374701976,
+      "rho_OX_PROLIF": 0.397642157979674,
+      "rho_OX_MYC": 0.116554832183204
+    }
+  ],
+  "cells": [
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.45826566163088,
+      "printed": "+0.5",
+      "fill": "#62A48C",
+      "ink": "#000000",
+      "contrast": 7.208
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.210589947432862,
+      "printed": "+0.2",
+      "fill": "#B4D2C6",
+      "ink": "#000000",
+      "contrast": 12.975
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.273607530183655,
+      "printed": "+0.3",
+      "fill": "#A0C7B7",
+      "ink": "#000000",
+      "contrast": 11.348
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.279696970188708,
+      "printed": "+0.3",
+      "fill": "#9EC5B6",
+      "ink": "#000000",
+      "contrast": 11.116
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.186935347424239,
+      "printed": "-0.2",
+      "fill": "#C1B7B1",
+      "ink": "#000000",
+      "contrast": 10.676
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAX",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.169802957279395,
+      "printed": "-0.2",
+      "fill": "#C6BDB8",
+      "ink": "#000000",
+      "contrast": 11.372
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.279022894806106,
+      "printed": "+0.3",
+      "fill": "#9EC5B6",
+      "ink": "#000000",
+      "contrast": 11.116
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.16962946678105,
+      "printed": "+0.2",
+      "fill": "#C2DAD0",
+      "ink": "#000000",
+      "contrast": 14.233
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.0772114861764292,
+      "printed": "+0.1",
+      "fill": "#E0EBE7",
+      "ink": "#000000",
+      "contrast": 17.207
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.223901784927269,
+      "printed": "+0.2",
+      "fill": "#B0D0C3",
+      "ink": "#000000",
+      "contrast": 12.656
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.127795803662792,
+      "printed": "+0.1",
+      "fill": "#D0E2DA",
+      "ink": "#000000",
+      "contrast": 15.573
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAK1",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.123870968325073,
+      "printed": "-0.1",
+      "fill": "#D4CDC9",
+      "ink": "#000000",
+      "contrast": 13.375
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.23090730836289,
+      "printed": "+0.2",
+      "fill": "#AECEC1",
+      "ink": "#000000",
+      "contrast": 12.398
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.140911475267987,
+      "printed": "+0.1",
+      "fill": "#CBDFD7",
+      "ink": "#000000",
+      "contrast": 15.076
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.138651327438824,
+      "printed": "+0.1",
+      "fill": "#CCE0D8",
+      "ink": "#000000",
+      "contrast": 15.221
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.210122085764723,
+      "printed": "+0.2",
+      "fill": "#B5D2C6",
+      "ink": "#000000",
+      "contrast": 12.999
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.301788500142913,
+      "printed": "-0.3",
+      "fill": "#9F9187",
+      "ink": "#000000",
+      "contrast": 6.874
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BOK",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.514646321953694,
+      "printed": "-0.5",
+      "fill": "#624E3F",
+      "ink": "#FFFFFF",
+      "contrast": 7.833
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.30739760841024,
+      "printed": "+0.3",
+      "fill": "#95C0AF",
+      "ink": "#000000",
+      "contrast": 10.437
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.0810177184877333,
+      "printed": "+0.1",
+      "fill": "#DFEBE6",
+      "ink": "#000000",
+      "contrast": 17.164
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.138901895658092,
+      "printed": "+0.1",
+      "fill": "#CCE0D8",
+      "ink": "#000000",
+      "contrast": 15.221
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.139895624883689,
+      "printed": "+0.1",
+      "fill": "#CCE0D7",
+      "ink": "#000000",
+      "contrast": 15.211
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.0260734848643026,
+      "printed": "0",
+      "fill": "#F1F5F3",
+      "ink": "#000000",
+      "contrast": 19.095
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BID",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.0819234304319363,
+      "printed": "-0.1",
+      "fill": "#E1DCDA",
+      "ink": "#000000",
+      "contrast": 15.451
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.279857275328384,
+      "printed": "+0.3",
+      "fill": "#9EC5B6",
+      "ink": "#000000",
+      "contrast": 11.116
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.0669137371805707,
+      "printed": "+0.1",
+      "fill": "#E4EDE9",
+      "ink": "#000000",
+      "contrast": 17.589
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.237627801638428,
+      "printed": "+0.2",
+      "fill": "#ACCDC0",
+      "ink": "#000000",
+      "contrast": 12.248
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.272601721372339,
+      "printed": "+0.3",
+      "fill": "#A0C7B7",
+      "ink": "#000000",
+      "contrast": 11.348
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.393831484442615,
+      "printed": "-0.4",
+      "fill": "#847367",
+      "ink": "#000000",
+      "contrast": 4.629
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BBC3",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.250843870605951,
+      "printed": "-0.3",
+      "fill": "#AEA29A",
+      "ink": "#000000",
+      "contrast": 8.434
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.337724132443756,
+      "printed": "-0.3",
+      "fill": "#94857A",
+      "ink": "#000000",
+      "contrast": 5.895
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.0495721507554379,
+      "printed": "0",
+      "fill": "#EBE8E6",
+      "ink": "#000000",
+      "contrast": 17.218
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": -0.0806385611978412,
+      "printed": "-0.1",
+      "fill": "#E1DDDA",
+      "ink": "#000000",
+      "contrast": 15.556
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.019938612210518,
+      "printed": "0",
+      "fill": "#F4F3F2",
+      "ink": "#000000",
+      "contrast": 18.949
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.308491470888618,
+      "printed": "+0.3",
+      "fill": "#94C0AF",
+      "ink": "#000000",
+      "contrast": 10.418
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L11",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": 0.105973933932992,
+      "printed": "+0.1",
+      "fill": "#D7E6E0",
+      "ink": "#000000",
+      "contrast": 16.285
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.483677247078402,
+      "printed": "+0.5",
+      "fill": "#599F87",
+      "ink": "#000000",
+      "contrast": 6.734
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.421540996986557,
+      "printed": "+0.4",
+      "fill": "#6FAB95",
+      "ink": "#000000",
+      "contrast": 7.935
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.14656909669699,
+      "printed": "+0.1",
+      "fill": "#C9DED6",
+      "ink": "#000000",
+      "contrast": 14.903
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.239654398752368,
+      "printed": "+0.2",
+      "fill": "#ABCDBF",
+      "ink": "#000000",
+      "contrast": 12.216
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.399148630646442,
+      "printed": "-0.4",
+      "fill": "#827165",
+      "ink": "#FFFFFF",
+      "contrast": 4.668
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BAD",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.463697659241669,
+      "printed": "-0.5",
+      "fill": "#705D4F",
+      "ink": "#FFFFFF",
+      "contrast": 6.236
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.122928986543741,
+      "printed": "-0.1",
+      "fill": "#D4CECA",
+      "ink": "#000000",
+      "contrast": 13.481
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.033989365382232,
+      "printed": "0",
+      "fill": "#EFEEEC",
+      "ink": "#000000",
+      "contrast": 18.111
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": -0.107452598262729,
+      "printed": "-0.1",
+      "fill": "#D9D3D0",
+      "ink": "#000000",
+      "contrast": 14.179
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.202305198890146,
+      "printed": "-0.2",
+      "fill": "#BCB2AC",
+      "ink": "#000000",
+      "contrast": 10.102
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.283035680117264,
+      "printed": "+0.3",
+      "fill": "#9DC5B5",
+      "ink": "#000000",
+      "contrast": 11.087
+    },
+    {
+      "panel": "fig4g",
+      "readout": "PMAIP1",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": 0.351074516761173,
+      "printed": "+0.4",
+      "fill": "#86B8A5",
+      "ink": "#000000",
+      "contrast": 9.413
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.179367968671798,
+      "printed": "-0.2",
+      "fill": "#C3BAB4",
+      "ink": "#000000",
+      "contrast": 11.003
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.24844719221871,
+      "printed": "-0.2",
+      "fill": "#AEA29A",
+      "ink": "#000000",
+      "contrast": 8.434
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": -0.0894378629973133,
+      "printed": "-0.1",
+      "fill": "#DEDAD7",
+      "ink": "#000000",
+      "contrast": 15.116
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.00939773870449163,
+      "printed": "0",
+      "fill": "#F7F7F6",
+      "ink": "#000000",
+      "contrast": 19.59
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.0242713437414594,
+      "printed": "0",
+      "fill": "#F2F5F4",
+      "ink": "#000000",
+      "contrast": 19.143
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BMF",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.149851496420538,
+      "printed": "-0.1",
+      "fill": "#CCC4BF",
+      "ink": "#000000",
+      "contrast": 12.216
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.285346635437901,
+      "printed": "+0.3",
+      "fill": "#9CC4B4",
+      "ink": "#000000",
+      "contrast": 10.969
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.123481790511918,
+      "printed": "+0.1",
+      "fill": "#D1E3DB",
+      "ink": "#000000",
+      "contrast": 15.722
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.046924192276792,
+      "printed": "0",
+      "fill": "#EAF1EE",
+      "ink": "#000000",
+      "contrast": 18.315
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.112192157442395,
+      "printed": "+0.1",
+      "fill": "#D5E5DE",
+      "ink": "#000000",
+      "contrast": 16.092
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.0787647243536303,
+      "printed": "-0.1",
+      "fill": "#E2DDDB",
+      "ink": "#000000",
+      "contrast": 15.599
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BIK",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.0394328945697999,
+      "printed": "0",
+      "fill": "#EEECEA",
+      "ink": "#000000",
+      "contrast": 17.822
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.156889184548339,
+      "printed": "-0.2",
+      "fill": "#CAC2BD",
+      "ink": "#000000",
+      "contrast": 11.963
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.189287531400918,
+      "printed": "-0.2",
+      "fill": "#C0B7B0",
+      "ink": "#000000",
+      "contrast": 10.642
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": -0.138895702243597,
+      "printed": "-0.1",
+      "fill": "#CFC8C4",
+      "ink": "#000000",
+      "contrast": 12.712
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.281127603866198,
+      "printed": "-0.3",
+      "fill": "#A5978F",
+      "ink": "#000000",
+      "contrast": 7.423
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.0201497169884505,
+      "printed": "0",
+      "fill": "#F4F3F2",
+      "ink": "#000000",
+      "contrast": 18.949
+    },
+    {
+      "panel": "fig4g",
+      "readout": "MCL1",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": 0.14969985060575,
+      "printed": "+0.1",
+      "fill": "#C8DED5",
+      "ink": "#000000",
+      "contrast": 14.865
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.187164788991227,
+      "printed": "-0.2",
+      "fill": "#C1B7B1",
+      "ink": "#000000",
+      "contrast": 10.676
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.00538804396008602,
+      "printed": "0",
+      "fill": "#F8F9F9",
+      "ink": "#000000",
+      "contrast": 19.909
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.0622176940612972,
+      "printed": "+0.1",
+      "fill": "#E5EEEA",
+      "ink": "#000000",
+      "contrast": 17.75
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.0235706128345704,
+      "printed": "0",
+      "fill": "#F3F1F1",
+      "ink": "#000000",
+      "contrast": 18.663
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.253775427420941,
+      "printed": "-0.3",
+      "fill": "#ADA199",
+      "ink": "#000000",
+      "contrast": 8.335
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L2",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.157468386335931,
+      "printed": "-0.2",
+      "fill": "#CAC2BC",
+      "ink": "#000000",
+      "contrast": 11.954
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.0850900298412985,
+      "printed": "+0.1",
+      "fill": "#DEEAE5",
+      "ink": "#000000",
+      "contrast": 17.006
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.0544379442251859,
+      "printed": "-0.1",
+      "fill": "#E9E6E4",
+      "ink": "#000000",
+      "contrast": 16.904
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": -0.00373187604166876,
+      "printed": "0",
+      "fill": "#F9F9F9",
+      "ink": "#000000",
+      "contrast": 19.946
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.094438435342468,
+      "printed": "-0.1",
+      "fill": "#DDD8D5",
+      "ink": "#000000",
+      "contrast": 14.858
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.104705202190966,
+      "printed": "+0.1",
+      "fill": "#D7E6E0",
+      "ink": "#000000",
+      "contrast": 16.285
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2A1",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": 0.124691163652396,
+      "printed": "+0.1",
+      "fill": "#D1E2DB",
+      "ink": "#000000",
+      "contrast": 15.612
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": -0.200521653931941,
+      "printed": "-0.2",
+      "fill": "#BDB3AC",
+      "ink": "#000000",
+      "contrast": 10.208
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": -0.111694629776304,
+      "printed": "-0.1",
+      "fill": "#D8D2CE",
+      "ink": "#000000",
+      "contrast": 14.03
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.0246940703685339,
+      "printed": "0",
+      "fill": "#F2F5F4",
+      "ink": "#000000",
+      "contrast": 19.143
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": -0.029819129823113,
+      "printed": "0",
+      "fill": "#F1EFEE",
+      "ink": "#000000",
+      "contrast": 18.321
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": 0.0760499638796105,
+      "printed": "+0.1",
+      "fill": "#E1ECE7",
+      "ink": "#000000",
+      "contrast": 17.354
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": 0.066413380246257,
+      "printed": "+0.1",
+      "fill": "#E4EDE9",
+      "ink": "#000000",
+      "contrast": 17.589
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.397650323316874,
+      "printed": "+0.4",
+      "fill": "#77AF9A",
+      "ink": "#000000",
+      "contrast": 8.383
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.2197040750927,
+      "printed": "+0.2",
+      "fill": "#B1D1C4",
+      "ink": "#000000",
+      "contrast": 12.787
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.0436822868120363,
+      "printed": "0",
+      "fill": "#EBF2EF",
+      "ink": "#000000",
+      "contrast": 18.48
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.254633753517194,
+      "printed": "+0.3",
+      "fill": "#A6CABC",
+      "ink": "#000000",
+      "contrast": 11.796
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.173546295915896,
+      "printed": "-0.2",
+      "fill": "#C5BCB6",
+      "ink": "#000000",
+      "contrast": 11.243
+    },
+    {
+      "panel": "fig4g",
+      "readout": "BCL2L1",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.28533421013217,
+      "printed": "-0.3",
+      "fill": "#A3968D",
+      "ink": "#000000",
+      "contrast": 7.304
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "TCGA",
+      "term": "OX",
+      "value": 0.52105365504969,
+      "printed": "+0.5",
+      "fill": "#4C997E",
+      "ink": "#000000",
+      "contrast": 6.165
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "SCAN-B",
+      "term": "OX",
+      "value": 0.311248131132103,
+      "printed": "+0.3",
+      "fill": "#93BFAE",
+      "ink": "#000000",
+      "contrast": 10.304
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "TCGA",
+      "term": "MYC",
+      "value": 0.214509692982602,
+      "printed": "+0.2",
+      "fill": "#B3D2C5",
+      "ink": "#000000",
+      "contrast": 12.942
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "SCAN-B",
+      "term": "MYC",
+      "value": 0.376917841591801,
+      "printed": "+0.4",
+      "fill": "#7EB39F",
+      "ink": "#000000",
+      "contrast": 8.836
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "TCGA",
+      "term": "PROLIF",
+      "value": -0.279373292914414,
+      "printed": "-0.3",
+      "fill": "#A5988F",
+      "ink": "#000000",
+      "contrast": 7.488
+    },
+    {
+      "panel": "fig4g",
+      "readout": "S6",
+      "cohort": "SCAN-B",
+      "term": "PROLIF",
+      "value": -0.347143144494297,
+      "printed": "-0.3",
+      "fill": "#918277",
+      "ink": "#000000",
+      "contrast": 5.663
+    }
+  ],
+  "pcr": {
+    "ox": [
+      {
+        "rung": "m0",
+        "fe_estimate": 0.0534681977819658,
+        "fe_ci_lo": -0.0498116589887712,
+        "fe_ci_hi": 0.156748054552703,
+        "I2": 48.794126155764,
+        "signs": "GSE25066 + GSE194040 - GSE164458 +"
+      },
+      {
+        "rung": "m1",
+        "fe_estimate": -0.161555180934142,
+        "fe_ci_lo": -0.281267126212949,
+        "fe_ci_hi": -0.041843235655336,
+        "I2": 0,
+        "signs": "GSE25066 - GSE194040 - GSE164458 -"
+      },
+      {
+        "rung": "m2",
+        "fe_estimate": -0.134510200009313,
+        "fe_ci_lo": -0.255923489816586,
+        "fe_ci_hi": -0.0130969102020396,
+        "I2": 0,
+        "signs": "GSE25066 - GSE194040 - GSE164458 -"
+      },
+      {
+        "rung": "m3",
+        "fe_estimate": -0.128344445043462,
+        "fe_ci_lo": -0.25180125399832,
+        "fe_ci_hi": -0.0048876360886036,
+        "I2": 0,
+        "signs": "GSE25066 - GSE194040 - GSE164458 -"
+      }
+    ],
+    "prolif": [
+      {
+        "re_estimate": 0.542221208282597,
+        "re_ci_lo": 0.306689703963801,
+        "re_ci_hi": 0.777752712601393,
+        "I2": 66.9226433280272,
+        "signs": "GSE25066 + GSE194040 + GSE164458 +"
+      }
+    ],
+    "delta": [
+      {
+        "fe_estimate": 0.657746865780469,
+        "fe_ci_lo": 0.444600012326989,
+        "fe_ci_hi": 0.870893719233948,
+        "I2": 0,
+        "signs": "GSE25066 + GSE194040 + GSE164458 +"
+      }
+    ]
+  }
+}

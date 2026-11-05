@@ -1,0 +1,416 @@
+<title>Fig. 4 Narrative Shift</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: one 1040px column. A retired line and the current line side by side, the dated route between them,
+   then a 2x2 figure plate whose grey-versus-black marks carry the argument (grey: proliferation not in the model). */
+:root {
+  --paper: #F6F8F7;
+  --plate: #FFFFFF;
+  --ink: #17201C;
+  --muted: #56625D;
+  --ghost: #A2ACA7;
+  --rule: #D7DEDA;
+  --green: #22785F;   /* Fig. 1g's positive pole, darkened for text */
+  --brown: #4A3525;   /* Fig. 1g's negative pole */
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-fig: "Arimo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-3: clamp(1.75rem, 1.2rem + 2.2vw, 2.4rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111614; --plate: #181F1C; --ink: #E7ECE9; --muted: #A2AEA8; --ghost: #6B7671;
+    --rule: #2B3430; --green: #63C2A2; --brown: #C9A184; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111614; --plate: #181F1C; --ink: #E7ECE9; --muted: #A2AEA8; --ghost: #6B7671;
+  --rule: #2B3430; --green: #63C2A2; --brown: #C9A184; color-scheme: dark;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 56px;
+  display: grid; gap: 40px;
+}
+.wrap > * { min-width: 0; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); line-height: 1.15; letter-spacing: -0.01em; }
+h2 { font-size: var(--step-1); line-height: 1.3; }
+p { margin: 0; }
+.ui { font-family: var(--font-fig); }
+.eyebrow { font-family: var(--font-fig); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+header { display: grid; gap: 14px; max-width: 70ch; }
+.lede { font-size: 1.12rem; }
+.status { font-family: var(--font-fig); font-size: 0.85rem; color: var(--muted); }
+.status b { color: var(--ink); font-weight: 600; }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.pair article { background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 20px 22px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.tag { font-family: var(--font-fig); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
+.then .tag { color: var(--brown); }
+.now .tag { color: var(--green); }
+blockquote { margin: 0; font-size: 1.04rem; line-height: 1.5; }
+.then blockquote { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--brown); text-decoration-thickness: 1px; }
+.src { font-family: var(--font-fig); font-size: 0.8rem; color: var(--muted); }
+
+.why { display: grid; gap: 14px; max-width: 78ch; }
+.why ul, .limits ul { margin: 0; padding-left: 1.1em; display: grid; gap: 10px; }
+.why li b, .limits li b { font-weight: 600; }
+
+.route { display: grid; gap: 14px; }
+.route ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.route li { display: grid; grid-template-columns: 7.5rem 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.route .when { font-family: var(--font-fig); font-size: 0.82rem; font-variant-numeric: tabular-nums; color: var(--muted); padding-top: 2px; }
+.route .what { font-size: 0.98rem; min-width: 0; }
+.route .what b { font-weight: 600; }
+
+.plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 22px 22px 18px; display: grid; gap: 18px; }
+.plate-head { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+.key { font-family: var(--font-fig); font-size: 0.82rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.key span { display: inline-flex; gap: 6px; align-items: center; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.ghost { border: 1.6px solid var(--ghost); background: var(--plate); }
+.dot.ink { background: var(--ink); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 32px; }
+figure { margin: 0; display: grid; gap: 8px; align-content: start; min-width: 0; }
+figcaption { font-family: var(--font-fig); font-size: 0.86rem; line-height: 1.45; color: var(--muted); }
+figcaption .ptitle { display: block; font-size: 0.95rem; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+figcaption .pl { font-weight: 700; color: var(--ink); margin-right: 6px; }
+
+svg.fig { width: 100%; height: auto; display: block; font-family: var(--font-fig); overflow: visible; }
+.fig text { fill: var(--ink); font-size: 11px; }
+.fig .tick, .fig .coh, .fig .note, .fig .axt { fill: var(--muted); }
+.fig .tick { font-size: 10px; font-variant-numeric: tabular-nums; }
+.fig .axt { font-size: 10.5px; }
+.fig .coh { font-size: 10.5px; }
+.fig .rowlab { font-size: 11.5px; font-weight: 600; }
+.fig .note { font-size: 10.5px; font-style: italic; }
+.fig .val { font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.fig .grid-l { stroke: var(--rule); stroke-width: 1; }
+.fig .axis0 { stroke: var(--muted); stroke-width: 1; }
+.fig .sep { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig .bar-ghost { fill: var(--ghost); }
+.fig .ci-ghost { stroke: var(--ghost); stroke-width: 1.6; }
+.fig .ci-ink { stroke: var(--ink); stroke-width: 1.6; }
+.fig .pt-ghost { fill: var(--plate); stroke: var(--ghost); stroke-width: 1.6; }
+.fig .pt-ink { fill: var(--ink); stroke: var(--ink); stroke-width: 1; }
+.fig .arrow { stroke: var(--ink); stroke-width: 1.1; fill: none; }
+.fig .arrowhead { fill: var(--ink); }
+.fig .cellnum { font-size: 11px; font-variant-numeric: tabular-nums; }
+.fig .hit { fill: transparent; }
+.fig [data-tip] { cursor: default; }
+.fig [data-tip]:focus { outline: none; }
+.fig [data-tip]:focus-visible { stroke: var(--green); stroke-width: 2.5; }
+
+.limits { display: grid; gap: 14px; max-width: 78ch; }
+.sources { display: grid; gap: 10px; border-top: 1px solid var(--rule); padding-top: 18px; }
+.sources h2 { font-size: 1rem; }
+.sources ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-family: var(--font-fig); font-size: 0.82rem; color: var(--muted); }
+.sources code, .why code, .limits code, figcaption code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; }
+
+#tip {
+  position: fixed; z-index: 20; pointer-events: none; max-width: 260px;
+  background: var(--ink); color: var(--paper); font-family: var(--font-fig); font-size: 12px; line-height: 1.4;
+  padding: 7px 9px; border-radius: 4px; white-space: pre-line; font-variant-numeric: tabular-nums;
+}
+@media (max-width: 860px) {
+  .pair, .grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .route li { grid-template-columns: 1fr; gap: 2px; }
+  .plate { padding: 16px 14px 14px; }
+  .pair article { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Fig. 4, human arm &middot; MYC activity, OXPHOS and the BCL-2 family</p>
+    <h1>From &ldquo;not MYC&rdquo; to &ldquo;not proliferation&rdquo;</h1>
+    <p class="lede">Until late October the human arm said that the BCL-2 family signature tracked OXPHOS but not MYC. The confounder was proliferation, carried inside the MYC activity score. With proliferation in the model, MYC activity goes with the signature in the same direction as OXPHOS, and OXPHOS and proliferation run opposite ways, on the BCL-2 genes and on chemotherapy response.</p>
+    <p class="status"><b>Exploratory and post hoc.</b> An explainer for co-authors, not a manuscript figure. Every number is read from a verified saved result; the sources are listed at the foot.</p>
+  </header>
+
+  <section class="pair" aria-label="The retired line and the current line">
+    <article class="then">
+      <p class="tag">Retired in October</p>
+      <blockquote>The apoptotic signature tracks OXPHOS but not MYC.</blockquote>
+      <blockquote>The association with MYC activity was lost after adjustment for OXPHOS.</blockquote>
+      <p class="src">The narrative of record, 22 October: abstract, Fig. 4 human paragraphs and closing paragraph.</p>
+    </article>
+    <article class="now">
+      <p class="tag">Current text, v6 (4 November)</p>
+      <blockquote>&hellip;a BCL-2 family signature that tracked OXPHOS at fixed proliferation showed BCL-xL rising more steeply than PUMA. MYC activity, which played no part in defining it, went with the same signature when measured with scores least correlated with proliferation.</blockquote>
+      <blockquote>Proliferation, although correlated with OXPHOS, was not part of this configuration and went the other way on chemotherapy response.</blockquote>
+      <p class="src">Abstract and closing sentences, as ruled on 3 and 4 November.</p>
+    </article>
+  </section>
+
+  <section class="why">
+    <h2>Why the old line failed</h2>
+    <ul>
+      <li><b>A result was misread.</b> In September, E11 showed that conditioning on OXPHOS removes MYC&rsquo;s ordering of 44 death-machinery genes (from 0.187 to &minus;0.043 in TCGA). That ranks genes; it says nothing about tumours&rsquo; expression levels, which is how the text read it.</li>
+      <li><b>The comparison was unequal.</b> The signature&rsquo;s genes were chosen by their correlation with OXPHOS in these same cohorts, so &ldquo;tracks OXPHOS&rdquo; was guaranteed. &ldquo;But not MYC&rdquo; set an unconstrained number against it.</li>
+      <li><b>Proliferation was hidden in the MYC score.</b> The reference MYC score correlates with proliferation at 0.70 and 0.61. At fixed OXPHOS and MYC activity, proliferation goes with lower signature expression in all 24 model cells (&minus;0.22 to &minus;0.38). In the raw correlation the two parts cancel (panel a); in the model they separate (panel b).</li>
+    </ul>
+  </section>
+
+  <section class="route">
+    <h2>How the line changed</h2>
+    <ol>
+      <li><span class="when">Early September</span><span class="what"><b>E11.</b> MYC&rsquo;s ordering of the death genes vanishes when conditioned on OXPHOS; read as &ldquo;OXPHOS rather than MYC&rdquo;.</span></li>
+      <li><span class="when">22 October</span><span class="what"><b>The Doc and E46.</b> The text says the MYC association &ldquo;was lost after adjustment for OXPHOS&rdquo;, while the new 4g shows a MYC increment at both OXPHOS levels.</span></li>
+      <li><span class="when">23 October</span><span class="what"><b>E47, one model with both.</b> MYC activity is above zero at fixed OXPHOS in 4 of 8 primary cells on the reference score, and in 8 of 8 on the score least tied to proliferation. &ldquo;Lost after adjustment&rdquo; is withdrawn.</span></li>
+      <li><span class="when">2 November</span><span class="what"><b>The separation brief.</b> &ldquo;Not MYC&rdquo; is retired. The line becomes OXPHOS against proliferation, the paper&rsquo;s own argument from Fig. 1.</span></li>
+      <li><span class="when">3 November</span><span class="what"><b>E48 and E49.</b> <i>BBC3</i> and <i>BCL2L1</i> rise with OXPHOS and fall with proliferation; MYC activity&rsquo;s coefficient on the signature is positive in all four blocks.</span></li>
+      <li><span class="when">3&ndash;4 November</span><span class="what"><b>The rulings and v6.</b> The signature is introduced as selected at fixed proliferation. The evidence the selection could not have produced is <i>BBC3</i> and <i>BCL2L1</i>, MYC activity and the effectors.</span></li>
+    </ol>
+  </section>
+
+  <section class="plate" aria-label="The numbers">
+    <div class="plate-head">
+      <h2>The numbers</h2>
+      <p class="key"><span><i class="dot ghost"></i>proliferation not in the model</span><span><i class="dot ink"></i>proliferation in the model</span><span>Lines: 95% confidence intervals</span></p>
+    </div>
+    <div class="grid">
+      <figure>
+        <figcaption><span class="ptitle"><span class="pl">a</span>Raw, the signature looked like &ldquo;OXPHOS, not MYC&rdquo;</span>Unadjusted Spearman correlation of the signature with each score. On the reference MYC score it barely moves; on MYC_UP.V1_UP, the score carrying least proliferation, it already does.</figcaption>
+        <svg class="fig" id="panel-a" role="img" aria-label="Bar chart of the signature's raw correlations with OXPHOS, two MYC activity scores and proliferation, in TCGA and SCAN-B"></svg>
+      </figure>
+      <figure>
+        <figcaption><span class="ptitle"><span class="pl">b</span>MYC&rsquo;s coefficient depends on the proliferation its score carries</span>MYC activity&rsquo;s coefficient on the signature at fixed OXPHOS level, without and with proliferation in the model. Scores are ordered by their correlation with proliferation (right). Adding proliferation raises it on every score in both cohorts.</figcaption>
+        <svg class="fig" id="panel-b" role="img" aria-label="Dot-and-arrow chart of MYC activity's coefficient on the signature for four MYC scores, without and with proliferation in the model"></svg>
+      </figure>
+      <figure>
+        <figcaption><span class="ptitle"><span class="pl">c</span>In one model, OXPHOS and proliferation pull apart</span>Fig. 4g&rsquo;s coefficients, in its colours, for the two genes the mouse named and the signature, with OXPHOS level, MYC activity (MYC_UP.V1_UP) and proliferation modelled together. &dagger;&thinsp;Holds by construction and is not read.</figcaption>
+        <svg class="fig" id="panel-c" role="img" aria-label="Heatmap of the coefficients of BCL2L1, BBC3 and the signature on OXPHOS, MYC activity and proliferation, in TCGA and SCAN-B"></svg>
+      </figure>
+      <figure>
+        <figcaption><span class="ptitle"><span class="pl">d</span>The same split on chemotherapy response</span>Pooled odds ratios per SD for pathological complete response, three neoadjuvant cohorts. Without the proliferation term, proliferation sits inside OXPHOS, the mirror image of panel b. Adding MYC activity, then BCL2L1 and MCL1, leaves OXPHOS at 0.87 and 0.88.</figcaption>
+        <svg class="fig" id="panel-d" role="img" aria-label="Forest plot of pooled odds ratios for pathological complete response: OXPHOS without and with proliferation, proliferation, and their tested ratio"></svg>
+      </figure>
+    </div>
+  </section>
+
+  <section class="limits">
+    <h2>What still limits the wording</h2>
+    <ul>
+      <li><b>MYC&rsquo;s positive coefficient is established on the two scores least tied to proliferation</b> (E49). On the reference score E47&rsquo;s verdict stays mixed, so the text names the scores and never says &ldquo;independently of&rdquo;.</li>
+      <li><b>Part of the signature&rsquo;s proliferation coefficient can be inherited from how it was selected</b>, up to about half in TCGA and a third in SCAN-B (ad hoc arithmetic, E49 H2). The text therefore carries the proliferation point on <i>BBC3</i> and <i>BCL2L1</i> (panel c), which the selection did not choose.</li>
+      <li><b>All models are main effects only.</b> v6&rsquo;s &ldquo;so that their associations added&rdquo; describes that arithmetic; no MYC &times; OXPHOS interaction was tested here.</li>
+    </ul>
+  </section>
+
+  <footer class="sources">
+    <h2>Where each number comes from</h2>
+    <ul>
+      <li><b>a</b> &middot; E49 <code>raw_correlations</code>: the signature (S6) against OXPHOS level (GSVA), the reference MYC score (<code>M_a</code>), MYC_UP.V1_UP and proliferation; TCGA-BRCA n = 938, SCAN-B n = 3,143.</li>
+      <li><b>b</b> &middot; E49 <code>signature_coefficients</code>: S6 on OXPHOS level, models <code>m1</code> (spine) and <code>m3</code> (spine and proliferation). Correlations with proliferation from E47&rsquo;s gate G3. Hallmark&rsquo;s <code>m3</code> cells are void because that score and proliferation correlate at 0.82 and 0.84.</li>
+      <li><b>c</b> &middot; E50 <code>values</code>, the cells and colours drawn in Fig. 4g; checked equal to E49&rsquo;s stored coefficients in all 18 cells. Intervals in the tooltips from E49 <code>all_readouts_m3</code>.</li>
+      <li><b>d</b> &middot; E40 <code>meta</code> (OXPHOS without and with proliferation; fixed effect), E43 <code>meta</code> (proliferation; random effects, I&sup2; 67%), E44 <code>meta</code> (the tested difference). Cohorts GSE25066, GSE194040 and GSE164458.</li>
+      <li>Each object was verified against digests committed before the author&rsquo;s run. The retired sentences are quoted from the 2 November brief (1.1) and E47&rsquo;s declaration (section 0); the current ones from v6 and the STOP 3 rulings.</li>
+    </ul>
+  </footer>
+</main>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+const DATA = {"raw": [{"row": "OXPHOS level", "note": null, "TCGA": 0.554378904782651, "SCAN-B": 0.399791165501084}, {"row": "MYC activity, reference score", "note": "the “not MYC” reading", "TCGA": 0.0434586814137637, "SCAN-B": 0.104463134208756}, {"row": "MYC activity, MYC_UP.V1_UP", "note": null, "TCGA": 0.238379874067812, "SCAN-B": 0.329201221482142}, {"row": "Proliferation", "note": null, "TCGA": -0.0925430684816862, "SCAN-B": -0.0371136421007191}], "ladder": [{"score": "MYC_UP.V1_UP", "note": "the score in Fig. 4g", "rho": {"TCGA": 0.52151631084153, "SCAN-B": 0.413438284984372}, "rows": {"TCGA": {"m1": [0.145921093338029, 0.0841927742477226, 0.207649412428335], "m3": [0.214509692982602, 0.151780704680323, 0.277238681284882], "void": false}, "SCAN-B": {"m1": [0.32752569875882, 0.293346725944373, 0.361704671573266], "m3": [0.376917841591801, 0.343527503205164, 0.410308179978438], "void": false}}}, {"score": "CollecTRI MYC regulon", "note": "", "rho": {"TCGA": 0.521773136076102, "SCAN-B": 0.421176374701976}, "rows": {"TCGA": {"m1": [0.0939998355036982, 0.0173120047758428, 0.170687666231554], "m3": [0.243112844308255, 0.159373963662662, 0.326851724953848], "void": false}, "SCAN-B": {"m1": [0.0465979599825268, 0.00786995412108729, 0.0853259658439663], "m3": [0.105392042502814, 0.0664737922817241, 0.144310292723903], "void": false}}}, {"score": "Felsher", "note": "the reference score", "rho": {"TCGA": 0.696305243370772, "SCAN-B": 0.614848928913584}, "rows": {"TCGA": {"m1": [-0.0762924855255431, -0.14247574752731, -0.0101092235237759], "m3": [0.0263389554542573, -0.0499903744921194, 0.102668285400634], "void": false}, "SCAN-B": {"m1": [0.032725796746911, -0.00624252058097493, 0.0716941140747969], "m3": [0.164666926181543, 0.122431020592621, 0.206902831770466], "void": false}}}, {"score": "Hallmark MYC targets", "note": "most tied to proliferation", "rho": {"TCGA": 0.821440041903968, "SCAN-B": 0.837549459458783}, "rows": {"TCGA": {"m1": [-0.219569819429645, -0.296329848372682, -0.142809790486609], "m3": [-0.128407362508031, -0.249350107986001, -0.00746461703005971], "void": true}, "SCAN-B": {"m1": [-0.282992430446887, -0.327514627434385, -0.23847023345939], "m3": [-0.197428056909384, -0.264412273751269, -0.130443840067498], "void": true}}}], "heat": {"rows": [{"key": "BCL2L1", "gene": "BCL2L1", "protein": "BCL-xL", "label": "BCL2L1"}, {"key": "BBC3", "gene": "BBC3", "protein": "PUMA", "label": "BBC3"}, {"key": "S6", "label": "Signature"}], "cells": [{"readout": "BBC3", "cohort": "TCGA", "term": "OX", "value": 0.279857275328384, "fill": "#9EC5B6", "ink": "#000000", "lo": 0.217382549184983, "hi": 0.342332001471784}, {"readout": "BBC3", "cohort": "SCAN-B", "term": "OX", "value": 0.0669137371805707, "fill": "#E4EDE9", "ink": "#000000", "lo": 0.0282762143453925, "hi": 0.105551260015749}, {"readout": "BBC3", "cohort": "TCGA", "term": "MYC", "value": 0.237627801638428, "fill": "#ACCDC0", "ink": "#000000", "lo": 0.166646490273718, "hi": 0.308609113003137}, {"readout": "BBC3", "cohort": "SCAN-B", "term": "MYC", "value": 0.272601721372339, "fill": "#A0C7B7", "ink": "#000000", "lo": 0.234210629405613, "hi": 0.310992813339065}, {"readout": "BBC3", "cohort": "TCGA", "term": "PROLIF", "value": -0.393831484442615, "fill": "#847367", "ink": "#000000", "lo": -0.477834962593197, "hi": -0.309828006292033}, {"readout": "BBC3", "cohort": "SCAN-B", "term": "PROLIF", "value": -0.250843870605951, "fill": "#AEA29A", "ink": "#000000", "lo": -0.299329096383548, "hi": -0.202358644828354}, {"readout": "BCL2L1", "cohort": "TCGA", "term": "OX", "value": 0.397650323316874, "fill": "#77AF9A", "ink": "#000000", "lo": 0.336500496688918, "hi": 0.458800149944831}, {"readout": "BCL2L1", "cohort": "SCAN-B", "term": "OX", "value": 0.2197040750927, "fill": "#B1D1C4", "ink": "#000000", "lo": 0.184018160140133, "hi": 0.255389990045266}, {"readout": "BCL2L1", "cohort": "TCGA", "term": "MYC", "value": 0.0436822868120363, "fill": "#EBF2EF", "ink": "#000000", "lo": -0.0257937261570178, "hi": 0.11315829978109}, {"readout": "BCL2L1", "cohort": "SCAN-B", "term": "MYC", "value": 0.254633753517194, "fill": "#A6CABC", "ink": "#000000", "lo": 0.219175444020878, "hi": 0.290092063013511}, {"readout": "BCL2L1", "cohort": "TCGA", "term": "PROLIF", "value": -0.173546295915896, "fill": "#C5BCB6", "ink": "#000000", "lo": -0.255768314997064, "hi": -0.0913242768347281}, {"readout": "BCL2L1", "cohort": "SCAN-B", "term": "PROLIF", "value": -0.28533421013217, "fill": "#A3968D", "ink": "#000000", "lo": -0.33011553969453, "hi": -0.24055288056981}, {"readout": "S6", "cohort": "TCGA", "term": "OX", "value": 0.52105365504969, "fill": "#4C997E", "ink": "#000000", "lo": 0.465842272080145, "hi": 0.576265038019235}, {"readout": "S6", "cohort": "SCAN-B", "term": "OX", "value": 0.311248131132103, "fill": "#93BFAE", "ink": "#000000", "lo": 0.277643461512229, "hi": 0.344852800751977}, {"readout": "S6", "cohort": "TCGA", "term": "MYC", "value": 0.214509692982602, "fill": "#B3D2C5", "ink": "#000000", "lo": 0.151780704680323, "hi": 0.277238681284882}, {"readout": "S6", "cohort": "SCAN-B", "term": "MYC", "value": 0.376917841591801, "fill": "#7EB39F", "ink": "#000000", "lo": 0.343527503205164, "hi": 0.410308179978438}, {"readout": "S6", "cohort": "TCGA", "term": "PROLIF", "value": -0.279373292914414, "fill": "#A5988F", "ink": "#000000", "lo": -0.353610484323624, "hi": -0.205136101505204}, {"readout": "S6", "cohort": "SCAN-B", "term": "PROLIF", "value": -0.347143144494297, "fill": "#918277", "ink": "#000000", "lo": -0.389312773242279, "hi": -0.304973515746315}], "stops": ["#4A3525", "#665244", "#827165", "#9F9188", "#BDB3AC", "#DBD6D3", "#FAFAFA", "#D9E7E1", "#B8D4C9", "#97C2B1", "#76AF9A", "#539C83", "#2A8A6D"]}, "pcr": [{"label": "OXPHOS", "sub": "without proliferation term", "kind": "ghost", "est": 1.0549234423287985, "lo": 0.9514085968846594, "hi": 1.1697008759631335, "detail": "fixed effect; cohort signs + − +"}, {"label": "OXPHOS", "sub": "with proliferation term", "kind": "ink", "est": 0.85081958115073, "lo": 0.7548266745559407, "hi": 0.9590201089480109, "detail": "fixed effect; signs − − −; I² 0%"}, {"label": "Proliferation", "sub": "same model", "kind": "ink", "est": 1.7198227071645, "lo": 1.3589192353921182, "hi": 2.1765753747868275, "detail": "random effects; signs + + +; I² 67%"}, {"label": "Proliferation ÷ OXPHOS", "sub": "difference, tested", "kind": "ink", "shape": "diamond", "divider": true, "est": 1.9304378949960708, "lo": 1.5598661438053585, "hi": 2.3890450352013435, "detail": "ratio of odds ratios; fixed effect; I² 0%"}]};
+const NS = "http://www.w3.org/2000/svg";
+function s(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const MINUS = "−";
+const sgn = (v, d = 2) => (v < 0 ? MINUS : v > 0 ? "+" : "") + Math.abs(v).toFixed(d);
+const num = (v, d = 2) => (v < 0 ? MINUS : "") + Math.abs(v).toFixed(d);
+function tipOn(el, text) { el.setAttribute("tabindex", "0"); el.setAttribute("data-tip", text); }
+
+/* a. Raw correlations of the signature */
+function panelA(svg) {
+  const W = 460, top = 30, rowH = 52, x0 = 64, x1 = 430, dom = [-0.2, 0.6];
+  const X = v => x0 + (v - dom[0]) / (dom[1] - dom[0]) * (x1 - x0);
+  const H = top + DATA.raw.length * rowH + 22;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  s("text", { x: (x0 + x1) / 2, y: 12, class: "axt", "text-anchor": "middle" }, svg, "Spearman ρ with the signature, unadjusted");
+  for (const t of [-0.2, 0, 0.2, 0.4, 0.6]) {
+    s("line", { x1: X(t), x2: X(t), y1: top - 4, y2: H - 18, class: t === 0 ? "axis0" : "grid-l" }, svg);
+    s("text", { x: X(t), y: H - 4, class: "tick", "text-anchor": "middle" }, svg, t === 0 ? "0" : sgn(t, 1));
+  }
+  DATA.raw.forEach((r, i) => {
+    const y = top + i * rowH;
+    const lab = s("text", { x: 0, y: y + 9, class: "rowlab" }, svg, r.row);
+    if (r.note) s("tspan", { class: "note", dx: 6 }, lab, r.note);
+    ["TCGA", "SCAN-B"].forEach((c, j) => {
+      const v = r[c], yy = y + 16 + j * 15;
+      s("text", { x: 0, y: yy + 8.5, class: "coh" }, svg, c);
+      const xa = X(Math.min(0, v)), xb = X(Math.max(0, v));
+      const bar = s("rect", { x: xa, y: yy, width: Math.max(1.5, xb - xa), height: 10, class: "bar-ghost" }, svg);
+      tipOn(bar, `${r.row}, ${c}\nρ = ${sgn(v)} (unadjusted)`);
+      s("text", { x: v >= 0 ? xb + 4 : xa - 4, y: yy + 8.5, class: "val", "text-anchor": v >= 0 ? "start" : "end" }, svg, sgn(v));
+    });
+  });
+}
+
+/* b. MYC's coefficient on the signature, m1 -> m3, by MYC score */
+function panelB(svg) {
+  const W = 460, top = 34, gH = 62, x0 = 112, x1 = 388, dom = [-0.35, 0.45];
+  const X = v => x0 + (v - dom[0]) / (dom[1] - dom[0]) * (x1 - x0);
+  const H = top + DATA.ladder.length * gH + 22;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const defs = s("defs", {}, svg);
+  const mk = s("marker", { id: "arrowhead", viewBox: "0 0 6 6", refX: "5.5", refY: "3", markerWidth: "6", markerHeight: "6", orient: "auto" }, defs);
+  s("path", { d: "M0,0 L6,3 L0,6 Z", class: "arrowhead" }, mk);
+  s("text", { x: (x0 + x1) / 2, y: 12, class: "axt", "text-anchor": "middle" }, svg, "MYC activity on the signature, SD per SD");
+  s("text", { x: 458, y: 12, class: "axt", "text-anchor": "end" }, svg, "ρ with prolif.");
+  for (const t of [-0.2, 0, 0.2, 0.4]) {
+    s("line", { x1: X(t), x2: X(t), y1: top - 6, y2: H - 18, class: t === 0 ? "axis0" : "grid-l" }, svg);
+    s("text", { x: X(t), y: H - 4, class: "tick", "text-anchor": "middle" }, svg, t === 0 ? "0" : sgn(t, 1));
+  }
+  DATA.ladder.forEach((g, gi) => {
+    const y = top + gi * gH;
+    const lab = s("text", { x: 0, y: y + 10, class: "rowlab" }, svg, g.score);
+    s("tspan", { class: "note", dx: 6 }, lab, g.note);
+    if (gi > 0) s("line", { x1: 0, x2: 458, y1: y - 4, y2: y - 4, class: "grid-l" }, svg);
+    ["TCGA", "SCAN-B"].forEach((c, j) => {
+      const r = g.rows[c], yy = y + 26 + j * 20;
+      s("text", { x: x0 - 8, y: yy + 3.5, class: "coh", "text-anchor": "end" }, svg, c);
+      s("text", { x: 458, y: yy + 3.5, class: "val", "text-anchor": "end" }, svg, num(g.rho[c]));
+      // without proliferation (m1): grey, CI above the line
+      s("line", { x1: X(r.m1[1]), x2: X(r.m1[2]), y1: yy - 6, y2: yy - 6, class: "ci-ghost" }, svg);
+      if (!r.void) {
+        s("line", { x1: X(r.m3[1]), x2: X(r.m3[2]), y1: yy + 6, y2: yy + 6, class: "ci-ink" }, svg);
+        const gap = X(r.m3[0]) - X(r.m1[0]);
+        if (Math.abs(gap) > 9) {
+          s("line", { x1: X(r.m1[0]) + Math.sign(gap) * 4.5, x2: X(r.m3[0]) - Math.sign(gap) * 5, y1: yy, y2: yy, class: "arrow", "marker-end": "url(#arrowhead)" }, svg);
+        }
+        const p3 = s("circle", { cx: X(r.m3[0]), cy: yy, r: 4, class: "pt-ink" }, svg);
+        tipOn(p3, `${g.score}, ${c}\nwith proliferation: ${sgn(r.m3[0])} [${num(r.m3[1])}, ${num(r.m3[2])}]`);
+      } else {
+        s("text", { x: X(r.m1[2]) + 8, y: yy + 3.5, class: "note" }, svg, "with proliferation: not separable");
+      }
+      const p1 = s("circle", { cx: X(r.m1[0]), cy: yy, r: 4, class: "pt-ghost" }, svg);
+      tipOn(p1, `${g.score}, ${c}\nwithout proliferation: ${sgn(r.m1[0])} [${num(r.m1[1])}, ${num(r.m1[2])}]`);
+    });
+  });
+}
+
+/* c. Fig. 4g's cells, in its colours */
+function panelC(svg) {
+  const cw = 50, ch = 30, bg = 10, x0 = 116, yHead = 34, y0 = 44, sigGap = 8;
+  const terms = [["OX", "OXPHOS"], ["MYC", "MYC activity"], ["PROLIF", "Proliferation"]];
+  const cohorts = ["TCGA", "SCAN-B"];
+  const colX = (ti, ci) => x0 + ti * (2 * cw + bg) + ci * cw;
+  const rows = DATA.heat.rows;
+  const rowY = ri => y0 + ri * ch + (ri === rows.length - 1 ? sigGap : 0);
+  const gridBottom = rowY(rows.length - 1) + ch;
+  const keyY = gridBottom + 30;
+  const W = 460, H = keyY + 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  terms.forEach(([t, lab], ti) => {
+    s("text", { x: colX(ti, 0) + cw, y: 14, "text-anchor": "middle", class: "rowlab" }, svg, lab);
+    cohorts.forEach((c, ci) => s("text", { x: colX(ti, ci) + cw / 2, y: yHead, "text-anchor": "middle", class: "coh" }, svg, c));
+  });
+  rows.forEach((r, ri) => {
+    const y = rowY(ri);
+    const lab = s("text", { x: x0 - 8, y: y + ch / 2 + 4, "text-anchor": "end", class: "rowlab" }, svg);
+    if (r.gene) {
+      s("tspan", { "font-style": "italic" }, lab, r.gene);
+      s("tspan", { class: "note", dx: 4, "font-style": "normal" }, lab, `(${r.protein})`);
+    } else {
+      lab.textContent = r.label;
+    }
+    terms.forEach(([t], ti) => cohorts.forEach((c, ci) => {
+      const cell = DATA.heat.cells.find(d => d.readout === r.key && d.cohort === c && d.term === t);
+      const x = colX(ti, ci);
+      const rect = s("rect", { x, y, width: cw, height: ch, fill: cell.fill }, svg);
+      const dag = (r.key === "S6" && t === "OX") ? "†" : "";
+      s("text", { x: x + cw / 2, y: y + ch / 2 + 4, "text-anchor": "middle", class: "cellnum", fill: cell.ink, style: `fill:${cell.ink}` }, svg, sgn(cell.value) + dag);
+      tipOn(rect, `${r.label}, ${t === "OX" ? "OXPHOS" : t === "MYC" ? "MYC activity" : "proliferation"}, ${c}\n${sgn(cell.value)} [${num(cell.lo)}, ${num(cell.hi)}]` + (dag ? "\nby construction, not read" : ""));
+    }));
+  });
+  // colour key, Fig. 1g's CIELAB scale at +/-0.6
+  const kx = colX(0, 0), kw = 2 * cw + bg + 2 * cw, kh = 8;
+  const gid = "key-grad";
+  const lg = s("linearGradient", { id: gid, x1: "0", x2: "1", y1: "0", y2: "0" }, s("defs", {}, svg));
+  DATA.heat.stops.forEach((col, i, arr) => s("stop", { offset: `${(100 * i / (arr.length - 1)).toFixed(2)}%`, "stop-color": col }, lg));
+  s("rect", { x: kx, y: keyY, width: kw, height: kh, fill: `url(#${gid})` }, svg);
+  [[-0.6, 0], [0, 0.5], [0.6, 1]].forEach(([v, f]) => {
+    s("line", { x1: kx + f * kw, x2: kx + f * kw, y1: keyY + kh, y2: keyY + kh + 3, class: "axis0" }, svg);
+    s("text", { x: kx + f * kw, y: keyY + kh + 14, "text-anchor": "middle", class: "tick" }, svg, v === 0 ? "0" : sgn(v, 1));
+  });
+  s("text", { x: kx + kw + 10, y: keyY + kh, class: "axt" }, svg, "SD per SD");
+}
+
+/* d. pCR forest, log axis */
+function panelD(svg) {
+  const W = 460, top = 26, rowH = 38, x0 = 148, x1 = 348, dom = [0.6, 2.6];
+  const L = Math.log;
+  const X = v => x0 + (L(v) - L(dom[0])) / (L(dom[1]) - L(dom[0])) * (x1 - x0);
+  const rows = DATA.pcr;
+  const div = rows.findIndex(r => r.divider);
+  const rowY = i => top + i * rowH + (div >= 0 && i >= div ? 16 : 0);
+  const H = rowY(rows.length - 1) + rowH + 26;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  s("text", { x: (x0 + x1) / 2, y: 12, class: "axt", "text-anchor": "middle" }, svg, "Odds ratio for pCR per SD (log scale)");
+  s("text", { x: 458, y: 12, class: "axt", "text-anchor": "end" }, svg, "OR [95% CI]");
+  const yEnd = rowY(rows.length - 1) + rowH - 8;
+  for (const t of [0.7, 1, 1.5, 2, 2.5]) {
+    s("line", { x1: X(t), x2: X(t), y1: top - 4, y2: yEnd, class: t === 1 ? "axis0" : "grid-l" }, svg);
+    s("text", { x: X(t), y: yEnd + 13, class: "tick", "text-anchor": "middle" }, svg, String(t));
+  }
+  s("text", { x: X(1) - 6, y: yEnd + 26, class: "note", "text-anchor": "end" }, svg, "← lower pCR");
+  s("text", { x: X(1) + 6, y: yEnd + 26, class: "note", "text-anchor": "start" }, svg, "higher pCR →");
+  rows.forEach((r, i) => {
+    const y = rowY(i) + 14;
+    if (r.divider) s("line", { x1: 0, x2: 458, y1: y - 22, y2: y - 22, class: "sep" }, svg);
+    s("text", { x: 0, y: y - 2, class: "rowlab" }, svg, r.label);
+    s("text", { x: 0, y: y + 11, class: "coh" }, svg, r.sub);
+    const cls = r.kind === "ghost" ? ["ci-ghost", "pt-ghost"] : ["ci-ink", "pt-ink"];
+    s("line", { x1: X(r.lo), x2: X(r.hi), y1: y + 2, y2: y + 2, class: cls[0] }, svg);
+    let mark;
+    if (r.shape === "diamond") {
+      const cx = X(r.est), cy = y + 2;
+      mark = s("path", { d: `M${cx - 6},${cy} L${cx},${cy - 5} L${cx + 6},${cy} L${cx},${cy + 5} Z`, class: cls[1] }, svg);
+    } else {
+      mark = s("circle", { cx: X(r.est), cy: y + 2, r: 4.2, class: cls[1] }, svg);
+    }
+    tipOn(mark, `${r.label}, ${r.sub}\nOR ${r.est.toFixed(2)} [${r.lo.toFixed(2)}, ${r.hi.toFixed(2)}]\n${r.detail}`);
+    s("text", { x: 458, y: y + 5.5, class: "val", "text-anchor": "end" }, svg, `${r.est.toFixed(2)} [${r.lo.toFixed(2)}, ${r.hi.toFixed(2)}]`);
+  });
+}
+
+panelA(document.getElementById("panel-a"));
+panelB(document.getElementById("panel-b"));
+panelC(document.getElementById("panel-c"));
+panelD(document.getElementById("panel-d"));
+
+/* tooltips: hover and keyboard focus */
+const tip = document.getElementById("tip");
+function place(x, y) {
+  const pad = 12, w = tip.offsetWidth, h = tip.offsetHeight;
+  let left = x + pad, topY = y - h - pad;
+  if (left + w > window.innerWidth - 8) left = x - w - pad;
+  if (topY < 8) topY = y + pad;
+  tip.style.left = `${Math.max(8, left)}px`;
+  tip.style.top = `${topY}px`;
+}
+function show(el, x, y) { tip.textContent = el.getAttribute("data-tip"); tip.hidden = false; place(x, y); }
+document.addEventListener("pointerover", e => { const t = e.target.closest && e.target.closest("[data-tip]"); if (t) show(t, e.clientX, e.clientY); });
+document.addEventListener("pointermove", e => { if (!tip.hidden) place(e.clientX, e.clientY); });
+document.addEventListener("pointerout", e => { if (e.target.closest && e.target.closest("[data-tip]")) tip.hidden = true; });
+document.addEventListener("focusin", e => { const t = e.target.closest && e.target.closest("[data-tip]"); if (t) { const b = t.getBoundingClientRect(); show(t, b.left + b.width / 2, b.top); } });
+document.addEventListener("focusout", () => { tip.hidden = true; });
+</script>
