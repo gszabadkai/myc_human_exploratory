@@ -69,8 +69,23 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05: the author's v6 narrative is committed, and its
-changes wait on the author's ruling. Everything below is pushed.**
+**NEWEST, 2026-11-05, later: `E51` is WRITTEN and DRY-RUN, waiting for the
+author's run.** ED-k becomes a main panel (the author's ruling,
+`docs/2026-11-05_E51_main_panel_ruling.md`, `86f38aa`).
+- **What it draws:** PUMA relative to BCL-xL against OXPHOS priority, with
+  TCGA-BRCA and SCAN-B overlaid in one panel, in Fig. 1i's style. Each
+  cohort's *P* is printed inside the panel, and there is no title.
+- **Its one new quantity is that *P*:** the two-sided t-test of the drawn
+  slope, from E49's saved residuals, with no refit. TCGA-BRCA *P* = 0.017,
+  SCAN-B *P* = 7.8 x 10^-9.
+- **Kept as declared:** ED-k's model and the stored slopes. ED-b stays in
+  Extended Data.
+- **Its digests are committed before the run**
+  (`docs/2026-11-05_e51_prerun_digests.md`). After the author sources it, in a
+  fresh R session, verify against them.
+
+**Earlier on 2026-11-05: the author's v6 narrative is committed, and its
+changes wait on the author's ruling.**
 - **v6** is `docs/Fig. 4 narrative v6 human arm and clinical link.md`
   (`c3b3482`). It is the author's draft, and it proposes six changes to the
   ruled text: five sharpening changes and a re-cut of the four Methods
@@ -657,7 +672,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E51`.**
+number is `E52`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -668,7 +683,10 @@ number is `E51`.**
   digests, the twelfth a label's wording). It redraws 4g, ED-e and ED-f in
   Fig. 1g's style and re-colours ED-g and ED-h. The STOP 3 rulings accept its
   displays; the rest is the author's Illustrator work, and no display script
-  follows it.
+  follows it for 4g.
+- `E51` is a display script with one declared quantity, each cohort's *P*.
+  It redraws ED-k as a main panel, with both cohorts overlaid. It is written
+  and dry-run; its digests are committed before the author's run.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1167,7 +1185,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E50. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E51. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
