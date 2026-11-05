@@ -698,11 +698,19 @@ message("\nE51 done.")
 # SANDBOX -- run line by line in Positron; skipped by source()
 # =============================================================================
 if (FALSE) {
+  # Self-contained: it reads only the saved object and the tracked figure, so it
+  # also works in a fresh session (after a restart, say), not only straight after
+  # source(). PANEL exists only in the session that sourced the script.
+  library(dplyr)
   x <- readRDS(here::here("results", "e51_puma_bclxl_main_panel.rds"))
   x$slopes %>% dplyr::select(cohort, n, df, slope, slope_lo, slope_hi, partial_r, t, p) %>% print()
   x$assertions %>% print(n = Inf)
   x$figure_files %>% print()
   cat(x$legend_draft, "\n")
-  # the panel on screen
-  print(PANEL$png)
+  # the panel as written: the PNG preview (the PDF beside it is the file for
+  # Illustrator). Straight after source(), print(PANEL$png) draws it afresh.
+  img <- png::readPNG(here::here("docs", "figures",
+                                 "2026-11-05_E51_puma_bclxl_against_priority_overlaid.png"))
+  grid::grid.newpage()
+  grid::grid.raster(img)
 }
