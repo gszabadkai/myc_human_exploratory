@@ -69,9 +69,12 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, later: `E51` is WRITTEN and DRY-RUN, waiting for the
-author's run.** ED-k becomes a main panel (the author's ruling,
-`docs/2026-11-05_E51_main_panel_ruling.md`, `86f38aa`).
+**NEWEST, 2026-11-05, later: `E51` is RUN and VERIFIED** (8 of 8 digests,
+26 of 26 assertions, every file identical to the dry run;
+`docs/2026-11-05_e51_result.md`). ED-k becomes a main panel (the author's
+ruling, `docs/2026-11-05_E51_main_panel_ruling.md`, `86f38aa`). Its text
+follows, for a later ruling: R6's citation, the panel's letter and the
+legend.
 - **What it draws:** PUMA relative to BCL-xL against OXPHOS priority, with
   TCGA-BRCA and SCAN-B overlaid in one panel, in Fig. 1i's style. Each
   cohort's *P* is printed inside the panel, and there is no title.
@@ -80,9 +83,10 @@ author's run.** ED-k becomes a main panel (the author's ruling,
   SCAN-B *P* = 7.8 x 10^-9.
 - **Kept as declared:** ED-k's model and the stored slopes. ED-b stays in
   Extended Data.
-- **Its digests are committed before the run**
-  (`docs/2026-11-05_e51_prerun_digests.md`). After the author sources it, in a
-  fresh R session, verify against them.
+- **Its digests were committed before the run**
+  (`docs/2026-11-05_e51_prerun_digests.md`, `1b0be30`), and the run matched
+  them. R exited unexpectedly after the script had finished; every output
+  verifies.
 
 **Earlier on 2026-11-05: the author's v6 narrative is committed, and its
 changes wait on the author's ruling.**
@@ -685,8 +689,8 @@ number is `E52`.**
   displays; the rest is the author's Illustrator work, and no display script
   follows it for 4g.
 - `E51` is a display script with one declared quantity, each cohort's *P*.
-  It redraws ED-k as a main panel, with both cohorts overlaid. It is written
-  and dry-run; its digests are committed before the author's run.
+  It redraws ED-k as a main panel, with both cohorts overlaid. It is run and
+  verified: 8 of 8 digests, 26 of 26 assertions.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
