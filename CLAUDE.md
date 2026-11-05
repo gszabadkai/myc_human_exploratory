@@ -85,8 +85,12 @@ legend.
   Extended Data.
 - **Its digests were committed before the run**
   (`docs/2026-11-05_e51_prerun_digests.md`, `1b0be30`), and the run matched
-  them. R exited unexpectedly after the script had finished; every output
-  verifies.
+  them.
+- **The crash after each run is fixed** (`4924f29`, confirmed by the
+  author). The cause was the PDF's raw bytes left in the workspace: they are
+  not valid UTF-8, and Positron's Variables pane crashed on them. **In any
+  script, read a binary file inside a function and return only ASCII**
+  (handoff, lesson 5).
 
 **Earlier on 2026-11-05: the author's v6 narrative is committed, and its
 changes wait on the author's ruling.**
