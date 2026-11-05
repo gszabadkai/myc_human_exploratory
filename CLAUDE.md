@@ -69,9 +69,11 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, late evening: `E53` is WRITTEN, and its digests are
-COMMITTED. It waits on the author's run.** The entry point is its pre-run
-note, `docs/2026-11-05_e53_prerun_digests.md`.
+**NEWEST, 2026-11-05, late evening: `E53` is RUN and VERIFIED** (6 of 6
+digests, 43 of 43 assertions, every file identical to the dry run;
+`docs/2026-11-05_e53_result.md`). **Its panels replace E48's ED-a and ED-b
+for the paper, as Extended Data Fig. 6a and 6b.** Its digests were committed
+before the run (`docs/2026-11-05_e53_prerun_digests.md`, `f3745f0`).
 - **What it draws:** E48's ED-a and ED-b, which the author numbers Extended
   Data Fig. 6a and 6b, at half width (at most 88 mm), by the author's ruling
   (`docs/2026-11-05_E53_half_width_ed_panels_ruling.md`, `7325ff1`):
@@ -82,12 +84,9 @@ note, `docs/2026-11-05_e53_prerun_digests.md`.
     adjusted"; x axes from -0.1.
 - **It fits nothing.** Its data are E48's saved display frames, checked by
   digest. Its legend drafts are E48's, with 6a's "Right" now "Below".
-- **After the author's run:** verify it against the pre-run note, commit a
-  result note and the tracked figures. E53's panels then replace E48's ED-a
-  and ED-b for the paper.
-- **At exit on 2026-11-05 the author said "done, it is OK", but no E53
-  output existed in the repo.** The run is not verified; see the handoff's
-  section 0.
+- **Three choices from the pre-run note's section 4 are still to confirm
+  with the author:** -0.1 as an unlabelled tick; no "open/filled" lines in
+  the key; plain titles.
 
 **Earlier on 2026-11-05, evening: `E52` is RUN and VERIFIED** (8 of 8
 digests, 38 of 38 assertions, every file identical to the dry run;
@@ -741,7 +740,8 @@ number is `E54`.**
   panel replaces E51's for the paper.
 - `E53` is a display script. It redraws E48's ED-a and ED-b (Extended Data
   Fig. 6a and 6b) at half width, with 6b's arrows removed and its labels
-  edited. Its digests are committed; the author's run is next.
+  edited. It is run and verified: 6 of 6 digests, 43 of 43 assertions. Its
+  panels replace E48's ED-a and ED-b for the paper.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
