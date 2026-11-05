@@ -33,9 +33,13 @@ The most important rule, and the mirror image of the sibling repo's.
 `myc_human_validation` (`/Users/gs/code/myc_human_validation`, frozen at
 `d3ac60e`) is a **completed, pre-registered** study of one narrow hypothesis. It
 found nothing supported. It is not reopened, and it does not go in the paper
-**except for G2 co-amplification: one ED panel and one main-text sentence**
-(the author's decision 5, 2026-11-02; brief section 9). None of the G2 numbers
-has yet been verified from the validation repo.
+**except for G2 co-amplification: one MAIN panel (Fig. 4x) and one main-text
+sentence** (the author's decision 5, 2026-11-02, amended on 2026-11-05 from an
+Extended Data panel: `docs/2026-11-05_E54_coamplification_panel_ruling.md`,
+`8fde82a`). **G2's saved result is snapshotted** in
+`data/from_validation_g2/` (`c1dceed`), and all 46 numbers its committed note
+prints match the snapshot. **G2's pooled tests were pre-registered; its subtype
+strata and Breslow-Day tests were declared secondary and exploratory.**
 
 - Its `CLAUDE.md` forbids post-hoc hypotheses. That rule is correct *there* and
   **actively wrong here**. Do not import it.
@@ -69,7 +73,33 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, late evening: `E53` is RUN and VERIFIED** (6 of 6
+**NEWEST, 2026-11-05, night: `E54` is WRITTEN, and its digests are
+COMMITTED. It waits on the author's run.** The entry point is its pre-run
+note, `docs/2026-11-05_e54_prerun_digests.md`.
+- **Decision 5 is amended** (the author's ruling,
+  `docs/2026-11-05_E54_coamplification_panel_ruling.md`, `8fde82a`): the
+  co-amplification result (validation study G2) becomes a MAIN panel,
+  Fig. 4x, with a 26-mm axis like E52's.
+- **What it draws:** adjusted odds ratios for BCL2L1 gain and MCL1
+  amplification with MYC amplification in TCGA-BRCA (n = 1,043):
+  - all tumours, under both pre-specified covariates (aneuploidy score,
+    filled; fraction genome altered, open);
+  - then Basal, Her2, LumA and LumB, declared secondary and exploratory in
+    G2.
+- **Its numbers** come from G2's saved result, snapshotted with its
+  provenance in `data/from_validation_g2/` (`c1dceed`, md5-checked). All 46
+  numbers the committed G2 note prints match the snapshot, and E54 checks
+  the 24 it draws.
+- **The author's sentence waits on a text ruling** (the ruling's question 4).
+  The pre-run note's section 6 lists what it must weigh:
+  - BCL2L1 crosses 1 under fraction genome altered;
+  - only Basal's interval excludes 1 for either gene;
+  - "across subtypes" rests on a homogeneity test that did not reject;
+  - MCL1 inverts at any gain.
+- **Choices the ruling left open** are in the pre-run note, section 5. One is
+  that no values are printed beside the rows, though the preview showed them.
+
+**Earlier on 2026-11-05, late evening: `E53` is RUN and VERIFIED** (6 of 6
 digests, 43 of 43 assertions, every file identical to the dry run;
 `docs/2026-11-05_e53_result.md`). **Its panels replace E48's ED-a and ED-b
 for the paper, as Extended Data Fig. 6a and 6b.** Its digests were committed
@@ -454,16 +484,17 @@ authority over what the section-4 figure panels may assert (its section 2).
 
 **Decision 5 is taken, for G2 co-amplification only** (the author,
 2026-11-02).
-- It admits one Extended Data panel and one main-text sentence, and nothing
-  else from the validation study.
-- **None of its numbers is verified from this repo yet.** Brief section 9
-  lists what to check before the panel is built.
+- It admits one main-text sentence and, **since its amendment of 2026-11-05,
+  one MAIN panel (Fig. 4x) in place of an Extended Data panel** (`8fde82a`).
+  Nothing else from the validation study.
+- **Its numbers are verified against the committed G2 note** (46 of 46), from
+  the snapshot in `data/from_validation_g2/` (`c1dceed`). E54 draws the panel.
 
 **E48's STOP 3 is superseded by the new brief.** It had the author choose
 4g's layout and rule on the text choices in result note 4.1. The open items
 it listed still stand:
 - the author edits the Doc, which is never edited from here;
-- the co-amplification display task, after brief section 9's verification;
+- the co-amplification display task, now E54 (see NEWEST);
 - brief section 10's open items:
   - E46 in Extended Data;
   - signature transparency;
@@ -516,7 +547,8 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
     (declaration 12.3). E47 Display A had been placed in EXTENDED DATA by the
     author on 2026-10-23;
   - the Doc's 4h, co-amplification, becomes one Extended Data panel under
-    decision 5. It is not yet built.
+    decision 5. **Amended 2026-11-05: it is a main panel, Fig. 4x, drawn by
+    E54.**
 
 - **THE NARRATIVE OF RECORD IS THE AUTHOR'S GOOGLE DOC** "11.8.26_MK_Myc_Paper"
   (Nat Metab version), from 2026-10-22. It supersedes v5 in `docs/`, **and its
@@ -600,10 +632,12 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
   a MYC activity score an **estimator**, never a "signature". **The provenance
   of every gene choice, including that no numeric rule chose S6, is in the
   E47 declaration, section 4a.**
-- **The Doc's 4h is NOT built.** It is validation-study material.
-  - **Decision 5 (2026-11-02) admits it**, for G2 co-amplification only: one
-    Extended Data panel and one main-text sentence.
-  - It can be built only after the verification that brief section 9 lists.
+- **The Doc's 4h is now Fig. 4x, drawn by E54** (see NEWEST). It is
+  validation-study material.
+  - **Decision 5 (2026-11-02) admits it**, for G2 co-amplification only; its
+    amendment of 2026-11-05 makes it a main panel.
+  - Brief section 9's verification is done: the snapshot and the committed
+    note agree, 46 of 46.
 - **Doc sentences that clash with the data or with this file's rules** are
   listed in section 5 of the evening handoff. The weightiest:
   - "comparable" OXPHOS-high groups;
@@ -719,7 +753,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E54`.**
+number is `E55`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -742,6 +776,10 @@ number is `E54`.**
   Fig. 6a and 6b) at half width, with 6b's arrows removed and its labels
   edited. It is run and verified: 6 of 6 digests, 43 of 43 assertions. Its
   panels replace E48's ED-a and ED-b for the paper.
+- `E54` is a display script. It draws Fig. 4x, the validation study's G2
+  co-amplification odds ratios, from the snapshot in
+  `data/from_validation_g2/`. Its digests are committed; the author's run is
+  next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1173,6 +1211,7 @@ source changes, re-snapshot and bump the SHA rather than patching.
 | Input | Location |
 |---|---|
 | Validation-study matrices, scores, covariates | `data/from_validation/` (gitignored, ~563 MB) |
+| Validation study's G2 result, for Fig. 4x | `data/from_validation_g2/` (tracked, 10 KB; md5 in its README) |
 | Human MitoCarta 3.0 | `data/mitocarta_human/` |
 | Cell death: pro/anti x apoptosis/CICD, + 15 Tang modalities | `data/genesets_celldeath_human/` |
 | MYC signature compendium (16 sets) | `data/genesets_myc_human/` |
@@ -1240,7 +1279,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E53. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E54. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
