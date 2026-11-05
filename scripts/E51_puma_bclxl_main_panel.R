@@ -584,44 +584,57 @@ PNG_HEX <- toupper(.hexes(PNG))
 .assert("both cohorts' colours appear exactly in the PNG",
         all(toupper(COH_COL) %in% PNG_HEX), n = length(COH_COL))
 
-PDF_TXT <- .pdf_text(FILES[["pdf_docs"]])
-mb <- regmatches(PDF_TXT, regexpr("/MediaBox \\[[^]]*\\]", PDF_TXT, useBytes = TRUE))
-mb_num <- as.numeric(strsplit(gsub("[^0-9. ]", "", mb), " +")[[1]])
-mb_num <- mb_num[!is.na(mb_num)]
+# The PDF is read back INSIDE a function, so that its raw bytes, which are not
+# valid UTF-8 (the binary header, soft hyphens, Symbol's multiplication sign),
+# never reach the workspace. Left there, they crashed Positron's R session each
+# time it listed the workspace after a run (E51 result note). Only ASCII comes
+# back: the page box, the fonts and every string the PDF shows.
+.pdf_read_back <- function(f) {
+  txt <- .pdf_text(f)
+  mb <- regmatches(txt, regexpr("/MediaBox \\[[^]]*\\]", txt, useBytes = TRUE))
+  mb_num <- as.numeric(strsplit(gsub("[^0-9. ]", "", mb), " +")[[1]])
+  mb_num <- mb_num[!is.na(mb_num)]
+  fonts <- unique(regmatches(txt, gregexpr("/BaseFont /[A-Za-z-]+", txt, useBytes = TRUE))[[1]])
+  # Every string the PDF shows: plain strings (Tj) and kerned arrays (TJ), whose
+  # pieces are joined. Escapes are removed, the soft hyphen's byte is named, and
+  # any other byte above 127 is written as <xx>.
+  str_re <- "\\((?:[^()\\\\]|\\\\.)*\\)"
+  body   <- function(v) sub("^\\((.*)\\)$", "\\1", v, useBytes = TRUE)
+  tj  <- regmatches(txt, gregexpr(paste0(str_re, " Tj"), txt, perl = TRUE,
+                                  useBytes = TRUE))[[1]]
+  tj  <- body(sub(" Tj$", "", tj, useBytes = TRUE))
+  arr <- regmatches(txt, gregexpr(paste0("\\[(?:", str_re, "|[ 0-9.-])*\\] TJ"),
+                                  txt, perl = TRUE, useBytes = TRUE))[[1]]
+  arr <- vapply(arr, function(a) {
+    parts <- regmatches(a, gregexpr(str_re, a, perl = TRUE, useBytes = TRUE))[[1]]
+    paste(body(parts), collapse = "")
+  }, character(1), USE.NAMES = FALSE)
+  shown <- gsub("\\\\([()\\\\])", "\\1", c(tj, arr), useBytes = TRUE)
+  shown <- gsub(rawToChar(as.raw(0xAD)), "<SHY>", shown, fixed = TRUE, useBytes = TRUE)
+  shown <- iconv(shown, from = "latin1", to = "ASCII", sub = "byte")
+  list(mediabox = mb_num, fonts = fonts,
+       font_file = grepl("/FontFile", txt, fixed = TRUE, useBytes = TRUE),
+       shown = shown)
+}
+RB <- .pdf_read_back(FILES[["pdf_docs"]])
 .assert("the PDF's page is the panel's size, in whole points",
-        identical(as.integer(mb_num[3:4]), c(PAGE_W_PT, PAGE_H_PT)), n = 1L,
-        detail = paste(mb_num, collapse = " "))
-fonts <- unique(regmatches(PDF_TXT, gregexpr("/BaseFont /[A-Za-z-]+", PDF_TXT, useBytes = TRUE))[[1]])
+        identical(as.integer(RB$mediabox[3:4]), c(PAGE_W_PT, PAGE_H_PT)), n = 1L,
+        detail = paste(RB$mediabox, collapse = " "))
 .assert(paste0("the PDF's text is live: Helvetica, its oblique and Symbol, ",
                "referenced and not embedded"),
-        all(c("/BaseFont /Helvetica", "/BaseFont /Helvetica-Oblique") %in% fonts) &&
-          all(fonts %in% c("/BaseFont /Helvetica", "/BaseFont /Helvetica-Oblique",
-                           "/BaseFont /Helvetica-Bold", "/BaseFont /Helvetica-BoldOblique",
-                           "/BaseFont /Symbol")) &&
-          !grepl("/FontFile", PDF_TXT, fixed = TRUE, useBytes = TRUE),
-        n = length(fonts), detail = paste(sub("/BaseFont /", "", fonts), collapse = ", "))
-# Every string the PDF shows: plain strings (Tj) and kerned arrays (TJ), whose
-# pieces are joined. Escapes are removed, and the soft hyphen's byte is named.
-STR_RE <- "\\((?:[^()\\\\]|\\\\.)*\\)"
-.body  <- function(s) sub("^\\((.*)\\)$", "\\1", s, useBytes = TRUE)
-tj  <- regmatches(PDF_TXT, gregexpr(paste0(STR_RE, " Tj"), PDF_TXT, perl = TRUE,
-                                    useBytes = TRUE))[[1]]
-tj  <- .body(sub(" Tj$", "", tj, useBytes = TRUE))
-arr <- regmatches(PDF_TXT, gregexpr(paste0("\\[(?:", STR_RE, "|[ 0-9.-])*\\] TJ"),
-                                    PDF_TXT, perl = TRUE, useBytes = TRUE))[[1]]
-arr <- vapply(arr, function(a) {
-  parts <- regmatches(a, gregexpr(STR_RE, a, perl = TRUE, useBytes = TRUE))[[1]]
-  paste(.body(parts), collapse = "")
-}, character(1), USE.NAMES = FALSE)
-shown <- gsub("\\\\([()\\\\])", "\\1", c(tj, arr), useBytes = TRUE)
-shown <- gsub(rawToChar(as.raw(0xAD)), "<SHY>", shown, fixed = TRUE, useBytes = TRUE)
+        all(c("/BaseFont /Helvetica", "/BaseFont /Helvetica-Oblique") %in% RB$fonts) &&
+          all(RB$fonts %in% c("/BaseFont /Helvetica", "/BaseFont /Helvetica-Oblique",
+                              "/BaseFont /Helvetica-Bold", "/BaseFont /Helvetica-BoldOblique",
+                              "/BaseFont /Symbol")) &&
+          !RB$font_file,
+        n = length(RB$fonts), detail = paste(sub("/BaseFont /", "", RB$fonts), collapse = ", "))
 mant <- vapply(P_LAB, function(l) sub(".*=='([^']+)'.*", "\\1", l), character(1),
                USE.NAMES = FALSE)
 want <- c("TCGA<SHY>BRCA", "SCAN<SHY>B", "P", mant, X_TITLE, "BBC3:BCL2L1")
 .assert(paste0("the PDF shows each cohort's name, with a soft hyphen, each P ",
                "value as computed, and both axis titles"),
-        all(want %in% shown), n = length(want),
-        detail = paste(setdiff(want, shown), collapse = ", "))
+        all(want %in% RB$shown), n = length(want),
+        detail = paste(setdiff(want, RB$shown), collapse = ", "))
 
 FIGURE_FILES <- tibble::tibble(
   copy = names(FILES), file = basename(FILES),
