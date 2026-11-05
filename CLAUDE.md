@@ -69,7 +69,24 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-05, later: `E51` is RUN and VERIFIED** (8 of 8 digests,
+**NEWEST, 2026-11-05, evening: `E52` is WRITTEN, and its digests are
+COMMITTED. It waits on the author's run.** The entry point is its pre-run
+note, `docs/2026-11-05_e52_prerun_digests.md`.
+- **What it draws:** E51's panel at the size of Fig. 4's Prism graphs, by
+  the author's ruling (`docs/2026-11-05_E52_prism_size_ruling.md`,
+  `9c2ca44`):
+  - a 26-mm square data area, on a page of the panel's natural size;
+  - axis titles without "adjusted", which the legend carries;
+  - the two *P* labels, with the cohort names, in a key above the data area;
+  - the axes and ticks still at 0.53 pt.
+- **It fits nothing.** Its slopes, points, lines, *P* values and legend
+  draft are E51's, checked by digest.
+- **After the author's run:** verify it against the pre-run note, then
+  commit a result note and the tracked figures. **E52's panel then replaces
+  E51's for the paper.** The Illustrator edit of E51's titles is no longer
+  needed.
+
+**Earlier on 2026-11-05: `E51` is RUN and VERIFIED** (8 of 8 digests,
 26 of 26 assertions, every file identical to the dry run;
 `docs/2026-11-05_e51_result.md`). ED-k becomes a main panel (the author's
 ruling, `docs/2026-11-05_E51_main_panel_ruling.md`, `86f38aa`). Its text
@@ -680,7 +697,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E52`.**
+number is `E53`.**
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -695,6 +712,9 @@ number is `E52`.**
 - `E51` is a display script with one declared quantity, each cohort's *P*.
   It redraws ED-k as a main panel, with both cohorts overlaid. It is run and
   verified: 8 of 8 digests, 26 of 26 assertions.
+- `E52` is a display script. It redraws E51's panel at a 26-mm axis, with
+  the *P* labels in a key above the data area and no "adjusted" in the axis
+  titles. Its digests are committed; the author's run is next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1193,7 +1213,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E51. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E52. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
