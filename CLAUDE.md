@@ -69,7 +69,20 @@ has yet been verified from the validation repo.
 
 ## Current phase
 
-**NEWEST, 2026-11-04: the author's STOP 3 rulings, their addendum and the
+**NEWEST, 2026-11-05: the author's v6 narrative is committed, and its
+changes wait on the author's ruling. Everything below is pushed.**
+- **v6** is `docs/Fig. 4 narrative v6 human arm and clinical link.md`
+  (`c3b3482`). It is the author's draft, and it proposes six changes to the
+  ruled text: five sharpening changes and a re-cut of the four Methods
+  sentences outside STYLE.md's range. Until the author rules, the ruled text
+  in `pack_text.py` stands. A ruling is recorded verbatim, alone, then applied
+  (handoff section 0).
+- **A narrative-shift explainer for co-authors** is published privately
+  ("Fig. 4 Narrative Shift"). Its source is in
+  `docs/2026-11-05_narrative_shift_src/` (`9d43357`). It reads only verified
+  saved objects.
+
+**2026-11-04: the author's STOP 3 rulings, their addendum and the
 binding ruling are RECORDED and APPLIED. Nothing is pending from Claude
 Code.** The entry
 point is **`docs/2026-11-03_e50_handoff.md`**. Behind it:
