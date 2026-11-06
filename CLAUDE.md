@@ -73,7 +73,41 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-06: the FIGURE LEGENDS are started.** `docs/legends/`
+**NEWEST, 2026-11-06, evening: THE AUTHOR ANSWERED THE ELEVEN FLAGS, and the
+legends are rewritten to the answers.** The replies are inline in
+`docs/legends/2026-11-06_panel_inventory_and_stats.md`, section 7; **section 9
+records what changed**, read from `NM_all_figs_corrected.prism` (17:36) and the
+figure PDFs of 18:01 to 18:03. Every printed *P* on Fig. 2, Fig. 3 and ED Fig. 4
+is now matched to its own panel and to the analysis behind it.
+- **What the answers changed:** Fig. 2d, Fig. 3f and 3g (right), and ED Fig. 4e,
+  4f and 4g are now Welch's *t* tests with new *P*; ED Fig. 4d is a Tukey test
+  over the three drawn arms; Fig. 2g's ANOVA was re-run without the undrawn
+  arms; **Fig. 3f's *Myc* graph is removed**, so 3f has two graphs; the growth
+  models of Fig. 2e, 3g, 3h, 3j and 4b now carry results. Fig. 2e's *n* = 4 is
+  wells of one experiment; its 95% CI is intended; ED Fig. 4e to 4g are *n* = 2.
+- **TWO FLAGS ARE OPEN.**
+  - **F13: Fig. 3i's asymmetric error bars are drawn the wrong way up.**
+    Measured on all four arms: each drawn bar matches the mouse table's two
+    offsets EXCHANGED, to within 0.002 of a data unit. For *p19arf* KO +
+    Pgc-1α the true interval [-0.0644, +0.1054] INCLUDES zero and the drawn one
+    [+0.0368, +0.2066] excludes it. The fix is in Prism: exchange the two error
+    subcolumns of `3i Orthotopic OXPHOS mitoPPS`. **ED Fig. 5b comes from the
+    same script's CSV in the same column order and needs the same check.**
+  - **F12: Fig. 4b's three printed values are not in the corrected file**
+    (its smallest adjusted *P* is 0.00094). Most likely they come from the
+    separate mixed-effects file that F4 already named for Fig. 2j and Fig. 4d.
+- **Two corrections to the inventory itself:** Fig. 2j prints three *P* values,
+  not four; and Fig. 3i prints none - the two values are **Fig. 3j's**.
+- **Fig. 3i's intervals are named**, from `myc_mouse 2ebf646` read-only: script
+  52's difference of medians against each arm's own matched control, with a
+  5,000-resample percentile bootstrap. That file requires the legend to say the
+  bars are asymmetric and why; it does.
+- **R13's citation is settled by the author** (option 3, 2026-11-06): R13 cites
+  Fig. 4f, and ED Fig. 6c is cited from a different sentence. **The Results
+  section has since been edited by the author**, so the citation order in
+  `pack_text.py` is behind the Doc and a ruling must catch it up.
+
+**Earlier on 2026-11-06: the FIGURE LEGENDS are started.** `docs/legends/`
 holds the legends still to be written (Fig. 2, Fig. 3, Fig. 4, Extended Data
 Fig. 4 and Extended Data Fig. 6), the tools that read the author's own files
 for their numbers, and a checker. Fig. 1 and Extended Data Fig. 1 to 3 are the
@@ -90,12 +124,8 @@ author's and already in the Doc; Extended Data Fig. 5 is skipped, unfinished.
 - **The error bars were measured from the PDFs' geometry**, not assumed: bar
   charts are mean +/- s.d., tumour-growth curves mean +/- s.e.m., and Fig. 2e
   is a 95% confidence interval.
-- **ELEVEN FLAGS NEED THE AUTHOR** (`docs/legends/2026-11-06_panel_inventory_and_stats.md`,
-  section 7). The weightiest: five tests include arms the panel does not draw;
-  six sheets carry duplicated columns; five analyses have no stored results, so
-  their *P* could not be checked; two panels print *P* with no analysis in the
-  file at all; three Extended Data panels have n = 2 where the old legend said
-  3.
+- **ELEVEN FLAGS WENT TO THE AUTHOR** (`docs/legends/2026-11-06_panel_inventory_and_stats.md`,
+  section 7) and **all eleven are answered**; see the newest block above.
 - **FIG. 4'S LETTERS ARE SETTLED BY THE ASSEMBLED FIGURE** (flag F11): the
   mouse panels are a to e and **the human panels f to j** - 4f the heatmap,
   4g PUMA against BCL-xL, 4h co-amplification, 4i and 4j the forests. Extended

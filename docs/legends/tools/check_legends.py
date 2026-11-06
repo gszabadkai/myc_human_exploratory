@@ -82,8 +82,8 @@ for fig, letters in WANT.items():
             continue
         p = re.sub(r"\s+", " ", p)
         has_n = bool(re.search(r"\*n\*", p))
-        has_test = bool(re.search(r"ANOVA|t test|\*t\* test|meta-analysis|mixed-effects|"
-                                  r"linear model|logistic model|Spearman|bootstrap|\[F4\]|\[F10\]", p))
+        has_test = bool(re.search(r"ANOVA|t test|\*t\* test|Welch|meta-analysis|mixed-effects|"
+                                  r"linear model|logistic model|Spearman|bootstrap", p))
         check(f"{fig} {L}: gives n", has_n, p[:60].replace("\n", " "))
         check(f"{fig} {L}: names a test", has_test, p[:60].replace("\n", " "))
     # Centre and error bars: in each panel or in the figure's closing sentence.

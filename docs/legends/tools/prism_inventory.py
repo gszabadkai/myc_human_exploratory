@@ -99,6 +99,30 @@ def comparisons(res):
     return out
 
 
+def two_sample(res):
+    # A t test or its non-parametric kin: the statistic, its df and its P, with
+    # the two samples Prism compared.
+    tests = []
+    for k, v in res.items():
+        if not (k.endswith("Model") and isinstance(v, dict)):
+            continue
+        for kk, vv in v.items():
+            if isinstance(vv, dict) and "pValue" in vv and any(x in vv for x in ("t", "U", "W")):
+                if kk.lower().startswith("variance"):
+                    continue
+                stat = ("t", vv["t"]) if "t" in vv else (("U", vv["U"]) if "U" in vv else ("W", vv["W"]))
+                tests.append((kk, stat, vv.get("df"), (vv.get("pValue") or {}).get("value")))
+    labs = []
+    ds = res.get("descriptiveStatistics") or {}
+    for key in ("sample1", "sample2"):
+        s = ds.get(key) or {}
+        if s:
+            c = (s.get("id") or {}).get("col", {})
+            labs.append((txt(c.get("title")) or f"[{chr(65 + c.get('idx', 0))}]",
+                         (s.get("value") or {}).get("n")))
+    return tests, labs
+
+
 def describe_analysis(uid):
     base = f"analyses/{uid}/"
     sh = J(base + "sheet.json")
@@ -120,7 +144,7 @@ def describe_analysis(uid):
     return {"title": sh["title"], "class": sh.get("analysisClass"),
             "inputs": [txt((i or {}).get("title")) for i in (sh.get("inputSheets") or [])],
             "design": par.get("experimentalDesign"), "post": design, "method": method,
-            "models": models, "comparisons": comparisons(res),
+            "models": models, "comparisons": comparisons(res), "two_sample": two_sample(res),
             "main": [(k, (res.get(models[0], {}).get("anovaTable", {}).get(k, {}).get("fTest", {}).get("pValue", {}) or {}).get("value"))
                      for k in ["rowFactor", "colFactor", "rowFactorVsColFactor"]] if models else []}
 
@@ -131,7 +155,13 @@ for a in analyses:
     for t in a["inputs"]:
         by_input.setdefault(t, []).append(a)
 
-fmt = lambda v, d=3: "-" if v is None else f"{v:.{d}g}"
+def fmt(v, d=3):
+    # Prism stores some P values as text ("<0.000001", ">0.9999").
+    if v is None:
+        return "-"
+    if isinstance(v, str):
+        return v
+    return f"{v:.{d}g}"
 for uid in doc["sheets"]["data"]:
     d = describe_data(uid)
     if want and not any(d["title"].startswith(w) for w in want):
@@ -157,6 +187,10 @@ for uid in doc["sheets"]["data"]:
         print(f"   >> {a['title']} | {a['class']} | design={a['design']} | post={a['post']} | method={a['method']}")
         if a["main"]:
             print("      main effects:", ", ".join(f"{k} P={fmt(v)}" for k, v in a["main"] if v is not None))
+        tests, labs = a["two_sample"]
+        for kk, (sname, sval), df, p in tests:
+            who = " vs ".join(f"{t} (n={n})" for t, n in labs) if labs else ""
+            print(f"      {kk}: {who}: {sname}={fmt(sval)}, df={fmt(df)}, P={fmt(p, 4)}")
         for s1, s2, p, st in a["comparisons"]:
             r1 = labels[s1[1]] if labels and s1[1] is not None and s1[1] < len(labels) else s1[1]
             r2 = labels[s2[1]] if labels and s2[1] is not None and s2[1] < len(labels) else s2[1]

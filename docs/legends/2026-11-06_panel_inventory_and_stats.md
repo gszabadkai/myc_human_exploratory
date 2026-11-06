@@ -15,6 +15,12 @@ relates-to:
 
 # Panel inventory and statistics audit
 
+> **Sections 1 to 6 record what was read on the morning of 2026-11-06.**
+> The author answered every flag that afternoon (section 7, inline), then
+> recalculated the statistics and reassembled the figures. **Section 9 is
+> what the corrected file and the new PDFs say**, panel by panel, and it
+> wins wherever it differs.
+
 ## 0. What was read
 
 - **The assembled figures**, from the author's Drive folder: `NM_Fig2.pdf` and
@@ -164,6 +170,15 @@ or the test is re-run on the drawn groups and the *P* values are updated. **The
 draft names the test as it was run and does not mention the undrawn arms**,
 which is the smaller claim but leaves the family unstated.
 
+
+**reply:**  
+2d: Unpaired t test with Welch's correction, new p value
+2g: reanalysed two-way anova, p values shown unchanged
+3f: Unpaired t test with Welch's correction - the third panel (Myc) i non-significant -> panel removed, text modified accordingly
+3g: Unpaired t test with Welch's correction, new p-value
+ED 4g: reanalysed one-way anova, p values corrected
+
+
 ### F2. Duplicated columns inflate the comparison family
 
 | sheet | what is duplicated |
@@ -180,6 +195,13 @@ value is small, but the stated family is wrong, and for ED Fig. 4e to 4g the
 drawn comparison is a single pair, for which an unpaired *t* test is the natural
 test rather than a one-way ANOVA with Dunnett over a duplicate.
 
+
+**reply**
+
+ED 4e,f,g tested with t-test, P values corrected. e: rotenone 2-way anova recalculated, p value coprrected
+3g: the t-test is valid
+
+
 ### F3. Five analyses have no stored results
 
 `isCalculated` is false and the results file is empty for: Fig. 2e's multiple
@@ -188,10 +210,14 @@ the *P* values printed on those panels could not be checked against the file.**
 Their test and design are readable from the saved parameters and are used in the
 draft. Opening the file in Prism so it recalculates would let them be checked.
 
+**reply:** they have been recalculated now, seem all correct, no need for further check
+
 ### F4. Two panels print *P* values with no analysis in the file
 
 **Fig. 2j** prints four and **Fig. 4d** two. Neither has an analysis sheet. The
 draft leaves the test as `[F4]`.
+
+**reply:** they are coming from a separate file, both are 'mixed effect analysis' as the other tumour growth curves, numbers checked, OK
 
 ### F5. *n* = 2 in three Extended Data panels
 
@@ -199,11 +225,15 @@ ED Fig. 4e (ATP/ADP), 4f (TMRM) and 4g (redox ratio) have two values per group.
 **The superseded Supplementary Fig. 5 legend gave *n* = 3 for TMRM and the redox
 ratio.** An s.d. and a Dunnett test on two points are both drawn from them.
 
+**reply:** they are n=2, now t-test is drawn, corrected p-values
+
 ### F6. Three of those panels normalise the control to a constant
 
 In ED Fig. 4e (rotenone, and ATP/ADP) and 4f (TMRM) every control value is
 exactly 100 or 1, so the control's s.d. is zero and the test compares a constant
 with a variable. The draft says "normalised to EV", which is what is drawn.
+
+**reply:** OK, leave it like that, it is now Welch
 
 ### F7. Column data analysed as a two-way ANOVA
 
@@ -212,6 +242,8 @@ ANOVAs, so Prism's row factor is the replicate index. **Its *P* is meaningless**
 (0.29, 0.65, 0.66, 0.08) and is not printed on the panels. The drawn comparisons
 are the column Tukey ones and are right. The draft names "two-way ANOVA with
 Tukey's multiple comparisons test", which is what was run.
+
+**reply:** OK
 
 ### F8. The unit of *n*, and ED Fig. 4c's *q*
 
@@ -223,16 +255,25 @@ settle:**
   *q*, not *P*. The panel prints them as "P". The draft calls them *q* and names
   the method.
 
+**reply:** 
+2e: wells of one experiment
+ED4c: keep the P on the panel and q in the legend, prism calls it individual P
+
+
 ### F9. Fig. 2e's error bars are 95% confidence intervals
 
 Measured, twice, against the Prism values. Every other cell panel is mean ± s.d.
 **Confirm this is intended**, since it is the only panel of its kind.
+
+**reply:** yes, intended, otherwise non-visible
 
 ### F10. Fig. 3i is not in the Prism file
 
 Its two parts are the retained-dose series from the mouse repo's script 52. Its
 intervals are a model's, not Prism's. **The author supplies what they are**, or
 points at the saved object and I read it from `myc_mouse` read-only.
+
+**reply:** yes, the analysis comes from myc_mouse
 
 ### F11. The letters are settled, and three citations follow from them
 
@@ -265,3 +306,112 @@ these, which need the author:
 - **the old Supplementary Fig. 5I**, cyto- against mito-LbNOX on metastasis, is
   now **Fig. 4e**;
 - **the old Figure 4A–C**, Pgc-1α alone *in vivo*, is now **Fig. 3g**.
+
+---
+
+## 9. The corrected file, the new PDFs, and what each reply changed
+
+**What was read** (2026-11-06, evening), from the author's Drive folder:
+`NM_all_figs_corrected.prism` (17:36), `NM_Fig2.pdf` (18:02), `NM_Fig3.pdf`
+(18:01), `NM_Fig4.pdf` (18:01), `NM_Extended_Data_Fig4.pdf` (18:02) and
+`NM_Extended_Data_Fig6.pdf` (18:01). Every printed *P* was read off the PDF with
+its position on the page, so each one is matched to the panel that carries it,
+and then to the analysis in the corrected file. **Every printed value on Fig. 2,
+Fig. 3 and Extended Data Fig. 4 is now accounted for.** Fig. 4 and Extended Data
+Fig. 6 are unchanged from the morning's PDFs, except as F12 says.
+
+### What changed, panel by panel
+
+| panel | before | now, in the corrected file | printed |
+|---|---|---|---|
+| **Fig. 2d** | one-way ANOVA, Dunnett, over four arms | Welch's *t* test, Pgc-1α against EV, *t* = 9.18, df = 2.20 | 0.0003 → **0.0086** |
+| **Fig. 2e** | no stored results | 17 unpaired *t* tests, one per time, two-stage step-up FDR (Benjamini, Krieger and Yekutieli); all 17 are discoveries; individual *P* 4.1 × 10⁻³ to 6.7 × 10⁻⁷ | *P* < 0.0001, over the bar |
+| **Fig. 2g** | two-way ANOVA including the Nrf1 arms | the same test re-run on the four drawn columns only | unchanged |
+| **Fig. 2j** | no analysis | the author's separate mixed-effects analysis | unchanged |
+| **ED Fig. 4d** | Dunnett over four arms | one-way ANOVA, Tukey, over the three drawn arms | 0.9002 → **0.8713**; < 0.0001 → **0.0007** |
+| **ED Fig. 4e**, left | Dunnett over a duplicated column | Welch's *t* test, *t* = 5.56, df = 3.62 | 0.0033 → **0.0068** |
+| **ED Fig. 4e**, middle | two-way ANOVA, Tukey | recalculated | 0.3498 → **0.3829** |
+| **ED Fig. 4e**, right | Dunnett, *n* = 2 | Welch's *t* test, *t* = 31.6, df = 1 | 0.0002 → **0.0201** |
+| **ED Fig. 4f** | Dunnett, *n* = 2 | Welch's *t* test, *t* = 107, df = 1 | < 0.0001 → **0.0059** |
+| **ED Fig. 4g** | Dunnett, *n* = 2 | Welch's *t* test, *t* = 18.0, df = 1.5 | 0.0005 → **0.0100** |
+| **Fig. 3f** | three graphs, Dunnett over four arms | **the *Myc* graph is gone**; Welch's *t* test on each of the two that remain | 0.0133 → **0.0333**; 0.0156 → **0.0354** |
+| **Fig. 3g**, left | no stored results | mixed-effects analysis, Šídák; the value is the comparison at the last day | 0.9253, now checked |
+| **Fig. 3g**, right | Dunnett over a duplicated column | Welch's *t* test, *n* = 7 against 7, *t* = 4.93, df = 6 | 0.0006 → **0.0026** |
+| **Fig. 3h**, left | no stored results | two-way repeated-measures ANOVA, Dunnett against EV + EV | unchanged, now checked |
+| **Fig. 3j** | no stored results | mixed-effects analysis, Tukey; the two values are at the last day | 0.0005 and 0.0275, now checked |
+
+### Two corrections to this document
+
+- **Fig. 2j prints three *P* values, not four** (section 2 said four).
+- **Fig. 3i prints no *P* at all.** The two values this document placed on 3i
+  (*P* = 0.0005 and *P* = 0.0275) sit on **Fig. 3j**, at the right-hand end of
+  its curves, and both come from 3j's mixed-effects analysis at the last day.
+
+### F10 is answered, and the mouse repo says what 3i's bars are
+
+The author: "yes, the analysis comes from myc_mouse". Both of 3i's graphs are
+now in the Prism file as summary values, with no analysis attached, and
+`myc_mouse 2ebf646:figures/natmetab/fig3i_prism_tables.R` says what they are:
+script 52's **difference of medians against each arm's own matched control**,
+with a **5,000-resample percentile bootstrap interval** entered as asymmetric
+offsets. That file also carries an instruction for this legend (the author,
+2026-10-28): *"The legend has to say the bars are asymmetric and why, or a
+reader will read them as SD or SEM."* The draft does. *n* = 7 tumours per arm in
+both graphs, and the right-hand graph draws one symbol per tumour with no centre
+line.
+
+### F12. Fig. 4b's three printed values are not in the corrected file
+
+**New, and the only thing still open.** Fig. 4b prints *P* < 0.0001,
+*P* = 0.0002 and *P* < 0.0001 at the end of its curves. The corrected file's
+mixed-effects analysis of that sheet now has results — 36 comparisons, Tukey,
+every pair at every time — and **its smallest adjusted *P* is 0.00094**; its
+fixed effects are time *P* = 5.2 × 10⁻³⁶ and group *P* = 0.0030. So none of the
+three printed values comes from it.
+
+**The likely answer is the one F4 already gave**: Fig. 2j and Fig. 4d print
+values from a separate mixed-effects file, and Fig. 4b is the same kind of
+panel. **If so, nothing changes** — the legend names a mixed-effects analysis,
+as it does for 2j and 4d, and `[F12]` is struck. **If instead the values are the
+earlier ones**, they need re-reading against whichever model produced them.
+
+### F13. Fig. 3i's asymmetric error bars are drawn the wrong way up
+
+**Measured, from the panel's own vector geometry, on all four arms.** The left
+graph's y axis is calibrated from its own ticks (0.0 at 99.28 pt, 97.95 pt per
+unit), and each drawn bar is then read in data units and set beside the mouse
+repo's table, `myc_mouse 2ebf646` `Fig3i_prism_mitopps_contrast.csv`, whose
+columns are `value, ci_low, ci_high, err_minus, err_plus` with
+`err_minus = value - lo` the distance **down** and `err_plus = hi - value` the
+distance **up**.
+
+| arm | drawn | the table's interval | the two offsets exchanged |
+|---|---|---|---|
+| NT + Pgc-1α | [−0.0108, +0.0747] | [+0.0304, +0.1162] | **[−0.0102, +0.0756]** |
+| Bcl-xL | [−0.0500, +0.0491] | [−0.0088, +0.1283] | **[−0.0869, +0.0502]** |
+| Bcl-xL + Pgc-1α | [+0.5175, +0.6643] | [+0.4746, +0.6218] | **[+0.5180, +0.6652]** |
+| *p19arf* KO + Pgc-1α | [+0.0356, +0.2056] | [−0.0644, +0.1054] | **[+0.0368, +0.2066]** |
+
+**Every bar matches the exchanged version**, to within 0.002 of a data unit, and
+none matches the table. (The Bcl-xL bar is cut at the axis foot, −0.050, so only
+its top end is readable; that end matches too.) The cause is the paste order:
+Prism's y_plus_minus subcolumns are **mean, +error, −error**, and the CSV writes
+`err_minus` first, so the distance down was entered as the distance up.
+
+**What it costs, in the one arm the mouse file says the question matters for.**
+For *p19arf* KO + Pgc-1α the interval is [−0.0644, +0.1054] and **includes
+zero**; as drawn it is [+0.0368, +0.2066] and **excludes** it. The exchange also
+runs the other way: NT + Pgc-1α's true interval excludes zero, and as drawn it
+does not. `fig3i_prism_tables.R` warned about the neighbouring error —
+symmetrising on `err_plus` turns the same arm's interval into [+0.0368,
++0.1054], "a false positive in the one arm where the question matters" — and the
+drawn interval has the same lower end.
+
+**The fix is in Prism, not here:** exchange the two error subcolumns of
+`3i Orthotopic OXPHOS mitoPPS`, which is the only sheet in the file entered as
+mean with asymmetric error. **Extended Data Fig. 5b is drawn from the same
+script's `EDFig5b_prism_ox_rel_contrast.csv`, in the same column order**, so it
+needs the same check when that figure is finished.
+
+**The legend is written to the table**, which is the quantity the panel means to
+show, and carries `[F13]` until the panel is corrected.

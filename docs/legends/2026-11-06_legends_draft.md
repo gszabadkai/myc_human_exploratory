@@ -4,8 +4,9 @@ status: >
   DRAFT LEGENDS for Fig. 2, Fig. 3, Fig. 4, Extended Data Fig. 4 and Extended
   Data Fig. 6, for the author to edit and paste into the Doc. Written to the
   author's legend rules (myc_mouse 2ebf646 figures/natmetab/LEGENDS.md) in the
-  style of the finished Fig. 1 legend. [...] marks what the author fills in;
-  [Fn] marks a flag from the inventory that is unresolved. Nothing is written
+  style of the finished Fig. 1 legend. AMENDED 2026-11-06 to the author's
+  replies on flags F1 to F11 and to NM_all_figs_corrected.prism. [...] marks
+  what the author fills in; [F12] and [F13] are the two open questions. Nothing is written
   to the Doc.
 relates-to:
   - docs/legends/2026-11-06_panel_inventory_and_stats.md (the inventory and the flags)
@@ -15,8 +16,11 @@ relates-to:
 # Draft legends
 
 **How to read the marks.** `[...]` is a gap for the author, almost all of them
-blots and images. `[F1]` to `[F11]` point at a flag in the inventory that
-changes what the sentence may say.
+blots and images. **The author's replies of 2026-11-06 settle flags F1 to F11**
+(the inventory, section 7), and this draft is written to them, against the
+corrected Prism file and the figure PDFs of that evening. Two marks are left: `[F12]`, a
+question about Fig. 4b, and `[F13]`, Fig. 3i's error bars, which are drawn
+the wrong way up (the inventory, section 9).
 
 **Figure titles** are the Doc's own, unchanged. **Extended Data figures have no
 title**, as the author ruled and as Extended Data Fig. 1 to 3 already are.
@@ -45,25 +49,26 @@ comparisons test, EV versus Bcl-xL at each time. **c**, Immunoblots of Pgc-1α,
 the OXPHOS subunits listed in **a**, Bcl2l11 (BimEL and BimL), Bbc3 (PUMA) and
 Bax in MYAZ cells, derived from an MMTV-Myc mammary tumour, carrying EV or
 Pgc-1α `[n = ..., representative blot shown]`. **d**, Percentage of apoptotic
-MYAZ cells carrying EV or Pgc-1α; *n* = 3 biological replicates; *P*, one-way
-ANOVA with Dunnett's test against EV `[F1]`. **e**, Confluency of the lines in
-**d** over 64 h (live imaging; Methods); mean ± 95% confidence interval `[F9]`;
-*n* = 4 `[F8]`; *P*, two-way repeated-measures ANOVA with a two-stage false
-discovery rate procedure, over the times the line spans `[F3]`. **f**,
-Immunoblots of Myc, Pgc-1α, the OXPHOS subunits listed in **a**, Bcl2l11 (BimEL
-and BimL), Bbc3 (PUMA) and Bax in iMMEC + *Tre-Myc* cells carrying EV or Pgc-1α,
-without (−) or with (+) Dox for 48 h; Actb, loading control `[n = ...]`. **g**,
+MYAZ cells carrying EV or Pgc-1α; *n* = 3 biological replicates; *P*, unpaired
+*t* test with Welch's correction. **e**, Confluency of the lines in **d** over
+64 h (live imaging; Methods); mean ± 95% confidence interval; *n* = 4 wells of
+one experiment; *P*, unpaired *t* tests at each time with a two-stage step-up
+false discovery rate procedure, over the times the bar spans. **f**, Immunoblots
+of Myc, Pgc-1α, the OXPHOS subunits listed in **a**, Bcl2l11 (BimEL and BimL),
+Bbc3 (PUMA) and Bax in iMMEC + *Tre-Myc* cells carrying EV or Pgc-1α, without
+(−) or with (+) Dox for 48 h; Actb, loading control `[n = ...]`. **g**,
 Percentage of apoptotic iMMEC + *Tre-Myc* cells carrying EV or Pgc-1α, without
-or with Dox for 48 h; *n* = 3 biological replicates `[F1]`. **h**, As in **g**,
-for cells carrying EV or Ndi1; *n* = 4 biological replicates. **i**, Percentage
-of apoptotic MYAZ + *Tre-Myc* cells carrying EV, Ndi1, mitochondrial LbNOX
+or with Dox for 48 h; *n* = 3 biological replicates. **h**, As in **g**, for
+cells carrying EV or Ndi1; *n* = 4 biological replicates. **i**, Percentage of
+apoptotic MYAZ + *Tre-Myc* cells carrying EV, Ndi1, mitochondrial LbNOX
 (mt-lbNOX) or cytosolic LbNOX (c-lbNOX), without or with Dox for 48 h; *n* = 3
 biological replicates. **j**, Percentage of apoptotic iMMEC and MYAZ cells after
-`[... h]` of ABT-737 at 5 to 25 µM; *n* = 2 biological replicates; *P*, `[F4]`.
-In **b**, **d** and **g**–**j**, the centre is the mean and the error bars the
-standard deviation, except in **e**; dots in **d** and **g**–**i** are
-individual replicates. *P* in **g**–**i**, two-way ANOVA with Tukey's multiple
-comparisons test `[F7]`.
+`[... h]` of ABT-737 at 5 to 25 µM; *n* = 2 biological replicates; *P*,
+mixed-effects analysis, iMMEC versus MYAZ at each concentration. In **b**, **d**
+and **g**–**j**, the centre is the mean and the error bars the standard
+deviation, except in **e**; dots in **d** and **g**–**i** are individual
+replicates. *P* in **g**–**i**, two-way ANOVA with Tukey's multiple
+comparisons test.
 
 ---
 
@@ -73,17 +78,19 @@ comparisons test `[F7]`.
 Ndi1, as fold change relative to EV (RT–qPCR; Methods). **b**, *Ndufs3* mRNA, as
 in **a**. **c**, Oxygen consumption rate (OCR) of MYAZ cells carrying EV or
 Pgc-1α: basal, maximal and ATP-linked (Methods); *q*, two-way repeated-measures
-ANOVA with the Benjamini–Hochberg procedure `[F8]`. **d**, *Bbc3* mRNA, as in
-**a** `[F1]`. **e**, Left, basal OCR of MYAZ cells carrying EV or Ndi1. Middle,
-OCR without (−) or with (+) rotenone, as a percentage of each line's basal rate;
-*P*, two-way ANOVA with Tukey's multiple comparisons test. Right, ATP/ADP ratio
-(F₄₈₅/F₄₀₅), normalised to EV `[F6]`. **f**, Mitochondrial membrane potential
-(ΔΨm) of the same lines, as TMRM fluorescence normalised to EV `[F6]`. **g**,
-Mitochondrial NAD(P)H/NAD(P)⁺ of the same lines. Bars show the mean, error bars
-the standard deviation and dots individual biological replicates; *n* = 3 in
-**a**–**d**, in **e** (left and middle) and in `[...]`, and *n* = 2 in **e**
-(right), **f** and **g** `[F5]`. *P*, one-way ANOVA with Dunnett's test against
-EV, except where named above `[F2]`.
+ANOVA with the Benjamini–Hochberg procedure. **d**, *Bbc3* mRNA, as in **a**;
+*P*, one-way ANOVA with Tukey's multiple comparisons test. **e**, Left, basal
+OCR of MYAZ cells carrying EV or Ndi1. Middle, OCR without (−) or with (+)
+rotenone, as a percentage of each line's basal rate; *P*, two-way ANOVA with
+Tukey's multiple comparisons test. Right, ATP/ADP ratio
+(F₄₈₅/F₄₀₅), normalised to EV. **f**,
+Mitochondrial membrane potential (ΔΨm) of the same lines, as TMRM
+fluorescence normalised to EV. **g**, Mitochondrial NAD(P)H/NAD(P)⁺ of the
+same lines. Bars show the mean, error bars the standard deviation and dots
+individual biological replicates; *n* = 3 in **a**–**d** and in **e** (left
+and middle), and *n* = 2 in **e** (right), **f** and **g**. *P*, one-way ANOVA
+with Dunnett's test against EV in **a** and **b**, and an unpaired *t* test with
+Welch's correction in **e** (left and right), **f** and **g**.
 
 ---
 
@@ -107,29 +114,33 @@ Immunoblots of Myc, the OXPHOS subunits listed in **b**, Bcl-2, Bcl-xL, Bbc3
 or with (+) Dox `[n = ...]`. **e**, Percentage of apoptotic cells of the lines
 in **d** after they had been passaged until they no longer responded to Pgc-1α
 `[...]`, without or with Dox for 48 h; *n* = 3 biological replicates; *P*,
-two-way ANOVA with Tukey's multiple comparisons test `[F7]`. **f**, *p19arf*,
-*Cdkn1a* and *Myc* mRNA in MYAZ cells carrying EV and in the surviving fraction
-of cells carrying Pgc-1α, as fold change relative to EV (RT–qPCR); *n* = 3
-biological replicates; *P*, one-way ANOVA with Dunnett's test against EV `[F1]`.
-**g**, Orthotopic MYAZ tumours carrying EV or Pgc-1α. Left, tumour volume (*n* =
-10–11 mice per group; *P*, mixed-effects model `[F3]`). Middle, immunoblots of
-Pgc-1α and the OXPHOS subunits listed in **b** in those tumours; Actb, loading
-control `[n = ...]`. Right, *Ppargc1a* mRNA in the tumours (*n* = 7 randomly
-chosen tumours per group; line, median; *P*, one-way ANOVA with Dunnett's test
-against EV `[F1, F2]`). **h**, Orthotopic MYAZ tumours carrying EV + EV, Bcl-xL
-+ EV or Bcl-xL + Pgc-1α. Left, tumour volume (*n* = 10 mice per group; *P*,
-two-way repeated-measures ANOVA `[F3]`). Middle, immunoblots as in **g**, with
-Bcl-xL `[n = ...]`. Right, PUMA protein (*n* = 8 tumours per group) and
-*Cdkn2a* mRNA (*n* = 7 tumours per group, in the four groups shown); *P*,
-one-way ANOVA with Dunnett's test against EV + EV. **i**, OXPHOS priority
-(mitoPPS), against a matched control, and *Ppargc1a* mRNA in orthotopic MYAZ
-tumours of the arms shown beneath (*n* = `[...]`); `[F10]`. **j**, Volume of
-orthotopic tumours of MYAZ cells carrying EV or Pgc-1α, in non-targeted (NT) or
-*p19arf*-knockout cells; *n* = 10–11 mice per group; *P*, mixed-effects model
-`[F3]`. In **a**, **c**, **e**, **f** and the right-hand graphs of **h**, bars
-show the mean, error bars the standard deviation and dots individual replicates
-or tumours. In the left-hand graphs of **g** and **h**, and in **j**, symbols
-show the mean and error bars the s.e.m.
+two-way ANOVA with Tukey's multiple comparisons test. **f**, *p19arf* and
+*Cdkn1a* mRNA in MYAZ cells carrying EV and in the surviving fraction of cells
+carrying Pgc-1α, as fold change relative to EV (RT–qPCR); *n* = 3 biological
+replicates; *P*, unpaired *t* test with Welch's correction. **g**, Orthotopic
+MYAZ tumours carrying EV or Pgc-1α. Left, tumour volume (*n* = 10–11 mice per
+group; *P*, mixed-effects analysis with Šídák's multiple comparisons test, at the
+last day shown). Middle, immunoblots of Pgc-1α and the OXPHOS subunits listed in
+**b** in those tumours; Actb, loading control `[n = ...]`. Right, *Ppargc1a* mRNA
+in the tumours (*n* = 7 randomly chosen tumours per group; line, median; *P*,
+unpaired *t* test with Welch's correction). **h**, Orthotopic MYAZ tumours
+carrying EV + EV, Bcl-xL + EV or Bcl-xL + Pgc-1α. Left, tumour volume (*n* = 10
+mice per group; *P*, two-way repeated-measures ANOVA with Dunnett's test against
+EV + EV). Middle, immunoblots as in **g**, with Bcl-xL `[n = ...]`. Right, PUMA
+protein (*n* = 8 tumours per group) and *Cdkn2a* mRNA (*n* = 7 tumours per group,
+in the four groups shown); *P*, one-way ANOVA with Dunnett's test against
+EV + EV. **i**, Left, OXPHOS priority (mitoPPS) in orthotopic MYAZ tumours of the
+arms shown beneath, as the difference of medians from each arm's own matched
+control; bars, the 2.5th to 97.5th percentiles of 5,000 bootstrap resamples of
+that difference, which are asymmetric by construction and are not mean ± s.d.
+(Methods) `[F13]`. Right, *Ppargc1a* mRNA in the same tumours, one symbol per tumour.
+*n* = 7 tumours per arm in both. **j**, Volume of orthotopic tumours of MYAZ
+cells carrying EV or Pgc-1α, in non-targeted (NT) or *p19arf*-knockout cells;
+*n* = 10–11 mice per group; *P*, mixed-effects analysis with Tukey's multiple
+comparisons test, at the last day shown. In **a**, **c**, **e**, **f** and the
+right-hand graphs of **h**, bars show the mean, error bars the standard
+deviation and dots individual replicates or tumours. In the left-hand graphs of
+**g** and **h**, and in **j**, symbols show the mean and error bars the s.e.m.
 
 ---
 
@@ -142,11 +153,12 @@ breast tumours beyond its association with proliferation**
 Pgc-1α, 21 days after intravenous injection, as bioluminescence; *n* = 12, 13
 and 11 mice. **b**, Volume of orthotopic tumours of MYAZ cells carrying EV + EV,
 EV + Ndi1, Bcl-xL + EV or Bcl-xL + Ndi1; *n* = 11–12 mice per group; *P*,
-mixed-effects model `[F3]`. **c**, Spontaneous lung metastasis from the tumours
+mixed-effects analysis `[F12]`. **c**, Spontaneous lung metastasis from the tumours
 in **b**, as the percentage of lung area, with representative lungs of the EV
 and Ndi1 groups `[stain; scale bar]`; *n* = 11, 10, 8 and 10 mice. **d**, Lung
 colonisation by MYAZ cells carrying EV or Ndi1 over 21 days after intravenous
-injection, as bioluminescence; *n* = 6–11 mice per group; *P*, `[F4]`. **e**,
+injection, as bioluminescence; *n* = 6–11 mice per group; *P*, mixed-effects
+analysis, EV versus Ndi1 at each time. **e**,
 Lung colonisation by MYAZ cells carrying EV, mitochondrial LbNOX (mt-lbNOX) or
 cytosolic LbNOX (c-lbNOX), relative to EV; *n* = 10, 9 and 10 mice. **f**,
 Fifteen BCL-2 family genes, grouped by function, and a signature of six of them,
@@ -210,12 +222,11 @@ model; open, proliferation adjusted; bars, 95% confidence intervals.
 ## Observations on the figures themselves
 
 Not legend matter, but noticed while reading the panels. Each is the author's to
-take or leave.
+take or leave. **Extended Data Fig. 4's upright *P* was on this list and is
+fixed** in the PDF of 2026-11-06: it is italic throughout.
 
 - **Fig. 2f labels the loading control `ActB`**, where every other panel of
   Fig. 2 and Fig. 3 uses `Actb`.
-- **Extended Data Fig. 4 prints its *P* upright**, where Fig. 2, 3 and 4 print
-  it italic. `FIGURE_RULES.md` asks for an italic *P*.
 - **Fig. 3 uses three spellings of one knockout**: `p19arf` (italic, in **f**
   and **j**), `p19ARF-KO` (in **i**) and `Cdkn2a` (in **h**). *p19arf* and
   *Cdkn2a* are the same locus.

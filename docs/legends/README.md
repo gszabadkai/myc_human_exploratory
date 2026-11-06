@@ -39,8 +39,10 @@ so every data panel here carries both.
 
 | what | source |
 |---|---|
-| panels, their letters and what is drawn | the assembled PDFs in the author's Drive folder `1qLbI6nQlLczmUBrmWyMvMmNPJoG6Fano` |
-| *n*, groups, tests, corrections, adjusted *P* | `NM_all_figs.prism` in that folder (modified 2026-11-06 14:58) |
+| panels, their letters and what is drawn | the assembled PDFs in the author's Drive folder `1qLbI6nQlLczmUBrmWyMvMmNPJoG6Fano`, as they stood on 2026-11-06 at 18:01 to 18:03 |
+| *n*, groups, tests, corrections, adjusted *P* | **`NM_all_figs_corrected.prism`** in that folder (2026-11-06 17:36), which supersedes `NM_all_figs.prism` |
+| which panel each printed *P* belongs to | the PDFs' own text positions, read by `tools/pdf_pvalue_map.py` |
+| Fig. 3i's intervals | `myc_mouse 2ebf646:figures/natmetab/fig3i_prism_tables.R`, read-only |
 | what the error bars are | measured from the PDFs' own vector geometry against the Prism values |
 | the human panels (Fig. 4f to 4j, ED Fig. 6) | this repo's verified result notes and pre-run notes for E50 and E52 to E57 |
 | method essentials | the Doc's Methods, CURRENT VERSION tab |
@@ -49,15 +51,19 @@ so every data panel here carries both.
 **The two tools** read those files and compute nothing of their own:
 
 ```
-python3 tools/prism_inventory.py NM_all_figs.prism [title prefix ...]
+python3 tools/prism_inventory.py NM_all_figs_corrected.prism [title prefix ...]
 python3 tools/pdf_error_bars.py NM_Fig4.pdf <xmin> <xmax> <ymin> <ymax>
+python3 tools/pdf_pvalue_map.py NM_Fig3.pdf
 ```
 
 `prism_inventory.py` prints, per data sheet, the groups, the *n*, the mean,
 s.d. and s.e.m., and then each analysis on that sheet with its test, design,
 post-test and every adjusted *P* or *q* with the two groups it compares.
 `pdf_error_bars.py` prints every drawn two-point segment in a window of a page,
-in points, so an error bar can be read against its own axis.
+in points, so an error bar can be read against its own axis. `pdf_pvalue_map.py`
+prints every *P* and *q* the page shows with the panel it sits in, found from
+the panel letters' own positions; it is how each printed value was matched to
+its panel, and how two of this document's own errors were caught.
 
 **Neither file is in this repo.** Both are the author's, in Drive. The tools
 take a path.
@@ -65,7 +71,10 @@ take a path.
 ## Read in this order
 
 1. **`2026-11-06_panel_inventory_and_stats.md`** — every panel, what it draws,
-   its *n*, its test, and **eleven flags that need the author's decision**.
-   Several flags change what a legend may say, so they come first.
+   its *n* and its test. **The author answered flags F1 to F11 on 2026-11-06**,
+   inline in section 7, and **section 9 records what the corrected Prism file
+   and the new PDFs say**, panel by panel. Two flags are open: **F12**, Fig. 4b's
+   printed values, and **F13**, Fig. 3i's error bars, which are drawn the wrong
+   way up.
 2. **`2026-11-06_legends_draft.md`** — the legends, with `[...]` where the
-   author fills in and `[Fn]` where a flag is unresolved.
+   author fills in and `[F12]`, `[F13]` where a flag is unresolved.
