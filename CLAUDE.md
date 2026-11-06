@@ -80,10 +80,15 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
   unadjusted Spearman correlations (all seven measures, both cohorts) for
   Fig. 4g's fifteen genes and the signature, in 4g's grammar, heatmap size
   and colours, colour only. It fits nothing.
-- **`E56` (Fig. 6d) comes next:** its declaration first, then it fits the
-  three effectors (BAX, BAK1, BOK) with E34's quadrant model, then it
-  redraws E46's quadrant panel with 4g's genes, groups and colours; key
-  "z-score", dot-plot key "Signature" and "proliferation adjusted".
+- **`E56` (Fig. 6d) is WRITTEN and its digests COMMITTED; the author's run
+  is next** (`docs/2026-11-06_e56_prerun_digests.md`). Its new quantity is
+  declared first (`docs/2026-11-06_E56_effector_quadrant_means_declaration.md`,
+  `922f2ad`): the effectors' (BAX, BAK1, BOK) m1 quadrant means on E34's
+  model, post hoc, drawn not read. Three gates reproduce E34's twelve genes,
+  E34's stored means and E46's strip exactly (deviation 0) before the fit.
+  It redraws E46's quadrant panel with 4g's fifteen genes, groups and
+  colours, both splits at full width (179.9 mm); key "z-score", strip key
+  "Signature" and "proliferation adjusted".
 
 **Earlier, 2026-11-05, night: `E54` is RUN and VERIFIED, twice** (first
 version 7 of 7 digests, 26 of 26 assertions; then, after the author made the
@@ -768,7 +773,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E57`** (`E56` is reserved for Fig. 6d by its ruling).
+number is `E57`**.
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -798,8 +803,9 @@ number is `E57`** (`E56` is reserved for Fig. 6d by its ruling).
 - `E55` is a display script. It draws Extended Data Fig. 6c, E49's
   unadjusted correlations in Fig. 4g's grammar. Its digests are committed;
   the author's run is next.
-- `E56` is reserved for Extended Data Fig. 6d (its declaration comes
-  first).
+- `E56` fits the effectors' quadrant means (declared, post hoc) and draws
+  Extended Data Fig. 6d. Its digests are committed; the author's run is
+  next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1299,7 +1305,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E55. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E56. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
