@@ -82,14 +82,19 @@ Its first run is VERIFIED** (7 of 7 digests, 75 of 75 assertions;
 - **no coloured text:** every string is black;
 - **the pCR panel's connectors** are thinner (0.26 pt) and dashed.
 
-**The second version is WRITTEN and its digests COMMITTED** (the amended
-pre-run note, `docs/2026-11-06_e57_prerun_digests.md`). **The author's
-second run is next.** The specification is
-`docs/2026-11-06_E57_outcome_forest_panels_ruling.md` (`cb3c7d3`).
+**The second version is RUN and VERIFIED** (7 of 7 digests, 80 of 80
+assertions, every file identical to the dry run; the result note, section
+3). **Its panels are Fig. 4's last two**, in place of E45's figure:
+`docs/figures/2026-11-06_E57_{pcr_forest,metabric_survival_forest}.{pdf,png}`.
+The specification is `docs/2026-11-06_E57_outcome_forest_panels_ruling.md`
+(`cb3c7d3`).
 
-**Open for the author:** does "no coloured text" also reach the white values
-on the darkest cells? They are in Fig. 4g, with ED-e and ED-f (E50), and in
-ED Fig. 6a (E53). Neither is changed.
+**Open for the author:**
+- does "no coloured text" also reach the white values on the darkest cells?
+  They are in Fig. 4g, with ED-e and ED-f (E50), and in ED Fig. 6a (E53).
+  Neither is changed;
+- the cues' arrows on E57's panels are lines, and stay grey30. Should they
+  be black?
 - **What it draws:** E45's two outcome forests, each as its own panel:
   - pCR in three neoadjuvant cohorts;
   - METABRIC breast-cancer-specific survival.
@@ -873,7 +878,8 @@ number is `E58`**.
   separate panels, Fig. 4's last two, at Fig. 4x's size and in its slates.
   Its first run is verified (7 of 7 digests, 75 of 75 assertions). The
   author then amended it: black text, and dashed connectors. The second
-  version's digests are committed, and the author's second run is next.
+  version is run and verified (7 of 7 digests, 80 of 80 assertions), and its
+  panels are Fig. 4's last two.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
