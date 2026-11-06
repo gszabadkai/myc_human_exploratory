@@ -73,22 +73,39 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-05, late night: Extended Data Fig. 6c and 6d are ruled**
-(`docs/2026-11-05_E55_E56_ed_fig6cd_ruling.md`, `dd5004a`).
-- **`E55` (Fig. 6c) is WRITTEN and its digests COMMITTED; the author's run
-  is next** (`docs/2026-11-05_e55_prerun_digests.md`). It draws E49's
-  unadjusted Spearman correlations (all seven measures, both cohorts) for
-  Fig. 4g's fifteen genes and the signature, in 4g's grammar, heatmap size
-  and colours, colour only. It fits nothing.
-- **`E56` (Fig. 6d) is WRITTEN and its digests COMMITTED; the author's run
-  is next** (`docs/2026-11-06_e56_prerun_digests.md`). Its new quantity is
-  declared first (`docs/2026-11-06_E56_effector_quadrant_means_declaration.md`,
-  `922f2ad`): the effectors' (BAX, BAK1, BOK) m1 quadrant means on E34's
-  model, post hoc, drawn not read. Three gates reproduce E34's twelve genes,
-  E34's stored means and E46's strip exactly (deviation 0) before the fit.
-  It redraws E46's quadrant panel with 4g's fifteen genes, groups and
-  colours, both splits at full width (179.9 mm); key "z-score", strip key
-  "Signature" and "proliferation adjusted".
+**NEWEST, 2026-11-06, just after midnight: `E55` and `E56` are RUN and
+VERIFIED; their panels are Extended Data Fig. 6c and 6d** (the author's
+ruling, `docs/2026-11-05_E55_E56_ed_fig6cd_ruling.md`, `dd5004a`). The
+author's reply: "done, both are OK." **Nothing is pending from Claude
+Code. The text ruling is next**; the handoff's section 0 lists what it
+must settle.
+- **`E55` (Fig. 6c): 7 of 7 digests, 22 of 22 assertions, every file
+  identical to the dry run** (`docs/2026-11-06_e55_result.md`). It draws
+  E49's unadjusted Spearman correlations (all seven measures, both
+  cohorts) for Fig. 4g's fifteen genes and the signature, in 4g's grammar,
+  heatmap size and colours, colour only. It fits nothing.
+  - **R13's citation waits on the author.** R13 cites ED-h for a
+    joint-model claim. 6c keeps only ED-h's unadjusted side, and Fig. 4g
+    draws the coefficients (result note, section 4).
+- **`E56` (Fig. 6d): 11 of 11 digests, 25 of 25 assertions, every file
+  identical to the dry run** (`docs/2026-11-06_e56_result.md`). It redraws
+  E46's quadrant panel with 4g's fifteen genes, groups and colours, both
+  splits at full width (179.9 mm); key "z-score", strip key "Signature"
+  and "proliferation adjusted". It settles the 2026-11-02 brief's open
+  item 1, E46 in Extended Data.
+  - **Its one new quantity was declared first**
+    (`docs/2026-11-06_E56_effector_quadrant_means_declaration.md`,
+    `922f2ad`): the effectors' (BAX, BAK1, BOK) m1 quadrant means on E34's
+    model, post hoc, **drawn, not read**. Three gates reproduced E34's
+    twelve genes, E34's stored means and E46's strip with deviation 0
+    before the fit.
+  - **The declaration's expectation held, and licenses nothing:** BAX's and
+    BAK1's OXPHOS-high quadrants sit above their OXPHOS-low ones in all four
+    blocks. It came from E49 on the same tumours, so it is a consistency
+    check, not a replication.
+- **The open choices of both pre-run notes are read as accepted** by the
+  author's reply, which came after they were listed for confirmation. Each
+  is still the author's to reverse.
 
 **Earlier, 2026-11-05, night: `E54` is RUN and VERIFIED, twice** (first
 version 7 of 7 digests, 26 of 26 assertions; then, after the author made the
@@ -299,7 +316,7 @@ point is **`docs/2026-11-03_e50_handoff.md`**. Behind it:
   - **a `cairo_pdf` between two cairo PNGs moves ggplot's multi-line text.**
 
 **E50 then waited on the STOP 3 rulings.** They arrived consolidated and are
-applied (see NEWEST above).
+applied (see the 2026-11-04 entry above).
 
 **Earlier the same day, in the afternoon: `E49` is RUN and VERIFIED, and the
 session stopped at STOP 3 for the author.** Where this block conflicts with
@@ -384,7 +401,7 @@ Part A re-read E47's saved fits. Part B fitted only the three effectors
 
 **STOP 3 was then held.** The author ruled, then amended three rulings; the
 amendment is E50's specification. **Everything STOP 3 asked is now settled**
-by the consolidated rulings (`cb9b7ce`; see NEWEST above), and the binding
+by the consolidated rulings (`cb9b7ce`; see the 2026-11-04 entry above), and the binding
 classes by the binding ruling (`66c205a`). What STOP 3 asked of the author:
 - 4g's version, now replaced: there are no dots;
 - the text (result note 4.1's "author's call" items, and the legend additions
@@ -514,9 +531,10 @@ authority over what the section-4 figure panels may assert (its section 2).
 4g's layout and rule on the text choices in result note 4.1. The open items
 it listed still stand:
 - the author edits the Doc, which is never edited from here;
-- the co-amplification display task, now E54 (see NEWEST);
+- the co-amplification display task, done by E54 (Fig. 4x; see its entry above);
 - brief section 10's open items:
-  - E46 in Extended Data;
+  - E46 in Extended Data, now settled: it is Extended Data Fig. 6d, drawn by
+    `E56`;
   - signature transparency;
   - REFEREE_QUESTIONS: R8, R9 and a p53/PUMA entry;
   - the Fig. 4 title;
@@ -552,7 +570,7 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
     clean estimator `BCL2L1` also rises with MYC (its section 8).
 - **The E47 result is `docs/2026-10-23_e47_result.md`.**
 - **The figure map, as the brief and E48 left it.** Its 4g entry is
-  SUPERSEDED: 4g is now E49's heatmap (see NEWEST above), and E48's three
+  SUPERSEDED: 4g is now E49's heatmap (see E49's entry above), and E48's three
   layouts are retired from the paper. The rest stands:
   - **Fig. 4g was the separation panel from `E48`.** The author was to choose
     one of three layouts at STOP 3 (brief decision 3);
@@ -560,7 +578,8 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
     - Once co-amplification moves to Extended Data they become 4h and 4i
       (brief 6.1).
     - If layout 3 is chosen, the author decides whether they stay;
-  - **E46's quadrant map goes to Extended Data** (brief open item 1);
+  - **E46's quadrant map goes to Extended Data** (brief open item 1), as
+    Fig. 6d, redrawn by `E56`;
   - **E47 Display C goes to Extended Data as E48's ED-b**, relabelled, with
     its values unchanged;
   - **for the paper, E48's ED-c and ED-d replace E47's Displays A and B**
@@ -652,7 +671,7 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
   a MYC activity score an **estimator**, never a "signature". **The provenance
   of every gene choice, including that no numeric rule chose S6, is in the
   E47 declaration, section 4a.**
-- **The Doc's 4h is now Fig. 4x, drawn by E54** (see NEWEST). It is
+- **The Doc's 4h is now Fig. 4x, drawn by E54** (see E54's entry above). It is
   validation-study material.
   - **Decision 5 (2026-11-02) admits it**, for G2 co-amplification only; its
     amendment of 2026-11-05 makes it a main panel.
@@ -801,11 +820,11 @@ number is `E57`**.
   `data/from_validation_g2/`. It is run and verified twice; the second
   version, with smaller circles, is Fig. 4x.
 - `E55` is a display script. It draws Extended Data Fig. 6c, E49's
-  unadjusted correlations in Fig. 4g's grammar. Its digests are committed;
-  the author's run is next.
+  unadjusted correlations in Fig. 4g's grammar. It is run and verified:
+  7 of 7 digests, 22 of 22 assertions.
 - `E56` fits the effectors' quadrant means (declared, post hoc) and draws
-  Extended Data Fig. 6d. Its digests are committed; the author's run is
-  next.
+  Extended Data Fig. 6d. It is run and verified: 11 of 11 digests, 25 of
+  25 assertions.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
