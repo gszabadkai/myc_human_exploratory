@@ -73,7 +73,39 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-06, small hours: `E57`, Fig. 4's last two main panels.
+**NEWEST, 2026-11-06: the FIGURE LEGENDS are started.** `docs/legends/`
+holds the legends still to be written (Fig. 2, Fig. 3, Fig. 4, Extended Data
+Fig. 4 and Extended Data Fig. 6), the tools that read the author's own files
+for their numbers, and a checker. Fig. 1 and Extended Data Fig. 1 to 3 are the
+author's and already in the Doc; Extended Data Fig. 5 is skipped, unfinished.
+- **The rules are the author's**, in the mouse repo read-only
+  (`2ebf646:figures/natmetab/LEGENDS.md`, 2026-10-16): what a panel shows and
+  what is needed to read it, no interpretation; centre, error bars, *n*, test
+  and *P*; keys in words. With the naming decisions of 2026-11-06: figure
+  labels as drawn, mouse proteins title case and mouse RNA title case italic,
+  human proteins capitals and human RNA/DNA capital italic, no Extended Data
+  titles, blots as placeholders.
+- **The numbers come from the author's `NM_all_figs.prism` and the assembled
+  PDFs**, both in Drive, read by `docs/legends/tools/`. Nothing is recomputed.
+- **The error bars were measured from the PDFs' geometry**, not assumed: bar
+  charts are mean +/- s.d., tumour-growth curves mean +/- s.e.m., and Fig. 2e
+  is a 95% confidence interval.
+- **ELEVEN FLAGS NEED THE AUTHOR** (`docs/legends/2026-11-06_panel_inventory_and_stats.md`,
+  section 7). The weightiest: five tests include arms the panel does not draw;
+  six sheets carry duplicated columns; five analyses have no stored results, so
+  their *P* could not be checked; two panels print *P* with no analysis in the
+  file at all; three Extended Data panels have n = 2 where the old legend said
+  3.
+- **FIG. 4'S LETTERS ARE SETTLED BY THE ASSEMBLED FIGURE** (flag F11): the
+  mouse panels are a to e and **the human panels f to j** - 4f the heatmap,
+  4g PUMA against BCL-xL, 4h co-amplification, 4i and 4j the forests. Extended
+  Data Fig. 6 is a to d. **This answers the letters the text ruling left
+  open**, and fixes R6's citation (4g) and the co-amplification sentence (4h).
+  R13's citation is still open.
+- **The checker** (`tools/check_legends.py`) holds every panel letter, *n*,
+  centre, error bars, test, italic *P*, and bans interpretation: 68 of 68.
+
+**Earlier on 2026-11-06, small hours: `E57`, Fig. 4's last two main panels.
 Its first run is VERIFIED** (7 of 7 digests, 75 of 75 assertions;
 `docs/2026-11-06_e57_result.md`, `6d988fa`).
 
