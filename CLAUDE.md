@@ -73,12 +73,36 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-06, just after midnight: `E55` and `E56` are RUN and
+**NEWEST, 2026-11-06, small hours: Fig. 4's last two main panels are
+ruled, and `E57` is WRITTEN with its digests COMMITTED; the author's run is
+next** (the ruling, `docs/2026-11-06_E57_outcome_forest_panels_ruling.md`,
+`cb3c7d3`; the pre-run note, `docs/2026-11-06_e57_prerun_digests.md`).
+- **What it draws:** E45's two outcome forests, each as its own panel:
+  - pCR in three neoadjuvant cohorts;
+  - METABRIC breast-cancer-specific survival.
+- **At Fig. 4x's size:** a 26-mm axis, 5-pt text, 1.05-mm circles, and the
+  key above the data area.
+- **The colours:**
+  - OXPHOS in dark slate, open without the proliferation term and filled
+    with it;
+  - proliferation in mid slate.
+- **The marks and text:** all circles, and no bold.
+- **The keys:** "OXPHOS", "OXPHOS, adjusted for proliferation" and
+  "Proliferation, adjusted for OXPHOS". The direction cues stay.
+- **It fits nothing.** Its values are E45's, checked by digest.
+- **Its 75 checks** include every string's font (none bold) and every
+  circle's colour, in the PDF and the PNG.
+- **What travels with the forests is unchanged:**
+  - a significant contrast makes neither coefficient a finding;
+  - nothing here supports a distant-outcome claim for respiration;
+  - METABRIC does not replicate pCR;
+  - GSVA only.
+
+**Earlier, 2026-11-06, just after midnight: `E55` and `E56` are RUN and
 VERIFIED; their panels are Extended Data Fig. 6c and 6d** (the author's
 ruling, `docs/2026-11-05_E55_E56_ed_fig6cd_ruling.md`, `dd5004a`). The
-author's reply: "done, both are OK." **Nothing is pending from Claude
-Code. The text ruling is next**; the handoff's section 0 lists what it
-must settle.
+author's reply: "done, both are OK." The text ruling follows; the
+handoff's section 0 lists what it must settle.
 - **`E55` (Fig. 6c): 7 of 7 digests, 22 of 22 assertions, every file
   identical to the dry run** (`docs/2026-11-06_e55_result.md`). It draws
   E49's unadjusted Spearman correlations (all seven measures, both
@@ -606,7 +630,9 @@ and the human text. It superseded `2026-10-22_handoff_evening.md`.
   assertions**, and the output is byte-identical to the dry run. **Caveat: those
   digests were committed AFTER the author's run**, so git cannot show they came
   first (7.6). The tracked figure is
-  `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`.
+  `docs/figures/2026-10-22_E45_outcome_forests.{png,pdf}`. **For the paper,
+  `E57` redraws them as two separate panels** (the ruling of 2026-11-06,
+  `cb3c7d3`).
 - **Fig. 4g is BUILT by `E46`, run by the author and VERIFIED**: 10 of 10
   digests, committed before the run at `d91e156` (proposal 8.4, 8.5). It
   shows the quadrant configuration on BOTH instruments, side by side, in the
@@ -792,7 +818,7 @@ answer. **The normal-tissue line is closed.**
 the trunk rather than merged from branches, each verified object by object
 against digests recorded *before* the author's run — **26 of 26 for `E41`, 16 of
 16 for `E42`, 14 of 14 for `E43`, 9 of 9 for `E44`**. **The next free script
-number is `E57`**.
+number is `E58`**.
 - `E45` and `E46` are the Fig. 4 display scripts (4i/4j and 4g).
 - `E47` is run and verified (MIXED).
 - `E48` is run and verified, 33 of 33. It gives the separation reading and
@@ -825,6 +851,9 @@ number is `E57`**.
 - `E56` fits the effectors' quadrant means (declared, post hoc) and draws
   Extended Data Fig. 6d. It is run and verified: 11 of 11 digests, 25 of
   25 assertions.
+- `E57` is a display script. It redraws E45's two outcome forests as two
+  separate panels, Fig. 4's last two, at Fig. 4x's size and in its slates.
+  Its digests are committed; the author's run is next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
@@ -1324,7 +1353,7 @@ No `renv`; packages are installed system-wide.
 ## Project structure
 
 ```
-scripts/       numbered R pipeline, E00-E56. `E31` lives on an unmerged
+scripts/       numbered R pipeline, E00-E57. `E31` lives on an unmerged
                branch, so it is the one gap in this tree. `X01_*` is OFF the
                numbering on purpose: grant-preparatory, manuscript-excluded
 docs/          the aim, the plan, dated notes
