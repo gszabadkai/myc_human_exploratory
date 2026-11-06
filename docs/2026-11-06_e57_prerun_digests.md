@@ -2,11 +2,15 @@
 date: 2026-11-06
 status: >
   PRE-RUN NOTE for E57, committed with the script BEFORE the author's run.
-  Twelve dry runs, with every output redirected to a scratch folder; runs 10,
-  11 and 12 are identical. It gives the digests and checksums the author's
-  run must reproduce.
+  AMENDED for the SECOND run. The first run matched this note's first version
+  (dba2962) and is verified (6d988fa). The author then ruled that all text be
+  black and the pCR panel's connectors thinner and dashed (7ed8316). Sections 6
+  and 7 now give the second version's digests and checksums, from its dry
+  runs 3, 4 and 5, which are identical.
 relates-to:
   - docs/2026-11-06_E57_outcome_forest_panels_ruling.md (cb3c7d3, the specification)
+  - docs/2026-11-06_E57_black_text_dashed_connector_ruling.md (7ed8316, the amendment)
+  - docs/2026-11-06_e57_result.md (6d988fa, the first run, verified)
   - scripts/E57_outcome_forest_panels.R
   - docs/2026-10-22_fig4_human_panels_proposal.md (section 7.6: the digests of E45's object, which E57 checks)
   - scripts/E45_fig4_human_panels.R (the forests redrawn), scripts/E54_myc_coamplification_panel.R (Fig. 4x's grammar), scripts/E52_puma_bclxl_panel_26mm.R (the two slates)
@@ -39,6 +43,7 @@ relates-to:
   - proliferation in mid slate (#8FA3B0).
 - **All circles**, with proliferation told apart by colour.
 - **No bold**: the PDF read-back checks the font of every string.
+- **All text black** (the amendment, `7ed8316`). In the first version three kinds of text were grey, as in E45: the rows' second lines, I² and the cues' words. The PDF read-back checks the colour of every string.
 - **The keys:** "OXPHOS", "OXPHOS, adjusted for proliferation" and "Proliferation, adjusted for OXPHOS" (question 4). METABRIC's panel has no model without proliferation, so its key has the last two.
 - **Fig. 4x's size** (question 2):
   - a 26-mm axis;
@@ -50,7 +55,7 @@ relates-to:
 **The rest is E45's:**
 - the rows and their labels, and the column headers;
 - the log axes, with E45's limits and breaks;
-- the line from OXPHOS without to with proliferation;
+- the line from OXPHOS without to with proliferation, now 0.26 pt and dashed (the amendment);
 - the rule before the fourth row;
 - the contrast column.
 
@@ -106,7 +111,25 @@ relates-to:
 - the PDFs, previewed with Apple's engine;
 - the ortholog tripwire, which is clean.
 
-## 3. What the checks hold (75)
+### The second version (the amendment, `7ed8316`)
+
+**What changed in the script:**
+- every string is black. The cues' arrows are lines and stay grey30;
+- the connectors are 0.26 pt and dashed;
+- two new read-backs: the colour of every string the PDF shows, and the dash of every line and circle.
+
+**Its dry run 1 stopped at the new check that every string is black.**
+- **The cause:** the reader took each string's colour where its text block began, but R sets the colour inside the block, just before the string.
+- **The fix:** it now reads the colour at the show operator (`Tj`, `TJ`).
+
+**Its dry runs 2 to 5 passed all 80 checks.**
+- **Runs 3 and 4 are identical** in every digest and checksum.
+- **Run 5 sourced the script in one R session, as Positron does,** and matched them: 276 objects, none holding invalid UTF-8.
+- **The PDFs were previewed again** with Apple's engine.
+
+**The values drawn, the contrasts and the legend drafts are byte-identical to the first version's:** `frame`, `contrast` and `legend_draft` keep their digests.
+
+## 3. What the checks hold (80)
 
 **What is copied** (section 1 of the script):
 - **From E54:** 42 objects, which are Fig. 4x's sizes, type, marks and helpers.
@@ -114,6 +137,7 @@ relates-to:
 - **From E45:** 12 values, which are its rows, row geometry, keys' order and axes. All its titles, headers, axis titles and cues are E45's, character for character, as are its greys.
 - **From E52:** the two slates.
 - **From the ruling:** the four answers and the keys' words, read from its file.
+- **From the amendment:** its two requests, read from its file.
 
 **E45's values** (section 2):
 - five elements of E45's object, by digest, and its own 27 assertions;
@@ -132,6 +156,7 @@ relates-to:
 - **The strings:**
   - exactly the strings expected, and no others;
   - all live Helvetica, none embedded and **none bold**;
+  - **all black** (the amendment);
   - only the I of I² oblique;
   - 6 pt for the titles, 5 pt for the rest, none rotated.
 - **The axes and lines:**
@@ -143,6 +168,7 @@ relates-to:
 - **The intervals:** each one's ends at its bounds, in its key's colour.
 - **The rest:**
   - the rule, the connectors and the cues' arrows, each at its place, colour and width;
+  - the connectors dashed, 1.02 pt on and off, and every other line and every circle solid (the amendment);
   - the key 1.2 mm above the data area, its lines 2.8 mm apart.
 
 **The PNG:** its size at 600 dpi, and every circle's centre showing its fill exactly.
@@ -159,9 +185,11 @@ The script's header gives each one with its reason. Each is the author's to reve
 - **Each page is its panel's natural size.** The two pages differ (63.5 and 68.1 mm wide), and aligned by their bottom edges, their axes and rows are in line.
 - **The title is kept, plain, at 6 pt, at the page's left margin above the key.** E45 centred it over the forest, and had the key below.
 - **The tick labels drop trailing zeros**, as Fig. 4x's do: "0.5", not "0.50". At 26 mm, "1.50" and "2.00" would touch.
-- **The line from OXPHOS without to with proliferation** is dark slate at 0.43 pt, solid. E45's 60% opacity would make a grey close to proliferation's mid slate.
+- **The line from OXPHOS without to with proliferation is dark slate, 0.26 pt and dashed** (the amendment).
+  - **The pattern** is R's "dashed": dashes and gaps of four line widths, 1.02 pt.
+  - **Why dark slate:** E45's 60% opacity would make a grey close to proliferation's mid slate.
 - **The "2" of I² is full size and raised,** as E52 sets its exponents, and nothing is under 5 pt. So the pooled row's two lines are 0.4 mm further apart than the other rows'.
-- **E45's greys stay:** the second lines and I² in grey35, the cues in grey30, the rule in grey75.
+- **All text is black** (the amendment). E45's greys stay on lines only: the cues' arrows in grey30 and the rule in grey75. Making the arrows black is a one-line change.
 - **The cues are scaled with the type:** arrowheads of 0.8 mm (E45: 1.1 mm) at 0.53 pt (E45: 0.64 pt), with each text 1 mm above its arrow.
   - **On the survival panel,** "longer survival" runs about 1.3 mm past the axis's left end, as question 3 said it would.
 - **PDF and PNG only.** E45 wrote no SVG either.
@@ -189,33 +217,35 @@ These are E45's drafts with five edits. Each edit is applied only if its old tex
 
 ## 6. The digests the author's run must reproduce
 
-`digest::digest()` of each saved element, from dry runs 10, 11 and 12. `run_info` is excluded.
+`digest::digest()` of each saved element, from the second version's dry runs 3, 4 and 5. `run_info` is excluded.
+- **The first version's digests** are in this note's first version (`dba2962`).
+- **`frame`, `contrast` and `legend_draft` are unchanged** from the first version.
 
 | element | digest |
 |---|---|
 | `frame` | `75f37d50c274fd4b070a52bd475202c6` |
 | `contrast` | `4b472baf850f2b56ba9beeb73e25cc8c` |
-| `layout` | `2d4a33f6c541b01bb1df66b6e6435ea4` |
+| `layout` | `c4965986e2973151110d9f07f752dba5` |
 | `legend_draft` | `4a6d2851ab3cb826a45bfa807bd8d9e6` |
-| `assertions` | `7efb32082c23ed2a03d94997354de45c` |
-| `figure_files` | `65a60772538c4996a9b107a614d8b226` |
-| `spec` | `cbd549b1cf6804fd088e75cd2659f81a` |
+| `assertions` | `ee8e9aeb0b76341e784ccb04d70652ab` |
+| `figure_files` | `f6673f04e3d2b9ab3580683f2225a941` |
+| `spec` | `c87d18a5110f4b241d3d970bdb4c3904` |
 
 ## 7. The checksums
 
 | file | md5 |
 |---|---|
-| `E57_pcr_forest.png`, in both folders | `cccf88b70c36a97eaa325f85eef2fd25` |
-| `E57_pcr_forest.pdf`, in both folders, timestamps zeroed | `0a62542e5e9abcb91b3c72a20ee51bef` |
-| `E57_metabric_survival_forest.png`, in both folders | `34a8955785e9582b1e9320bd17b5ac76` |
-| `E57_metabric_survival_forest.pdf`, in both folders, timestamps zeroed | `4dde219070d29f685f255fd0dce288c7` |
+| `E57_pcr_forest.png`, in both folders | `38f120d6b7e0fcc4934e4cf368f6e951` |
+| `E57_pcr_forest.pdf`, in both folders, timestamps zeroed | `447570ae413b393bee60710aa2e10ad0` |
+| `E57_metabric_survival_forest.png`, in both folders | `49722c4ab764f418024c0d5757e17545` |
+| `E57_metabric_survival_forest.pdf`, in both folders, timestamps zeroed | `727cc61b93024a9861ff2b42d77f1ac2` |
 | `E57_drawn_values.csv` | `46140675ee0b127ac5529c5851a734d3` |
-| `E57_assertions.csv` | `8770434281cf0c4124cf474969e3269e` |
+| `E57_assertions.csv` | `c07b2a2dbc4ccb1229a0110d70e09101` |
 
-## 8. After the author's run
+## 8. After the author's second run
 
 1. **Compare** the seven digests (section 6) and the checksums (section 7).
-2. **Commit** the four tracked figures with a result note.
+2. **Commit** the four tracked figures, and add the run to the result note.
 3. **Record** that E57's panels replace E45's figure for the paper's last two Fig. 4 panels.
 4. **What still follows, for the text ruling:**
    - the panels' letters;

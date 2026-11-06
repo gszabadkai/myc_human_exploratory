@@ -13,6 +13,12 @@
 # docs/2026-11-06_E57_outcome_forest_panels_ruling.md, committed alone at
 # cb3c7d3 before this script was written.
 #
+# AMENDED after the first run (verified, 6d988fa) by the author's ruling of
+# 2026-11-06, docs/2026-11-06_E57_black_text_dashed_connector_ruling.md
+# (7ed8316): every string is black, and on the pCR panel the line joining each
+# row's two OXPHOS circles is thinner (0.26 pt) and dashed. The cues' arrows,
+# which are lines and not text, stay E45's grey30. Nothing else changes.
+#
 # SOURCE IT IN A FRESHLY RESTARTED R SESSION. Its PNGs are compared byte for
 # byte with the dry run.
 #
@@ -52,15 +58,16 @@
 #     key. E45 centred it over the forest; the key is now where it was.
 #   - The tick labels drop their trailing zeros, as Fig. 4x's do ("0.5", not
 #     "0.50"): at 26 mm, "1.50" and "2.00" would touch.
-#   - The line from OXPHOS without to with proliferation is dark slate at
-#     0.43 pt, solid. E45 drew it at 60% opacity, which here would make a grey
-#     close to proliferation's mid slate.
+#   - The line from OXPHOS without to with proliferation is dark slate,
+#     0.26 pt and dashed (the amendment), in R's "dashed" pattern: dashes and
+#     gaps of four line widths, 1.02 pt. E45 drew it at 60% opacity, which here
+#     would make a grey close to proliferation's mid slate.
 #   - The "2" of I-squared is set at the full 5 pt, raised, as E52 sets its
 #     exponents: nothing on a panel is smaller than 5 pt. Its top reaches the
 #     line above, so the pooled row's two lines are 0.4 mm further apart than
 #     the other rows', still centred on the row.
-#   - E45's greys stay: the second lines and I-squared in grey35, the cues in
-#     grey30, the rule in grey75.
+#   - Every string is black (the amendment). E45's greys stay on lines only:
+#     the cues' arrows in grey30 and the rule in grey75.
 #
 # =============================================================================
 # WHAT THIS SCRIPT DOES NOT DO
@@ -94,6 +101,7 @@ message("Draws E45's saved values and fits nothing. Specification cb3c7d3.")
 # --- where it reads and writes: one block, so that a dry run can redirect it --
 PATH_E45        <- file.path(DIR_RESULTS, "e45_fig4_human_panels.rds")
 PATH_RULING     <- here::here("docs", "2026-11-06_E57_outcome_forest_panels_ruling.md")
+PATH_AMEND      <- here::here("docs", "2026-11-06_E57_black_text_dashed_connector_ruling.md")
 PATH_E45_SCRIPT <- here::here("scripts", "E45_fig4_human_panels.R")
 PATH_E52_SCRIPT <- here::here("scripts", "E52_puma_bclxl_panel_26mm.R")
 PATH_E54_SCRIPT <- here::here("scripts", "E54_myc_coamplification_panel.R")
@@ -171,8 +179,8 @@ TEXT <- list(
                   con_head = "Proliferation / OXPHOS\nratio of HRs (95% CI)",
                   x_title  = "Hazard ratio for breast-cancer death\nper within-cohort SD",
                   cue      = c("longer survival", "shorter survival")))
-SUB_COL  <- "grey35"            # E45's second lines
-CUE_COL  <- "grey30"            # E45's cues
+TXT_COL  <- "black"             # every string (the amendment); E45 had greys
+CUE_COL  <- "grey30"            # E45's cues' arrows; their words are black
 RULE_COL <- "grey75"; RULE_LW <- 0.25     # E45's rule
 
 # --- the keys (the message; question 4) ------------------------------------------
@@ -192,7 +200,8 @@ TITLE_ABOVE <- 3.2              # mm: the title's baseline above the key's top b
 CUE_UP    <- 1.0                # mm: a cue's baseline above its arrow
 ARROW_MM  <- 0.8                # mm: the cues' arrowheads (E45: 1.1 mm at its larger type)
 CUE_LW    <- 0.25               # the cues' arrows, at the axes' weight (E45: 0.3)
-CONN_LW   <- 0.2                # OXPHOS without to with proliferation: 0.43 pt
+CONN_LW   <- 0.12               # OXPHOS without to with proliferation: 0.26 pt (the amendment)
+CONN_LTY  <- "dashed"           # ... dashed (the amendment): R's 44, dashes and gaps 4 widths long
 
 # --- helpers: E54's, unchanged (checked in section 1) ------------------------------
 .stop_if <- function(ok, ...) if (!isTRUE(ok)) stop(..., call. = FALSE)
@@ -362,10 +371,12 @@ CAP_MM <- function(size_pt) CAP_EM * size_pt * 25.4 / 72
 .mm2pt <- function(v) v * 72 / 25.4
 
 # --- helpers new here -----------------------------------------------------------
-# The paint at every circle and every two-point line, read from the PDF's
-# content in order, as a PDF reader applies it: fill (scn), stroke (SCN) and
-# line width (w) are set, saved with q and restored with Q. Inside a function,
-# returning only numbers and hex colours (E51's lesson).
+# The paint at every circle, every two-point line and every text block, read
+# from the PDF's content in order, as a PDF reader applies it: fill (scn),
+# stroke (SCN), line width (w) and dash (d) are set, saved with q and restored
+# with Q. A string is shown (Tj, TJ) in the fill then in force, which R sets
+# inside its text block. Inside a function, returning only
+# numbers, hex colours and dash arrays (E51's lesson).
 .pdf_paint <- function(f) {
   txt <- .pdf_text(f)
   find <- function(re, type) {
@@ -382,6 +393,8 @@ CAP_MM <- function(size_pt) CAP_EM * size_pt * 25.4 / 72
               find("(?<![0-9.])[0-9.]+ [0-9.]+ [0-9.]+ scn", "fill"),
               find("(?<![0-9.])[0-9.]+ [0-9.]+ [0-9.]+ SCN", "stroke"),
               find("(?<![0-9.])[0-9.]+ w(?=\\s)", "lw"),
+              find("\\[[0-9. ]*\\] [0-9.]+ d(?=\\s)", "dash"),
+              find("(?<=\\s)T[jJ](?=\\s)", "text"),
               find(circ_re, "circle"), find(seg_re, "segment"))
   ev <- ev[order(ev$pos), ]
   hex <- function(s) {
@@ -389,8 +402,8 @@ CAP_MM <- function(size_pt) CAP_EM * size_pt * 25.4 / 72
     grDevices::rgb(v[1], v[2], v[3])
   }
   nums <- function(s) as.numeric(regmatches(s, gregexpr(n1, s))[[1]])
-  st <- list(fill = NA_character_, stroke = NA_character_, lw = NA_real_)
-  stack <- list(); circ <- list(); segs <- list()
+  st <- list(fill = NA_character_, stroke = NA_character_, lw = NA_real_, dash = "")
+  stack <- list(); circ <- list(); segs <- list(); text_fill <- character()
   for (i in seq_len(nrow(ev))) {
     t <- ev$type[i]; s <- ev$s[i]
     if (t == "q") {
@@ -403,21 +416,27 @@ CAP_MM <- function(size_pt) CAP_EM * size_pt * 25.4 / 72
       st$stroke <- hex(s)
     } else if (t == "lw") {
       st$lw <- as.numeric(sub(" w$", "", s))
+    } else if (t == "dash") {
+      st$dash <- trimws(sub("^\\[([0-9. ]*)\\].*$", "\\1", s))
+    } else if (t == "text") {
+      text_fill <- c(text_fill, st$fill)
     } else if (t == "circle") {
       v <- nums(s); xs <- v[c(TRUE, FALSE)]; ys <- v[c(FALSE, TRUE)]
       circ[[length(circ) + 1L]] <- data.frame(
         cx = (max(xs) + min(xs)) / 2, cy = (max(ys) + min(ys)) / 2,
         d = max(xs) - min(xs), h = max(ys) - min(ys), lw = st$lw,
-        fill = st$fill, stroke = st$stroke, stringsAsFactors = FALSE)
+        fill = st$fill, stroke = st$stroke, dash = st$dash, stringsAsFactors = FALSE)
     } else if (t == "segment") {
       v <- nums(s)
       segs[[length(segs) + 1L]] <- data.frame(x0 = v[1], y0 = v[2], x1 = v[3], y1 = v[4],
-                                              lw = st$lw, stroke = st$stroke,
+                                              lw = st$lw, stroke = st$stroke, dash = st$dash,
                                               stringsAsFactors = FALSE)
     }
   }
-  list(circles = do.call(rbind, circ), segments = do.call(rbind, segs))
+  list(circles = do.call(rbind, circ), segments = do.call(rbind, segs), text_fill = text_fill)
 }
+# A dash array as numbers: empty for a solid line.
+.dash_of <- function(s) if (!nzchar(trimws(s))) numeric(0) else as.numeric(strsplit(trimws(s), " +")[[1]])
 # A ggplot2 linewidth, as the PDF writes it: lwd = linewidth x .pt, at 0.75 pt each,
 # to the PDF's two decimals.
 .w_pt <- function(lw) lw * ggplot2::.pt * 0.75
@@ -436,6 +455,13 @@ RULING <- readLines(PATH_RULING, warn = FALSE)
         all(vapply(c("> Mid slate (Recommended):", "> 26-mm axis (Recommended):",
                      "> Keep them (Recommended):", "> Adjusted for OXPHOS (Recommended):"),
                    function(s) any(startsWith(RULING, s)), logical(1))), n = 4L)
+AMEND <- readLines(PATH_AMEND, warn = FALSE)
+.assert("the second version is the amendment's: black text, and thinner dashed connectors",
+        any(grepl("There can be no coloured text on the figures, all should be black", AMEND,
+                  fixed = TRUE)) &&
+          any(grepl("make the connecting lines between the two OXPHOS points thinner and dashed",
+                    AMEND, fixed = TRUE)) &&
+          TXT_COL == "black" && CONN_LW < 0.2 && CONN_LTY == "dashed", n = 2L)
 .assert("the keys are the ruling's words",
         any(grepl("keys again OXPHOS; OXPHOS, adjusted for proliferation", RULING, fixed = TRUE)) &&
           any(grepl("'Proliferation, adjusted for OXPHOS'", RULING, fixed = TRUE)) &&
@@ -489,11 +515,12 @@ E45_SRC <- readLines(PATH_E45_SCRIPT, warn = FALSE)
 in45 <- c(vapply(unlist(TEXT, use.names = FALSE),
                  function(s) any(grepl(deparse(s), E45_SRC, fixed = TRUE)), logical(1)),
           vapply(c("lo_a <- 1 / 1.04", "hi_a <- 1.04", "lo_b <- xlim[1] * 1.10",
-                   "hi_b <- xlim[2] / 1.10", 'colour = "grey35"', 'colour = "grey30"',
+                   "hi_b <- xlim[2] / 1.10", 'colour = "grey30"',
                    'colour = "grey75", linewidth = 0.25'),
                  function(s) any(grepl(s, E45_SRC, fixed = TRUE)), logical(1)))
-.assert("every title, header, axis title and cue is E45's, character for character, as are its greys and the cues' ends",
-        all(in45) && CUE_IN == 1.04 && CUE_OUT == 1.10 && SUB_COL == "grey35" &&
+.assert(paste0("every title, header, axis title and cue is E45's, character for character, ",
+               "as are the cues' ends and the greys of their arrows and of the rule"),
+        all(in45) && CUE_IN == 1.04 && CUE_OUT == 1.10 &&
           CUE_COL == "grey30" && RULE_COL == "grey75" && RULE_LW == 0.25, n = length(in45),
         detail = paste(names(in45)[!in45], collapse = " / "))
 
@@ -580,14 +607,14 @@ CAP <- CAP_MM(PT_TXT)
   head <- strsplit(tx$head, "\n", fixed = TRUE)[[1]]
   lab <- dplyr::bind_rows(
     .text("row", rows$label, b1),
-    .text("row_n", rows$sub[!is.na(rows$sub)], b1[!is.na(rows$sub)] - LINE_STEP, SUB_COL),
+    .text("row_n", rows$sub[!is.na(rows$sub)], b1[!is.na(rows$sub)] - LINE_STEP, TXT_COL),
     .text("head", head, hb1 - c(0, LINE_STEP)))
   if (p == "pcr") {
     pool <- mk[mk$row_key == "Pooled", ]
     i2 <- round(pool$I2[match(KEY_LEVELS, pool$key)])
     lab <- dplyr::bind_rows(lab, .text(
       "i2", sprintf("italic(I)^displaystyle('2')*' %s%%, %s%%, %s%%'", i2[1], i2[2], i2[3]),
-      b1[rows$row_key == "Pooled"] - I2_STEP, SUB_COL, parse = TRUE))
+      b1[rows$row_key == "Pooled"] - I2_STEP, TXT_COL, parse = TRUE))
   }
   lab <- .measure(lab)
   # The contrast column: its header's two lines and each row's contrast,
@@ -622,7 +649,7 @@ CAP <- CAP_MM(PT_TXT)
   y_cue <- Y_CUE * S_MM
   cue <- tibble::tibble(x = c(1 / CUE_IN, CUE_IN), xend = c(xlim[1] * CUE_OUT, xlim[2] / CUE_OUT),
                         y = y_cue)
-  cue_t <- .measure(.text("cue", tx$cue, y_cue + CUE_UP, CUE_COL, hjust = c(1, 0)))
+  cue_t <- .measure(.text("cue", tx$cue, y_cue + CUE_UP, TXT_COL, hjust = c(1, 0)))
   cue_t$x_mm <- mm_of(c(1 / CUE_IN, CUE_IN))
 
   # The marks, the rule before the fourth row, and (pCR) the line from each
@@ -730,7 +757,7 @@ message("\n4. The panels")
   if (nrow(L$conn)) {
     g <- g + ggplot2::geom_segment(data = L$conn,
                                    ggplot2::aes(x = x, xend = xend, y = y, yend = yend),
-                                   colour = COL_OX, linewidth = CONN_LW)
+                                   colour = COL_OX, linewidth = CONN_LW, linetype = CONN_LTY)
   }
   g <- g +
     ggplot2::geom_segment(data = L$marks, ggplot2::aes(x = lo, xend = hi, y = y, yend = y,
@@ -873,6 +900,10 @@ for (L in LAY) {
             all(TX$font %in% c("Helvetica", "Helvetica-Oblique")) &&
             !any(grepl("Bold", TX$font)), n = nrow(TX),
           detail = paste(unique(TX$font), collapse = ", "))
+  .assert(paste0(P, ": every string the PDF shows is black (the amendment)"),
+          length(PA$text_fill) == RB$n_text_blocks && all(PA$text_fill == "#000000") &&
+            all(L$text$colour == TXT_COL), n = RB$n_text_blocks,
+          detail = paste(unique(PA$text_fill), collapse = ", "))
   .assert(paste0(P, if (p == "pcr") ": only the I of I-squared is oblique" else
                    ": no string is oblique"),
           if (p == "pcr") identical(TX$s[TX$font == "Helvetica-Oblique"], "I") else
@@ -991,13 +1022,25 @@ for (L in LAY) {
       min(max(abs(c(ends[1, ] - a, ends[2, ] - b))), max(abs(c(ends[1, ] - b, ends[2, ] - a))))
     }, numeric(1))
     .assert(paste0("pCR: each row's line from OXPHOS without to with proliferation joins its ",
-                   "two circles' centres, dark slate at 0.43 pt"),
+                   "two circles' centres, dark slate at 0.26 pt (the amendment)"),
             length(dg) == nrow(L$conn) && all(dev_cn <= TOL_PT) &&
               all(SG$stroke[dg] == .hex(COL_OX)) && all(.lw_is(SG$lw[dg], CONN_LW)),
             n = nrow(L$conn), max_dev = max(dev_cn))
   } else {
     .assert("METABRIC: no diagonal line", length(dg) == 0L, n = 1L)
   }
+  # R's "dashed" is 44: on and off for four line widths each, from a butt-ended line.
+  dashed <- vapply(SG$dash[dg], function(d) {
+    v <- .dash_of(d)
+    length(v) == 2L && all(abs(v - 4 * .w_pt(CONN_LW)) < 0.006)
+  }, logical(1))
+  others <- setdiff(seq_len(nrow(SG)), dg)
+  solid <- c(vapply(SG$dash[others], function(d) length(.dash_of(d)) == 0L, logical(1)),
+             vapply(PA$circles$dash, function(d) length(.dash_of(d)) == 0L, logical(1)))
+  .assert(paste0(P, if (p == "pcr") ": the connectors are dashed, 1.02 pt on and off, and " else
+                   ": ", "every other line and every circle is solid"),
+          all(dashed) && all(solid), n = length(dashed) + length(solid),
+          detail = paste(unique(c(SG$dash, PA$circles$dash)), collapse = " | "))
   cu <- which(hz & SG$stroke == .hex(CUE_COL))
   dev_cu <- if (length(cu) == 2L) {
     o <- order(pmin(SG$x0[cu], SG$x1[cu]))
@@ -1115,9 +1158,10 @@ SPEC <- list(
            metabric = list(limits = XLIM_MB, breaks = BREAKS_MB), transform = "log10"),
   type_pt = c(text = PT_TXT, titles = PT_TITLE),
   marks = list(null = c(NULL_COL, NULL_LW), interval = CI_LW, point = c(PT_SIZE, PT_STROKE),
-               circle_mm = CIRCLE_MM, connector = CONN_LW, rule = c(RULE_COL, RULE_LW),
+               circle_mm = CIRCLE_MM, connector = c(CONN_LW, CONN_LTY), rule = c(RULE_COL, RULE_LW),
                cue = c(CUE_COL, CUE_LW, ARROW_MM), axes = NM_LINE),
-  text = TEXT, greys = c(second_lines = SUB_COL, cues = CUE_COL))
+  text = TEXT, text_colour = TXT_COL, greys = c(cue_arrows = CUE_COL, rule = RULE_COL),
+  amendment = "docs/2026-11-06_E57_black_text_dashed_connector_ruling.md (7ed8316)")
 
 OUT <- list(
   frame = DRAWN,

@@ -73,10 +73,23 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 
 ## Current phase
 
-**NEWEST, 2026-11-06, small hours: Fig. 4's last two main panels are
-ruled, and `E57` is WRITTEN with its digests COMMITTED; the author's run is
-next** (the ruling, `docs/2026-11-06_E57_outcome_forest_panels_ruling.md`,
-`cb3c7d3`; the pre-run note, `docs/2026-11-06_e57_prerun_digests.md`).
+**NEWEST, 2026-11-06, small hours: `E57`, Fig. 4's last two main panels.
+Its first run is VERIFIED** (7 of 7 digests, 75 of 75 assertions;
+`docs/2026-11-06_e57_result.md`, `6d988fa`).
+
+**The author then amended it**
+(`docs/2026-11-06_E57_black_text_dashed_connector_ruling.md`, `7ed8316`):
+- **no coloured text:** every string is black;
+- **the pCR panel's connectors** are thinner (0.26 pt) and dashed.
+
+**The second version is WRITTEN and its digests COMMITTED** (the amended
+pre-run note, `docs/2026-11-06_e57_prerun_digests.md`). **The author's
+second run is next.** The specification is
+`docs/2026-11-06_E57_outcome_forest_panels_ruling.md` (`cb3c7d3`).
+
+**Open for the author:** does "no coloured text" also reach the white values
+on the darkest cells? They are in Fig. 4g, with ED-e and ED-f (E50), and in
+ED Fig. 6a (E53). Neither is changed.
 - **What it draws:** E45's two outcome forests, each as its own panel:
   - pCR in three neoadjuvant cohorts;
   - METABRIC breast-cancer-specific survival.
@@ -86,12 +99,17 @@ next** (the ruling, `docs/2026-11-06_E57_outcome_forest_panels_ruling.md`,
   - OXPHOS in dark slate, open without the proliferation term and filled
     with it;
   - proliferation in mid slate.
-- **The marks and text:** all circles, and no bold.
+- **The marks and text:**
+  - all circles;
+  - no bold, and all text black (the amendment);
+  - the pCR connectors dashed at 0.26 pt (the amendment).
 - **The keys:** "OXPHOS", "OXPHOS, adjusted for proliferation" and
   "Proliferation, adjusted for OXPHOS". The direction cues stay.
 - **It fits nothing.** Its values are E45's, checked by digest.
-- **Its 75 checks** include every string's font (none bold) and every
-  circle's colour, in the PDF and the PNG.
+- **Its 80 checks** include, in the PDF and the PNG:
+  - every string's font (none bold) and colour (all black);
+  - every line's dash;
+  - every circle's colour.
 - **What travels with the forests is unchanged:**
   - a significant contrast makes neither coefficient a finding;
   - nothing here supports a distant-outcome claim for respiration;
@@ -853,7 +871,9 @@ number is `E58`**.
   25 assertions.
 - `E57` is a display script. It redraws E45's two outcome forests as two
   separate panels, Fig. 4's last two, at Fig. 4x's size and in its slates.
-  Its digests are committed; the author's run is next.
+  Its first run is verified (7 of 7 digests, 75 of 75 assertions). The
+  author then amended it: black text, and dashed connectors. The second
+  version's digests are committed, and the author's second run is next.
 
 **`E31` is the only analysis still off `main`. No phase is open.**
 
