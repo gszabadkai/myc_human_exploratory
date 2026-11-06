@@ -74,7 +74,9 @@ strata and Breslow-Day tests were declared secondary and exploratory.**
 ## Current phase
 
 **NEWEST, 2026-11-06, evening: THE AUTHOR ANSWERED THE ELEVEN FLAGS, and the
-legends are rewritten to the answers.** The replies are inline in
+legends are rewritten to the answers. THE ENTRY POINT FOR THE LEGENDS IS
+`docs/2026-11-06_legends_handoff.md`**; `docs/2026-11-03_e50_handoff.md` stays
+the entry point for the panels and the text ruling. The replies are inline in
 `docs/legends/2026-11-06_panel_inventory_and_stats.md`, section 7; **section 9
 records what changed**, read from `NM_all_figs_corrected.prism` (17:36) and the
 figure PDFs of 18:01 to 18:03. Every printed *P* on Fig. 2, Fig. 3 and ED Fig. 4
